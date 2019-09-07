@@ -1,0 +1,112 @@
+;コンフィグ
+;---------------------------------------------------------------------------
+; Initialize
+[Statedef 5900]
+type = U
+
+[State ]
+type = VarRangeSet
+trigger1 = roundsexisted = 0
+value = 0
+first = 1
+last = 12
+
+[State ]
+type = VarRangeSet
+trigger1 = roundsexisted = 0
+value = 0
+first = 15
+last = 58
+
+[State ]
+type = VarRangeSet
+trigger1 = roundsexisted = 0
+fvalue = 0
+first = 0
+last = 1
+
+[State ]
+type = VarRangeSet
+trigger1 = roundsexisted = 0
+fvalue = 0
+first = 3
+last = 39
+
+[State ]
+type = RemapPal
+Trigger1 = RoundState = 0
+Trigger1 = RoundNo = 1 || TeamMode = Turns && RoundsExisted = 0
+source = 1,1
+dest = 1,palno
+;---------------------------------------------------------------------------
+;ここから下の部分を自分の好みで設定できます
+;※[Value = Var(0)]の後の()の中の数字をいじってください
+;---------------------------------------------------------------------------
+;エフェクト表示の設定
+[State ]
+Type = VarSet
+Trigger1 = Var(0)%10 = 0
+V = 0
+Value = Var(0)+(0)       ;0が通常(デフォルト)、1が簡易(ヒットエフェクト、
+　　　　　　　　　　　   ;BPA&BBBエフェクトの簡易化、一部エフェクトを無表示化)
+
+;システムメッセージと勝利メッセージ表示の設定
+[State ]
+Type = VarSet
+Trigger1 = Var(0)/10%10 = 0
+V = 0
+Value = Var(0)+(0)*10    ;0が表示あり(デフォルト)、1が表示なし
+
+;ゲージ表示の設定
+[State ]
+Type = VarSet
+Trigger1 = Var(0)/100%10 = 0
+V = 0
+Value = Var(0)+(0)*100   ;0が表示あり(デフォルト)、1が表示なし
+
+;ゲージY座標の設定
+[State ]
+Type = VarSet
+Trigger1 = Var(0)/10000%10 = 0
+V = 0
+Value = Var(0)+(0)*10000 ;0がデフォルト、
+　　　　　　　　　　　　 ;＋が上方向、－が下方向(0を基準)
+
+;ダメージ表示の設定
+[State ]
+Type = VarSet
+Trigger1 = Var(0)/1000%10 = 0
+V = 0
+Value = Var(0)+(0)*1000  ;0が表示あり(デフォルト)、1が表示なし
+
+;次ラウンドのライフ継続設定
+[State ]
+Type = VarSet
+Trigger1 = Var(13) > 0
+V = 13
+Value = Var(13)-Var(13)*(1);0がライフ継続(デフォルト)、1がライフ継続無し
+　　　　　　　　　　　     ;(次ラウンドで必ずライフマックス)
+;---------------------------------------------------------------------------
+;ここまで
+;---------------------------------------------------------------------------
+[State ]
+Type = VarSet
+Trigger1 = Var(0)/100%10 = 0
+Trigger1 = Cond(NumPartner>0,Partner,ID<ID,0)
+V = 0
+Value = Var(0)+100
+
+[State ]
+Type = VarSet
+Trigger1 = RoundNo = 1
+Trigger2 = RoundNo > 1
+Trigger2 = Var(13) = -1
+Trigger3 = TeamMode = Turns
+Trigger3 = Var(13) = 0
+V = 14
+Value = 258
+
+[State ]
+type = ChangeState
+Trigger1 = 1
+value = Cond(RoundNo>1&&Var(13)=-1,189,Cond(RoundNo=1||TeamMode=Turns,190,0))

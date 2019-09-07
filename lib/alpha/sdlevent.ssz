@@ -1,0 +1,109 @@
+﻿
+lib sdl = <alpha/sdlplugin.ssz>;
+
+uint nexttime = 0x0, lastdraw = 0x0;
+float nexttimeFractionalPart = 0.0;
+public &sdl.Event sdle;
+public bool end = false, fskip = false, full = false, esc = false;
+
+public &Key
+{
+  public |.sdl.K key = .sdl.K::UNKNOWN;
+  public bool shift = false, ctrl = false, alt = false;
+  public bool down = false;
+  public void reset()
+  {
+    `down = false;
+  }
+  public void checkDown(|.sdl.K k, ushort m)
+  {
+    `down |=
+       `key == k
+       && `shift == (
+         (m & (.sdl.KMOD_LSHIFT | .sdl.KMOD_RSHIFT)) != 0x0)
+       && `ctrl == (
+         (m & (.sdl.KMOD_LCTRL | .sdl.KMOD_RCTRL)) != 0x0)
+       && `alt == (
+         (m & (.sdl.KMOD_LALT | .sdl.KMOD_RALT)) != 0x0);
+  }
+}
+
+public %&Key eventKeys;
+
+public bool eventUpdate()
+{
+  loop{index i = 0; while; do:
+    .eventKeys[i].reset();
+    i++;
+  while i < #.eventKeys:
+  }
+  loop{
+    while;
+  do:
+    switch(.sdle.etype){
+    case .sdl.EventType::QUIT:// ウィンドウの×ボタンが押された時など
+      .end = true;
+      ret false;
+    case .sdl.EventType::KEYDOWN:
+      loop{index i = 0; while; do:
+        .eventKeys[i].checkDown(.sdle.key.keysym.sym, .sdle.key.keysym.mod);
+        i++;
+      while i < #.eventKeys:
+      }
+      branch{
+      cond (.sdle.key.keysym.mod & (.sdl.KMOD_LALT | .sdl.KMOD_RALT)) != 0x0:
+        switch(.sdle.key.keysym.sym){
+        case .sdl.K::RETURN:
+          if(.sdl.fullScreen(!!.full)) .sdl.showCursor(!.full);
+        case .sdl.K::F4:
+          .end = true;
+          ret false;
+        }
+      cond (.sdle.key.keysym.mod & (.sdl.KMOD_LCTRL | .sdl.KMOD_RCTRL)) != 0x0:
+      else:
+        switch(.sdle.key.keysym.sym){
+        case .sdl.K::ESCAPE:
+          .esc = true;
+        }
+      }
+    }
+  while .sdl.PollEvent(:.sdle=:):
+  }
+  ret !.end;
+}
+
+public bool event(int fps)
+{
+  uint uWait = (uint)1000 / (uint)fps;
+  void nexttimeNext()
+  {
+    .nexttime += `uWait;
+    .nexttimeFractionalPart += (float)(1000 % `fps) / (float)`fps;
+    if(.nexttimeFractionalPart >= 1.0){
+      .nexttime++;
+      .nexttimeFractionalPart -= 1.0;
+    }
+  }
+  branch{
+    uint now = .sdl.GetTicks(::);
+    uint dif = .nexttime - now;
+    nexttimeNext();
+  cond dif < uWait + 0x2:
+    .sdl.Delay(:dif:);
+  cond now - .lastdraw > 0d250:
+  cond dif+0d17 < 0d17:
+  else:
+    if(-dif > 0d150){
+      .nexttime = now;
+      nexttimeNext();
+    }
+    .fskip = true;
+    break;
+  comm:
+    .lastdraw = now;
+    .fskip = false;
+  }
+  .esc = false;
+  ret .eventUpdate();
+}
+

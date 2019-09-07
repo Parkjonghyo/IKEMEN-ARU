@@ -1,0 +1,1037 @@
+
+
+;===========================================================================
+;ラストワード
+;===========================================================================
+
+
+
+[Statedef 4500];博麗拳術奥儀『武想滅塵』
+type = S
+movetype = A
+physics = S
+ctrl = 0
+anim = 4500
+velset = 0,0
+sprpriority = 2
+
+[State 4500, 超必殺技暗転時間停止]
+type = SuperPause
+trigger1 = AnimElem = 1
+anim = s10000       ;超必エフェクトのアクションナンバー。通常は「fightfx.air」のアニメを使うが、
+                 ;左に「s」を付ければ「自分のairファイル」のアクションナンバーが使える。
+pos = 0, -65    ;超必エフェクトの座標（Ｘ軸,Ｙ軸）
+sound = s4, 5    ;超必発動サウンド。通常は「common.snd」の音を使うが、
+                 ;左に「s」を付ければ「自分のsndファイル」の音が使える。
+time = 47
+
+
+
+[State -1, ヘルパー召喚];カットイン　巫女
+type = Helper
+Trigger1 = AnimElem = 1
+ID = 9900
+pos = 40, 0 
+postype = p1
+facing = 1
+stateno = 9900
+HelperType =  Player
+IgnoreHitPause = 1
+pausemovetime =  99999999999999999999999999
+supermovetime =  99999999999999999999999999
+
+[State -1, 音を鳴らす]
+type = PlaySnd
+trigger1 = AnimElem = 3
+value = 70, 19
+
+
+
+[State -1, 音を鳴らす]
+type = PlaySnd
+trigger1 = AnimElem = 3
+value = 70, 20
+
+
+[State -1, ヘルパー召喚];波動　地面
+type = Helper
+trigger1 = AnimElem = 3
+ID = 20001
+pos = -25, 0 
+postype = p1
+facing = 1
+stateno = 20001
+size.xscale  = 0.74
+size.yscale  = 0.34
+HelperType =  Player
+IgnoreHitPause = 1
+pausemovetime =  99999999999999999999999999
+supermovetime =  99999999999999999999999999
+SuperPauseTime = 99999999999999999999999999
+
+
+
+
+[State -1, 震動];衝撃 揺れ
+type = envshake
+trigger1 = AnimElem = 3
+time = 18
+freq = 130
+ampl = 3
+phase = 140
+
+
+
+
+[State -1, 残像]
+type = Afterimage
+trigger1 =  AnimElem = 3
+PalContrast =  200, 30, 30
+palbright = 30,30,0  ;(赤、緑、青)明るさ
+palmul = .80,.80,.80
+paladd = -10,-10,-10
+trans = Add
+time = 20
+TimeGap  = 2
+FrameGap = 2
+length = 10
+
+
+
+
+
+[State 4500, ヒット定義]
+type = HitDef
+trigger1 = AnimElem = 3
+attr = S, ST
+damage = 0, 0
+animtype = High
+guardflag = H
+hitflag = MAF
+priority = 3, Hit
+pausetime = 1, 15
+sparkno = s10110
+sparkxy = -10, -56
+hitsound = s70, 17
+guardsound = s2, 4
+ground.type = High
+ground.slidetime = 42
+ground.hittime  = 22
+ground.velocity = 0
+airguard.velocity = 0
+air.type = High
+air.velocity = 0
+air.hittime = 14
+getpower = 70,50
+air.fall = 1
+fall.recover = 0
+envshake.time = 20
+envshake.freq = 70
+envshake.ampl = 3
+envshake.phase = 80 
+p1stateno = 4501
+p2stateno = 4505
+p1facing = 1
+p2facing = 1
+guard.dist = 0
+hitonce = 0
+
+[state a];ヒットエフェクト
+type = Helper
+trigger1 = movehit
+name = "hit"
+pos = Ceil(P2Dist X/2-15), -60-Ceil(P2BodyDist Y)
+Postype = p2
+stateno = 16096
+persistent = 0
+ignorehitpause = 1
+keyctrl = 0 
+ownpal = 1
+size.xscale = .5
+size.yscale = .5
+HelperType =  Player
+IgnoreHitPause = 1
+pausemovetime =  99999999999999999999999999
+supermovetime =  99999999999999999999999999
+SuperPauseTime = 99999999999999999999999999
+id = 16096
+
+
+
+[State 4500, ステート変更]
+type = ChangeState
+trigger1 = AnimTime = 0
+value = 0
+ctrl = 1
+
+
+
+
+;------------------------------------------------------
+
+
+
+[Statedef 4501];博麗拳術奥儀『武想滅塵』成功
+type = S
+movetype= A
+physics = S
+ctrl = 0
+anim = 4501
+velset = 0,0
+sprpriority = 2
+
+
+
+
+
+[State -1, 残像]
+type = Afterimage
+trigger1 =  AnimElem = 1
+PalContrast =  200, 30, 30
+palbright = 30,30,0  ;(赤、緑、青)明るさ
+palmul = .80,.80,.80
+paladd = -10,-10,-10
+trans = Add
+time = 160
+TimeGap  = 2
+FrameGap = 2
+length = 10
+
+
+[State 4501, 掴んだ相手の位置１];TargetBindで相手を一時的に拘束
+type = TargetBind
+Trigger1 = 1
+pos = 90,0
+ignorehitpause = 1
+
+
+[State 1, エフェクト画像1];光
+type = Explod
+trigger1 = time = 0
+anim = 15010
+pos = -22, -60
+postype = p1
+facing = 1
+vfacing = 1
+Scale = 0.2,0.2
+sprpriority = 20
+bindtime = 1
+removeongethit = 1
+ignorehitpause = 0
+removetime = 150
+SuperMoveTime = 9999
+PauseMoveTime = 9999
+
+[State -1, ヘルパー召喚];波動1
+type = Helper
+trigger1 = time%6 = 0
+ID = 15020
+pos = -22, -60 
+postype = p1
+facing = 1
+stateno = 15020
+SuperMoveTime  = 9999
+PauseMoveTime  = 9999
+
+[State -1, ヘルパー召喚];波動2
+type = Helper
+trigger1 = time%22 = 0
+ID = 15030
+pos = -22, -60 
+postype = p1
+facing = 1
+stateno = 15030
+SuperMoveTime  = 9999
+PauseMoveTime  = 9999
+
+
+[State -1, ヘルパー召喚];波動　地面
+type = Helper
+trigger1 = time%22 = 0
+ID = 20001
+pos = 0, 5 
+postype = p1
+facing = 1
+stateno = 20001
+size.xscale  = 0.74
+size.yscale  = 0.34
+HelperType =  Player
+IgnoreHitPause = 1
+pausemovetime =  99999999999999999999999999
+supermovetime =  99999999999999999999999999
+SuperPauseTime = 99999999999999999999999999
+
+
+[State -1, ヘルパー召喚];波動3
+type = Helper
+trigger1 = time = 145
+ID = 15020
+pos = -22, -60 
+postype = p1
+facing = 1
+stateno = 15020
+IgnoreHitPause = 1
+SuperMoveTime  = 9999
+PauseMoveTime  = 9999
+
+[State -1, ヘルパー召喚];波動4
+type = Helper
+trigger1 = time = 145
+ID = 15020
+pos = -22, -60 
+postype = p1
+facing = -1
+stateno = 15020
+IgnoreHitPause = 1
+SuperMoveTime  = 9999
+PauseMoveTime  = 9999
+
+
+
+[State -1, 音を鳴らす]
+type = PlaySnd
+trigger1 = AnimElem = 1
+value = 60, 5
+freqmul = 0.6
+
+[State -1, 音を鳴らす]
+type = PlaySnd
+trigger1 = AnimElem = 1
+value = 60, 3
+freqmul = 0.6
+
+[State -1, 音を鳴らす]
+type = PlaySnd
+trigger1 = AnimElem = 1
+value = 60, 3
+freqmul = 1
+
+[State -1, 音を鳴らす]
+type = PlaySnd
+trigger1 = time < 140
+trigger1 = time%20 = 0
+value = 6, 4
+freqmul = 1.1
+
+[State -2, ヘルパー召喚];武想封印helper
+type = Helper
+trigger1 = AnimElem = 1
+ID = 219400
+postype = p1
+pos = 0,0
+facing = 1
+stateno = 219400
+IgnoreHitPause = 1
+SuperMoveTime = 9999
+PauseMoveTime = 9999
+
+[State -2, ヘルパー召喚];武想封印helper　札
+type = Helper
+trigger1 = AnimElem = 1
+ID = 204500
+postype = p1
+pos = 0,0
+facing = 1
+stateno = 204500
+IgnoreHitPause = 1
+SuperMoveTime = 9999
+PauseMoveTime = 9999
+
+[State 1, 超必殺技暗転時間停止]
+type = SuperPause
+trigger1 = time = 145
+anim = -1      
+pos = 0, 0
+sound = s60, 12   
+time = 17
+
+[State 4501, ステート変更]
+type = ChangeState
+trigger1 = Time > 150
+value = 4502
+ctrl = 0
+
+
+
+
+;------------------------------------------------------
+
+
+
+[Statedef 4502];博麗拳術奥儀『武想滅塵』攻撃
+type = S
+movetype= A
+physics = S
+ctrl = 0
+anim = 4502
+velset = 0,0
+sprpriority = 2
+
+
+[State 4501, 掴んだ相手の位置１];TargetBindで相手を一時的に拘束
+type = TargetBind
+Trigger1 = time > 13
+pos = 30,0
+ignorehitpause = 1
+
+
+[State 105, 移動]
+type = VelSet
+trigger1 = AnimElem = 1
+trigger2 = AnimElem = 6
+x = 18
+
+[State 1, 真白]
+type = envcolor
+trigger1 = AnimElem = 6
+value = 250,250,250
+time = 15
+undar = 1
+
+
+[State -1, 音を鳴らす]
+type = PlaySnd
+trigger1 = AnimElem = 1
+value = 70, 29
+freqmul = 1
+
+[State -1, 音を鳴らす]
+type = PlaySnd
+trigger1 = AnimElem = 1
+value = 0, 5
+freqmul = 1
+
+[State -1, 音を鳴らす]
+type = PlaySnd
+trigger1 = AnimElem = 2
+trigger2 = AnimElem = 3
+trigger3 = AnimElem = 4
+trigger4 = AnimElem = 5
+trigger5 = AnimElem = 6
+value = 70, 17
+freqmul = 1
+
+
+[State -1, 音を鳴らす]
+type = PlaySnd
+trigger1 = AnimElem = 6
+value = 70, 34
+freqmul = 1
+
+[state a];突風
+type = Helper
+trigger1 = AnimElem = 1
+trigger2 = AnimElem = 2
+trigger3 = AnimElem = 3
+trigger4 = AnimElem = 4
+trigger5 = AnimElem = 5
+trigger6 = AnimElem = 6
+pos = 20, -50 
+Postype = p1
+stateno = 777000
+ignorehitpause = 1
+ownpal = 1
+SuperMoveTime = 9999
+PauseMoveTime = 9999
+
+
+[State -1, 震動];衝撃 揺れ
+type = envshake
+trigger1 = AnimElem = 2
+trigger2 = AnimElem = 3
+trigger3 = AnimElem = 4
+trigger4 = AnimElem = 5
+time = 6
+freq = 230
+ampl = 14
+phase = 240
+
+[State -1, ヘルパー召喚];波動1
+type = Helper
+trigger1 = AnimElem = 2
+trigger2 = AnimElem = 3
+trigger3 = AnimElem = 4
+trigger4 = AnimElem = 5
+ID = 15020
+pos = 30, -40 
+postype = p1
+facing = 1
+stateno = 15020
+IgnoreHitPause = 1
+SuperMoveTime  = 9999
+PauseMoveTime  = 9999
+
+;相手が食らい状態の時のみ機能するTarget系コントローラ
+[State 1, 掴んだ相手のライフ増減];普通
+type = TargetLifeAdd
+trigger1 = AnimElem = 1
+trigger2 = AnimElem = 2
+trigger3 = AnimElem = 3
+trigger4 = AnimElem = 4
+trigger5 = AnimElem = 5
+value = -100
+Kill = 0
+absolute = 1
+
+
+
+[State  1, 掴んだ相手のステート変更]
+type = TargetState
+trigger1 = AnimElem = 2
+trigger2 = AnimElem = 3
+trigger3 = AnimElem = 4
+trigger4 = AnimElem = 5
+value = 4505
+
+[State 1, エフェクト画像];ヒットエフェクト
+type = Explod
+trigger1 = AnimElem = 2
+trigger2 = AnimElem = 3
+trigger3 = AnimElem = 4
+trigger4 = AnimElem = 5
+anim = 10110
+pos = 0, -60 
+postype = p2
+facing = 1
+vfacing = 1
+sprpriority = 20
+bindtime = 1
+removeongethit = 1
+ignorehitpause = 1
+removetime = 8
+random = 50,50
+Scale = 1.5,1.5
+SuperMoveTime = 9999
+PauseMoveTime = 9999
+
+
+[State 700, エフェクト画像];0
+type = Explod
+trigger1 = AnimElem = 2
+trigger2 = AnimElem = 3
+trigger3 = AnimElem = 4
+trigger4 = AnimElem = 5
+anim = 17020
+pos = 30, -50 
+postype = p1
+facing = -1
+vfacing = -1
+ownpal = 1
+scale  = 1,1
+sprpriority = 44
+bindtime = -1
+removeongethit = 1
+ignorehitpause = 1
+removetime = 18
+SuperMoveTime = 9999
+PauseMoveTime = 9999
+
+[State -1, エフェクト画像];拳閃1
+type = Explod
+trigger1 = AnimElem = 2
+trigger2 = AnimElem = 4
+anim = 12040
+pos = 15, -45
+postype = p1
+scale = 1,1
+bindtime = 1
+removetime = 17
+sprpriority = 4
+ownpal = 1
+removeongethit = 1
+SuperMoveTime = 9999
+PauseMoveTime = 9999
+
+[State -1, エフェクト画像];拳閃1
+type = Explod
+trigger1 = AnimElem = 1
+trigger2 = AnimElem = 3
+trigger3 = AnimElem = 5
+anim = 12050
+pos = 15, -45
+postype = p1
+scale = 1,1
+bindtime = 1
+removetime = 18
+sprpriority = 4
+ownpal = 1
+removeongethit = 1
+SuperMoveTime = 9999
+PauseMoveTime = 9999
+
+[State 1, 超必殺技暗転時間停止]
+type = Pause
+trigger1 = AnimElem = 1
+trigger2 = AnimElem = 2
+trigger3 = AnimElem = 3
+trigger4 = AnimElem = 4
+trigger5 = AnimElem = 5
+trigger6 = AnimElem = 6
+anim = -1      
+pos = 0, 0
+sound = -1   
+time = 3
+
+[State 4502, ステート変更]
+type = ChangeState
+trigger1 = AnimTime = 0
+value = 4503
+ctrl = 0
+
+;------------------------------------------------------
+
+
+
+[Statedef 4503];博麗拳術奥儀『武想滅塵』とどめ
+type = S
+movetype= A
+physics = S
+ctrl = 0
+anim = 4503
+velset = 0,0
+sprpriority = 2
+
+[State 1, 超必殺技暗転時間停止]
+type = Pause
+trigger1 = 1
+anim = -1
+pos = 0, -65   
+sound = -1
+time = 5
+movetime = 5
+
+[State -3, ];一撃ゲージ　初期化
+Type = Varset
+Trigger1 = 1
+FV = 12
+Value = 0
+IgnoreHitPause = 1
+
+[State -1, 音を鳴らす]
+type = PlaySnd
+trigger1 = time = 0
+value = 70, 32
+freqmul = 0.7
+
+[State -1, 音を鳴らす]
+type = PlaySnd
+trigger1 = time = 0
+trigger2 = time = 60
+trigger3 = time = 120
+value = 3, 5
+freqmul = 0.2
+
+[State -1, 音を鳴らす]
+type = PlaySnd
+trigger1 = time = 0
+trigger2 = time = 60
+trigger3 = time = 120
+value = 3, 4
+freqmul = 1.5
+
+[State -1, 音を鳴らす]
+type = PlaySnd
+trigger1 = time = 180
+value = 6, 6
+freqmul = 1
+
+[State -1, 音を鳴らす]
+type = PlaySnd
+trigger1 = time = 180
+value = 60, 7
+freqmul = 1
+
+[State -1, 音を鳴らす]
+type = PlaySnd
+trigger1 = time = 180
+value = 70, 21
+freqmul = 1
+
+;相手が食らい状態の時のみ機能するTarget系コントローラ
+[State 1, 掴んだ相手のライフ増減];普通
+type = TargetLifeAdd
+trigger1 = time = 180
+value = -10000000000000000000000000000000000000000000000000000000000
+Kill = 1
+absolute = 1
+
+
+
+[State 1, ]
+type = posSet
+trigger1 = time <= 10
+x = 0
+
+[State 4501, 掴んだ相手の位置１];TargetBindで相手を一時的に拘束
+type = TargetBind
+Trigger1 = time = [0,310]
+pos = -60,-120
+ignorehitpause = 1
+
+
+[State -1, ヘルパー召喚];カットイン
+type = Helper
+trigger1 = time = 0
+ID = 9910
+pos = -200,0
+postype = p1
+facing = 1
+stateno = 9910
+HelperType =  Player
+IgnoreHitPause = 1
+SuperMoveTime = 9999
+PauseMoveTime = 9999
+
+[State -1, ヘルパー召喚];波動1
+type = Helper
+trigger1 = time = 0
+trigger2 = time = 60
+trigger3 = time = 120
+ID = 15030
+pos = -60,-120
+postype = p1
+facing = 1
+stateno = 15030
+SuperMoveTime  = 9999
+PauseMoveTime  = 9999
+
+
+[State 1, エフェクト画像1];爆発1
+type = Explod
+trigger1 = time = 180
+anim = 10121
+pos = -60,-120
+postype = p1
+facing = 1
+vfacing = 1
+Scale = 1.5,1.5
+sprpriority = 20
+bindtime = -1
+removeongethit = 1
+ignorehitpause = 0
+removetime = 66
+SuperMoveTime = 9999
+PauseMoveTime = 9999
+
+[State 1, エフェクト画像2];爆発2
+type = Explod
+trigger1 = time = 180
+anim = 12111
+pos = -60,-120
+postype = p1
+facing = 1
+vfacing = 1
+Scale = 1.5,1.5
+sprpriority = 20
+bindtime = -1
+removeongethit = 1
+ignorehitpause = 0
+removetime = 27
+SuperMoveTime = 9999
+PauseMoveTime = 9999
+
+
+[State 1, エフェクト画像3];爆発3
+type = Explod
+trigger1 = time = [180,280]
+trigger1 = time%5 = 0
+anim = 10110
+pos = -60,-120
+postype = p1
+facing = 1
+vfacing = 1
+Scale = 1.2,1.2
+sprpriority = 20
+bindtime = -1
+removeongethit = 1
+ignorehitpause = 0
+removetime = 8
+random = 120,120
+SuperMoveTime = 9999
+PauseMoveTime = 9999
+
+
+
+[State -1, ヘルパー召喚];波動0
+type = Helper
+trigger1 = time = [0,180]
+trigger1 = time%15 = 0
+ID = 15031
+pos = -60,-120
+postype = p1
+facing = 1
+stateno = 15031
+HelperType =  Player
+IgnoreHitPause = 1
+SuperMoveTime = 9999
+PauseMoveTime = 9999
+
+
+[State -1, ヘルパー召喚];波動1
+type = Helper
+trigger1 = time = 180
+trigger2 = time = 220
+ID = 15010
+pos = -60,-120
+postype = p1
+facing = 1
+stateno = 15010
+HelperType =  Player
+IgnoreHitPause = 1
+SuperMoveTime = 9999
+PauseMoveTime = 9999
+
+[State -1, ヘルパー召喚];波動2
+type = Helper
+trigger1 = time = 180
+trigger2 = time = 220
+ID = 15030
+pos = -60,-120
+postype = p1
+facing = 1
+stateno = 15030
+HelperType =  Player
+IgnoreHitPause = 1
+SuperMoveTime = 9999
+PauseMoveTime = 9999
+
+[State -1, 震動];衝撃 揺れ
+type = envshake
+trigger1 = time = 180
+time = 120
+freq = 230
+ampl = 9
+phase = 240
+
+[State 1, 真白]
+type = envcolor
+trigger1 = time = 180
+value = 250,250,250
+time = 8
+undar = 1
+
+[State  1, 掴んだ相手のステート変更]
+type = TargetState
+trigger1 = time = 0
+value = 4506
+
+[State  1, 掴んだ相手のステート変更]
+type = TargetState
+trigger1 = time = 180
+value = 4507
+
+
+[State  1, 掴んだ相手のステート変更]
+type = TargetState
+trigger1 = time = 310
+value = 4508
+
+[State -1]
+Type = BGPalFX
+Trigger1 = Time = [0,300]
+Add = -200,-200,-200
+Time = 1
+IgnoreHitPause = 1
+
+[State 4503, ステート変更]
+type = ChangeState
+trigger1 = AnimTime = 0
+value = 0
+ctrl = 1
+
+
+
+;----------------------------
+;掴まれた敵
+;----------------------------
+
+
+[Statedef 4505]
+type    = A
+movetype= H
+physics = N
+velset = 0,0
+sprpriority = -4
+
+
+[State -3, ヘルパー画面固定]
+type = screenbound
+Trigger1 = 1
+value = 0
+movecamera = 0,0
+IgnoreHitPause = 1
+
+
+[State 4510, 相手のアニメ変更]
+type = ChangeAnim2
+trigger1 = Anim != 4505
+value = 4505
+IgnoreHitPause = 1
+
+[State 105, 移動]
+type = VelSet
+Trigger1 = 1
+x = 0
+IgnoreHitPause = 1
+
+[State 1, 移動]
+type = posset
+Trigger1 = time = 0
+y = 0
+IgnoreHitPause = 1
+
+[State -1, 無敵]
+type = NotHitBy
+trigger1 = 1
+value = , NA,SA,HA,NP,SP,HP,NT,ST,HT
+
+
+
+;---------------------------
+
+
+[Statedef 4506]
+type    = A
+movetype= H
+physics = N
+velset = 0,0
+sprpriority = -4
+
+
+
+[State -3, ヘルパー画面固定]
+type = screenbound
+Trigger1 = 1
+value = 0
+movecamera = 0,0
+IgnoreHitPause = 1
+
+
+[State 4510, 相手のアニメ変更]
+type = ChangeAnim2
+trigger1 = Anim != 4506
+value = 4506
+IgnoreHitPause = 1
+
+[State 105, 移動]
+type = VelSet
+Trigger1 = 1
+x = 0
+IgnoreHitPause = 1
+
+
+
+[State -1, 無敵]
+type = NotHitBy
+trigger1 = 1
+value = , NA,SA,HA,NP,SP,HP,NT,ST,HT
+
+
+;---------------------------
+
+
+[Statedef 4507]
+type    = A
+movetype= H
+physics = N
+velset = 0,0
+sprpriority = -4
+
+
+[State -3, ヘルパー画面固定]
+type = screenbound
+Trigger1 = 1
+value = 0
+movecamera = 0,0
+IgnoreHitPause = 1
+
+
+[State 4510, 相手のアニメ変更]
+type = ChangeAnim2
+trigger1 = Anim != 4506
+value = 4506
+IgnoreHitPause = 1
+
+[State 105, 移動]
+type = VelSet
+Trigger1 = 1
+x = 0
+IgnoreHitPause = 1
+
+
+[State -1, 無敵]
+type = NotHitBy
+trigger1 = 1
+value = , NA,SA,HA,NP,SP,HP,NT,ST,HT
+
+
+[State 1,]
+type = LifeSet
+Trigger1 = 1
+value = 0
+absolute = 1
+IgnoreHitPause = 1
+
+;---------------------------
+
+
+
+
+[Statedef 4508]
+type    = A
+movetype= H
+physics = N
+velset = -1,-8
+
+
+[State -3, ヘルパー画面固定]
+type = screenbound
+Trigger1 = 1
+value = 0
+movecamera = 0,0
+IgnoreHitPause = 1
+
+
+[State 1, 食らい中の速度1]
+type = VelSet
+trigger1 = time = 0
+x = 0
+y = 0
+
+[State 1, 食らい中の速度1]
+type = VelSet
+trigger1 = time = 5
+x = 15
+y = -15
+
+[State 1, 相手のアニメ変更]
+type = ChangeAnim2
+trigger1 = Anim != 4506
+value =  4506
+IgnoreHitPause = 1
+
+[State 1, 角度入力]
+type = Angleset
+trigger1 = 1
+value = 0
+IgnoreHitPause = 1
+
+[State 1, 角度変更実行]
+type = AngleDraw
+trigger1 = 1
+IgnoreHitPause = 1
+
+[State 4508, 速度加算];重力
+type = VelAdd
+trigger1 = time > 5
+y = .4 ;現在のＹ軸方向の移動速度を「0.2ポイント」ずつ増やしていく
+
+
+[State 4507, 相手ステートに戻す]
+type = SelfState
+trigger1 = time > 30
+trigger1 = Vel Y > 0
+trigger1 = Pos Y >= 0
+value = 5100
+
+

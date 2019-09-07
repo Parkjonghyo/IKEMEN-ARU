@@ -1,0 +1,135 @@
+;---------------------------------------------------------------------------
+[Statedef -3]
+[State -1]
+Type = AssertSpecial
+Trigger1 = Var(59)/10000
+Flag = NoWalk
+[State -1, AI用ハンデ設定]
+Type = VarSet
+Trigger1 = StateNo=5900&&!RoundsExisted
+Trigger2 = !RoundState&&StateNo-5900&&NumEnemy&&!NumHelper(24000)&&TeamMode=Turns
+V = 59
+Value = Abs(Var(59)/10000*10000)+Abs(Var(59)%1000)+1000*(0)
+			;0:Nomal:ハンデ無し
+			;1:NOGAUGE:ハンデ有り(常にサーキットブレイク＝ゲージ無し)
+			;2:UNLIMITED:ハンデ有り(特殊なMAX状態)
+			;(Random%2)でNormal or NOGAUGEに
+			;(Random%2*2)でNormal or UNLIMITEDに
+			;(Random%2+1)でNOGAUGE or UNLIMITED
+			;(Random%3)で完全ランダムに選択できます。
+IgnoreHitPause = 1
+[State -1, AI用スタイル設定]
+Type = VarSet
+Trigger1 = StateNo=5900&&!RoundsExisted
+Trigger2 = !RoundState&&StateNo-5900&&NumEnemy&&!NumHelper(24000)&&TeamMode=Turns
+V = 59
+Value = Abs(Var(59)/1000*1000)+100*(Random%4+1)
+			;0:Confing.txtでの設定通り。但しここを以下のどれかにしないとAIは起動しません。
+			;1:クレセント
+			;2:ハーフ
+			;3:フル
+			;4:イクリプス
+			;(Random%2+1)でクレセント or ハーフに
+			;(Random%2*2+1)でクレセント or フルに
+			;(Random%2*3+1)でクレセント or イクリプスに
+			;(Random%2+2)でハーフ or フルに
+			;(Random%2*2+2)でハーフ or イクリプスに
+			;(Random%2+3)でフル or イクリプスに
+			;((Random%3+4)%4+1)でクレセント or ハーフ or フルに
+			;((Random%3+3)%4+1)でクレセント or ハーフ or イクリプスに
+			;((Random%3+2)%4+1)でクレセント or フル or イクリプスに
+			;((Random%3+1)%4+1)でハーフ or フル or イクリプスに
+			;(Random%4+1)で完全ランダムに選択できます。
+IgnoreHitPause = 1
+[State -3]
+Type = Helper
+Trigger1 = Var(0)%10 = 0
+Trigger1 = Var(44) = 0
+Trigger1 = NumHelper(999) <= 4
+Trigger1 = NumHelper(25000) > 0
+Trigger1 = Var(13) = [2,5]
+StateNo = 999
+ID = 999
+Ownpal = 1
+IgnoreHitPause = 1
+SuperMoveTime = 9999
+PauseMoveTime = 9999
+
+;---------------------------------------------------------------------------
+;AI
+;AILevel
+[State -3, AI]
+Type = VarSet
+TriggerAll = (Var(59)/100%10&&!(Var(59)/10000)) && (RoundState != 3)
+Trigger1 = Command = "AI_00" || Command = "AI_01" || Command = "AI_02" || Command = "AI_03" || Command = "AI_04"
+Trigger2 = Command = "AI_05" || Command = "AI_06" || Command = "AI_07" || Command = "AI_08" || Command = "AI_09"
+Trigger3 = Command = "AI_10" || Command = "AI_11" || Command = "AI_12" || Command = "AI_13" || Command = "AI_14"
+Trigger4 = Command = "AI_15" || Command = "AI_16" || Command = "AI_17" || Command = "AI_18" || Command = "AI_19"
+Trigger5 = Command = "AI_20" || Command = "AI_21" || Command = "AI_22" || Command = "AI_23" || Command = "AI_24"
+Trigger6 = Command = "AI_25" || Command = "AI_26" || Command = "AI_27" || Command = "AI_28" || Command = "AI_29"
+Trigger7 = Command = "AI_30" || Command = "AI_31" || Command = "AI_32" || Command = "AI_33" || Command = "AI_34"
+Trigger8 = Command = "AI_35" || Command = "AI_36" || Command = "AI_37" || Command = "AI_38" || Command = "AI_39"
+Trigger9 = Command = "AI_40" || Command = "AI_41" || Command = "AI_42" || Command = "AI_43" || Command = "AI_44"
+Trigger10 = Command = "AI_45" || Command = "AI_46" || Command = "AI_47" || Command = "AI_48" || Command = "AI_49"
+Trigger11 = Command = "AI_50" || Command = "AI_51" || Command = "AI_52" || Command = "AI_53" || Command = "AI_54"
+Trigger12 = Command = "AI_55" || Command = "AI_56" || Command = "AI_57" || Command = "AI_58" || Command = "AI_59"
+Trigger13 = Command = "AI_60" || Command = "AI_61" || Command = "AI_62" || Command = "AI_63" || Command = "AI_64"
+Trigger14 = Command = "AI_65" || Command = "AI_66" || Command = "AI_67" || Command = "AI_68" || Command = "AI_69"
+Trigger15 = NumHelper(40000) > 0 && RoundState = 2
+Trigger15 = Helper(40000),Var(0) = 1
+Trigger16 = (0)
+V = 59
+Value = Var(59)+10000
+IgnoreHitPause = 1
+
+[State -3, AI]
+Type = VarSet
+TriggerAll = Var(59)/10000>0
+TriggerAll = Var(57):=IfElse(Var(57)%1000<1,Var(57)/1000*1000+Var(59)/100%10*111,Var(57))||1
+Trigger1 = Win = 1
+Trigger2 = Lose = 1
+Trigger3 = DrawGame = 1
+Trigger4 = RoundState = 4 || RoundState<2
+V = 59
+Value = -Var(59)
+IgnoreHitPause = 1
+
+[State -3, AI]
+Type = VarSet
+Trigger1 = Var(59)/10000<0
+Trigger1 = RoundState = 2
+V = 59
+Value = -Var(59)
+IgnoreHitPause = 1
+
+[State -3, AI]
+Type = NotHitBy
+Trigger1 = HitOver || Ctrl
+Trigger1 = StateNo = 151 || StateNo = 153 || StateNo = 155
+Trigger2 = HitOver
+Trigger2 = StateNo = 5001 || StateNo = 5011
+Value = , NT,ST,HT
+Time = 8
+
+[State -3, AI]
+Type = VarSet
+TriggerAll = (Var(59)/10000>0||0)
+TriggerAll = StateNo - 120
+Trigger1 = Time = 1
+Trigger2 = MoveType = I
+Trigger2 = StateNo&&StateNo-19&&StateNo-39&&StateNo-50&&StateNo-105&&StateNo-5210&&StateNo-5120&&StateNo/10!=[11,14]
+Trigger2 = Time %1 = 0
+Trigger3 = StateNo = 0 || StateNo = 19 || StateNo = 50 || StateNo = 105 || MoveType = H && StateNo/5000 ||StateNo/10=[11,14]
+Trigger3 = Time %15 = 0
+Trigger4 = (StateNo = [200,600]) && Var(2)/100%10 = 3
+Trigger4 = Time %1= 0
+Trigger5 = StateNo = 100 && P2BodyDist X <= 40
+Trigger5 = Time %1= 0
+V = 59
+Value = Random%100+Var(59)/100*100
+IgnoreHitPause = 1
+SuperMoveTime = 9999
+PauseMoveTime = 9999
+
+
+

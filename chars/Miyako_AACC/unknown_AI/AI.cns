@@ -1,0 +1,4385 @@
+;---------------------------------------------------------------------------
+[Statedef -3]
+[State -3]
+Type = Helper
+Trigger1 = Var(0)%10 = 0
+Trigger1 = Var(44) = 0
+Trigger1 = NumHelper(999) <= 4
+Trigger1 = NumHelper(25000) > 0
+Trigger1 = Var(13) = [2,5]
+StateNo = 999
+ID = 999
+Ownpal = 1
+IgnoreHitPause = 1
+SuperMoveTime = 9999
+PauseMoveTime = 9999
+
+;---------------------------------------------------------------------------
+;AI
+;AILevel
+[State -3, AI]
+Type = VarSet
+TriggerAll = ((Var(59) = 0) && (RoundState != 3))
+Trigger1 = Command = "AI_00" || Command = "AI_01" || Command = "AI_02" || Command = "AI_03" || Command = "AI_04"
+Trigger2 = Command = "AI_05" || Command = "AI_06" || Command = "AI_07" || Command = "AI_08" || Command = "AI_09"
+Trigger3 = Command = "AI_10" || Command = "AI_11" || Command = "AI_12" || Command = "AI_13" || Command = "AI_14"
+Trigger4 = Command = "AI_15" || Command = "AI_16" || Command = "AI_17" || Command = "AI_18" || Command = "AI_19"
+Trigger5 = Command = "AI_20" || Command = "AI_21" || Command = "AI_22" || Command = "AI_23" || Command = "AI_24"
+Trigger6 = Command = "AI_25" || Command = "AI_26" || Command = "AI_27" || Command = "AI_28" || Command = "AI_29"
+Trigger7 = Command = "AI_30" || Command = "AI_31" || Command = "AI_32" || Command = "AI_33" || Command = "AI_34"
+Trigger8 = Command = "AI_35" || Command = "AI_36" || Command = "AI_37" || Command = "AI_38" || Command = "AI_39"
+Trigger9 = Command = "AI_40" || Command = "AI_41" || Command = "AI_42" || Command = "AI_43" || Command = "AI_44"
+Trigger10 = Command = "AI_45" || Command = "AI_46" || Command = "AI_47" || Command = "AI_48" || Command = "AI_49"
+Trigger11 = Command = "AI_50" || Command = "AI_51" || Command = "AI_52" || Command = "AI_53" || Command = "AI_54"
+Trigger12 = Command = "AI_55" || Command = "AI_56" || Command = "AI_57" || Command = "AI_58" || Command = "AI_59"
+Trigger13 = Command = "AI_60" || Command = "AI_61" || Command = "AI_62" || Command = "AI_63" || Command = "AI_64"
+Trigger14 = Command = "AI_65" || Command = "AI_66" || Command = "AI_67" || Command = "AI_68" || Command = "AI_69"
+Trigger15 = NumHelper(40000) > 0 && RoundState = 2
+Trigger15 = Helper(40000),Var(1) = 1
+Trigger16 = 0 ;常時起動にする場合はTrigger16の頭に付いている｢;｣を消してください。
+IgnoreHitPause = 1
+V = 59
+Value = 1
+
+[State -3,AIレベル配置]
+Type = VarSet
+Trigger1 = Var(59) > 0
+Trigger1 = NumHelper(25000) > 0
+Trigger1 = Helper(25000),Var(31) > 0
+V = 59
+Value = Helper(25000),Var(31)
+IgnoreHitPause = 1
+
+[State -3,AIレベル配置]
+Type = VarSet
+Trigger1 = Var(59) > 6
+V = 59
+Value = 6
+IgnoreHitPause = 1
+
+[State -3, AI]
+Type = VarSet
+TriggerAll = Var(59) = [1,6]
+Trigger1 = Win = 1
+Trigger2 = Lose = 1
+Trigger3 = DrawGame = 1
+Trigger4 = RoundState = 4
+V = 59
+Value = -Var(59)
+IgnoreHitPause = 1
+
+[State -3, AI]
+Type = VarSet
+Trigger1 = Var(59) = [-6,-1]
+Trigger1 = RoundState = 2
+V = 59
+Value = -Var(59)
+IgnoreHitPause = 1
+
+[State -3, AI]
+Type = NotHitBy
+Trigger1 = HitOver || Ctrl
+Trigger1 = StateNo = 151 || StateNo = 153 || StateNo = 155
+Trigger2 = HitOver
+Trigger2 = StateNo = 5001 || StateNo = 5011
+Value = , NT,ST,HT
+Time = 8
+
+;------------------------------------------------------------------------------------------------------------------------------------
+;====================================================================================================================================
+;――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――
+;                                                            有間 都古AI 
+;――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――
+;====================================================================================================================================
+;------------------------------------------------------------------------------------------------------------------------------------
+
+;――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――
+;                                                            最優先行動
+;――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――
+
+[State -3,絶技雷極・安崩拳(LA)] 
+Type = ChangeState
+Value = 3100
+TriggerAll = Var(59) > 0
+TriggerAll = Var(13) = 4
+TriggerAll = StateType != A
+Trigger1 = Var(2)/100%10>=2
+Trigger1 = (StateNo=[900,901]) || (StateNo=[910,911]) || ((StateNo=903 || StateNo=913) && FVar(26)=1 && Var(57)%10=3)
+Trigger2 = StateType != A
+Trigger2 = Var(57)%10 = 4
+Trigger2 = FVar(23) > 0
+Trigger2 = Ctrl || Var(2)/100%10 >= 5 && MoveType != H
+
+;=====================================================================================================================
+;隙突き
+;=====================================================================================================================
+
+[State -3,隙突きダッシュ]
+Type = ChangeState
+Value = 100
+TriggerAll = Var(59) > 0
+TriggerAll = RoundState = 2
+TriggerAll = Random <= Var(59) * 300 || Var(59) >= 4
+TriggerAll = NumHelper(25000)
+TriggerAll = StateType != A
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),MoveType = A
+TriggerAll = !EnemyNear(Var(3)),Ctrl
+TriggerAll = EnemyNear(Var(3)),Time >= 1
+TriggerAll = EnemyNear(Var(3)),AnimTime >= -6
+TriggerAll = P2BodyDist X >= 60
+Trigger1 = Ctrl
+
+;――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――
+;                                                              切り替えし
+;――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――
+
+[State -3,立ちシールドカウンター] 
+Type = ChangeState
+Value = 905
+TriggerAll = Var(59) > 0
+TriggerAll = Var(2)/100%10 >= 2 && StateNo = [900,903]
+TriggerAll = NumHelper(25000)
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),StateType = S || Var(57)%10 = 2 && NumTarget && !Target,IsHelper
+TriggerAll = EnemyNear(Var(3)),MoveType = A || Var(57)%10 = 2 && NumTarget && !Target,IsHelper
+TriggerAll = !InGuardDist || !EnemyNear(Var(3)),Ctrl
+Trigger1 = Var(57)%10 >= 3
+Trigger1 = NumTarget
+Trigger1 = !Target,IsHelper || P2BodyDist X <= 50 && P2BodyDist Y >= -60
+Trigger1 = Random <= Helper(25000),Var(35) * 100
+Trigger2 = Var(57)%10 = 2
+Trigger2 = NumTarget
+Trigger2 = !Target,IsHelper
+Trigger2 = StateNo = 900 || StateNo = 902
+Trigger3 = Var(57)%10 = 2
+Trigger3 = Random <= Helper(25000),Var(35) * 100
+Trigger3 = NumTarget
+Trigger3 = Target,IsHelper && P2BodyDist X <= 50 && P2BodyDist Y >= -60
+Trigger3 = Var(2)/100%10 >= 2
+Trigger3 = StateNo = [900,903]
+
+[State -3,しゃがみシールドカウンター] 
+Type = ChangeState
+Value = 915
+TriggerAll = Var(59) > 0
+TriggerAll = Var(2)/100%10 >= 2 && StateNo = [910,913]
+TriggerAll = NumHelper(25000)
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),StateType = C || Var(57)%10 = 2 && NumTarget && !Target,IsHelper
+TriggerAll = EnemyNear(Var(3)),MoveType = A || Var(57)%10 = 2 && NumTarget && !Target,IsHelper
+TriggerAll = !InGuardDist || !EnemyNear(Var(3)),Ctrl
+Trigger1 = Var(57)%10 >= 3
+Trigger1 = NumTarget
+Trigger1 = !Target,IsHelper || P2BodyDist X <= 50 && P2BodyDist Y >= -60
+Trigger1 = Random <= Helper(25000),Var(35) * 100
+Trigger2 = Var(57)%10 = 2
+Trigger2 = NumTarget
+Trigger2 = !Target,IsHelper
+Trigger2 = StateNo = 910 || StateNo = 912
+Trigger3 = Var(57)%10 = 2
+Trigger3 = Random <= Helper(25000),Var(35) * 100
+Trigger3 = NumTarget
+Trigger3 = Target,IsHelper && P2BodyDist X <= 50 && P2BodyDist Y >= -60
+Trigger3 = Var(2)/100%10 >= 2
+Trigger3 = StateNo = [910,913]
+
+[State -3,空中シールドカウンター] 
+Type = ChangeState
+Value = 925
+TriggerAll = Var(59) > 0
+TriggerAll = Var(2)/100%10 >= 2 && StateNo = [920,923]
+TriggerAll = NumHelper(25000)
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),StateType = A || Var(57)%10 = 2 && NumTarget && !Target,IsHelper
+TriggerAll = EnemyNear(Var(3)),MoveType = A || Var(57)%10 = 2 && NumTarget && !Target,IsHelper
+TriggerAll = !InGuardDist || !EnemyNear(Var(3)),Ctrl
+Trigger1 = Var(57)%10 >= 3
+Trigger1 = NumTarget
+Trigger1 = !Target,IsHelper || P2BodyDist X <= 50 && P2BodyDist Y >= -60
+Trigger1 = Random <= Helper(25000),Var(35) * 100
+Trigger2 = Var(57)%10 = 2
+Trigger2 = NumTarget
+Trigger2 = !Target,IsHelper
+Trigger2 = StateNo = 920 || StateNo = 922
+Trigger3 = Var(57)%10 = 2
+Trigger3 = Random <= Helper(25000),Var(35) * 100
+Trigger3 = NumTarget
+Trigger3 = Target,IsHelper && P2BodyDist X <= 50 && P2BodyDist Y >= -60
+Trigger3 = Var(2)/100%10 >= 2
+Trigger3 = StateNo = [920,923]
+
+[State -3,投げ]
+Type = ChangeState
+Value = 800
+TriggerAll = Var(59) > 0
+TriggerAll = Random <= Var(59) * 200 || Var(59) > 5
+TriggerAll = NumHelper(25000)
+TriggerAll = RoundState = 2
+TriggerAll = StateType != A
+TriggerAll = !IsHelper
+TriggerAll = Alive
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),StateType != A
+TriggerAll = EnemyNear(Var(3)),MoveType = A || Helper(25000),Var(54) = 9
+TriggerAll = EnemyNear(var(3)),AnimTime <= -3
+TriggerAll = !InGuardDist || !EnemyNear(Var(3)),Ctrl && (EnemyNear(var(3)),Time >= Helper(25000),Var(38) || Var(59) > 5) || (PrevStateNo = [120,159])
+TriggerAll = P2Dist X > 0
+TriggerAll = P2BodyDist X-IfElse(Vel X>0, IfElse(4<(Vel X/0.85),(Vel X*4-(0.85*(4**2)/2.0)),(Vel X**2)/(0.85*2)), 0)-(EnemyNear(Var(3)),Vel X*4+(Helper(25000),fvar(4)*(4**2)/2.0)) <= 20
+Trigger1 = Ctrl || Var(2)/100%10 = 3 && MoveType != H || Var(2)/100%10 = 5 && MoveType != H
+
+[State -3,わんいんちぱんち]
+Type = ChangeState
+Value = 260
+TriggerAll = Var(59) > 0
+TriggerAll = Random <= Var(59) * 200 || Var(59) > 5
+TriggerAll = Var(57)/10%10 = 2 || Var(57)/10%10 = 4
+TriggerAll = NumHelper(25000)
+TriggerAll = RoundState = 2
+TriggerAll = StateType != A
+TriggerAll = !IsHelper
+TriggerAll = Alive
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),StateType != A
+TriggerAll = EnemyNear(Var(3)),MoveType = A || Helper(25000),Var(54) = 9
+TriggerAll = EnemyNear(var(3)),AnimTime <= -2
+TriggerAll = !InGuardDist || !EnemyNear(Var(3)),Ctrl && (EnemyNear(var(3)),Time >= Helper(25000),Var(38) || Var(59) > 5) || (PrevStateNo = [120,159])
+TriggerAll = P2Dist X > 0
+TriggerAll = P2BodyDist X-IfElse(Vel X>0, IfElse(4<(Vel X/0.85),(Vel X*4-(0.85*(4**2)/2.0)),(Vel X**2)/(0.85*2)), 0)-(EnemyNear(Var(3)),Vel X*4+(Helper(25000),fvar(4)*(4**2)/2.0)) <= 23
+Trigger1 = Ctrl
+Trigger2 = Var(2)/100%10 = 3 && MoveType != H || Var(2)/100%10 = 5 && MoveType != H
+
+[State -3,C2A]
+Type = ChangeState
+Value = 400
+TriggerAll = Var(59) > 0
+TriggerAll = Random <= Var(59) * 200 || Var(59) > 5
+TriggerAll = Var(57)/10%10 = 1
+TriggerAll = NumHelper(25000)
+TriggerAll = RoundState = 2
+TriggerAll = StateType != A
+TriggerAll = !IsHelper
+TriggerAll = Alive
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),StateType != A
+TriggerAll = EnemyNear(Var(3)),MoveType = A || Helper(25000),Var(54) = 9
+TriggerAll = EnemyNear(var(3)),AnimTime <= -4
+TriggerAll = !InGuardDist || !EnemyNear(Var(3)),Ctrl && (EnemyNear(var(3)),Time >= Helper(25000),Var(38) || Var(59) > 5) || (PrevStateNo = [120,159])
+TriggerAll = P2Dist X > 0
+TriggerAll = P2BodyDist X-IfElse(Vel X>0, IfElse(4<(Vel X/0.85),(Vel X*4-(0.85*(4**2)/2.0)),(Vel X**2)/(0.85*2)), 0)-(EnemyNear(Var(3)),Vel X*4+(Helper(25000),fvar(4)*(4**2)/2.0)) <= 45
+Trigger1 = Ctrl || StateNo = 52 && Var(9) >= 1
+Trigger2 = Var(2)/100%10 = 3 && MoveType != H || Var(2)/100%10 = 5 && MoveType != H || Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 != 3
+Trigger2 = Var(20)/10%10 = 0
+Trigger3 = StateNo = [400,409]
+Trigger3 = Var(2)/100%10 = 3 && MoveType != H
+Trigger4 = (StateNo = [200,209]) || (StateNo = [400,409])
+Trigger4 = Var(2)/100%10 = 4 && MoveType != H
+
+[State -3,H2A]
+Type = ChangeState
+Value = 401
+TriggerAll = Var(59) > 0
+TriggerAll = Random <= Var(59) * 200 || Var(59) > 5
+TriggerAll = Var(57)/10%10 = 2
+TriggerAll = NumHelper(25000)
+TriggerAll = RoundState = 2
+TriggerAll = StateType != A
+TriggerAll = !IsHelper
+TriggerAll = Alive
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),StateType != A
+TriggerAll = EnemyNear(Var(3)),MoveType = A || Helper(25000),Var(54) = 9
+TriggerAll = EnemyNear(var(3)),AnimTime <= -4
+TriggerAll = !InGuardDist || !EnemyNear(Var(3)),Ctrl && (EnemyNear(var(3)),Time >= Helper(25000),Var(38) || Var(59) > 5) || (PrevStateNo = [120,159])
+TriggerAll = P2Dist X > 0
+TriggerAll = P2BodyDist X-IfElse(Vel X>0, IfElse(4<(Vel X/0.85),(Vel X*4-(0.85*(4**2)/2.0)),(Vel X**2)/(0.85*2)), 0)-(EnemyNear(Var(3)),Vel X*4+(Helper(25000),fvar(4)*(4**2)/2.0)) <= 45
+Trigger1 = Ctrl || StateNo = 52 && Var(9) >= 1
+Trigger2 = Var(2)/100%10 = 3 && MoveType != H || Var(2)/100%10 = 5 && MoveType != H || Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 != 3
+Trigger2 = Var(20)/10%10 = 0
+Trigger3 = StateNo = [400,409]
+Trigger3 = Var(2)/100%10 = 3 && MoveType != H
+Trigger4 = (StateNo = [200,209]) || (StateNo = [400,409])
+Trigger4 = Var(2)/100%10 = 4 && MoveType != H
+
+[State -3,F2A]
+Type = ChangeState
+Value = 402
+TriggerAll = Var(59) > 0
+TriggerAll = Random <= Var(59) * 200 || Var(59) > 5
+TriggerAll = Var(57)/10%10 = 3
+TriggerAll = NumHelper(25000)
+TriggerAll = RoundState = 2
+TriggerAll = StateType != A
+TriggerAll = !IsHelper
+TriggerAll = Alive
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),StateType != A
+TriggerAll = EnemyNear(Var(3)),MoveType = A || Helper(25000),Var(54) = 9
+TriggerAll = EnemyNear(var(3)),AnimTime <= -4
+TriggerAll = !InGuardDist || !EnemyNear(Var(3)),Ctrl && (EnemyNear(var(3)),Time >= Helper(25000),Var(38) || Var(59) > 5) || (PrevStateNo = [120,159])
+TriggerAll = P2Dist X > 0
+TriggerAll = P2BodyDist X-IfElse(Vel X>0, IfElse(4<(Vel X/0.85),(Vel X*4-(0.85*(4**2)/2.0)),(Vel X**2)/(0.85*2)), 0)-(EnemyNear(Var(3)),Vel X*4+(Helper(25000),fvar(4)*(4**2)/2.0)) <= 45
+Trigger1 = Ctrl || StateNo = 52 && Var(9) >= 1
+Trigger2 = Var(2)/100%10 = 3 && MoveType != H || Var(2)/100%10 = 5 && MoveType != H || Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 != 3
+Trigger2 = Var(20)/10%10 = 0
+Trigger3 = StateNo = [400,409]
+Trigger3 = Var(2)/100%10 = 3 && MoveType != H
+Trigger4 = (StateNo = [200,209]) || (StateNo = [400,409])
+Trigger4 = Var(2)/100%10 = 4 && MoveType != H
+
+[State -3,E2A]
+Type = ChangeState
+Value = 403
+TriggerAll = Var(59) > 0
+TriggerAll = Random <= Var(59) * 200 || Var(59) > 5
+TriggerAll = Var(57)/10%10 = 4
+TriggerAll = NumHelper(25000)
+TriggerAll = RoundState = 2
+TriggerAll = StateType != A
+TriggerAll = !IsHelper
+TriggerAll = Alive
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),StateType != A
+TriggerAll = EnemyNear(Var(3)),MoveType = A || Helper(25000),Var(54) = 9
+TriggerAll = EnemyNear(var(3)),AnimTime <= -4
+TriggerAll = !InGuardDist || !EnemyNear(Var(3)),Ctrl && (EnemyNear(var(3)),Time >= Helper(25000),Var(38) || Var(59) > 5) || (PrevStateNo = [120,159])
+TriggerAll = P2Dist X > 0
+TriggerAll = P2BodyDist X-IfElse(Vel X>0, IfElse(4<(Vel X/0.85),(Vel X*4-(0.85*(4**2)/2.0)),(Vel X**2)/(0.85*2)), 0)-(EnemyNear(Var(3)),Vel X*4+(Helper(25000),fvar(4)*(4**2)/2.0)) <= 45
+Trigger1 = Ctrl || StateNo = 52 && Var(9) >= 1
+Trigger2 = Var(2)/100%10 = 3 && MoveType != H || Var(2)/100%10 = 5 && MoveType != H || Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 != 3
+Trigger2 = Var(20)/10%10 = 0
+Trigger3 = StateNo = [400,409]
+Trigger3 = Var(2)/100%10 = 3 && MoveType != H
+Trigger4 = (StateNo = [200,209]) || (StateNo = [400,409])
+Trigger4 = Var(2)/100%10 = 4 && MoveType != H
+
+[State -3,C2C]
+Type = ChangeState
+Value = 420
+TriggerAll = Var(59) > 0
+TriggerAll = Random <= Var(59) * 200 || Var(59) > 5
+TriggerAll = Var(57)/10%10 = 1 || Var(57)/10%10 = 3
+TriggerAll = NumHelper(25000)
+TriggerAll = RoundState = 2
+TriggerAll = StateType != A
+TriggerAll = !IsHelper
+TriggerAll = Alive
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),StateType != A
+TriggerAll = EnemyNear(Var(3)),MoveType = A || Helper(25000),Var(54) = 9
+TriggerAll = EnemyNear(var(3)),AnimTime <= -7
+TriggerAll = !InGuardDist || !EnemyNear(Var(3)),Ctrl && (EnemyNear(var(3)),Time >= Helper(25000),Var(38) || Var(59) > 5) || (PrevStateNo = [120,159])
+TriggerAll = P2Dist X > 0
+TriggerAll = P2BodyDist X-IfElse(Vel X>0, IfElse(4<(Vel X/0.85),(Vel X*4-(0.85*(4**2)/2.0)),(Vel X**2)/(0.85*2)), 0)-(EnemyNear(Var(3)),Vel X*4+(Helper(25000),fvar(4)*(4**2)/2.0)) <= 60
+Trigger1 = Ctrl
+Trigger2 = Var(2)/100%10 = 3 && MoveType != H || Var(2)/100%10 = 5 && MoveType != H || Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 != 3
+Trigger2 = Var(22)/10%10 = 0
+Trigger3 = Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 = 3
+Trigger3 = (StateNo = [200,219]) || (StateNo = [230,249]) || (StateNo = [400,419])
+Trigger3 = Var(22)/10%10 = 0
+
+[State -3,H2C]
+Type = ChangeState
+Value = 421
+TriggerAll = Var(59) > 0
+TriggerAll = Random <= Var(59) * 200 || Var(59) > 5
+TriggerAll = Var(57)/10%10 = 2
+TriggerAll = NumHelper(25000)
+TriggerAll = RoundState = 2
+TriggerAll = StateType != A
+TriggerAll = !IsHelper
+TriggerAll = Alive
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),StateType != A
+TriggerAll = EnemyNear(Var(3)),MoveType = A || Helper(25000),Var(54) = 9
+TriggerAll = EnemyNear(var(3)),AnimTime <= -7
+TriggerAll = !InGuardDist || !EnemyNear(Var(3)),Ctrl && (EnemyNear(var(3)),Time >= Helper(25000),Var(38) || Var(59) > 5) || (PrevStateNo = [120,159])
+TriggerAll = P2Dist X > 0
+TriggerAll = P2BodyDist X-IfElse(Vel X>0, IfElse(4<(Vel X/0.85),(Vel X*4-(0.85*(4**2)/2.0)),(Vel X**2)/(0.85*2)), 0)-(EnemyNear(Var(3)),Vel X*4+(Helper(25000),fvar(4)*(4**2)/2.0)) <= 60
+Trigger1 = Ctrl
+Trigger2 = Var(2)/100%10 = 3 && MoveType != H || Var(2)/100%10 = 5 && MoveType != H || Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 != 3
+Trigger2 = Var(22)/10%10 = 0
+Trigger3 = Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 = 3
+Trigger3 = (StateNo = [200,219]) || (StateNo = [230,249]) || (StateNo = [400,419])
+Trigger3 = Var(22)/10%10 = 0
+
+[State -3,E2C]
+Type = ChangeState
+Value = 422
+TriggerAll = Var(59) > 0
+TriggerAll = Random <= Var(59) * 200 || Var(59) > 5
+TriggerAll = Var(57)/10%10 = 4
+TriggerAll = NumHelper(25000)
+TriggerAll = RoundState = 2
+TriggerAll = StateType != A
+TriggerAll = !IsHelper
+TriggerAll = Alive
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),StateType != A
+TriggerAll = EnemyNear(Var(3)),MoveType = A || Helper(25000),Var(54) = 9
+TriggerAll = EnemyNear(var(3)),AnimTime <= -7
+TriggerAll = !InGuardDist || !EnemyNear(Var(3)),Ctrl && (EnemyNear(var(3)),Time >= Helper(25000),Var(38) || Var(59) > 5) || (PrevStateNo = [120,159])
+TriggerAll = P2Dist X > 0
+TriggerAll = P2BodyDist X-IfElse(Vel X>0, IfElse(4<(Vel X/0.85),(Vel X*4-(0.85*(4**2)/2.0)),(Vel X**2)/(0.85*2)), 0)-(EnemyNear(Var(3)),Vel X*4+(Helper(25000),fvar(4)*(4**2)/2.0)) <= 60
+Trigger1 = Ctrl
+Trigger2 = Var(2)/100%10 = 3 && MoveType != H || Var(2)/100%10 = 5 && MoveType != H || Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 != 3
+Trigger2 = Var(22)/10%10 = 0
+Trigger3 = Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 = 3
+Trigger3 = (StateNo = [200,219]) || (StateNo = [230,249]) || (StateNo = [400,419])
+Trigger3 = Var(22)/10%10 = 0
+
+[State -3,EXせんしっぽ]
+Type = ChangeState
+Value = 2100
+TriggerAll = Var(59) > 0
+TriggerAll = Random <= Var(59) * 200 || Var(59) > 5
+TriggerAll = NumHelper(25000)
+TriggerAll = RoundState = 2
+TriggerAll = StateType != A
+TriggerAll = !IsHelper
+TriggerAll = Alive
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),StateType != A
+TriggerAll = EnemyNear(Var(3)),MoveType = A || Helper(25000),Var(54) = 9
+TriggerAll = EnemyNear(var(3)),AnimTime <= -9
+TriggerAll = !InGuardDist || !EnemyNear(Var(3)),Ctrl && (EnemyNear(var(3)),Time >= Helper(25000),Var(38) || Var(59) > 5) || (PrevStateNo = [120,159])
+TriggerAll = P2Dist X > 0
+TriggerAll = P2BodyDist X-IfElse(Vel X>0, IfElse(4<(Vel X/0.85),(Vel X*4-(0.85*(4**2)/2.0)),(Vel X**2)/(0.85*2)), 0)-(EnemyNear(Var(3)),Vel X*4+(Helper(25000),fvar(4)*(4**2)/2.0)) <= 80
+Trigger1 = FVar(29) >= 1000
+Trigger1 = Var(13) = 0
+Trigger1 = Ctrl
+Trigger2 = FVar(29) >= 1000
+Trigger2 = Var(13) = 0
+Trigger2 = Var(2)/100%10 >= 1 && MoveType != H
+Trigger3 = Var(13) = [1,5]
+Trigger3 = Ctrl
+Trigger4 = Var(13) = [1,5]
+Trigger4 = Var(2)/100%10 >= 1 && MoveType != H
+
+[State -3,C5A]
+Type = ChangeState
+Value = 200
+TriggerAll = Var(59) > 0
+TriggerAll = Random <= Var(59) * 200 || Var(59) > 5
+TriggerAll = Var(57)/10%10 = 1
+TriggerAll = NumHelper(25000)
+TriggerAll = RoundState = 2
+TriggerAll = StateType != A
+TriggerAll = !IsHelper
+TriggerAll = Alive
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),MoveType = A || Helper(25000),Var(54) = 9
+TriggerAll = EnemyNear(var(3)),AnimTime <= -4
+TriggerAll = !InGuardDist || !EnemyNear(Var(3)),Ctrl && (EnemyNear(var(3)),Time >= Helper(25000),Var(38) || Var(59) > 5) || (PrevStateNo = [120,159])
+TriggerAll = P2Dist X > 0
+TriggerAll = P2BodyDist X-IfElse(Vel X>0, IfElse(4<(Vel X/0.85),(Vel X*4-(0.85*(4**2)/2.0)),(Vel X**2)/(0.85*2)), 0)-(EnemyNear(Var(3)),Vel X*4+(Helper(25000),fvar(4)*(4**2)/2.0)) <= 45
+TriggerAll = P2BodyDist Y+(EnemyNear(Var(3)),Vel Y*4+(Helper(25000),fvar(14)*(4**2)/2.0)) >= -30
+Trigger1 = Ctrl || StateNo = 52 && Var(9) >= 1
+Trigger2 = Var(2)/100%10 = 3 && MoveType != H || Var(2)/100%10 = 5 && MoveType != H || Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 != 3
+Trigger2 = Var(20)%10 = 0
+Trigger3 = StateNo = [200,209]
+Trigger3 = Var(2)/100%10 = 3 && MoveType != H
+Trigger4 = (StateNo = [200,209]) || (StateNo = [400,409])
+Trigger4 = Var(2)/100%10 = 4 && MoveType != H
+
+[State -3,H5A]
+Type = ChangeState
+Value = 201
+TriggerAll = Var(59) > 0
+TriggerAll = Random <= Var(59) * 200 || Var(59) > 5
+TriggerAll = Var(57)/10%10 = 2
+TriggerAll = NumHelper(25000)
+TriggerAll = RoundState = 2
+TriggerAll = StateType != A
+TriggerAll = !IsHelper
+TriggerAll = Alive
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),MoveType = A || Helper(25000),Var(54) = 9
+TriggerAll = EnemyNear(var(3)),AnimTime <= -4
+TriggerAll = !InGuardDist || !EnemyNear(Var(3)),Ctrl && (EnemyNear(var(3)),Time >= Helper(25000),Var(38) || Var(59) > 5) || (PrevStateNo = [120,159])
+TriggerAll = P2Dist X > 0
+TriggerAll = P2BodyDist X-IfElse(Vel X>0, IfElse(4<(Vel X/0.85),(Vel X*4-(0.85*(4**2)/2.0)),(Vel X**2)/(0.85*2)), 0)-(EnemyNear(Var(3)),Vel X*4+(Helper(25000),fvar(4)*(4**2)/2.0)) <= 45
+TriggerAll = P2BodyDist Y+(EnemyNear(Var(3)),Vel Y*4+(Helper(25000),fvar(14)*(4**2)/2.0)) >= -30
+Trigger1 = Ctrl || StateNo = 52 && Var(9) >= 1
+Trigger2 = Var(2)/100%10 = 3 && MoveType != H || Var(2)/100%10 = 5 && MoveType != H || Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 != 3
+Trigger2 = Var(20)%10 = 0
+Trigger3 = StateNo = [200,209]
+Trigger3 = Var(2)/100%10 = 3 && MoveType != H
+Trigger4 = (StateNo = [200,209]) || (StateNo = [400,409])
+Trigger4 = Var(2)/100%10 = 4 && MoveType != H
+
+[State -3,F5A]
+Type = ChangeState
+Value = 202
+TriggerAll = Var(59) > 0
+TriggerAll = Random <= Var(59) * 200 || Var(59) > 5
+TriggerAll = Var(57)/10%10 = 3
+TriggerAll = NumHelper(25000)
+TriggerAll = RoundState = 2
+TriggerAll = StateType != A
+TriggerAll = !IsHelper
+TriggerAll = Alive
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),MoveType = A || Helper(25000),Var(54) = 9
+TriggerAll = EnemyNear(var(3)),AnimTime <= -4
+TriggerAll = !InGuardDist || !EnemyNear(Var(3)),Ctrl && (EnemyNear(var(3)),Time >= Helper(25000),Var(38) || Var(59) > 5) || (PrevStateNo = [120,159])
+TriggerAll = P2Dist X > 0
+TriggerAll = P2BodyDist X-IfElse(Vel X>0, IfElse(4<(Vel X/0.85),(Vel X*4-(0.85*(4**2)/2.0)),(Vel X**2)/(0.85*2)), 0)-(EnemyNear(Var(3)),Vel X*4+(Helper(25000),fvar(4)*(4**2)/2.0)) <= 40
+TriggerAll = P2BodyDist Y+(EnemyNear(Var(3)),Vel Y*4+(Helper(25000),fvar(14)*(4**2)/2.0)) >= -35
+Trigger1 = Ctrl || StateNo = 52 && Var(9) >= 1
+Trigger2 = Var(2)/100%10 = 3 && MoveType != H || Var(2)/100%10 = 5 && MoveType != H || Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 != 3
+Trigger2 = Var(20)%10 = 0
+Trigger3 = StateNo = [200,209]
+Trigger3 = Var(2)/100%10 = 3 && MoveType != H
+Trigger4 = (StateNo = [200,209]) || (StateNo = [400,409])
+Trigger4 = Var(2)/100%10 = 4 && MoveType != H
+
+[State -3,E5A]
+Type = ChangeState
+Value = 203
+TriggerAll = Var(59) > 0
+TriggerAll = Random <= Var(59) * 200 || Var(59) > 5
+TriggerAll = Var(57)/10%10 = 4
+TriggerAll = NumHelper(25000)
+TriggerAll = RoundState = 2
+TriggerAll = StateType != A
+TriggerAll = !IsHelper
+TriggerAll = Alive
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),MoveType = A || Helper(25000),Var(54) = 9
+TriggerAll = EnemyNear(var(3)),AnimTime <= -4
+TriggerAll = !InGuardDist || !EnemyNear(Var(3)),Ctrl && (EnemyNear(var(3)),Time >= Helper(25000),Var(38) || Var(59) > 5) || (PrevStateNo = [120,159])
+TriggerAll = P2Dist X > 0
+TriggerAll = P2BodyDist X-IfElse(Vel X>0, IfElse(4<(Vel X/0.85),(Vel X*4-(0.85*(4**2)/2.0)),(Vel X**2)/(0.85*2)), 0)-(EnemyNear(Var(3)),Vel X*4+(Helper(25000),fvar(4)*(4**2)/2.0)) <= 45
+TriggerAll = P2BodyDist Y+(EnemyNear(Var(3)),Vel Y*4+(Helper(25000),fvar(14)*(4**2)/2.0)) >= -30
+Trigger1 = Ctrl || StateNo = 52 && Var(9) >= 1
+Trigger2 = Var(2)/100%10 = 3 && MoveType != H || Var(2)/100%10 = 5 && MoveType != H || Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 != 3
+Trigger2 = Var(20)%10 = 0
+Trigger3 = StateNo = [200,209]
+Trigger3 = Var(2)/100%10 = 3 && MoveType != H
+Trigger4 = (StateNo = [200,209]) || (StateNo = [400,409])
+Trigger4 = Var(2)/100%10 = 4 && MoveType != H
+
+[State -3,C6B]
+Type = ChangeState
+Value = 240
+TriggerAll = Var(59) > 0
+TriggerAll = Random <= Var(59) * 200 || Var(59) > 5
+TriggerAll = Var(57)/10%10 = 1
+TriggerAll = NumHelper(25000)
+TriggerAll = RoundState = 2
+TriggerAll = StateType != A
+TriggerAll = !IsHelper
+TriggerAll = Alive
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),MoveType = A || Helper(25000),Var(54) = 9
+TriggerAll = EnemyNear(var(3)),AnimTime <= -7
+TriggerAll = !InGuardDist || !EnemyNear(Var(3)),Ctrl && (EnemyNear(var(3)),Time >= Helper(25000),Var(38) || Var(59) > 5) || (PrevStateNo = [120,159])
+TriggerAll = P2Dist X > 0
+TriggerAll = P2BodyDist X-IfElse(Vel X>0, IfElse(4<(Vel X/0.85),(Vel X*4-(0.85*(4**2)/2.0)),(Vel X**2)/(0.85*2)), 0)-(EnemyNear(Var(3)),Vel X*4+(Helper(25000),fvar(4)*(4**2)/2.0)) <= 55
+TriggerAll = P2BodyDist Y+(EnemyNear(Var(3)),Vel Y*4+(Helper(25000),fvar(14)*(4**2)/2.0)) >= -30
+Trigger1 = Ctrl
+Trigger2 = Var(2)/100%10 = 3 && MoveType != H || Var(2)/100%10 = 5 && MoveType != H || Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 != 3
+Trigger2 = Var(23)%10 = 0
+Trigger3 = Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 = 3
+Trigger3 = (StateNo = [200,219]) || StateNo = 230 || (StateNo = [400,419])
+Trigger3 = Var(23)%10 = 0
+
+[State -3,F6B]
+Type = ChangeState
+Value = 241
+TriggerAll = Var(59) > 0
+TriggerAll = Random <= Var(59) * 200 || Var(59) > 5
+TriggerAll = Var(57)/10%10 = 3
+TriggerAll = NumHelper(25000)
+TriggerAll = RoundState = 2
+TriggerAll = StateType != A
+TriggerAll = !IsHelper
+TriggerAll = Alive
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),MoveType = A || Helper(25000),Var(54) = 9
+TriggerAll = EnemyNear(var(3)),AnimTime <= -11
+TriggerAll = !InGuardDist || !EnemyNear(Var(3)),Ctrl && (EnemyNear(var(3)),Time >= Helper(25000),Var(38) || Var(59) > 5) || (PrevStateNo = [120,159])
+TriggerAll = P2Dist X > 0
+TriggerAll = P2BodyDist X-IfElse(Vel X>0, IfElse(4<(Vel X/0.85),(Vel X*4-(0.85*(4**2)/2.0)),(Vel X**2)/(0.85*2)), 0)-(EnemyNear(Var(3)),Vel X*4+(Helper(25000),fvar(4)*(4**2)/2.0)) <= 60
+TriggerAll = P2BodyDist Y+(EnemyNear(Var(3)),Vel Y*4+(Helper(25000),fvar(14)*(4**2)/2.0)) >= -50
+Trigger1 = Ctrl
+Trigger2 = Var(2)/100%10 = 3 && MoveType != H || Var(2)/100%10 = 5 && MoveType != H || Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 != 3
+Trigger2 = Var(23)%10 = 0
+Trigger3 = Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 = 3
+Trigger3 = (StateNo = [200,219]) || StateNo = 230 || (StateNo = [400,419])
+Trigger3 = Var(23)%10 = 0
+
+[State -3,E6B]
+Type = ChangeState
+Value = 243
+TriggerAll = Var(59) > 0
+TriggerAll = Random <= Var(59) * 200 || Var(59) > 5
+TriggerAll = Var(57)/10%10 = 4
+TriggerAll = NumHelper(25000)
+TriggerAll = RoundState = 2
+TriggerAll = StateType != A
+TriggerAll = !IsHelper
+TriggerAll = Alive
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),MoveType = A || Helper(25000),Var(54) = 9
+TriggerAll = EnemyNear(var(3)),AnimTime <= -7
+TriggerAll = !InGuardDist || !EnemyNear(Var(3)),Ctrl && (EnemyNear(var(3)),Time >= Helper(25000),Var(38) || Var(59) > 5) || (PrevStateNo = [120,159])
+TriggerAll = P2Dist X > 0
+TriggerAll = P2BodyDist X-IfElse(Vel X>0, IfElse(4<(Vel X/0.85),(Vel X*4-(0.85*(4**2)/2.0)),(Vel X**2)/(0.85*2)), 0)-(EnemyNear(Var(3)),Vel X*4+(Helper(25000),fvar(4)*(4**2)/2.0)) <= 55
+TriggerAll = P2BodyDist Y+(EnemyNear(Var(3)),Vel Y*4+(Helper(25000),fvar(14)*(4**2)/2.0)) >= -30
+Trigger1 = Ctrl
+Trigger2 = Var(2)/100%10 = 3 && MoveType != H || Var(2)/100%10 = 5 && MoveType != H || Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 != 3
+Trigger2 = Var(23)%10 = 0
+Trigger3 = Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 = 3
+Trigger3 = (StateNo = [200,219]) || StateNo = 230 || (StateNo = [400,419])
+Trigger3 = Var(23)%10 = 0
+
+[State -3,EXれんかんたい]
+Type = ChangeState
+Value = 2300
+TriggerAll = Var(59) > 0
+TriggerAll = Random <= Var(59) * 200 || Var(59) > 5
+TriggerAll = Var(57)/100%10 = [1,3]
+TriggerAll = NumHelper(25000)
+TriggerAll = RoundState = 2
+TriggerAll = StateType != A
+TriggerAll = !IsHelper
+TriggerAll = Alive
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),MoveType = A || Helper(25000),Var(54) = 9
+TriggerAll = EnemyNear(var(3)),AnimTime <= -3
+TriggerAll = !InGuardDist || !EnemyNear(Var(3)),Ctrl && (EnemyNear(var(3)),Time >= Helper(25000),Var(38) || Var(59) > 5) || (PrevStateNo = [120,159])
+TriggerAll = P2Dist X > 0
+TriggerAll = P2BodyDist X-IfElse(Vel X>0, IfElse(4<(Vel X/0.85),(Vel X*4-(0.85*(4**2)/2.0)),(Vel X**2)/(0.85*2)), 0)-(EnemyNear(Var(3)),Vel X*4+(Helper(25000),fvar(4)*(4**2)/2.0)) <= 60
+TriggerAll = P2BodyDist Y+(EnemyNear(Var(3)),Vel Y*4+(Helper(25000),fvar(14)*(4**2)/2.0)) >= -60
+Trigger1 = FVar(29) >= 1000
+Trigger1 = Var(13) = 0
+Trigger1 = Ctrl
+Trigger2 = FVar(29) >= 1000
+Trigger2 = Var(13) = 0
+Trigger2 = Var(2)/100%10 >= 1 && MoveType != H
+Trigger3 = Var(13) = [1,5]
+Trigger3 = Ctrl
+Trigger4 = Var(13) = [1,5]
+Trigger4 = Var(2)/100%10 >= 1 && MoveType != H
+
+[State -3,EXごけいけん]
+Type = ChangeState
+Value = 2400
+TriggerAll = Var(59) > 0
+TriggerAll = Random <= Var(59) * 200 || Var(59) > 5
+TriggerAll = Var(57)/100%10 = [2,4]
+TriggerAll = NumHelper(25000)
+TriggerAll = RoundState = 2
+TriggerAll = StateType != A
+TriggerAll = !IsHelper
+TriggerAll = Alive
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),MoveType = A || Helper(25000),Var(54) = 9
+TriggerAll = EnemyNear(var(3)),AnimTime <= -3
+TriggerAll = !InGuardDist || !EnemyNear(Var(3)),Ctrl && (EnemyNear(var(3)),Time >= Helper(25000),Var(38) || Var(59) > 5) || (PrevStateNo = [120,159])
+TriggerAll = P2Dist X > 0
+TriggerAll = P2BodyDist X-IfElse(Vel X>0, IfElse(4<(Vel X/0.85),(Vel X*4-(0.85*(4**2)/2.0)),(Vel X**2)/(0.85*2)), 0)-(EnemyNear(Var(3)),Vel X*4+(Helper(25000),fvar(4)*(4**2)/2.0)) <= 80
+TriggerAll = P2BodyDist Y+(EnemyNear(Var(3)),Vel Y*4+(Helper(25000),fvar(14)*(4**2)/2.0)) >= -60
+Trigger1 = FVar(29) >= 1000
+Trigger1 = Var(13) = 0
+Trigger1 = Ctrl
+Trigger2 = FVar(29) >= 1000
+Trigger2 = Var(13) = 0
+Trigger2 = Var(2)/100%10 >= 1 && MoveType != H
+Trigger3 = Var(13) = [1,5]
+Trigger3 = Ctrl
+Trigger4 = Var(13) = [1,5]
+Trigger4 = Var(2)/100%10 >= 1 && MoveType != H
+
+[State -3,しゃがみシールド]
+Type = ChangeState
+value = 910
+TriggerAll = Var(59) > 0
+TriggerAll = NumHelper(25000)
+TriggerAll = Random <= Helper(25000),Var(35) * 50 || Var(13) = 4
+TriggerAll = RoundState = 2
+TriggerAll = StateType != A
+TriggerAll = !IsHelper
+TriggerAll = Alive
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),StateType != A
+TriggerAll = EnemyNear(Var(3)),MoveType = A
+TriggerAll = EnemyNear(Var(3)),HitDefAttr = SC,NA,SA,HA || Helper(25000),Var(54) = 1
+TriggerAll = InGuardDist && (EnemyNear(Var(3)),Time >= Helper(25000),Var(56) || Var(59) = 6 || Var(13) = 4) || (PrevStateNo = [120,159])
+TriggerAll = P2Dist X > 0
+TriggerAll = P2BodyDist X-(Vel X*4)-(EnemyNear(Var(3)),Vel X*4+(Helper(25000),fvar(4)*(4**2)/2.0)) <= 60
+Trigger1 = Ctrl
+Trigger2 = Var(2)/100%10 = 3 && MoveType != H
+Trigger3 = Var(2)/100%10 = 5 && MoveType != H
+Trigger4 = Var(2)/100%10 = 2 && StateNo != 905 && StateNo != 915 && StateNo != 925 && StateNo = [900,929]
+
+[State -3,立ちシールド]
+Type = ChangeState
+Value = 900
+TriggerAll = Var(59) > 0
+TriggerAll = NumHelper(25000)
+TriggerAll = Random <= Helper(25000),Var(35) * 50 || Var(13) = 4
+TriggerAll = RoundState = 2
+TriggerAll = StateType != A
+TriggerAll = !IsHelper
+TriggerAll = Alive
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),MoveType = A
+TriggerAll = EnemyNear(Var(3)),HitDefAttr = SA,NA,SA,HA || Helper(25000),Var(54) = 2
+TriggerAll = InGuardDist && (EnemyNear(Var(3)),Time >= Helper(25000),Var(56) || Var(59) = 6 || Var(13) = 4) || (PrevStateNo = [120,159])
+TriggerAll = P2Dist X > 0
+TriggerAll = P2BodyDist X-(Vel X*4)-(EnemyNear(Var(3)),Vel X*4+(Helper(25000),fvar(4)*(4**2)/2.0)) <= 60
+TriggerAll = P2BodyDist Y-(Vel Y*4+(0.52*(4**2)/2.0))+(EnemyNear(Var(3)),Vel Y*4+(Helper(25000),fvar(14)*(4**2)/2.0)) >= -40
+Trigger1 = Ctrl
+Trigger2 = Var(2)/100%10 = 3 && MoveType != H
+Trigger3 = Var(2)/100%10 = 5 && MoveType != H
+Trigger4 = Var(2)/100%10 = 2 && StateNo != 905 && StateNo != 915 && StateNo != 925 && StateNo = [900,929]
+
+[State -3,空中シールド]
+Type = ChangeState
+value = 920
+TriggerAll = Var(59) > 0
+TriggerAll = NumHelper(25000)
+TriggerAll = Random <= Helper(25000),Var(35) * 50
+TriggerAll = RoundState = 2
+TriggerAll = StateType = A
+TriggerAll = !IsHelper
+TriggerAll = Alive
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),MoveType = A
+TriggerAll = EnemyNear(Var(3)),HitDefAttr = SCA,NA,SA,HA || (Helper(25000),Var(54) = [1,2])
+TriggerAll = InGuardDist && (EnemyNear(Var(3)),Time >= Helper(25000),Var(56) || Var(59) = 6) || (PrevStateNo = [120,159])
+TriggerAll = P2Dist X > 0
+TriggerAll = P2BodyDist X-(Vel X*4)-(EnemyNear(Var(3)),Vel X*4+(Helper(25000),fvar(4)*(4**2)/2.0)) <= 60
+TriggerAll = P2BodyDist Y-(Vel Y*4+(0.52*(4**2)/2.0))+(EnemyNear(Var(3)),Vel Y*4+(Helper(25000),fvar(14)*(4**2)/2.0)) = [-40,40]
+Trigger1 = Ctrl
+Trigger2 = Var(2)/100%10 = 3 && MoveType != H && StateNo != 1400 && StateNo != 2300
+Trigger3 = Var(2)/100%10 = 5 && MoveType != H
+Trigger4 = Var(2)/100%10 = 2 && StateNo != 905 && StateNo != 915 && StateNo != 925 && StateNo = [900,929]
+
+;――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――
+;                                                             逃げ
+;――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――
+
+[State -3,避け]
+Type = ChangeState
+Value = 750
+TriggerAll = Var(59) > 0
+TriggerAll = Random <= Var(59) * 200 || Var(59) > 5
+TriggerAll = Var(57)%10 != 3 && Var(57)%10 != 5
+TriggerAll = RoundState = 2
+TriggerAll = StateType != A
+TriggerAll = NumHelper(25000)
+TriggerAll = Ctrl || Var(2)/100%10 = 3 && (StateNo != [200,209]) && (StateNo != [400,409]) && MoveType != H && (StateNo != [900,919]) && StateNo != 52 || Var(2)/100%10 = 5 && MoveType != H
+TriggerAll = EnemyNear(var(3)),Time >= Helper(25000),Var(38) || Var(59) > 5
+TriggerAll = (EnemyNear(Var(3)),AnimTime <= -20 && !EnemyNear(Var(3)),Ctrl) || ((EnemyNear(Var(3)),Vel X > 3) && (EnemyNear(Var(3)),HitDefAttr != SCA,AT))
+TriggerAll = EnemyNear(Var(3)),HitDefAttr = SC,NA,SA || Helper(25000),Var(54) = [1,2]
+TriggerAll = InGuardDist
+Trigger1 = Ctrl || Var(2)/100%10 = 3 && (StateNo != [200,209]) && (StateNo != [400,409]) && MoveType != H && (StateNo != [900,919]) && StateNo != 52 || Var(2)/100%10 = 5 && MoveType != H
+
+[State -3,ジャンプ]
+Type = ChangeState
+Value = 39
+TriggerAll = Var(59) > 0
+TriggerAll = Random <= Var(59) * 200 || Var(59) > 5
+TriggerAll = StateType != A
+TriggerAll = P2BodyDist X = [-5,100]
+TriggerAll = NumHelper(25000)
+TriggerAll = EnemyNear(Var(3)),HitDefAttr = SCA,NT,ST,HT || Helper(25000),Var(54) = 3
+TriggerAll = EnemyNear(Var(3)),Vel X >= 3 || BackEdgeBodyDist <= 50 && EnemyNear(Var(3)),Vel X < 3
+TriggerAll = EnemyNear(Var(3)),MoveType = A 
+TriggerAll = EnemyNear(var(3)),Time >= Helper(25000),Var(38) || Var(59) > 5
+TriggerAll = InGuardDist
+Trigger1 = Ctrl
+Trigger2 = Var(10) = 0
+Trigger2 = Var(2)/100 = 14 && MoveType != H || Var(2)/100%10 = 5 && MoveType != H || Var(2)/100%10 = 3 && (StateNo = [900,901]) || Var(2)/100%10 = 3 && (StateNo = [910,911]) || Var(2)/100%10 = 2 && StateNo = 905
+Trigger3 = Var(10) = 0
+Trigger3 = Var(2)/1000 = 1 && (StateNo = [200,209]) || Var(2)/1000 = 1 && (StateNo = [400,409])
+Trigger4 = Var(10) = 0
+Trigger4 = Var(2)/100 = 12 && StateNo = 215 || Var(2)/100 = 12 && StateNo = 250 || Var(2)/100 = 12 && (StateNo = [251,255]) || Var(2)/100 = 12 && StateNo = 415 || Var(2)/1000%10 > 0 && StateNo = 1211 || Var(2)/1000%10 > 0 && StateNo = 1211
+
+[State -3,ダッシュ]
+Type = ChangeState
+Value = 100
+TriggerAll = Var(59) > 0
+TriggerAll = Random <= Var(59) * 200 || Var(59) > 5
+TriggerAll = RoundState = 2
+TriggerAll = StateType != A
+TriggerAll = NumHelper(25000)
+TriggerAll = Helper(25000),Var(55) = 3 && EnemyNear(Var(3)),Time = [74,84]
+TriggerAll = BackEdgeBodyDist <= 50
+Trigger1 = Ctrl
+
+[State -3,バクステ]
+Type = ChangeState
+Value = 105
+TriggerAll = Var(59) > 0
+TriggerAll = Random <= Var(59) * 200 || Var(59) > 5
+TriggerAll = RoundState = 2
+TriggerAll = StateType != A
+TriggerAll = BackEdgeBodyDist > 50
+TriggerAll = NumHelper(25000)
+TriggerAll = EnemyNear(Var(3)),HitDefAttr = SCA,NT,ST,HT || (Helper(25000),Var(54) = [1,3]) 
+TriggerAll = EnemyNear(Var(3)),Vel X < 3
+TriggerAll = EnemyNear(Var(3)),MoveType = A 
+TriggerAll = (P2BodyDist X = [-5,70])
+TriggerAll = Var(57)/10%10 != 4
+Trigger1 = Ctrl
+Trigger2 = Var(2)/100%10 = 5 && MoveType != H
+
+[State -3,Eバクステ]
+Type = ChangeState
+Value = 107
+TriggerAll = Var(59) > 0
+TriggerAll = Random <= Var(59) * 200 || Var(59) > 5
+TriggerAll = RoundState = 2
+TriggerAll = StateType != A
+TriggerAll = BackEdgeBodyDist > 50
+TriggerAll = NumHelper(25000)
+TriggerAll = EnemyNear(Var(3)),HitDefAttr = SCA,NT,ST,HT || (Helper(25000),Var(54) = [1,3])
+TriggerAll = EnemyNear(Var(3)),Vel X < 3
+TriggerAll = EnemyNear(Var(3)),MoveType = A
+TriggerAll = (P2BodyDist X = [-5,70])
+TriggerAll = Var(57)/10%10 = 4
+Trigger1 = Ctrl
+Trigger2 = Var(2)/100%10 = 5 && MoveType != H
+
+;――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――
+;                                                             ガード
+;――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――
+
+[State -3,ガード始動]
+Type = ChangeState
+Value = 120
+TriggerAll = Var(59) > 0
+TriggerAll = Random <= Var(59) * 200 || Var(59) > 5
+TriggerAll = NumHelper(25000) > 0
+TriggerAll = EnemyNear(Var(3)),HitDefAttr != SAC,NT,ST,HT || Helper(25000),Var(54) != 3
+TriggerAll = RoundState = 2
+TriggerAll = InGuardDist || Helper(25000),InguardDist
+TriggerAll = StateNo != 760
+TriggerAll = StateNo != [920,923]
+Trigger1 = Ctrl || Var(2)/100%10 = 5 && MoveType != H
+IgnoreHitPause = 1
+
+[State -2,ガード始動]
+Type = VarSet
+v = 37
+Value = 120
+TriggerAll = Var(59) > 0
+TriggerAll = RoundState = 2
+TriggerAll = Random <= Var(59) * 200 || Var(59) > 5
+TriggerAll = NumHelper(25000)
+TriggerAll = Var(37) = 0
+Trigger1 = InguardDist || Helper(25000),InGuardDist
+Trigger1 = EnemyNear(Var(3)),HitDefAttr != SAC,NT,ST,HT || Helper(25000),Var(54) != 3
+Trigger1 = StateNo = 5120
+Trigger1 = AnimTime >= -1
+IgnoreHitPause = 1
+
+[State -3, EXガードリセット]
+Type = VarAdd
+TriggerAll = Var(59) > 0
+Trigger1 = Var(57)%10 = 1 || Var(57)%10 = 3
+Trigger1 = Var(42)%10 >= 2
+IgnoreHitPause = 1
+V = 42
+Value = -Var(42)%10
+
+;EXガードAI用Varセット
+[State -3, AI]
+Type = VarAdd
+TriggerAll = Var(59) > 0
+TriggerAll = NumHelper(25000)
+Trigger1 = Var(57)%10 = 1 || Var(57)%10 = 3 
+Trigger1 = Var(42)%10 = [0,1] 
+Trigger1 = Random < Helper(25000),Var(34) * 100
+IgnoreHitPause = 1
+V = 42
+Value = IfElse(Var(42)%10=0,1,-1) 
+
+;――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――
+;                                                             起き攻め
+;――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――
+
+[State -3,ジャンプ]
+Type = ChangeState
+Value = 39
+TriggerAll = Var(59) > 0
+TriggerAll = Random <= Var(59) * 50
+TriggerAll = RoundState = 2
+TriggerAll = StateType != A
+TriggerAll = EnemyNear(Var(3)),StateType = L
+TriggerAll = P2BodyDist X <= 80
+TriggerAll = EnemyNear(Var(3)),StateNo = 5120
+TriggerAll = EnemyNear(Var(3)),AnimTime = [-30,-26]
+Trigger1 = Ctrl
+Trigger2 = Var(10) = 0
+Trigger2 = Var(2)/100 = 14 && MoveType != H || Var(2)/100%10 = 5 && MoveType != H || Var(2)/100%10 = 3 && (StateNo = [900,901]) || Var(2)/100%10 = 3 && (StateNo = [910,911]) || Var(2)/100%10 = 2 && StateNo = 905
+Trigger3 = Var(10) = 0
+Trigger3 = Var(2)/1000 = 1 && (StateNo = [200,209]) || Var(2)/1000 = 1 && (StateNo = [400,409])
+Trigger4 = Var(10) = 0
+Trigger4 = Var(2)/100 = 12 && StateNo = 215 || Var(2)/100 = 12 && StateNo = 250 || Var(2)/100 = 12 && (StateNo = [251,255]) || Var(2)/100 = 12 && StateNo = 415 || Var(2)/1000%10 > 0 && StateNo = 1211 || Var(2)/1000%10 > 0 && StateNo = 1211
+
+[State -3,ダッシュ]
+Type = ChangeState
+Value = 100
+TriggerAll = Var(59) > 0
+TriggerAll = Var(57)/10%10 = 4
+TriggerAll = RoundState = 2
+TriggerAll = StateType != A
+TriggerAll = NumHelper(25000)
+TriggerAll = Helper(25000),Var(51) = 0
+TriggerAll = Var(25)/10%10 < 3
+TriggerAll = EnemyNear(Var(3)),StateNo != 5120
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateType = L
+TriggerAll = P2BodyDist X > 25
+Trigger1 = Ctrl
+
+[State -3,投げ]
+Type = ChangeState
+Value = 800
+TriggerAll = Var(59) > 0
+TriggerAll = Var(57)/10%10 = 4
+TriggerAll = RoundState = 2
+TriggerAll = StateType != A
+TriggerAll = NumHelper(25000)
+TriggerAll = Helper(25000),Var(51) = 0
+TriggerAll = Var(25)/10%10 < 3
+TriggerAll = EnemyNear(Var(3)),StateNo != 5120
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateType = L
+TriggerAll = P2BodyDist X = [-10,25]
+Trigger1 = Ctrl || Var(2)/100%10 = 3 && MoveType != H || Var(2)/100%10 = 5 && MoveType != H
+
+[State -3,2A]
+Type = ChangeState
+Value = Ifelse(Var(57)/10%10=4,403,Ifelse(Var(57)/10%10=3,402,Ifelse(Var(57)/10%10=2,401,400)))
+TriggerAll = Var(59) > 0
+TriggerAll = Random <= Var(59) * 200
+TriggerAll = RoundState = 2
+TriggerAll = StateType != A
+TriggerAll = NumHelper(25000)
+TriggerAll = EnemyNear(Var(3)),StateNo = 5120
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateType = L
+TriggerAll = (Helper(25000),Var(46)=[0,2])&&(EnemyNear(Var(3)),AnimTime=[-4,-2])||Helper(25000),Var(46)=3&&(EnemyNear(Var(3)),AnimTime=[-10,-8])||Helper(25000),Var(46)=4&&(EnemyNear(Var(3)),AnimTime=[-16,-14])
+TriggerAll = P2BodyDist X <= 50
+Trigger1 = Ctrl || StateNo = 52 && Var(9) >= 1
+Trigger2 = Var(2)/100%10 = 3 && MoveType != H || Var(2)/100%10 = 5 && MoveType != H || Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 != 3
+Trigger2 = Var(20)/10%10 = 0
+Trigger3 = StateNo = [400,409]
+Trigger3 = Var(2)/100%10 = 3 && MoveType != H
+Trigger4 = (StateNo = [200,209]) || (StateNo = [400,409])
+Trigger4 = Var(2)/100%10 = 4 && MoveType != H
+
+[State -3,Cバックステップ]
+Type = ChangeState
+Value = 105
+TriggerAll = Var(59) > 0
+TriggerAll = Var(57)/10%10 != 4
+TriggerAll = Random <= Var(59) * 200
+TriggerAll = RoundState = 2
+TriggerAll = StateType != A
+TriggerAll = NumHelper(25000)
+TriggerAll = Helper(25000),Var(46) = 5
+TriggerAll = EnemyNear(Var(3)),StateNo = 5120
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateType = L
+TriggerAll = P2BodyDist X <= 90
+TriggerAll = BackEdgeBodyDist > 50
+Trigger1 = Ctrl
+Trigger2 = Var(2)/100%10 = 5 && MoveType != H
+
+[State -3,Eバックステップ]
+Type = ChangeState
+Value = 107
+TriggerAll = Var(59) > 0
+TriggerAll = Var(57)/10%10 = 4
+TriggerAll = Random <= Var(59) * 200
+TriggerAll = RoundState = 2
+TriggerAll = StateType != A
+TriggerAll = NumHelper(25000)
+TriggerAll = Helper(25000),Var(46) = 5
+TriggerAll = EnemyNear(Var(3)),StateNo = 5120
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateType = L
+TriggerAll = P2BodyDist X <= 90
+TriggerAll = BackEdgeBodyDist > 50
+Trigger1 = Ctrl
+Trigger2 = Var(2)/100%10 = 5 && MoveType != H
+
+[State -3,Bちょうしんちゅう]
+Type = ChangeState
+Value = 1250
+TriggerAll = Var(59) > 0
+TriggerAll = Var(57)/100%10 = 1
+TriggerAll = Random <= Var(59) * 200
+TriggerAll = RoundState = 2
+TriggerAll = StateType != A
+TriggerAll = NumHelper(25000)
+TriggerAll = Helper(25000),Var(46) = 5
+TriggerAll = EnemyNear(Var(3)),StateNo = 5120
+TriggerAll = EnemyNear(Var(3)),AnimTime = [-28,-10]
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateType = L
+TriggerAll = P2BodyDist X <= 70
+Trigger1 = Ctrl
+Trigger2 = Var(2)/100%10 >= 2 && MoveType != H
+
+[State -3,Bせんしっぽ]
+Type = ChangeState
+Value = 1150
+TriggerAll = Var(59) > 0
+TriggerAll = Random <= Var(59) * 200
+TriggerAll = RoundState = 2
+TriggerAll = StateType != A
+TriggerAll = NumHelper(25000)
+TriggerAll = Helper(25000),Var(46) = 5
+TriggerAll = EnemyNear(Var(3)),StateNo = 5120
+TriggerAll = EnemyNear(Var(3)),AnimTime = [-28,-10]
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateType = L
+TriggerAll = P2BodyDist X <= 60
+Trigger1 = Ctrl
+Trigger2 = Var(2)/100%10 >= 2 && MoveType != H
+
+[State -3,JA]
+Type = ChangeState
+Value = 600
+TriggerAll = Var(59) > 0
+TriggerAll = Var(57)/10%10 != 4
+TriggerAll = Random <= Var(59) * 200
+TriggerAll = RoundState = 2
+TriggerAll = StateType = A
+TriggerAll = !IsHelper
+TriggerAll = EnemyNear(Var(3)),StateType = L
+TriggerAll = P2BodyDist X-(Vel X*8) <= 50
+TriggerAll = P2BodyDist Y-(Vel Y*8+(0.55*(8**2)/2.0)) = [0,44]
+TriggerAll = P2Dist X >= -10 || EnemyNear(Var(3)),BackEdgeBodyDist <= 30
+TriggerAll = Vel Y >= -2 
+Trigger1 = Ctrl
+Trigger2 = Var(2)/100%10 = 3 && MoveType != H || Var(2)/100%10 = 5 && MoveType != H || Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 != 3
+Trigger2 = Var(20)/100 = 0
+Trigger3 = StateNo = [600,609]
+Trigger3 = Var(2)/100%10 = 3 && MoveType != H
+Trigger4 = StateNo = [600,609]
+Trigger4 = Var(2)/100%10 = 4 && MoveType != H
+
+[State -3,JC]
+Type = ChangeState
+Value = 620
+TriggerAll = Var(59) > 0
+TriggerAll = Var(57)/10%10 != 4
+TriggerAll = Random <= Var(59) * 200
+TriggerAll = RoundState = 2
+TriggerAll = StateType = A
+TriggerAll = !IsHelper
+TriggerAll = EnemyNear(Var(3)),StateType = L
+TriggerAll = P2BodyDist X-(Vel X*8) <= 50
+TriggerAll = P2BodyDist Y-(Vel Y*8+(0.55*(8**2)/2.0)) = [0,54]
+TriggerAll = P2Dist X >= -10 || EnemyNear(Var(3)),BackEdgeBodyDist <= 30
+TriggerAll = Vel Y >= -2 
+Trigger1 = Ctrl
+Trigger2 = Var(2)/100%10 = 3 && MoveType != H || Var(2)/100%10 = 5 && MoveType != H || Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 != 3
+Trigger2 = Var(22)/100 = 0
+Trigger3 = Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 = 3
+Trigger3 = StateNo = [600,619]
+Trigger3 = Var(22)/100 = 0
+
+[State -3,JB]
+Type = ChangeState
+Value = 610
+TriggerAll = Var(59) > 0
+TriggerAll = Var(57)/10%10 != 4
+TriggerAll = Random <= Var(59) * 200
+TriggerAll = RoundState = 2
+TriggerAll = StateType = A
+TriggerAll = !IsHelper
+TriggerAll = EnemyNear(Var(3)),StateType = L
+TriggerAll = P2BodyDist X-(Vel X*8) <= 70
+TriggerAll = P2BodyDist Y-(Vel Y*8+(0.55*(8**2)/2.0)) = [0,24]
+TriggerAll = P2Dist X >= -30 || EnemyNear(Var(3)),BackEdgeBodyDist <= 30
+TriggerAll = Vel Y >= -2 
+Trigger1 = Ctrl
+Trigger2 = Var(2)/100%10 = 3 && MoveType != H || Var(2)/100%10 = 5 && MoveType != H || Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 != 3
+Trigger2 = Var(21)/100 = 0
+Trigger3 = Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 = 3
+Trigger3 = StateNo = [600,609]
+Trigger3 = Var(21)/100 = 0
+
+[State -3,EJA]
+Type = ChangeState
+Value = 601
+TriggerAll = Var(59) > 0
+TriggerAll = Var(57)/10%10 = 4
+TriggerAll = Random <= Var(59) * 200
+TriggerAll = RoundState = 2
+TriggerAll = StateType = A
+TriggerAll = !IsHelper
+TriggerAll = EnemyNear(Var(3)),StateType = L
+TriggerAll = P2BodyDist X-(Vel X*8) <= 50
+TriggerAll = P2BodyDist Y-(Vel Y*8+(0.55*(8**2)/2.0)) = [0,44]
+TriggerAll = P2Dist X >= -10 || EnemyNear(Var(3)),BackEdgeBodyDist <= 30
+TriggerAll = Vel Y >= -2 
+Trigger1 = Ctrl
+Trigger2 = Var(2)/100%10 = 3 && MoveType != H || Var(2)/100%10 = 5 && MoveType != H || Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 != 3
+Trigger2 = Var(20)/100 = 0
+Trigger3 = StateNo = [600,609]
+Trigger3 = Var(2)/100%10 = 3 && MoveType != H
+Trigger4 = StateNo = [600,609]
+Trigger4 = Var(2)/100%10 = 4 && MoveType != H
+
+[State -3,EJC]
+Type = ChangeState
+Value = 621
+TriggerAll = Var(59) > 0
+TriggerAll = Var(57)/10%10 = 4
+TriggerAll = Random <= Var(59) * 200
+TriggerAll = RoundState = 2
+TriggerAll = StateType = A
+TriggerAll = !IsHelper
+TriggerAll = EnemyNear(Var(3)),StateType = L
+TriggerAll = P2BodyDist X-(Vel X*8) <= 50
+TriggerAll = P2BodyDist Y-(Vel Y*8+(0.55*(8**2)/2.0)) = [0,54]
+TriggerAll = P2Dist X >= -10 || EnemyNear(Var(3)),BackEdgeBodyDist <= 30
+TriggerAll = Vel Y >= -2 
+Trigger1 = Ctrl
+Trigger2 = Var(2)/100%10 = 3 && MoveType != H || Var(2)/100%10 = 5 && MoveType != H || Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 != 3
+Trigger2 = Var(22)/100 = 0
+Trigger3 = Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 = 3
+Trigger3 = StateNo = [600,619]
+Trigger3 = Var(22)/100 = 0
+
+[State -3,EJB]
+Type = ChangeState
+Value = 611
+TriggerAll = Var(59) > 0
+TriggerAll = Var(57)/10%10 = 4
+TriggerAll = Random <= Var(59) * 200
+TriggerAll = RoundState = 2
+TriggerAll = StateType = A
+TriggerAll = !IsHelper
+TriggerAll = EnemyNear(Var(3)),StateType = L
+TriggerAll = P2BodyDist X-(Vel X*8) <= 70
+TriggerAll = P2BodyDist Y-(Vel Y*8+(0.55*(8**2)/2.0)) = [0,24]
+TriggerAll = P2Dist X >= -30 || EnemyNear(Var(3)),BackEdgeBodyDist <= 30
+TriggerAll = Vel Y >= -2 
+Trigger1 = Ctrl
+Trigger2 = Var(2)/100%10 = 3 && MoveType != H || Var(2)/100%10 = 5 && MoveType != H || Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 != 3
+Trigger2 = Var(21)/100 = 0
+Trigger3 = Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 = 3
+Trigger3 = StateNo = [600,609]
+Trigger3 = Var(21)/100 = 0
+
+;--------------------------------------------------------------------------------------------------------------------------
+;                                                            受身狩り
+;--------------------------------------------------------------------------------------------------------------------------
+
+[State -3,空投げ]
+Type = ChangeState
+Value = 820
+TriggerAll = Var(59) > 0
+TriggerAll = RoundState = 2
+TriggerAll = StateType = A
+TriggerAll = !IsHelper
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateType = A
+TriggerAll = P2BodyDist X-Vel X-EnemyNear(Var(3)),Vel X = [-10,24]
+TriggerAll = P2BodyDist Y-Vel Y+EnemyNear(Var(3)),Vel Y = [-60,Abs(EnemyNear(Var(3)),Const(size.head.pos.y))-55]
+TriggerAll = Ctrl || Var(2)/100%10 = 3 && MoveType != H || Var(2)/100%10 = 5 && MoveType != H || Var(2)/100 = 14 && MoveType != H || Var(2)/1000 = 1 && StateNo = 1310 || Var(2)/1000 = 1 && StateNo = 1320 || Var(2)/1000%10 > 0 && StateNo = [1500,1599]
+Trigger1 = EnemyNear(var(3)),StateNo = [5210,5219]
+Trigger1 = EnemyNear(var(3)),Time >= 12 || EnemyNear(var(3)),Ctrl
+
+[State -3, 空中ダッシュ]
+Type = ChangeState
+Value = 110
+TriggerAll = var(59) > 0
+TriggerAll = StateType = A
+TriggerAll = Alive
+TriggerAll = RoundState = 2
+TriggerAll = !isHelper
+TriggerAll = P2BodyDist X <= 80
+TriggerAll = Ctrl
+TriggerAll = !Inguarddist
+TriggerAll = EnemyNear(var(3)),StateType = A
+TriggerAll = P2BodyDist X >= 50
+Trigger1 = EnemyNear(var(3)),StateNo = [5210,5219]
+Trigger1 = EnemyNear(var(3)),Time >= 1 || EnemyNear(var(3)),Ctrl
+
+[State -3, ジャンプ]
+Type = ChangeState
+Value = 39
+TriggerAll = var(59) > 0
+TriggerAll = StateType != A
+TriggerAll = Alive
+TriggerAll = RoundState = 2
+TriggerAll = !isHelper
+TriggerAll = P2BodyDist X <= 40
+TriggerAll = Ctrl
+TriggerAll = !Inguarddist
+TriggerAll = EnemyNear(var(3)),StateType = A
+TriggerAll = P2BodyDist X >= 0
+TriggerAll = P2BodyDist Y >= -50
+Trigger1 = EnemyNear(var(3)),StateNo = [5210,5219]
+Trigger1 = EnemyNear(var(3)),Time >= 1 || EnemyNear(var(3)),Ctrl
+
+[State -3, ハイジャンプ]
+Type = ChangeState
+Value = 41
+TriggerAll = var(59) > 0
+TriggerAll = StateType != A
+TriggerAll = Alive
+TriggerAll = RoundState = 2
+TriggerAll = !isHelper
+TriggerAll = P2BodyDist X <= 40
+TriggerAll = Ctrl
+TriggerAll = !Inguarddist
+TriggerAll = EnemyNear(var(3)),StateType = A
+TriggerAll = P2BodyDist X >= 0
+TriggerAll = P2BodyDist Y < -50
+Trigger1 = EnemyNear(var(3)),StateNo = [5210,5219]
+Trigger1 = EnemyNear(var(3)),Time >= 1 || EnemyNear(var(3)),Ctrl
+
+;----------------------------------------------------------------------------------------------------------------------------
+;============================================================================================================================
+;――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――
+;                                                             コンボ記述
+;――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――
+;============================================================================================================================
+;----------------------------------------------------------------------------------------------------------------------------
+
+;-------------------------------------------------------------------------------
+;AD/AAD追撃
+;-------------------------------------------------------------------------------
+
+[State -3,AD/AAD]
+Type = ChangeState
+Value = 3000
+TriggerAll = Var(59) > 0
+TriggerAll = Random <= Var(59) * 300 || Var(59) >= 4
+TriggerAll = RoundState = 2
+TriggerAll = StateType != A
+TriggerAll = Alive
+TriggerAll = !IsHelper
+TriggerAll = !InGuardDist
+TriggerAll = NumHelper(25000)
+TriggerAll = Helper(25000),Var(51) = 0
+TriggerAll = Var(50) = [0,2]
+TriggerAll = Var(25)/10%10 < 3
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),MoveType = H
+TriggerAll = Var(13) = [1,5]
+TriggerAll = P2BodyDist X = [-40,60] 
+TriggerAll = P2BodyDist Y = [-200,-10]
+Trigger1 = Ctrl
+Trigger2 = Var(2)/100%10 >= 1 && MoveType != H
+
+;-------------------------------------------------------------------------------
+;投げhit後(追加入力時含む)
+;-------------------------------------------------------------------------------
+
+[State -3,C5C]
+Type = ChangeState
+Value = 220
+TriggerAll = Var(59) > 0
+TriggerAll = RoundState = 2
+TriggerAll = Var(57)/10%10 = 1
+TriggerAll = StateType != A
+TriggerAll = !IsHelper
+TriggerAll = !InGuardDist
+TriggerAll = NumHelper(25000)
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),MoveType = H 
+TriggerAll = P2Dist X > 0
+TriggerAll = P2BodyDist X <= 60
+TriggerAll = Var(25)/10%10 < 3
+TriggerAll = Var(39) := 10
+TriggerAll = StateNo = 810 || StateNo = 813
+Trigger1 = Ctrl
+Trigger2 = Var(2)/100%10 = 3 && MoveType != H || Var(2)/100%10 = 5 && MoveType != H || Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 != 3
+Trigger2 = Var(22)/10%10 = 0
+Trigger3 = Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 = 3
+Trigger3 = (StateNo = [200,219]) || (StateNo = [230,249]) || (StateNo = [400,419])
+Trigger3 = Var(22)/10%10 = 0
+
+[State -3,C6B]
+Type = ChangeState
+Value = 240
+TriggerAll = Var(59) > 0
+TriggerAll = RoundState = 2
+TriggerAll = Var(57)/10%10 = 1
+TriggerAll = StateType != A
+TriggerAll = !IsHelper
+TriggerAll = !InGuardDist
+TriggerAll = NumHelper(25000)
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),MoveType = H || (EnemyNear(Var(3)),StateNo = [120,159])
+TriggerAll = P2Dist X > 0
+TriggerAll = P2BodyDist X <= 55
+TriggerAll = Var(39) = 10
+TriggerAll = Var(25)/10%10 < 3
+Trigger1 = Ctrl
+Trigger2 = Var(2)/100%10 = 3 && MoveType != H || Var(2)/100%10 = 5 && MoveType != H || Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 != 3
+Trigger2 = Var(23)%10 = 0
+Trigger3 = Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 = 3
+Trigger3 = (StateNo = [200,219]) || StateNo = 230 || (StateNo = [400,419])
+Trigger3 = Var(23)%10 = 0
+
+[State -3,C5B]
+Type = ChangeState
+Value = 210
+TriggerAll = Var(59) > 0
+TriggerAll = Var(57)/10%10 = 1
+TriggerAll = RoundState = 2
+TriggerAll = StateType != A
+TriggerAll = !IsHelper
+TriggerAll = !InGuardDist
+TriggerAll = NumHelper(25000)
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),MoveType = H || (EnemyNear(Var(3)),StateNo = [120,159])
+TriggerAll = P2Dist X > 0
+TriggerAll = P2BodyDist X <= 50
+TriggerAll = Var(39) = 10
+TriggerAll = Var(25)/10%10 < 3
+Trigger1 = Ctrl || StateNo = 52 && Var(9) >= 2
+Trigger2 = Var(2)/100%10 = 3 && MoveType != H || Var(2)/100%10 = 5 && MoveType != H || Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 != 3
+Trigger2 = Var(21)%10 = 0
+Trigger3 = Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 = 3
+Trigger3 = (StateNo = [200,209]) || StateNo = 230 || (StateNo = [400,409])
+Trigger3 = Var(21)%10 = 0
+
+[State -3,C2B]
+Type = ChangeState
+Value = 410
+TriggerAll = Var(59) > 0
+TriggerAll = Var(57)/10%10 = 1
+TriggerAll = RoundState = 2
+TriggerAll = StateType != A
+TriggerAll = !IsHelper
+TriggerAll = !InGuardDist
+TriggerAll = NumHelper(25000)
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),MoveType = H || (EnemyNear(Var(3)),StateNo = [120,159])
+TriggerAll = P2Dist X > 0
+TriggerAll = P2BodyDist X <= 40
+TriggerAll = Var(39) = 10
+TriggerAll = Var(25)/10%10 < 3
+Trigger1 = Ctrl || StateNo = 52 && Var(9) >= 2
+Trigger2 = Var(2)/100%10 = 3 && MoveType != H || Var(2)/100%10 = 5 && MoveType != H || Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 != 3
+Trigger2 = Var(21)/10%10 = 0
+Trigger3 = Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 = 3
+Trigger3 = (StateNo = [200,219]) || StateNo = 230 || (StateNo = [400,409])
+Trigger3 = Var(21)/10%10 = 0
+
+[State -3,C2C]
+Type = ChangeState
+Value = 420
+TriggerAll = Var(59) > 0
+TriggerAll = Var(57)/10%10 = 1
+TriggerAll = RoundState = 2
+TriggerAll = StateType != A
+TriggerAll = !IsHelper
+TriggerAll = !InGuardDist
+TriggerAll = NumHelper(25000)
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),MoveType = H || (EnemyNear(Var(3)),StateNo = [120,159])
+TriggerAll = P2Dist X > 0
+TriggerAll = P2BodyDist X <= 50
+TriggerAll = Var(39) = 10
+TriggerAll = Var(25)/10%10 < 3
+Trigger1 = Ctrl
+Trigger2 = Var(2)/100%10 = 3 && MoveType != H || Var(2)/100%10 = 5 && MoveType != H || Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 != 3
+Trigger2 = Var(22)/10%10 = 0
+Trigger3 = Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 = 3
+Trigger3 = (StateNo = [200,219]) || (StateNo = [230,249]) || (StateNo = [400,419])
+Trigger3 = Var(22)/10%10 = 0
+
+[State -3,C5C]
+Type = ChangeState
+Value = 220
+TriggerAll = Var(59) > 0
+TriggerAll = RoundState = 2
+TriggerAll = Var(57)/10%10 = 1
+TriggerAll = StateType != A
+TriggerAll = !IsHelper
+TriggerAll = !InGuardDist
+TriggerAll = NumHelper(25000)
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),MoveType = H 
+TriggerAll = P2Dist X > 0
+TriggerAll = P2BodyDist X <= 70
+TriggerAll = Var(25)/10%10 < 3
+TriggerAll = Var(39) = 10
+TriggerAll = Var(39) := 0
+Trigger1 = Ctrl
+Trigger2 = Var(2)/100%10 = 3 && MoveType != H || Var(2)/100%10 = 5 && MoveType != H || Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 != 3
+Trigger2 = Var(22)/10%10 = 0
+Trigger3 = Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 = 3
+Trigger3 = (StateNo = [200,219]) || (StateNo = [230,249]) || (StateNo = [400,419])
+Trigger3 = Var(22)/10%10 = 0
+
+[State -3,H2C]
+Type = ChangeState
+Value = 421
+TriggerAll = Var(59) > 0
+TriggerAll = RoundState = 2
+TriggerAll = Var(57)/10%10 = 2
+TriggerAll = StateType != A
+TriggerAll = !IsHelper
+TriggerAll = !InGuardDist
+TriggerAll = NumHelper(25000)
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),MoveType = H 
+TriggerAll = P2Dist X > 0
+TriggerAll = P2BodyDist X <= 70
+TriggerAll = Var(25)/10%10 < 3
+TriggerAll = StateNo = 810 || StateNo = 813
+Trigger1 = Ctrl
+Trigger2 = Var(2)/100%10 = 3 && MoveType != H || Var(2)/100%10 = 5 && MoveType != H || Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 != 3
+Trigger2 = Var(22)/10%10 = 0
+Trigger3 = Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 = 3
+Trigger3 = (StateNo = [200,219]) || (StateNo = [230,249]) || (StateNo = [400,419])
+Trigger3 = Var(22)/10%10 = 0
+
+[State -3,変数管理]
+Type = Null
+TriggerAll = Var(59) > 0
+TriggerAll = Var(57)/10%10 = 2
+TriggerAll = Var(25)/10%10 < 3
+TriggerAll = StateNo = 421
+Trigger1 = FrontEdgeBodyDist > 80
+Trigger1 = Var(39) := 11
+Trigger2 = FrontEdgeBodyDist <= 80
+Trigger2 = Var(39) := 14
+
+[State -3,H5C]
+Type = ChangeState
+Value = 222
+TriggerAll = Var(59) > 0
+TriggerAll = RoundState = 2
+TriggerAll = Var(57)/10%10 = 2
+TriggerAll = StateType != A
+TriggerAll = !IsHelper
+TriggerAll = !InGuardDist
+TriggerAll = NumHelper(25000)
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),MoveType = H
+TriggerAll = EnemyNear(Var(3)),Vel Y >= 0
+TriggerAll = P2Dist X > 0
+TriggerAll = P2BodyDist X <= 60
+TriggerAll = Var(25)/10%10 < 3
+TriggerAll = Var(39) = 11
+Trigger1 = Ctrl
+Trigger2 = Var(2)/100%10 = 3 && MoveType != H || Var(2)/100%10 = 5 && MoveType != H || Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 != 3
+Trigger2 = Var(22)/10%10 = 0
+Trigger3 = Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 = 3
+Trigger3 = (StateNo = [200,219]) || (StateNo = [230,249]) || (StateNo = [400,419])
+Trigger3 = Var(22)/10%10 = 0
+
+[State -3,H5A]
+Type = ChangeState
+Value = 201
+TriggerAll = Var(59) > 0
+TriggerAll = RoundState = 2
+TriggerAll = Var(57)/10%10 = 2
+TriggerAll = StateType != A
+TriggerAll = !IsHelper
+TriggerAll = !InGuardDist
+TriggerAll = NumHelper(25000)
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),MoveType = H
+TriggerAll = P2Dist X > 0
+TriggerAll = P2BodyDist X <= 50
+TriggerAll = Var(25)/10%10 < 3
+TriggerAll = Var(39) = 11 && StateNo = 222
+TriggerAll = Var(39) := 12
+Trigger1 = Ctrl || StateNo = 52 && Var(9) >= 1
+Trigger2 = Var(2)/100%10 = 3 && MoveType != H || Var(2)/100%10 = 5 && MoveType != H || Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 != 3
+Trigger2 = Var(20)%10 = 0
+Trigger3 = StateNo = [200,209]
+Trigger3 = Var(2)/100%10 = 3 && MoveType != H
+Trigger4 = (StateNo = [200,209]) || (StateNo = [400,409])
+Trigger4 = Var(2)/100%10 = 4 && MoveType != H
+
+[State -3,H5A]
+Type = ChangeState
+Value = 201
+TriggerAll = Var(59) > 0
+TriggerAll = RoundState = 2
+TriggerAll = Var(57)/10%10 = 2
+TriggerAll = StateType != A
+TriggerAll = !IsHelper
+TriggerAll = !InGuardDist
+TriggerAll = NumHelper(25000)
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),MoveType = H
+TriggerAll = P2Dist X > 0
+TriggerAll = Var(25)/10%10 < 3
+TriggerAll = Var(39) = 12 && StateNo = 201
+TriggerAll = Var(39) := 13
+Trigger1 = Ctrl || StateNo = 52 && Var(9) >= 1
+Trigger2 = Var(2)/100%10 = 3 && MoveType != H || Var(2)/100%10 = 5 && MoveType != H || Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 != 3
+Trigger2 = Var(20)%10 = 0
+Trigger3 = StateNo = [200,209]
+Trigger3 = Var(2)/100%10 = 3 && MoveType != H
+Trigger4 = (StateNo = [200,209]) || (StateNo = [400,409])
+Trigger4 = Var(2)/100%10 = 4 && MoveType != H
+
+[State -3,H5B]
+Type = ChangeState
+Value = 211
+TriggerAll = Var(59) > 0
+TriggerAll = RoundState = 2
+TriggerAll = Var(57)/10%10 = 2
+TriggerAll = StateType != A
+TriggerAll = !IsHelper
+TriggerAll = !InGuardDist
+TriggerAll = NumHelper(25000)
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),MoveType = H
+TriggerAll = P2Dist X > 0
+TriggerAll = P2BodyDist X <= 50
+TriggerAll = Var(25)/10%10 < 3
+TriggerAll = Var(39) = 13
+Trigger1 = Ctrl || StateNo = 52 && Var(9) >= 2
+Trigger2 = Var(2)/100%10 = 3 && MoveType != H || Var(2)/100%10 = 5 && MoveType != H || Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 != 3
+Trigger2 = Var(21)%10 = 0
+Trigger3 = Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 = 3
+Trigger3 = (StateNo = [200,209]) || StateNo = 230 || (StateNo = [400,409])
+Trigger3 = Var(21)%10 = 0
+
+[State -3,H2B]
+Type = ChangeState
+Value = 411
+TriggerAll = Var(59) > 0
+TriggerAll = RoundState = 2
+TriggerAll = Var(57)/10%10 = 2
+TriggerAll = StateType != A
+TriggerAll = !IsHelper
+TriggerAll = !InGuardDist
+TriggerAll = NumHelper(25000)
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),MoveType = H
+TriggerAll = P2Dist X > 0
+TriggerAll = P2BodyDist X <= 50
+TriggerAll = Var(25)/10%10 < 3
+TriggerAll = Var(39) = 13
+TriggerAll = Var(39) := 0
+Trigger1 = Ctrl || StateNo = 52 && Var(9) >= 2
+Trigger2 = Var(2)/100%10 = 3 && MoveType != H || Var(2)/100%10 = 5 && MoveType != H || Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 != 3
+Trigger2 = Var(21)/10%10 = 0
+Trigger3 = Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 = 3
+Trigger3 = (StateNo = [200,219]) || StateNo = 230 || (StateNo = [400,409])
+Trigger3 = Var(21)/10%10 = 0
+
+[State -3,H5C]
+Type = ChangeState
+Value = 222
+TriggerAll = Var(59) > 0
+TriggerAll = RoundState = 2
+TriggerAll = Var(57)/10%10 = 2
+TriggerAll = StateType != A
+TriggerAll = !IsHelper
+TriggerAll = !InGuardDist
+TriggerAll = NumHelper(25000)
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),MoveType = H
+TriggerAll = EnemyNear(Var(3)),Vel Y >= 0
+TriggerAll = P2Dist X > 0
+TriggerAll = P2BodyDist X <= 60
+TriggerAll = Var(25)/10%10 < 3
+TriggerAll = Var(39) = 14
+TriggerAll = Var(39) := 0
+Trigger1 = Ctrl
+Trigger2 = Var(2)/100%10 = 3 && MoveType != H || Var(2)/100%10 = 5 && MoveType != H || Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 != 3
+Trigger2 = Var(22)/10%10 = 0
+Trigger3 = Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 = 3
+Trigger3 = (StateNo = [200,219]) || (StateNo = [230,249]) || (StateNo = [400,419])
+Trigger3 = Var(22)/10%10 = 0
+
+[State -3,F5B]
+Type = ChangeState
+Value = 212
+TriggerAll = Var(59) > 0
+TriggerAll = RoundState = 2
+TriggerAll = Var(57)/10%10 = 3
+TriggerAll = StateType != A
+TriggerAll = !IsHelper
+TriggerAll = !InGuardDist
+TriggerAll = NumHelper(25000)
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),MoveType = H 
+TriggerAll = P2Dist X > 0
+TriggerAll = P2BodyDist X <= 60
+TriggerAll = Var(25)/10%10 < 3
+TriggerAll = Var(39) := 15
+TriggerAll = StateNo = 810 || StateNo = 813
+Trigger1 = Ctrl || StateNo = 52 && Var(9) >= 2
+Trigger2 = Var(2)/100%10 = 3 && MoveType != H || Var(2)/100%10 = 5 && MoveType != H || Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 != 3
+Trigger2 = Var(21)%10 = 0
+Trigger3 = Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 = 3
+Trigger3 = (StateNo = [200,209]) || StateNo = 230 || (StateNo = [400,409])
+Trigger3 = Var(21)%10 = 0
+
+[State -3,F5C]
+Type = ChangeState
+Value = 220
+TriggerAll = Var(59) > 0
+TriggerAll = RoundState = 2
+TriggerAll = Var(57)/10%10 = 3
+TriggerAll = StateType != A
+TriggerAll = !IsHelper
+TriggerAll = !InGuardDist
+TriggerAll = NumHelper(25000)
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),MoveType = H 
+TriggerAll = P2Dist X > 0
+TriggerAll = P2BodyDist X <= 60
+TriggerAll = Var(25)/10%10 < 3
+TriggerAll = Var(39) = 15
+Trigger1 = Ctrl
+Trigger2 = Var(2)/100%10 = 3 && MoveType != H || Var(2)/100%10 = 5 && MoveType != H || Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 != 3
+Trigger2 = Var(22)%10 = 0
+Trigger3 = Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 = 3
+Trigger3 = (StateNo = [200,219]) || (StateNo = [230,249]) || (StateNo = [400,419])
+Trigger3 = Var(22)%10 = 0
+
+[State -3,F6C]
+Type = ChangeState
+Value = 251
+TriggerAll = Var(59) > 0
+TriggerAll = RoundState = 2
+TriggerAll = Var(57)/10%10 = 3
+TriggerAll = StateType != A
+TriggerAll = !IsHelper
+TriggerAll = !InGuardDist
+TriggerAll = NumHelper(25000)
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),MoveType = H 
+TriggerAll = P2Dist X > 0
+TriggerAll = P2BodyDist X <= 60
+TriggerAll = P2BodyDist Y >= -20
+TriggerAll = Var(25)/10%10 < 3
+TriggerAll = Var(39) = 15
+TriggerAll = Var(39) := 0
+Trigger1 = Ctrl
+Trigger2 = Var(2)/100%10 = 3 && MoveType != H || Var(2)/100%10 = 5 && MoveType != H || Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 != 3
+Trigger2 = Var(23)/10%10 = 0
+Trigger3 = Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 = 3
+Trigger3 = (StateNo = [200,249]) || (StateNo = [400,429])
+Trigger3 = Var(23)/10%10 = 0
+
+[State -3,E2C]
+Type = ChangeState
+Value = 422
+TriggerAll = Var(59) > 0
+TriggerAll = RoundState = 2
+TriggerAll = Var(57)/10%10 = 4
+TriggerAll = StateType != A
+TriggerAll = !IsHelper
+TriggerAll = !InGuardDist
+TriggerAll = NumHelper(25000)
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),MoveType = H 
+TriggerAll = P2Dist X > 0
+TriggerAll = P2BodyDist X <= 60
+TriggerAll = Var(25)/10%10 < 3
+TriggerAll = Var(39) := 16
+TriggerAll = StateNo = 810 || StateNo = 813
+Trigger1 = Ctrl
+Trigger2 = Var(2)/100%10 = 3 && MoveType != H || Var(2)/100%10 = 5 && MoveType != H || Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 != 3
+Trigger2 = Var(22)/10%10 = 0
+Trigger3 = Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 = 3
+Trigger3 = (StateNo = [200,219]) || (StateNo = [230,249]) || (StateNo = [400,419])
+Trigger3 = Var(22)/10%10 = 0
+
+[State -3,E5C]
+Type = ChangeState
+Value = 224
+TriggerAll = Var(59) > 0
+TriggerAll = RoundState = 2
+TriggerAll = Var(57)/10%10 = 4
+TriggerAll = StateType != A
+TriggerAll = !IsHelper
+TriggerAll = !InGuardDist
+TriggerAll = NumHelper(25000)
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),MoveType = H 
+TriggerAll = P2Dist X > 0
+TriggerAll = P2BodyDist X <= 60
+TriggerAll = Var(25)/10%10 < 3
+TriggerAll = Var(39) = 16
+Trigger1 = Ctrl
+Trigger2 = Var(2)/100%10 = 3 && MoveType != H || Var(2)/100%10 = 5 && MoveType != H || Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 != 3
+Trigger2 = Var(22)%10 = 0
+Trigger3 = Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 = 3
+Trigger3 = (StateNo = [200,219]) || (StateNo = [230,249]) || (StateNo = [400,419])
+Trigger3 = Var(22)%10 = 0
+
+[State -3,E6C]
+Type = ChangeState
+Value = 253
+TriggerAll = Var(59) > 0
+TriggerAll = RoundState = 2
+TriggerAll = Var(57)/10%10 = 4
+TriggerAll = StateType != A
+TriggerAll = !IsHelper
+TriggerAll = !InGuardDist
+TriggerAll = NumHelper(25000)
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),MoveType = H 
+TriggerAll = P2Dist X > 0
+TriggerAll = P2BodyDist X <= 60
+TriggerAll = Var(25)/10%10 < 3
+TriggerAll = Var(39) = 16
+TriggerAll = Var(39) := 0
+Trigger1 = Ctrl
+Trigger2 = Var(2)/100%10 = 3 && MoveType != H || Var(2)/100%10 = 5 && MoveType != H || Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 != 3
+Trigger2 = Var(23)/10%10 = 0
+Trigger3 = Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 = 3
+Trigger3 = (StateNo = [200,249]) || (StateNo = [400,429])
+Trigger3 = Var(23)/10%10 = 0
+
+;-------------------------------------------------------------------------------
+;ワンツースリー
+;-------------------------------------------------------------------------------
+
+;H6A
+[State -1]
+Type = ChangeState
+Value = 230
+TriggerAll = Var(59) > 0
+TriggerAll = Var(57)/10%10 = 2
+TriggerAll = NumHelper(25000)
+TriggerAll = RoundState = 2
+TriggerAll = StateType != A
+TriggerAll = !IsHelper
+TriggerAll = !InGuardDist
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),MoveType = H || EnemyNear(Var(3)),StateNo = [120,159]
+TriggerAll = Var(25)/10%10 < 3
+TriggerAll = P2BodyDist X-IfElse(Vel X>0,IfElse(4<(Vel X/0.85),(Vel X*4-(0.85*(4**2)/2.0)),(Vel X**2)/(0.85*2)),0)-(EnemyNear(Var(3)),Vel X*4+(Helper(25000),fvar(4)*(4**2)/2.0)) <= 50
+TriggerAll = P2BodyDist Y+(EnemyNear(Var(3)),Vel Y*4+(Helper(25000),fvar(14)*(4**2)/2.0)) >= -30
+Trigger1 = StateNo = 201
+Trigger1 = Time = [4,12]
+
+;H6A2
+[State -1]
+Type = ChangeState
+Value = 231
+TriggerAll = Var(59) > 0
+TriggerAll = Var(57)/10%10 = 2
+TriggerAll = NumHelper(25000)
+TriggerAll = RoundState = 2
+TriggerAll = StateType != A
+TriggerAll = !IsHelper
+TriggerAll = !InGuardDist
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),MoveType = H || EnemyNear(Var(3)),StateNo = [120,159]
+TriggerAll = Var(25)/10%10 < 3
+TriggerAll = P2BodyDist X-IfElse(Vel X>0,IfElse(4<(Vel X/0.85),(Vel X*4-(0.85*(4**2)/2.0)),(Vel X**2)/(0.85*2)),0)-(EnemyNear(Var(3)),Vel X*4+(Helper(25000),fvar(4)*(4**2)/2.0)) <= 50
+TriggerAll = P2BodyDist Y+(EnemyNear(Var(3)),Vel Y*4+(Helper(25000),fvar(14)*(4**2)/2.0)) >= -30
+Trigger1 = StateNo = 230
+Trigger1 = Time = [8,23]
+
+;-------------------------------------------------------------------------------
+;地上部分
+;-------------------------------------------------------------------------------
+
+;ダウン追い打ち
+[State -3,2A]
+Type = ChangeState
+Value = Ifelse(Var(57)/10%10=4,403,Ifelse(Var(57)/10%10=3,402,Ifelse(Var(57)/10%10=2,401,400)))
+TriggerAll = Var(59) > 0
+TriggerAll = RoundState = 2
+TriggerAll = StateType != A
+TriggerAll = !IsHelper
+TriggerAll = !InGuardDist
+TriggerAll = NumHelper(25000)
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateType = L
+TriggerAll = P2Dist X > 0
+TriggerAll = P2BodyDist X <= 40
+TriggerAll = Var(25)/10%10 < 3 
+Trigger1 = Ctrl || StateNo = 52 && Var(9) >= 1
+Trigger2 = Var(2)/100%10 = 3 && MoveType != H || Var(2)/100%10 = 5 && MoveType != H || Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 != 3
+Trigger2 = Var(20)/10%10 = 0
+Trigger3 = StateNo = [400,409]
+Trigger3 = Var(2)/100%10 = 3 && MoveType != H
+Trigger4 = (StateNo = [200,209]) || (StateNo = [400,409])
+Trigger4 = Var(2)/100%10 = 4 && MoveType != H
+
+[State -3,2A]
+Type = ChangeState
+Value = Ifelse(Var(57)/10%10=4,403,Ifelse(Var(57)/10%10=3,402,Ifelse(Var(57)/10%10=2,401,400)))
+TriggerAll = Var(59) > 0
+TriggerAll = RoundState = 2
+TriggerAll = StateType != A
+TriggerAll = !IsHelper
+TriggerAll = !InGuardDist
+TriggerAll = NumHelper(25000)
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),StateType != A
+TriggerAll = (EnemyNear(Var(3)),StateNo = [120,159])
+TriggerAll = P2BodyDist X <= 40
+TriggerAll = Var(25)/10%10 < 3 
+Trigger1 = Ctrl || StateNo = 52 && Var(9) >= 1
+Trigger2 = Var(2)/100%10 = 3 && MoveType != H || Var(2)/100%10 = 5 && MoveType != H || Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 != 3
+Trigger2 = Var(20)/10%10 = 0
+Trigger3 = StateNo = [400,409]
+Trigger3 = Var(2)/100%10 = 3 && MoveType != H
+Trigger4 = (StateNo = [200,209]) || (StateNo = [400,409])
+Trigger4 = Var(2)/100%10 = 4 && MoveType != H
+
+[State -3,5A]
+Type = ChangeState
+Value = Ifelse(Var(57)/10%10=4,203,Ifelse(Var(57)/10%10=3,202,Ifelse(Var(57)/10%10=2,201,200)))
+TriggerAll = Var(59) > 0
+TriggerAll = RoundState = 2
+TriggerAll = StateType != A
+TriggerAll = !IsHelper
+TriggerAll = !InGuardDist
+TriggerAll = NumHelper(25000)
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),StateNo = [120,159]
+TriggerAll = P2BodyDist X <= 40
+TriggerAll = P2BodyDist Y >= -50
+TriggerAll = Var(25)/10%10 < 3
+Trigger1 = Ctrl || StateNo = 52 && Var(9) >= 1
+Trigger2 = Var(2)/100%10 = 3 && MoveType != H || Var(2)/100%10 = 5 && MoveType != H || Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 != 3
+Trigger2 = Var(20)%10 = 0
+Trigger3 = StateNo = [200,209]
+Trigger3 = Var(2)/100%10 = 3 && MoveType != H
+Trigger4 = (StateNo = [200,209]) || (StateNo = [400,409])
+Trigger4 = Var(2)/100%10 = 4 && MoveType != H
+
+[State -3,5B]
+Type = ChangeState
+Value = Ifelse(Var(57)/10%10=4,213,Ifelse(Var(57)/10%10=3,212,Ifelse(Var(57)/10%10=2,211,210)))
+TriggerAll = Var(59) > 0
+TriggerAll = RoundState = 2
+TriggerAll = StateType != A
+TriggerAll = !IsHelper
+TriggerAll = !InGuardDist
+TriggerAll = NumHelper(25000)
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),MoveType = H || (EnemyNear(Var(3)),StateNo = [120,159])
+TriggerAll = P2BodyDist X <= 50
+TriggerAll = P2BodyDist Y >= -20 - (Var(57)/10%10!=3)*20
+TriggerAll = Var(25)/10%10 < 3
+Trigger1 = Ctrl || StateNo = 52 && Var(9) >= 2
+Trigger2 = Var(2)/100%10 = 3 && MoveType != H || Var(2)/100%10 = 5 && MoveType != H || Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 != 3
+Trigger2 = Var(21)%10 = 0
+Trigger3 = Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 = 3
+Trigger3 = (StateNo = [200,209]) || StateNo = 230 || (StateNo = [400,409])
+Trigger3 = Var(21)%10 = 0
+
+[State -3,6B]
+Type = ChangeState
+Value = Ifelse(Var(57)/10%10=4,243,Ifelse(Var(57)/10%10=3,241,240))
+TriggerAll = Var(59) > 0
+TriggerAll = RoundState = 2
+TriggerAll = Var(57)/10%10 != 2
+TriggerAll = StateType != A
+TriggerAll = !IsHelper
+TriggerAll = !InGuardDist
+TriggerAll = NumHelper(25000)
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),StateNo = [120,159]
+TriggerAll = P2BodyDist X<= 60
+TriggerAll = P2BodyDist Y >= -50
+TriggerAll = Var(25)/10%10 < 3
+Trigger1 = Ctrl
+Trigger2 = Var(2)/100%10 = 3 && MoveType != H || Var(2)/100%10 = 5 && MoveType != H || Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 != 3
+Trigger2 = Var(23)%10 = 0
+Trigger3 = Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 = 3
+Trigger3 = (StateNo = [200,219]) || StateNo = 230 || (StateNo = [400,419])
+Trigger3 = Var(23)%10 = 0
+
+[State -3,2C]
+Type = ChangeState
+Value = Ifelse(Var(57)/10%10=4,422,Ifelse(Var(57)/10%10=2,421,420))
+TriggerAll = Var(59) > 0
+TriggerAll = RoundState = 2
+TriggerAll = StateType != A
+TriggerAll = !IsHelper
+TriggerAll = !InGuardDist
+TriggerAll = NumHelper(25000)
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),StateType != A
+TriggerAll = EnemyNear(Var(3)),MoveType = H || (EnemyNear(Var(3)),StateNo = [120,159])
+TriggerAll = P2BodyDist X <= 70
+TriggerAll = P2BodyDist Y >= -20
+TriggerAll = Var(25)/10%10 < 3
+Trigger1 = Ctrl
+Trigger2 = Var(2)/100%10 = 3 && MoveType != H || Var(2)/100%10 = 5 && MoveType != H || Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 != 3
+Trigger2 = Var(22)/10%10 = 0
+Trigger3 = Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 = 3
+Trigger3 = (StateNo = [200,219]) || (StateNo = [230,249]) || (StateNo = [400,419])
+Trigger3 = Var(22)/10%10 = 0
+
+;-------------------------------------------------------------------------------
+;エリアルへ
+;-------------------------------------------------------------------------------
+
+[State -3,5C]
+Type = ChangeState
+Value = Ifelse(Var(57)/10%10=4,224,Ifelse(Var(57)/10%10=2,222,220))
+TriggerAll = Var(59) > 0
+TriggerAll = RoundState = 2
+TriggerAll = StateType != A
+TriggerAll = !IsHelper
+TriggerAll = !InGuardDist
+TriggerAll = NumHelper(25000)
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),MoveType = H && (Var(57)/10%10=4||Var(57)/10%10=2) || (EnemyNear(Var(3)),StateNo = [120,159])
+TriggerAll = P2BodyDist X <= 70
+TriggerAll = P2BodyDist Y >= -50
+TriggerAll = FrontEdgeBodyDist < 60 || (StateNo = [420,423])
+TriggerAll = Var(25)/10%10 < 3
+Trigger1 = Ctrl
+Trigger2 = Var(2)/100%10 = 3 && MoveType != H || Var(2)/100%10 = 5 && MoveType != H || Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 != 3
+Trigger2 = Var(22)%10 = 0
+Trigger3 = Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 = 3
+Trigger3 = (StateNo = [200,219]) || (StateNo = [230,249]) || (StateNo = [400,419])
+Trigger3 = Var(22)%10 = 0
+
+[State -3,2B(C-Style)]
+Type = ChangeState
+Value = 410
+TriggerAll = Var(59) > 0
+TriggerAll = RoundState = 2
+TriggerAll = Var(57)/10%10 = 1
+TriggerAll = StateType != A
+TriggerAll = !IsHelper
+TriggerAll = !InGuardDist
+TriggerAll = NumHelper(25000)
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),StateType = A
+TriggerAll = EnemyNear(Var(3)),MoveType = H 
+TriggerAll = P2BodyDist X <= 60
+TriggerAll = P2BodyDist Y >= -50
+TriggerAll = Var(25)/10%10 < 3
+Trigger1 = Ctrl || StateNo = 52 && Var(9) >= 2
+Trigger2 = Var(2)/100%10 = 3 && MoveType != H || Var(2)/100%10 = 5 && MoveType != H || Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 != 3
+Trigger2 = Var(21)/10%10 = 0
+Trigger3 = Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 = 3
+Trigger3 = (StateNo = [200,219]) || StateNo = 230 || (StateNo = [400,409])
+Trigger3 = Var(21)/10%10 = 0
+
+[State -3,6C]
+Type = ChangeState
+Value = Ifelse(Var(57)/10%10=4,253,Ifelse(Var(57)/10%10=3,251,250))
+TriggerAll = Var(59) > 0
+TriggerAll = RoundState = 2
+TriggerAll = StateType != A
+TriggerAll = !IsHelper
+TriggerAll = !InGuardDist
+TriggerAll = NumHelper(25000)
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = (EnemyNear(Var(3)),StateNo = [120,159])
+TriggerAll = P2BodyDist X <= 70
+TriggerAll = P2BodyDist Y >= -80
+TriggerAll = Var(25)/10%10 < 3
+Trigger1 = Ctrl
+Trigger2 = Var(2)/100%10 = 3 && MoveType != H || Var(2)/100%10 = 5 && MoveType != H || Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 != 3
+Trigger2 = Var(23)/10%10 = 0
+Trigger3 = Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 = 3
+Trigger3 = (StateNo = [200,249]) || (StateNo = [400,429])
+Trigger3 = Var(23)/10%10 = 0
+
+;-------------------------------------------------------------------------------
+;エリアル
+;-------------------------------------------------------------------------------
+
+[State -3,空中投げ]
+Type = ChangeState
+Value = 820
+TriggerAll = Var(59) > 0
+TriggerAll = RoundState = 2
+TriggerAll = Statetype = A
+TriggerAll = !InGuardDist
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),StateType = A || Var(57)/10%10 = 4 
+TriggerAll = EnemyNear(Var(3)),MoveType = H
+TriggerAll = EnemyNear(Var(3)),StateNo != [120,159]
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = Var(11)%10 > 0 || Helper(25000),Var(53) > 10 && Random = [0,249]
+TriggerAll = P2BodyDist X = [-5,25]
+TriggerAll = P2BodyDist Y+(EnemyNear(Var(3)),Vel Y*6+(Helper(25000),fvar(14)*(4**2)/2.0)) = [-50,30]
+TriggerAll = Var(25)/10%10 < 3
+Trigger1 = Ctrl
+Trigger2 = Var(2)/100%10 = 3 && MoveType != H || Var(2)/100%10 = 5 && MoveType != H
+Trigger3 = Var(2)/100 = 14 && MoveType != H || Var(2)/1000 = 1 && StateNo = 1310 || Var(2)/1000 = 1 && StateNo = 1320 || Var(2)/1000%10 > 0 && StateNo = [1500,1599]
+
+[State -3,JA]
+Type = ChangeState
+Value = Ifelse(Var(57)/10%10=4,601,600)
+TriggerAll = Var(59) > 0
+TriggerAll = RoundState = 2
+TriggerAll = StateType = A
+TriggerAll = !InGuardDist
+TriggerAll = NumHelper(25000)
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = (EnemyNear(Var(3)),StateNo = [120,159])
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = P2Dist X > 0
+TriggerAll = P2BodyDist X <= 50
+TriggerAll = P2BodyDist Y = [-20,40]
+TriggerAll = Var(25)/10%10 < 3
+Trigger1 = Ctrl
+Trigger2 = Var(2)/100%10 = 3 && MoveType != H || Var(2)/100%10 = 5 && MoveType != H || Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 != 3
+Trigger2 = Var(20)/100 = 0
+Trigger3 = StateNo = [600,609]
+Trigger3 = Var(2)/100%10 = 3 && MoveType != H
+Trigger4 = StateNo = [600,609]
+Trigger4 = Var(2)/100%10 = 4 && MoveType != H
+
+[State -3,JB]
+Type = ChangeState
+Value = 610
+TriggerAll = Var(59) > 0
+TriggerAll = Var(57)/10%10 != 4
+TriggerAll = RoundState = 2
+TriggerAll = StateType = A
+TriggerAll = !IsHelper
+TriggerAll = !InGuardDist
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),MoveType = H
+TriggerAll = EnemyNear(Var(3)),StateNo != [120,159]
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = P2Dist X > -30
+TriggerAll = P2BodyDist X <= 70
+TriggerAll = P2BodyDist Y = [-60,30]
+TriggerAll = Var(25)/10%10 < 3
+Trigger1 = Ctrl
+Trigger2 = Var(2)/100%10 = 3 && MoveType != H || Var(2)/100%10 = 5 && MoveType != H || Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 != 3
+Trigger2 = Var(21)/100 = 0
+Trigger3 = Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 = 3
+Trigger3 = StateNo = [600,609]
+Trigger3 = Var(21)/100 = 0
+
+[State -3,EJB]
+Type = ChangeState
+Value = 611
+TriggerAll = Var(59) > 0
+TriggerAll = Var(57)/10%10 = 4
+TriggerAll = RoundState = 2
+TriggerAll = StateType = A
+TriggerAll = !IsHelper
+TriggerAll = !InGuardDist
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),MoveType = H
+TriggerAll = EnemyNear(Var(3)),StateNo != [120,159]
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = P2Dist X > -30
+TriggerAll = P2BodyDist X <= 70
+TriggerAll = P2BodyDist Y = [-60,30]
+TriggerAll = Var(25)/10%10 < 3
+Trigger1 = Ctrl
+Trigger2 = Var(2)/100%10 = 3 && MoveType != H || Var(2)/100%10 = 5 && MoveType != H || Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 != 3
+Trigger2 = Var(21)/100 = 0
+Trigger3 = Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 = 3
+Trigger3 = StateNo = [600,609]
+Trigger3 = Var(21)/100 = 0
+
+[State -3,JC]
+Type = ChangeState
+Value = Ifelse(Var(57)/10%10=4,621,620)
+TriggerAll = Var(59) > 0
+TriggerAll = RoundState = 2
+TriggerAll = StateType = A
+TriggerAll = !IsHelper
+TriggerAll = !InGuardDist
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),MoveType = H
+TriggerAll = EnemyNear(Var(3)),StateNo != [120,159]
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = NumHelper(25000) != 0
+TriggerAll = P2Dist X > 0
+TriggerAll = P2BodyDist X <= 60
+TriggerAll = P2BodyDist Y = [-30,50]
+TriggerAll = Var(25)/10%10 < 3
+Trigger1 = Ctrl
+Trigger2 = Var(2)/100%10 = 3 && MoveType != H || Var(2)/100%10 = 5 && MoveType != H || Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 != 3
+Trigger2 = Var(22)/100 = 0
+Trigger3 = Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 = 3
+Trigger3 = StateNo = [600,619]
+Trigger3 = Var(22)/100 = 0
+
+[State -3,空中しんきゃくEX]
+Type = ChangeState
+Value = 2050
+TriggerAll = Var(59) > 0
+TriggerAll = Random <= Var(59) * 300 || Var(59) >= 4
+TriggerAll = RoundState = 2
+TriggerAll = Var(57)/100%10 = 1 || Var(57)/100%10 = 4
+TriggerAll = StateType = A
+TriggerAll = !InGuardDist
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),MoveType = H
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = Var(11)%10 > 0 || Helper(25000),Var(53) > 10 && Random = [0,249]
+TriggerAll = P2Dist X > 0
+TriggerAll = P2BodyDist X <= 55
+TriggerAll = P2BodyDist Y >= -30
+TriggerAll = Var(25)/10%10 < 3
+Trigger1 = FVar(29) >= 1000
+Trigger1 = Var(13) = 0
+Trigger1 = Ctrl
+Trigger2 = FVar(29) >= 1000
+Trigger2 = Var(13) = 0
+Trigger2 = Var(2)/100%10 >= 1 && MoveType != H
+Trigger3 = Var(13) = [1,5]
+Trigger3 = Ctrl
+Trigger4 = Var(13) = [1,5]
+Trigger4 = Var(2)/100%10 >= 1 && MoveType != H
+
+[State -3,EX空中れんかんたい]
+Type = ChangeState
+Value = 2350
+TriggerAll = Var(59) > 0
+TriggerAll = Random <= Var(59) * 300 || Var(59) >= 4
+TriggerAll = RoundState = 2
+TriggerAll = Var(57)/100%10 = 1 || Var(57)/100%10 = 3
+TriggerAll = StateType = A
+TriggerAll = !InGuardDist
+TriggerAll = NumHelper(25000) != 0
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),MoveType = H
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = P2Dist X > 0
+TriggerAll = P2BodyDist X <= 60
+TriggerAll = (P2BodyDist Y+(EnemyNear(Var(3)),Vel Y*7+(Helper(25000),fvar(14)*(4**2)/2.0)) = [-80,30])
+TriggerAll = Var(25)/10%10 < 3
+Trigger1 = FVar(29) >= 1000
+Trigger1 = Var(13) = 0
+Trigger1 = Ctrl
+Trigger2 = FVar(29) >= 1000
+Trigger2 = Var(13) = 0
+Trigger2 = Var(2)/100%10 >= 1 && MoveType != H
+Trigger3 = Var(13) = [1,5]
+Trigger3 = Ctrl
+Trigger4 = Var(13) = [1,5]
+Trigger4 = Var(2)/100%10 >= 1 && MoveType != H
+
+[State -3,EX空中せんしゅうらく]
+Type = ChangeState
+Value = 2550
+TriggerAll = Var(59) > 0
+TriggerAll = Random <= Var(59) * 300 || Var(59) >= 4
+TriggerAll = RoundState = 2
+TriggerAll = Var(57)/100%10 = [3,4]
+TriggerAll = StateType = A
+TriggerAll = !InGuardDist
+TriggerAll = EnemyNear(Var(3)),MoveType = H
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = P2Dist X > 0
+TriggerAll = P2BodyDist X <= 75
+TriggerAll = P2BodyDist Y >= 0
+TriggerAll = Var(25)/10%10 < 3
+Trigger1 = FVar(29) >= 1000
+Trigger1 = Var(13) = 0
+Trigger1 = Ctrl
+Trigger2 = FVar(29) >= 1000
+Trigger2 = Var(13) = 0
+Trigger2 = Var(2)/100%10 >= 1 && MoveType != H
+Trigger3 = Var(13) = [1,5]
+Trigger3 = Ctrl
+Trigger4 = Var(13) = [1,5]
+Trigger4 = Var(2)/100%10 >= 1 && MoveType != H
+
+[State -3,H空中ごけいけんA]
+Type = ChangeState
+Value = 1450
+TriggerAll = Var(59) > 0
+TriggerAll = Random <= Var(59) * 300 || Var(59) >= 4
+TriggerAll = RoundState = 2
+TriggerAll = Var(57)/100%10 = [2,3]
+TriggerAll = StateType = A
+TriggerAll = !InGuardDist
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),MoveType = H
+TriggerAll = EnemyNear(Var(3)),StateNo != [120,159]
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = StateNo != [1450,1469]
+TriggerAll = P2Dist X > 0
+TriggerAll = P2BodyDist X <= 55
+TriggerAll = P2BodyDist Y = [-60,-10]
+TriggerAll = Var(25)/10%10 < 3
+Trigger1 = Ctrl
+Trigger2 = Var(2)/100%10 >= 2 && MoveType != H
+
+[State -3,H空中ごけいけんB]
+Type = ChangeState
+Value = 1460
+TriggerAll = Var(59) > 0
+TriggerAll = Random <= Var(59) * 300 || Var(59) >= 4
+TriggerAll = RoundState = 2
+TriggerAll = Var(57)/100%10 = [2,3]
+TriggerAll = StateType = A
+TriggerAll = !InGuardDist
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),MoveType = H || EnemyNear(Var(3)),StateNo = [120,159]
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = StateNo != [1450,1469]
+TriggerAll = P2Dist X > 0
+TriggerAll = P2BodyDist X <= 60
+TriggerAll = P2BodyDist Y = [-40,20]
+TriggerAll = Var(25)/10%10 < 3
+Trigger1 = Ctrl
+Trigger2 = Var(2)/100%10 >= 2 && MoveType != H
+
+[State -3,E空中ごけいけんA]
+Type = ChangeState
+Value = 1451
+TriggerAll = Var(59) > 0
+TriggerAll = Random <= Var(59) * 300 || Var(59) >= 4
+TriggerAll = RoundState = 2
+TriggerAll = Var(57)/100%10 = 4
+TriggerAll = StateType = A
+TriggerAll = !InGuardDist
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),MoveType = H
+TriggerAll = EnemyNear(Var(3)),StateNo != [120,159]
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = StateNo != [1450,1469]
+TriggerAll = P2Dist X > 0
+TriggerAll = P2BodyDist X <= 60
+TriggerAll = P2BodyDist Y = [-90,-30]
+TriggerAll = Var(25)/10%10 < 3
+Trigger1 = Ctrl
+Trigger2 = Var(2)/100%10 >= 2 && MoveType != H
+
+[State -3,E空中ごけいけんB]
+Type = ChangeState
+Value = 1461
+TriggerAll = Var(59) > 0
+TriggerAll = Random <= Var(59) * 300 || Var(59) >= 4
+TriggerAll = RoundState = 2
+TriggerAll = Var(57)/100%10 = 4
+TriggerAll = StateType = A
+TriggerAll = !InGuardDist
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),MoveType = H || EnemyNear(Var(3)),StateNo = [120,159]
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = StateNo != [1450,1469]
+TriggerAll = P2Dist X > 0
+TriggerAll = P2BodyDist X <= 100
+TriggerAll = P2BodyDist Y = [-60,20]
+TriggerAll = Var(25)/10%10 < 3
+Trigger1 = Ctrl
+Trigger2 = Var(2)/100%10 >= 2 && MoveType != H
+
+[State -3,F空中せんしゅうらくA]
+Type = ChangeState
+Value = 1550
+TriggerAll = Var(59) > 0
+TriggerAll = Random <= Var(59) * 300 || Var(59) >= 4
+TriggerAll = RoundState = 2
+TriggerAll = Var(57)/100%10 = 3
+TriggerAll = StateType = A
+TriggerAll = !InGuardDist
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),MoveType = H || EnemyNear(Var(3)),StateNo = [120,159]
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = P2Dist X > 0
+TriggerAll = P2BodyDist X <= 55
+TriggerAll = P2BodyDist Y >= 0
+TriggerAll = Var(25)/10%10 < 3
+Trigger1 = Ctrl
+Trigger2 = Var(2)/100%10 >= 2 && MoveType != H
+
+[State -3,E空中せんしゅうらくA]
+Type = ChangeState
+Value = 1551
+TriggerAll = Var(59) > 0
+TriggerAll = Random <= Var(59) * 300 || Var(59) >= 4
+TriggerAll = RoundState = 2
+TriggerAll = Var(57)/100%10 = 4
+TriggerAll = StateType = A
+TriggerAll = !InGuardDist
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),MoveType = H || EnemyNear(Var(3)),StateNo = [120,159]
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = P2Dist X > 0
+TriggerAll = P2BodyDist X <= 60
+TriggerAll = P2BodyDist Y >= 0
+TriggerAll = Var(25)/10%10 < 3
+Trigger1 = Ctrl
+Trigger2 = Var(2)/100%10 >= 2 && MoveType != H
+
+[State -3,F空中せんしゅうらくB]
+Type = ChangeState
+Value = 1560
+TriggerAll = Var(59) > 0
+TriggerAll = Random <= Var(59) * 300 || Var(59) >= 4
+TriggerAll = RoundState = 2
+TriggerAll = Var(57)/100%10 = 3
+TriggerAll = StateType = A
+TriggerAll = !InGuardDist
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),MoveType = H || EnemyNear(Var(3)),StateNo = [120,159]
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = P2Dist X > 0
+TriggerAll = P2BodyDist X <= 65
+TriggerAll = P2BodyDist Y >= 0
+TriggerAll = Var(25)/10%10 < 3
+Trigger1 = Ctrl
+Trigger2 = Var(2)/100%10 >= 2 && MoveType != H
+
+[State -3,E空中せんしゅうらくB]
+Type = ChangeState
+Value = 1561
+TriggerAll = Var(59) > 0
+TriggerAll = Random <= Var(59) * 300 || Var(59) >= 4
+TriggerAll = RoundState = 2
+TriggerAll = Var(57)/100%10 = 4
+TriggerAll = StateType = A
+TriggerAll = !InGuardDist
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),MoveType = H || EnemyNear(Var(3)),StateNo = [120,159]
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = P2Dist X > 0
+TriggerAll = P2BodyDist X <= 70
+TriggerAll = P2BodyDist Y >= 0
+TriggerAll = Var(25)/10%10 < 3
+Trigger1 = Ctrl
+Trigger2 = Var(2)/100%10 >= 2 && MoveType != H
+
+[State -3,空中れんかんたいA]
+Type = ChangeState
+Value = 1350
+TriggerAll = Var(59) > 0
+TriggerAll = Random <= Var(59) * 300 || Var(59) >= 4
+TriggerAll = RoundState = 2
+TriggerAll = Var(57)/100%10 = 1 || Var(57)/100%10 = 3
+TriggerAll = StateType = A
+TriggerAll = !InGuardDist
+TriggerAll = NumHelper(25000)
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),MoveType = H
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = P2Dist X > 0
+TriggerAll = P2BodyDist X <= 55
+TriggerAll = P2BodyDist Y+(EnemyNear(Var(3)),Vel Y*7+(Helper(25000),fvar(14)*(4**2)/2.0)) = [-60,20]
+TriggerAll = Var(11)%10 > 0
+TriggerAll = Var(25)/10%10 < 3
+Trigger1 = Ctrl
+Trigger2 = Var(2)/100%10 >= 2 && MoveType != H
+
+[State -3,イニシアティブヒート]
+Type = ChangeState
+Value = 950
+TriggerAll = Var(59) > 0
+TriggerAll = RoundState = 2
+TriggerAll = Var(57)%10 = 3
+TriggerAll = Var(13) = 1 || Var(13) = 5
+TriggerAll = !IsHelper
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),MoveType = H 
+TriggerAll = !InGuardDist || !EnemyNear(Var(3)),Ctrl
+TriggerAll = P2BodyDist X = [-40,120]
+TriggerAll = StateNo != 950
+Trigger1 = (StateNo != [200,209]) && (StateNo != [400,409]) && (StateNo != [600,609])
+Trigger1 = Var(2)/100%10 >= 1 && MoveType = A
+Trigger2 = (StateNo = [200,209]) || (StateNo = [400,409]) || (StateNo = [600,609])
+Trigger2 = Var(2)/100%10 >= 4
+Trigger3 = (StateNo = [900,903]) || (StateNo = [910,913]) || (StateNo = [920,923])
+Trigger3 = Var(2)/100%10 >= 1
+Trigger4 = Var(2)/1000 = 1 && StateNo = 1310 || Var(2)/1000 = 1 && StateNo = 1320
+IgnoreHitPause = 1
+
+;-------------------------------------------------------------------------------
+;ジャンプキャンセル(空中含む)
+;-------------------------------------------------------------------------------
+
+[State -3,ダッシュ]
+Type = ChangeState
+Value = 100
+TriggerAll = Var(59) > 0
+TriggerAll = ROUndState = 2
+TriggerAll = StateType != A
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),MoveType = H || EnemyNear(Var(3)),StateNo = [120,159]
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = NumHelper(25000) != 0
+TriggerAll = StateNo != [100,101]
+TriggerAll = !InGuardDist
+TriggerAll = Ctrl
+TriggerAll = Var(25)/10%10 < 3
+Trigger1 = P2BodyDist X >= 50
+;Trigger1 = EnemyNear(Var(3)),StateType = A
+Trigger1 = EnemyNear(Var(3)),MoveType = H
+Trigger2 = EnemyNear(Var(3)),StateType != A
+Trigger2 = EnemyNear(Var(3)),MoveType != A
+Trigger2 = !EnemyNear(Var(3)),Ctrl
+Trigger2 = PrevStateNo = 52
+
+[State -3,前ハイジャンプ]
+Type = ChangeState
+Value = 41
+TriggerAll = Var(59) > 0
+TriggerAll = RoundState = 2
+TriggerAll = Var(11)%10 = [0,0+IfElse(Var(57)%10=4,3,0)]
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),MoveType = H || EnemyNear(Var(3)),StateNo = [120,159]
+TriggerAll = EnemyNear(Var(3)),Vel X != 0
+TriggerAll = EnemyNear(Var(3)),Vel Y <= 0
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = NumHelper(25000) != 0
+TriggerAll = StateNo != 810 || StateNo != 813
+TriggerAll = P2BodyDist X = [-5,170]
+TriggerAll = P2BodyDist Y <= -50
+TriggerAll = !InGuardDist
+TriggerAll = Var(25)/10%10 < 3
+Trigger1 = SysVar(4) = [0,10]
+Trigger1 = StateType != A
+Trigger1 = StateNo != [200,499]
+Trigger1 = Ctrl || Var(2)/100%10 = 5 && MoveType != H
+Trigger2 = StateType = A
+Trigger2 = Var(2)/100%10 >= 3 && MoveType != H
+Trigger3 = Var(51) <= 1
+Trigger3 = StateType = A
+Trigger3 = Ctrl || Var(2)/100%10 = 3 && MoveType != H
+
+[State -3,ジャンプ]
+Type = ChangeState
+Value = 39
+TriggerAll = Var(59) > 0
+TriggerAll = RoundState = 2
+TriggerAll = StateType != A
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),StateType = A
+TriggerAll = EnemyNear(Var(3)),MoveType = H || EnemyNear(Var(3)),StateNo = [120,159]
+TriggerAll = EnemyNear(Var(3)),Vel Y < 0
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = !InGuardDist
+TriggerAll = NumHelper(25000) != 0
+TriggerAll = StateNo != 810 || StateNo != 813
+TriggerAll = P2BodyDist X = [-5,70]
+TriggerAll = P2BodyDist Y+(EnemyNear(Var(3)),Vel Y*6+(Helper(25000),fvar(14)*(4**2)/2.0)) <= -10
+TriggerAll = Var(25)/10%10 < 3
+Trigger1 = Ctrl
+Trigger2 = Var(10) = 0
+Trigger2 = Var(2)/100 = 14 && MoveType != H || Var(2)/100%10 = 5 && MoveType != H || Var(2)/100%10 = 3 && (StateNo = [900,901]) || Var(2)/100%10 = 3 && (StateNo = [910,911]) || Var(2)/100%10 = 2 && StateNo = 905
+Trigger3 = Var(10) = 0
+Trigger3 = Var(2)/1000 = 1 && (StateNo = [200,209]) || Var(2)/1000 = 1 && (StateNo = [400,409])
+Trigger4 = Var(10) = 0
+Trigger4 = Var(2)/100 = 11 && StateNo = 1310 || Var(2)/100 = 11 && StateNo = 1360 || Var(2)/100 = 11 && StateNo = 2310
+
+[State -3,ニュートラルハイジャンプ]
+Type = ChangeState
+Value = 42
+TriggerAll = Var(59) > 0
+TriggerAll = RoundState = 2
+TriggerAll = Var(11)%10 = 0
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),MoveType = H || EnemyNear(Var(3)),StateNo = [120,159]
+TriggerAll = EnemyNear(Var(3)),Vel X = 0
+TriggerAll = EnemyNear(Var(3)),Vel Y < 0
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = StateNo != 810 || StateNo != 813
+TriggerAll = NumHelper(25000) != 0
+TriggerAll = P2BodyDist X = [-5,70]
+TriggerAll = P2BodyDist Y+(EnemyNear(Var(3)),Vel Y*6+(Helper(25000),fvar(14)*(4**2)/2.0)) <= -40
+TriggerAll = !InGuardDist
+TriggerAll = Var(25)/10%10 < 3
+Trigger1 = SysVar(4) = [0,10]
+Trigger1 = StateType != A
+Trigger1 = StateNo != [200,499]
+Trigger1 = Ctrl || Var(2)/100%10 = 5 && MoveType != H
+
+[State -3,空中ダッシュ]
+Type = ChangeState
+Value = 110
+TriggerAll = Var(59) > 0
+TriggerAll = ROundState = 2
+TriggerAll = Var(11)/10%10 = [0,0+IfElse(Var(57)%10=4,2,0)]
+TriggerAll = Pos Y < -35.75 && Var(57)%10 != 4 || Var(57)%10 = 4
+TriggerAll = StateType = A
+TriggerAll = !InGuardDist
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),MoveType = H || EnemyNear(Var(3)),StateNo = [120,159]
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = NumHelper(25000)
+TriggerAll = P2BodyDist Y+(EnemyNear(Var(3)),Vel Y*6+(Helper(25000),fvar(14)*(4**2)/2.0)) > -5 || EnemyNear(Var(3)),StateType != A || EnemyNear(Var(3)),Vel Y > 0
+TriggerAll = Var(25)/10%10 < 3
+Trigger1 = Ctrl
+Trigger2 = Var(57)%10 != 3
+Trigger2 = Var(2)/100%10 >= 3 && MoveType != H
+Trigger3 = Var(57)%10 = 3
+Trigger3 = Var(2)/100%10 >= 3 && MoveType != H
+Trigger3 = StateNo != [610,699]
+
+[State -3,2段ジャンプ]
+Type = ChangeState
+Value = 45
+TriggerAll = Var(59) > 0
+TriggerAll = RoundState = 2
+TriggerAll = Var(51) <= 1
+TriggerAll = Var(11)%10 = [0,0+IfElse(Var(57)%10=4,3,0)]
+TriggerAll = StateType = A
+TriggerAll = !InGuardDist
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),StateType = A
+TriggerAll = EnemyNear(Var(3)),MoveType = H || EnemyNear(Var(3)),StateNo = [120,159]
+TriggerAll = EnemyNear(Var(3)),Vel Y < 0
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = NumHelper(25000) != 0
+TriggerAll = P2BodyDist X = [-5,100]
+;TriggerAll = P2BodyDist Y+(EnemyNear(Var(3)),Vel Y*6+(Helper(25000),fvar(14)*(4**2)/2.0)) <= -10
+TriggerAll = Var(25)/10%10 < 3
+Trigger1 = StateNo = 50 || StateNo = 51 || StateNo = 110 || StateNo = 115 || StateNo = 120 || StateNo = 132 || StateNo = 140 || StateNo = 155 || StateNo = 840 || StateNo = 1202 || StateNo = 1212 || StateNo = 1620 || StateNo = 1750 || StateNo = 1760
+Trigger1 = Ctrl
+Trigger2 = Var(2)/100%10 >= 3 && MoveType != H
+Trigger3 = StateNo = 5040 || StateNo = 5210
+Trigger3 = Ctrl
+
+[State -3,空中バックダッシュ]
+Type = ChangeState
+Value = 115
+TriggerAll = Var(59) > 0
+TriggerAll = ROundState = 2
+TriggerAll = StateType = A
+TriggerAll = !InGuardDist
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),MoveType = H || EnemyNear(Var(3)),StateNo = [120,159]
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = Var(11)/10%10 = [0,0+IfElse(Var(57)%10=4,2,0)]
+TriggerAll = Pos Y < -35.75 && Var(57)%10 != 4 || Var(57)%10 = 4
+TriggerAll = StateType = A
+TriggerAll = NumHelper(25000)
+TriggerAll = P2BodyDist X < -40
+TriggerAll = Var(25)/10%10 < 3
+Trigger1 = Ctrl || Var(2)/100%10 = 5 && MoveType != H && StateNo != 760 && StateNo != [920,929]
+
+;-------------------------------------------------------------------------------
+;雑記
+;-------------------------------------------------------------------------------
+
+[State -3,EXせんしっぽ]
+Type = ChangeState
+Value = 2100
+TriggerAll = Var(59) > 0
+TriggerAll = Random <= Var(59) * 300 || Var(59) >= 4
+TriggerAll = RoundState = 2
+TriggerAll = StateType != A
+TriggerAll = !IsHelper
+TriggerAll = !InGuardDist
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),MoveType = H 
+TriggerAll = P2Dist X > 0
+TriggerAll = P2BodyDist X <= 50
+TriggerAll = P2BodyDist Y >= -5
+TriggerAll = Var(25)/10%10 < 3
+Trigger1 = FVar(29) >= 1000
+Trigger1 = Var(13) = 0
+Trigger1 = Ctrl
+Trigger2 = FVar(29) >= 1000
+Trigger2 = Var(13) = 0
+Trigger2 = Var(2)/100%10 >= 1 && MoveType != H
+Trigger3 = Var(13) = [1,5]
+Trigger3 = Ctrl
+Trigger4 = Var(13) = [1,5]
+Trigger4 = Var(2)/100%10 >= 1 && MoveType != H
+
+[State -3,れんかんたいEX]
+Type = ChangeState
+Value = 2300
+TriggerAll = Var(59) > 0
+TriggerAll = Random <= Var(59) * 300 || Var(59) >= 4
+TriggerAll = Var(57)/100%10 = [1,3]
+TriggerAll = RoundState = 2
+TriggerAll = StateType != A
+TriggerAll = !IsHelper
+TriggerAll = !InGuardDist
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),MoveType = H
+TriggerAll = P2Dist X > 0
+TriggerAll = P2BodyDist X <= 60
+TriggerAll = P2BodyDist Y >= -50
+TriggerAll = Var(25)/10%10 < 3
+Trigger1 = FVar(29) >= 1000
+Trigger1 = Var(13) = 0
+Trigger1 = Ctrl
+Trigger2 = FVar(29) >= 1000
+Trigger2 = Var(13) = 0
+Trigger2 = Var(2)/100%10 >= 1 && MoveType != H
+Trigger3 = Var(13) = [1,5]
+Trigger3 = Ctrl
+Trigger4 = Var(13) = [1,5]
+Trigger4 = Var(2)/100%10 >= 1 && MoveType != H
+
+[State -3,ちょうしんちゅうEX]
+Type = ChangeState
+Value = 2200
+TriggerAll = Var(59) > 0
+TriggerAll = Random <= Var(59) * 300 || Var(59) >= 4
+TriggerAll = RoundState = 2
+TriggerAll = Var(57)/100%10 = 1
+TriggerAll = StateType != A
+TriggerAll = !IsHelper
+TriggerAll = !InGuardDist
+TriggerAll = NumHelper(25000)
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),MoveType = H
+TriggerAll = P2Dist X > 30
+TriggerAll = P2BodyDist X <= 70
+TriggerAll = P2BodyDist Y >= -20
+TriggerAll = Var(25)/10%10 < 3
+Trigger1 = FVar(29) >= 1000
+Trigger1 = Var(13) = 0
+Trigger1 = Ctrl
+Trigger2 = FVar(29) >= 1000
+Trigger2 = Var(13) = 0
+Trigger2 = Var(2)/100%10 >= 1 && MoveType != H
+Trigger3 = Var(13) = [1,5]
+Trigger3 = Ctrl
+Trigger4 = Var(13) = [1,5]
+Trigger4 = Var(2)/100%10 >= 1 && MoveType != H
+
+[State -3,せんしゅうらくEX]
+Type = ChangeState
+Value = 2500
+TriggerAll = Var(59) > 0
+TriggerAll = Random <= Var(59) * 300 || Var(59) >= 4
+TriggerAll = Var(57)/100%10 = [2,4]
+TriggerAll = RoundState = 2
+TriggerAll = StateType != A
+TriggerAll = !IsHelper
+TriggerAll = !InGuardDist
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),MoveType = H 
+TriggerAll = P2Dist X > 0
+TriggerAll = P2BodyDist X <= 70
+TriggerAll = P2BodyDist Y >= -40
+TriggerAll = Var(25)/10%10 < 3
+Trigger1 = FVar(29) >= 1000
+Trigger1 = Var(13) = 0
+Trigger1 = Ctrl
+Trigger2 = FVar(29) >= 1000
+Trigger2 = Var(13) = 0
+Trigger2 = Var(2)/100%10 >= 1 && MoveType != H
+Trigger3 = Var(13) = [1,5]
+Trigger3 = Ctrl
+Trigger4 = Var(13) = [1,5]
+Trigger4 = Var(2)/100%10 >= 1 && MoveType != H
+
+[State -3,CしんきゃくEX]
+Type = ChangeState
+Value = 2000
+TriggerAll = Var(59) > 0
+TriggerAll = Random <= Var(59) * 300 || Var(59) >= 4
+TriggerAll = Var(57)/100%10 = [1,2]
+TriggerAll = RoundState = 2
+TriggerAll = StateType != A
+TriggerAll = !IsHelper
+TriggerAll = !InGuardDist
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),MoveType = H 
+TriggerAll = EnemyNear(Var(3)),StateType != A || StateNo = 1010
+TriggerAll = P2Dist X > 0
+TriggerAll = P2BodyDist X <= 150
+TriggerAll = Var(25)/10%10 < 3
+Trigger1 = FVar(29) >= 1000
+Trigger1 = Var(13) = 0
+Trigger1 = Ctrl
+Trigger2 = FVar(29) >= 1000
+Trigger2 = Var(13) = 0
+Trigger2 = Var(2)/100%10 >= 1 && MoveType != H
+Trigger3 = Var(13) = [1,5]
+Trigger3 = Ctrl
+Trigger4 = Var(13) = [1,5]
+Trigger4 = Var(2)/100%10 >= 1 && MoveType != H
+
+[State -3,EしんきゃくEX]
+Type = ChangeState
+Value = 2000
+TriggerAll = Var(59) > 0
+TriggerAll = Random <= Var(59) * 300 || Var(59) >= 4
+TriggerAll = Var(57)/100%10 = 4
+TriggerAll = RoundState = 2
+TriggerAll = StateType != A
+TriggerAll = !IsHelper
+TriggerAll = !InGuardDist
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),MoveType = H 
+TriggerAll = EnemyNear(Var(3)),StateType != A || StateNo = 1011
+TriggerAll = P2Dist X > 0
+TriggerAll = P2BodyDist X <= 150
+TriggerAll = Var(25)/10%10 < 3
+Trigger1 = FVar(29) >= 1000
+Trigger1 = Var(13) = 0
+Trigger1 = Ctrl
+Trigger2 = FVar(29) >= 1000
+Trigger2 = Var(13) = 0
+Trigger2 = Var(2)/100%10 >= 1 && MoveType != H
+Trigger3 = Var(13) = [1,5]
+Trigger3 = Ctrl
+Trigger4 = Var(13) = [1,5]
+Trigger4 = Var(2)/100%10 >= 1 && MoveType != H
+
+[State -3,Aせんしっぽ]
+Type = ChangeState
+Value = 1100
+TriggerAll = Var(59) > 0
+TriggerAll = Random <= Var(59) * 300 || Var(59) >= 4
+TriggerAll = RoundState = 2
+TriggerAll = StateType != A
+TriggerAll = !IsHelper
+TriggerAll = !InGuardDist
+TriggerAll = NumHelper(25000)
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),MoveType = H || (EnemyNear(Var(3)),StateNo = [120,159])
+TriggerAll = P2Dist X > 0
+TriggerAll = P2BodyDist X <= 50
+TriggerAll = P2BodyDist Y >= -5
+TriggerAll = Var(25)/10%10 < 3
+Trigger1 = Ctrl
+Trigger2 = Var(2)/100%10 >= 2 && MoveType != H
+
+[State -3,Bせんしっぽ]
+Type = ChangeState
+Value = 1150
+TriggerAll = Var(59) > 0
+TriggerAll = Random <= Var(59) * 300 || Var(59) >= 4
+TriggerAll = RoundState = 2
+TriggerAll = StateType != A
+TriggerAll = !IsHelper
+TriggerAll = !InGuardDist
+TriggerAll = NumHelper(25000)
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),MoveType = H || (EnemyNear(Var(3)),StateNo = [120,159])
+TriggerAll = P2Dist X > 0
+TriggerAll = P2BodyDist X <= 70
+TriggerAll = P2BodyDist Y >= -10
+TriggerAll = Var(25)/10%10 < 3
+Trigger1 = Ctrl
+Trigger2 = Var(2)/100%10 >= 2 && MoveType != H
+
+[State -3,Aちょうしんちゅう]
+Type = ChangeState
+Value = 1200
+TriggerAll = Var(59) > 0
+TriggerAll = Random <= Var(59) * 300 || Var(59) >= 4
+TriggerAll = RoundState = 2
+TriggerAll = Var(57)/100%10 = 1
+TriggerAll = StateType != A
+TriggerAll = !IsHelper
+TriggerAll = !InGuardDist
+TriggerAll = NumHelper(25000)
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),MoveType = H || (EnemyNear(Var(3)),StateNo = [120,159])
+TriggerAll = P2Dist X > 0
+TriggerAll = P2BodyDist X <= 50
+TriggerAll = P2BodyDist Y >= -20
+TriggerAll = Var(25)/10%10 < 3
+Trigger1 = Ctrl
+Trigger2 = Var(2)/100%10 >= 2 && MoveType != H
+
+[State -3,Bちょうしんちゅう]
+Type = ChangeState
+Value = 1250
+TriggerAll = Var(59) > 0
+TriggerAll = Random <= Var(59) * 300 || Var(59) >= 4
+TriggerAll = RoundState = 2
+TriggerAll = Var(57)/100%10 = 1
+TriggerAll = StateType != A
+TriggerAll = !IsHelper
+TriggerAll = !InGuardDist
+TriggerAll = NumHelper(25000)
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),MoveType = H || (EnemyNear(Var(3)),StateNo = [120,159])
+TriggerAll = P2Dist X > 0
+TriggerAll = P2BodyDist X <= 80
+TriggerAll = P2BodyDist Y >= -20
+TriggerAll = Var(25)/10%10 < 3
+Trigger1 = Ctrl
+Trigger2 = Var(2)/100%10 >= 2 && MoveType != H
+
+[State -3,FしんきゃくC]
+Type = ChangeState
+Value = 1020
+TriggerAll = Var(59) > 0
+TriggerAll = Random <= Var(59) * 300 || Var(59) >= 4
+TriggerAll = Var(57)/100%10 = 3
+TriggerAll = RoundState = 2
+TriggerAll = StateType != A
+TriggerAll = !IsHelper
+TriggerAll = !InGuardDist
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),StateType != A
+TriggerAll = EnemyNear(Var(3)),StateNo = [120,159]
+TriggerAll = P2Dist X > 0
+TriggerAll = P2BodyDist X <= 80
+TriggerAll = Var(25)/10%10 < 3
+Trigger1 = Ctrl
+Trigger2 = Var(2)/100%10 >= 2 && MoveType != H
+
+[State -3,CしんきゃくA]
+Type = ChangeState
+Value = 1000
+TriggerAll = Var(59) > 0
+TriggerAll = Random <= Var(59) * 300 || Var(59) >= 4
+TriggerAll = Var(57)/100%10 = [1,3]
+TriggerAll = RoundState = 2
+TriggerAll = StateType != A
+TriggerAll = !IsHelper
+TriggerAll = !InGuardDist
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),StateType != A
+TriggerAll = EnemyNear(Var(3)),MoveType = H || EnemyNear(Var(3)),StateNo = [120,159]
+TriggerAll = P2Dist X > 0
+TriggerAll = P2BodyDist X <= 60
+TriggerAll = Var(25)/10%10 < 3
+Trigger1 = Ctrl
+Trigger2 = Var(2)/100%10 >= 2 && MoveType != H
+
+[State -3,CしんきゃくB]
+Type = ChangeState
+Value = 1010
+TriggerAll = Var(59) > 0
+TriggerAll = Random <= Var(59) * 300 || Var(59) >= 4
+TriggerAll = Var(57)/100%10 = [1,3]
+TriggerAll = RoundState = 2
+TriggerAll = StateType != A
+TriggerAll = !IsHelper
+TriggerAll = !InGuardDist
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),StateType != A
+TriggerAll = EnemyNear(Var(3)),MoveType = H || EnemyNear(Var(3)),StateNo = [120,159]
+TriggerAll = P2Dist X > 0
+TriggerAll = P2BodyDist X <= 80
+TriggerAll = Var(25)/10%10 < 3
+Trigger1 = Ctrl
+Trigger2 = Var(2)/100%10 >= 2 && MoveType != H
+
+[State -3,EしんきゃくA]
+Type = ChangeState
+Value = 1001
+TriggerAll = Var(59) > 0
+TriggerAll = Random <= Var(59) * 300 || Var(59) >= 4
+TriggerAll = Var(57)/100%10 = 4
+TriggerAll = RoundState = 2
+TriggerAll = StateType != A
+TriggerAll = !IsHelper
+TriggerAll = !InGuardDist
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),StateType != A
+TriggerAll = EnemyNear(Var(3)),MoveType = H || EnemyNear(Var(3)),StateNo = [120,159]
+TriggerAll = P2Dist X > 0
+TriggerAll = P2BodyDist X <= 60
+TriggerAll = Var(25)/10%10 < 3
+Trigger1 = Ctrl
+Trigger2 = Var(2)/100%10 >= 2 && MoveType != H
+
+[State -3,EしんきゃくB]
+Type = ChangeState
+Value = 1011
+TriggerAll = Var(59) > 0
+TriggerAll = Random <= Var(59) * 300 || Var(59) >= 4
+TriggerAll = Var(57)/100%10 = 4
+TriggerAll = RoundState = 2
+TriggerAll = StateType != A
+TriggerAll = !IsHelper
+TriggerAll = !InGuardDist
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),StateType != A
+TriggerAll = EnemyNear(Var(3)),MoveType = H || EnemyNear(Var(3)),StateNo = [120,159]
+TriggerAll = P2Dist X > 0
+TriggerAll = P2BodyDist X <= 80
+TriggerAll = Var(25)/10%10 < 3
+Trigger1 = Ctrl
+Trigger2 = Var(2)/100%10 >= 2 && MoveType != H
+
+[State -3,CれんかんたいB]
+Type = ChangeState
+Value = 1310
+TriggerAll = Var(59) > 0
+TriggerAll = Random <= Var(59) * 300 || Var(59) >= 4
+TriggerAll = Var(57)/100%10 = [1,2]
+TriggerAll = RoundState = 2
+TriggerAll = StateType != A
+TriggerAll = !IsHelper
+TriggerAll = !InGuardDist
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),MoveType = H || EnemyNear(Var(3)),StateNo = [120,159]
+TriggerAll = P2Dist X > 50
+TriggerAll = P2BodyDist X <= 100
+TriggerAll = P2BodyDist Y >= -25
+TriggerAll = Var(25)/10%10 < 3
+Trigger1 = Ctrl
+Trigger2 = Var(2)/100%10 >= 2 && MoveType != H
+
+[State -3,HせんしゅうらくA]
+Type = ChangeState
+Value = 1500
+TriggerAll = Var(59) > 0
+TriggerAll = Random <= Var(59) * 300 || Var(59) >= 4
+TriggerAll = Var(57)/100%10 = [2,3]
+TriggerAll = RoundState = 2
+TriggerAll = StateType != A
+TriggerAll = !IsHelper
+TriggerAll = !InGuardDist
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),MoveType = H || EnemyNear(Var(3)),StateNo = [120,159]
+TriggerAll = P2Dist X > 0
+TriggerAll = P2BodyDist X <= 50
+TriggerAll = P2BodyDist Y >= -40
+TriggerAll = Var(25)/10%10 < 3
+Trigger1 = Ctrl
+Trigger2 = Var(2)/100%10 >= 2 && MoveType != H
+
+[State -3,HせんしゅうらくB]
+Type = ChangeState
+Value = 1510
+TriggerAll = Var(59) > 0
+TriggerAll = Random <= Var(59) * 300 || Var(59) >= 4
+TriggerAll = Var(57)/100%10 = [2,3]
+TriggerAll = RoundState = 2
+TriggerAll = StateType != A
+TriggerAll = !IsHelper
+TriggerAll = !InGuardDist
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),MoveType = H || EnemyNear(Var(3)),StateNo = [120,159]
+TriggerAll = P2Dist X > 0
+TriggerAll = P2BodyDist X <= 70
+TriggerAll = P2BodyDist Y >= -40
+TriggerAll = Var(25)/10%10 < 3
+Trigger1 = Ctrl
+Trigger2 = Var(2)/100%10 >= 2 && MoveType != H
+
+[State -3,EせんしゅうらくA]
+Type = ChangeState
+Value = 1501
+TriggerAll = Var(59) > 0
+TriggerAll = Random <= Var(59) * 300 || Var(59) >= 4
+TriggerAll = Var(57)/100%10 = 4
+TriggerAll = RoundState = 2
+TriggerAll = StateType != A
+TriggerAll = !IsHelper
+TriggerAll = !InGuardDist
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),MoveType = H || EnemyNear(Var(3)),StateNo = [120,159]
+TriggerAll = P2Dist X > 0
+TriggerAll = P2BodyDist X <= 50
+TriggerAll = P2BodyDist Y >= -50
+TriggerAll = Var(25)/10%10 < 3
+Trigger1 = Ctrl
+Trigger2 = Var(2)/100%10 >= 2 && MoveType != H
+
+[State -3,EせんしゅうらくB]
+Type = ChangeState
+Value = 1511
+TriggerAll = Var(59) > 0
+TriggerAll = Random <= Var(59) * 300 || Var(59) >= 4
+TriggerAll = Var(57)/100%10 = 4
+TriggerAll = RoundState = 2
+TriggerAll = StateType != A
+TriggerAll = !IsHelper
+TriggerAll = !InGuardDist
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),MoveType = H || EnemyNear(Var(3)),StateNo = [120,159]
+TriggerAll = P2Dist X > 0
+TriggerAll = P2BodyDist X <= 70
+TriggerAll = P2BodyDist Y >= -50
+TriggerAll = Var(25)/10%10 < 3
+Trigger1 = Ctrl
+Trigger2 = Var(2)/100%10 >= 2 && MoveType != H
+
+[State -3,EしんきゃくB]
+Type = ChangeState
+Value = 1011
+TriggerAll = Var(59) > 0
+TriggerAll = Random <= Var(59) * 300 || Var(59) >= 4
+TriggerAll = Var(57)/100%10 = 4
+TriggerAll = RoundState = 2
+TriggerAll = StateType != A
+TriggerAll = !IsHelper
+TriggerAll = !InGuardDist
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),StateType != A
+TriggerAll = EnemyNear(Var(3)),MoveType = H || EnemyNear(Var(3)),StateNo = [120,159]
+TriggerAll = P2BodyDist X = [-5,80]
+TriggerAll = Var(25)/10%10 < 3
+Trigger1 = Ctrl
+Trigger2 = Var(2)/100%10 >= 2 && MoveType != H
+
+[State -3,HごけいけんA]
+Type = ChangeState
+Value = 1400
+TriggerAll = Var(59) > 0
+TriggerAll = Random <= Var(59) * 300 || Var(59) >= 4
+TriggerAll = Var(57)/100%10 = [2,3]
+TriggerAll = RoundState = 2
+TriggerAll = StateType != A
+TriggerAll = !IsHelper
+TriggerAll = !InGuardDist
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),StateType = A
+TriggerAll = EnemyNear(Var(3)),MoveType = H || EnemyNear(Var(3)),StateNo = [120,159]
+TriggerAll = P2Dist X > 0
+TriggerAll = P2BodyDist X <= 50
+TriggerAll = P2BodyDist Y = [-50,-10]
+TriggerAll = Var(25)/10%10 < 3
+Trigger1 = Ctrl
+Trigger2 = Var(2)/100%10 >= 2 && MoveType != H
+
+[State -3,HごけいけんB]
+Type = ChangeState
+Value = 1410
+TriggerAll = Var(59) > 0
+TriggerAll = Random <= Var(59) * 300 || Var(59) >= 4
+TriggerAll = Var(57)/100%10 = [2,3]
+TriggerAll = RoundState = 2
+TriggerAll = StateType != A
+TriggerAll = !IsHelper
+TriggerAll = !InGuardDist
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),StateType != C
+TriggerAll = EnemyNear(Var(3)),MoveType = H || EnemyNear(Var(3)),StateNo = [120,159]
+TriggerAll = P2Dist X > 0
+TriggerAll = P2BodyDist X <= 90
+TriggerAll = P2BodyDist Y >= -40
+TriggerAll = Var(25)/10%10 < 3
+Trigger1 = Ctrl
+Trigger2 = Var(2)/100%10 >= 2 && MoveType != H
+
+[State -3,EごけいけんA]
+Type = ChangeState
+Value = 1401
+TriggerAll = Var(59) > 0
+TriggerAll = Random <= Var(59) * 300 || Var(59) >= 4
+TriggerAll = Var(57)/100%10 = 4
+TriggerAll = RoundState = 2
+TriggerAll = StateType != A
+TriggerAll = !IsHelper
+TriggerAll = !InGuardDist
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),StateType = A
+TriggerAll = EnemyNear(Var(3)),MoveType = H || EnemyNear(Var(3)),StateNo = [120,159]
+TriggerAll = P2Dist X > 0
+TriggerAll = P2BodyDist X <= 70
+TriggerAll = P2BodyDist Y = [-60,-30]
+TriggerAll = Var(25)/10%10 < 3
+Trigger1 = Ctrl
+Trigger2 = Var(2)/100%10 >= 2 && MoveType != H
+
+[State -3,EごけいけんB]
+Type = ChangeState
+Value = 1411
+TriggerAll = Var(59) > 0
+TriggerAll = Random <= Var(59) * 300 || Var(59) >= 4
+TriggerAll = Var(57)/100%10 = 4
+TriggerAll = RoundState = 2
+TriggerAll = StateType != A
+TriggerAll = !IsHelper
+TriggerAll = !InGuardDist
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),StateType != C
+TriggerAll = EnemyNear(Var(3)),MoveType = H || EnemyNear(Var(3)),StateNo = [120,159]
+TriggerAll = P2BodyDist X = [-5,150]
+TriggerAll = P2BodyDist Y >= -50
+TriggerAll = Var(25)/10%10 < 3
+Trigger1 = Ctrl
+Trigger2 = Var(2)/100%10 >= 2 && MoveType != H
+
+;――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――
+;                                                           移動
+;――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――
+
+[State -3,ダッシュ]
+Type = ChangeState
+Value = 100
+TriggerAll = Var(59) > 0
+TriggerAll = Random <= Var(59) * 60
+TriggerAll = FrontEdgeBodyDist > 60
+TriggerAll = RoundState = 2
+TriggerAll = StateType != A
+TriggerAll = Alive
+TriggerAll = !IsHelper
+TriggerAll = NumHelper(25000)
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),MoveType != H
+TriggerAll = P2BodyDist X-IfElse(Vel X>0, IfElse(4<(Vel X/0.85),(Vel X*4-(0.85*(4**2)/2.0)),(Vel X**2)/(0.85*2)), 0)-(EnemyNear(Var(3)),Vel X*4+(Helper(25000),fvar(4)*(4**2)/2.0)) >= 120
+TriggerAll = !InGuardDist 
+Trigger1 = Ctrl
+
+[State -3,Cバックステップ]
+Type = ChangeState
+Value = 105
+TriggerAll = Var(59) > 0
+TriggerAll = Random <= Var(59) * 30
+TriggerAll = Var(57)/10%10 != 4
+TriggerAll = RoundState = 2
+TriggerAll = StateType != A
+TriggerAll = BackEdgeBodyDist > 60
+TriggerAll = !IsHelper
+TriggerAll = Alive
+TriggerAll = NumHelper(25000)
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),MoveType != H
+TriggerAll = P2BodyDist X-IfElse(Vel X>0, IfElse(4<(Vel X/0.85),(Vel X*4-(0.85*(4**2)/2.0)),(Vel X**2)/(0.85*2)), 0)-(EnemyNear(Var(3)),Vel X*4+(Helper(25000),fvar(4)*(4**2)/2.0)) <= 30
+TriggerAll = !InGuardDist || !EnemyNear(Var(3)),Ctrl 
+Trigger1 = Ctrl
+Trigger2 = Var(2)/100%10 = 5 && MoveType != H
+
+[State -3,Eバックステップ]
+Type = ChangeState
+Value = 107
+TriggerAll = Var(59) > 0
+TriggerAll = Random <= Var(59) * 50
+TriggerAll = Var(57)/10%10 != 4
+TriggerAll = RoundState = 2
+TriggerAll = StateType != A
+TriggerAll = BackEdgeBodyDist > 60
+TriggerAll = !IsHelper
+TriggerAll = Alive
+TriggerAll = NumHelper(25000)
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),MoveType != H
+TriggerAll = P2BodyDist X-IfElse(Vel X>0, IfElse(4<(Vel X/0.85),(Vel X*4-(0.85*(4**2)/2.0)),(Vel X**2)/(0.85*2)), 0)-(EnemyNear(Var(3)),Vel X*4+(Helper(25000),fvar(4)*(4**2)/2.0)) <= 20
+TriggerAll = !InGuardDist || !EnemyNear(Var(3)),Ctrl 
+Trigger1 = Ctrl
+Trigger2 = Var(2)/100%10 = 5 && MoveType != H
+
+[State -3,前ハイジャンプ]
+Type = ChangeState
+Value = 41
+TriggerAll = Var(59) > 0
+TriggerAll = Var(11)%10 = [0,0+IfElse(Var(57)%10=4,3,0)]
+TriggerAll = Random <= Var(59) * 60
+TriggerAll = RoundState = 2
+TriggerAll = !IsHelper
+TriggerAll = Alive
+TriggerAll = NumHelper(25000)
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),MoveType != H
+TriggerAll = P2BodyDist X >= 200
+TriggerAll = !InGuardDist || (EnemyNear(Var(3)),NumProj > 0 || EnemyNear(Var(3)),NumHelper > Helper(25000),Var(57))
+Trigger1 = (SysVar(4) = [0,10])
+Trigger1 = StateType != A
+Trigger1 = StateNo != [200,499]
+Trigger1 = Ctrl || Var(2)/100%10 = 5 && MoveType != H
+Trigger2 = StateType = A
+Trigger2 = Var(2)/100%10 >= 3 && MoveType != H
+Trigger3 = Var(51) <= 1
+Trigger3 = StateType = A
+Trigger3 = Ctrl || Var(2)/100%10 = 3 && MoveType != H || Var(2)/1000 = 1 && StateNo = 1310 || Var(2)/100 = 1 && StateNo = 1320 || Var(2)/1000%10 > 0 && StateNo = [1500,1599]
+
+[State -3,２段ジャンプ]
+Type = ChangeState
+Value = 45
+TriggerAll = Var(59) > 0
+TriggerAll = StateType = A
+TriggerAll = Random <= Var(59) * 60
+TriggerAll = RoundState = 2
+TriggerAll = !IsHelper
+TriggerAll = Alive
+TriggerAll = NumHelper(25000)
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),MoveType != H
+TriggerAll = P2Dist X > 0
+TriggerAll = P2BodyDist X <= 50
+TriggerAll = !InGuardDist || !EnemyNear(Var(3)),Ctrl || (EnemyNear(Var(3)),NumProj > 0 || EnemyNear(Var(3)),NumHelper > Helper(25000),Var(57))
+TriggerAll = Var(51) <= 1
+TriggerAll = Var(11)%10 = [0,0+IfElse(Var(57)%10=4,3,0)]
+Trigger1 = StateNo = 50 || StateNo = 51 || StateNo = 110 || StateNo = 115 || StateNo = 120 || StateNo = 132 || StateNo = 140 || StateNo = 155 || StateNo = 840 || (StateNo = [1400,1499])
+Trigger1 = Ctrl
+Trigger2 = Var(2)/100%10 >= 3 && MoveType != H
+Trigger3 = StateNo = 5040 || StateNo = 5210 || StateNo = 2300 || StateNo = 2400 || StateNo = 2450
+Trigger3 = Ctrl
+Trigger4 = Var(2)/1000 = 1 && StateNo = 1310 || Var(2)/1000 = 1 && StateNo = 1320 || Var(2)/1000%10 > 0 && StateNo = [1500,1599]
+
+[State -3,空中ダッシュ]
+Type = ChangeState
+Value = 110
+TriggerAll = Var(59) > 0
+TriggerAll = Random <= Var(59) * 60
+TriggerAll = Var(11)/10%10 = [0,0+IfElse(Var(57)%10=4,2,0)]
+TriggerAll = Pos Y < -35.75 && Var(57)%10 != 4 || Var(57)%10 = 4
+TriggerAll = FrontEdgeBodyDist > 60
+TriggerAll = RoundState = 2
+TriggerAll = StateType = A
+TriggerAll = !IsHelper
+TriggerAll = Alive
+TriggerAll = NumHelper(25000)
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),MoveType != H
+TriggerAll = P2BodyDist X-IfElse(Vel X>0, IfElse(4<(Vel X/0.85),(Vel X*4-(0.85*(4**2)/2.0)),(Vel X**2)/(0.85*2)), 0)-(EnemyNear(Var(3)),Vel X*4+(Helper(25000),fvar(4)*(4**2)/2.0)) >= 100
+TriggerAll = !InGuardDist
+Trigger1 = Ctrl
+Trigger2 = Var(57)%10 != 3
+Trigger2 = Var(2)/100%10 >= 3 && MoveType != H
+Trigger3 = Var(57)%10 = 3
+Trigger3 = Var(2)/100%10 >= 3 && MoveType != H
+Trigger3 = StateNo != [610,699]
+
+[State -3,空バックダッシュ]
+Type = ChangeState
+Value = 115
+TriggerAll = Var(59) > 0
+TriggerAll = Random <= Var(59) * 60
+TriggerAll = Var(11)/10%10 = [0,0+IfElse(Var(57)%10=4,2,0)]
+TriggerAll = Pos Y < -35.75 && Var(57)%10 != 4 || Var(57)%10 = 4
+TriggerAll = BackEdgeBodyDist > 60
+TriggerAll = RoundState = 2
+TriggerAll = StateType = A
+TriggerAll = !IsHelper
+TriggerAll = Alive
+TriggerAll = NumHelper(25000)
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),MoveType != H
+TriggerAll = P2Dist X > 0
+TriggerAll = P2BodyDist X-IfElse(Vel X>0, IfElse(4<(Vel X/0.85),(Vel X*4-(0.85*(4**2)/2.0)),(Vel X**2)/(0.85*2)), 0)-(EnemyNear(Var(3)),Vel X*4+(Helper(25000),fvar(4)*(4**2)/2.0)) <= -10
+TriggerAll = !InGuardDist
+Trigger1 = Ctrl || Var(2)/100%10 = 5 && MoveType != H && StateNo != 760 && StateNo != [920,929]
+
+;------------------------------------------------------------------------------------------------------------------------------------
+;====================================================================================================================================
+;                                                             C-Style
+;====================================================================================================================================
+;------------------------------------------------------------------------------------------------------------------------------------
+
+;――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――
+;                                                           技振り(地上)
+;――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――
+
+[State -3,強制開放]
+Type = ChangeState
+Value = 960
+TriggerAll = Var(59) > 0
+TriggerAll = RoundState = 2
+TriggerAll = Alive
+TriggerAll = Random <= Var(59) * 200 || Var(59) > 5 
+TriggerAll = Var(57)%10 != 2
+TriggerAll = NumHelper(25000)
+TriggerAll = StateType != A
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),MoveType != H
+TriggerAll = FVar(9)-Life >= 150 || !EnemyNear(Var(3)),Ctrl && (EnemyNear(Var(3)),Time >= Helper(25000),Var(38) || Var(59) > 5)
+TriggerAll = Ctrl || Var(2)/100%10 = 3 && MoveType != H || Var(2)/100%10 = 5 && MoveType != H
+TriggerAll = ((P2BodyDist X = [-35,35]) && P2BodyDist Y >= -68 && EnemyNear(Var(3)),Vel X >= 0 && EnemyNear(Var(3)),Vel Y >= 0) || (P2BodyDist X >= 120 && EnemyNear(Var(3)),Vel X <= 0)
+Trigger1 = Var(13) = 1 || Var(13) = 5
+Trigger2 = Var(57)%10 = 1 || Var(57)%10 = 4
+Trigger2 = FVar(29) >= 1000
+Trigger2 = Var(13) = 0
+
+[State -3,地上投げ]
+Type = ChangeState
+Value = 800
+TriggerAll = Var(59) > 0
+TriggerAll = Random <= Var(59) * 200 || Var(59) > 5
+TriggerAll = RoundState = 2
+TriggerAll = StateType != A
+TriggerAll = Alive
+TriggerAll = !IsHelper
+TriggerAll = NumHelper(25000)
+TriggerAll = EnemyNear(Var(3)),StateType != L 
+TriggerAll = EnemyNear(Var(3)),StateType != A 
+TriggerAll = EnemyNear(Var(3)),MoveType != H
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateNo != 5200 && EnemyNear(Var(3)),StateNo != 5201 && EnemyNear(Var(3)),StateNo != 5210 || EnemyNear(Var(3)),StateNo != [120,159]
+TriggerAll = !InGuardDist
+TriggerAll = EnemyNear(Var(3)),PrevStateNo != [5120,5129]
+TriggerAll = EnemyNear(Var(3)),StateNo != [5120,5129]
+TriggerAll = EnemyNear(Var(3)),StateNo != [5310,5311]
+TriggerAll = P2BodyDist X-IfElse(Vel X>0, IfElse(4<(Vel X/0.85),(Vel X*2-(0.85*(4**2)/2.0)),(Vel X**2)/(0.85*2)), 0)-(EnemyNear(Var(3)),Vel X*2+(Helper(25000),fvar(4)*(4**2)/2.0)) = [-25,25]
+Trigger1 = Ctrl || Var(2)/100%10 = 3 && MoveType != H || Var(2)/100%10 = 5 && MoveType != H
+
+[State -3,究極奥義(対空)]
+Type = ChangeState
+Value = 3000
+TriggerAll = Var(59) > 0
+TriggerAll = Alive
+TriggerAll = RoundState = 2
+TriggerAll = StateType != A
+TriggerAll = Random <= Var(59) * 100
+TriggerAll = NumHelper(25000)
+TriggerAll = !IsHelper
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),MoveType != H
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = !InGuardDist || !EnemyNear(Var(3)),Ctrl && (EnemyNear(Var(3)),Time >= Helper(25000),Var(38) || Var(59) > 5) && EnemyNear(Var(3)),AnimTime <= -5
+TriggerAll = EnemyNear(Var(3)),StateNo != 5200 && EnemyNear(Var(3)),StateNo != 5210 
+TriggerAll = P2Dist X > -40
+TriggerAll = P2BodyDist X-IfElse(Vel X>0, IfElse(4<(Vel X/0.85),(Vel X*4-(0.85*(4**2)/2.0)),(Vel X**2)/(0.85*2)), 0)-(EnemyNear(Var(3)),Vel X*4+(Helper(25000),fvar(4)*(4**2)/2.0)) = [-40,60]
+TriggerAll = P2BodyDist Y+(EnemyNear(Var(3)),Vel Y*4+(Helper(25000),fvar(14)*(4**2)/2.0)) >= -200
+TriggerAll = Var(13) = [1,5]
+Trigger1 = Ctrl
+Trigger2 = Var(2)/100%10 >= 1 && MoveType != H
+
+[State -3,5A(対空)]
+Type = ChangeState
+Value = 200
+TriggerAll = Var(59) > 0
+TriggerAll = Alive
+TriggerAll = RoundState = 2
+TriggerAll = StateType != A
+TriggerAll = Random <= Var(59) * 70
+TriggerAll = Var(57)/10%10 = 1
+TriggerAll = NumHelper(25000)
+TriggerAll = !IsHelper
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),MoveType != H
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = !InGuardDist
+TriggerAll = EnemyNear(Var(3)),StateNo != 5200 && EnemyNear(Var(3)),StateNo != 5210 
+TriggerAll = P2Dist X > 0
+TriggerAll = P2BodyDist X-IfElse(Vel X>0, IfElse(4<(Vel X/0.85),(Vel X*4-(0.85*(4**2)/2.0)),(Vel X**2)/(0.85*2)), 0)-(EnemyNear(Var(3)),Vel X*4+(Helper(25000),fvar(4)*(4**2)/2.0)) <= 40
+TriggerAll = P2BodyDist Y+(EnemyNear(Var(3)),Vel Y*4+(Helper(25000),fvar(14)*(4**2)/2.0)) = [-40,14]
+Trigger1 = Ctrl || StateNo = 52 && Var(9) >= 1
+Trigger2 = Var(2)/100%10 = 3 && MoveType != H || Var(2)/100%10 = 5 && MoveType != H || Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 != 3
+Trigger2 = Var(20)%10 = 0
+Trigger3 = StateNo = [200,209]
+Trigger3 = Var(2)/100%10 = 3 && MoveType != H
+Trigger4 = (StateNo = [200,209]) || (StateNo = [400,409])
+Trigger4 = Var(2)/100%10 = 4 && MoveType != H
+
+[State -3,2B(対空)]
+Type = ChangeState
+Value = 410
+TriggerAll = Var(59) > 0
+TriggerAll = Alive
+TriggerAll = RoundState = 2
+TriggerAll = StateType != A
+TriggerAll = Random <= Var(59) * 70
+TriggerAll = Var(57)/10%10 = 1
+TriggerAll = NumHelper(25000)
+TriggerAll = !IsHelper
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),MoveType != H
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = !InGuardDist
+TriggerAll = EnemyNear(Var(3)),StateNo != 5200 && EnemyNear(Var(3)),StateNo != 5210 
+TriggerAll = P2Dist X > 0
+TriggerAll = P2BodyDist X-IfElse(Vel X>0, IfElse(4<(Vel X/0.85),(Vel X*4-(0.85*(4**2)/2.0)),(Vel X**2)/(0.85*2)), 0)-(EnemyNear(Var(3)),Vel X*4+(Helper(25000),fvar(4)*(4**2)/2.0)) <= 50
+TriggerAll = P2BodyDist Y+(EnemyNear(Var(3)),Vel Y*4+(Helper(25000),fvar(14)*(4**2)/2.0)) = [-70,14]
+Trigger1 = Ctrl || StateNo = 52 && Var(9) >= 2
+Trigger2 = Var(2)/100%10 = 3 && MoveType != H || Var(2)/100%10 = 5 && MoveType != H || Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 != 3
+Trigger2 = Var(21)/10%10 = 0
+Trigger3 = Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 = 3
+Trigger3 = (StateNo = [200,219]) || StateNo = 230 || (StateNo = [400,409])
+Trigger3 = Var(21)/10%10 = 0
+
+[State -3,C6C(対空)]
+Type = ChangeState
+Value = 250
+TriggerAll = Var(59) > 0
+TriggerAll = Alive
+TriggerAll = RoundState = 2
+TriggerAll = StateType != A
+TriggerAll = Random <= Var(59) * 70
+TriggerAll = Var(57)/10%10 = [1,2]
+TriggerAll = NumHelper(25000)
+TriggerAll = !IsHelper
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),StateType != C
+TriggerAll = EnemyNear(Var(3)),MoveType != H
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = !InGuardDist
+TriggerAll = EnemyNear(Var(3)),StateNo != 5200 && EnemyNear(Var(3)),StateNo != 5210 
+TriggerAll = P2Dist X > 0
+TriggerAll = P2BodyDist X-IfElse(Vel X>0, IfElse(4<(Vel X/0.85),(Vel X*4-(0.85*(4**2)/2.0)),(Vel X**2)/(0.85*2)), 0)-(EnemyNear(Var(3)),Vel X*4+(Helper(25000),fvar(4)*(4**2)/2.0)) <= 60
+TriggerAll = P2BodyDist Y+(EnemyNear(Var(3)),Vel Y*4+(Helper(25000),fvar(14)*(4**2)/2.0)) = [-90,14]
+Trigger1 = Ctrl
+Trigger2 = Var(2)/100%10 = 3 && MoveType != H || Var(2)/100%10 = 5 && MoveType != H || Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 != 3
+Trigger2 = Var(23)/10%10 = 0
+Trigger3 = Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 = 3
+Trigger3 = (StateNo = [200,249]) || (StateNo = [400,429])
+Trigger3 = Var(23)/10%10 = 0
+
+[State -3,C2A(下段)]
+Type = ChangeState
+Value = 400
+TriggerAll = Var(59) > 0
+TriggerAll = Alive
+TriggerAll = RoundState = 2
+TriggerAll = StateType != A
+TriggerAll = NumHelper(25000)
+TriggerAll = Random <= Var(59) * 70
+TriggerAll = Var(57)/10%10 = 1
+TriggerAll = !IsHelper
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),StateType = S
+TriggerAll = EnemyNear(Var(3)),MoveType != H
+TriggerAll = !InGuardDist
+TriggerAll = EnemyNear(Var(3)),StateNo != 5200 && EnemyNear(Var(3)),StateNo != 5210 
+TriggerAll = P2Dist X > 0
+TriggerAll = P2BodyDist X-IfElse(Vel X > 0, IfElse(4 < (Vel X/0.82),(Vel X*4-(0.82*(4**2)/2.0)),(Vel X**2)/(0.82*2)), 0)-(EnemyNear(Var(3)),Vel X*4+(Helper(25000),fvar(4)*(4**2)/2.0)) <= 50
+Trigger1 = Ctrl || StateNo = 52 && Var(9) >= 1
+Trigger2 = Var(2)/100%10 = 3 && MoveType != H || Var(2)/100%10 = 5 && MoveType != H || Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 != 3
+Trigger2 = Var(20)/10%10 = 0
+Trigger3 = StateNo = [400,409]
+Trigger3 = Var(2)/100%10 = 3 && MoveType != H
+Trigger4 = (StateNo = [200,209]) || (StateNo = [400,409])
+Trigger4 = Var(2)/100%10 = 4 && MoveType != H
+
+[State -3,C2C(下段)]
+Type = ChangeState
+Value = 420
+TriggerAll = Var(59) > 0
+TriggerAll = Alive
+TriggerAll = RoundState = 2
+TriggerAll = StateType != A
+TriggerAll = NumHelper(25000)
+TriggerAll = Random <= Var(59) * 70
+TriggerAll = Var(57)/10%10 = 1 || Var(57)/10%10 = 3
+TriggerAll = !IsHelper
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),StateType = S
+TriggerAll = EnemyNear(Var(3)),MoveType != H
+TriggerAll = !InGuardDist
+TriggerAll = EnemyNear(Var(3)),StateNo != 5200 && EnemyNear(Var(3)),StateNo != 5210 
+TriggerAll = P2Dist X > 0
+TriggerAll = P2BodyDist X-IfElse(Vel X > 0, IfElse(4 < (Vel X/0.82),(Vel X*4-(0.82*(4**2)/2.0)),(Vel X**2)/(0.82*2)), 0)-(EnemyNear(Var(3)),Vel X*4+(Helper(25000),fvar(4)*(4**2)/2.0)) <= 70
+Trigger1 = Ctrl
+Trigger2 = Var(2)/100%10 = 3 && MoveType != H || Var(2)/100%10 = 5 && MoveType != H || Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 != 3
+Trigger2 = Var(22)/10%10 = 0
+Trigger3 = Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 = 3
+Trigger3 = (StateNo = [200,219]) || (StateNo = [230,249]) || (StateNo = [400,419])
+Trigger3 = Var(22)/10%10 = 0
+
+[State -3,5B(牽制)]
+Type = ChangeState
+Value = 210
+TriggerAll = Var(59) > 0
+TriggerAll = Alive
+TriggerAll = RoundState = 2
+TriggerAll = Random <= Var(59) * 70
+TriggerAll = Var(57)/10%10 = 1
+TriggerAll = StateType != A
+TriggerAll = !IsHelper
+TriggerAll = NumHelper(25000)
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),StateType != A
+TriggerAll = EnemyNear(Var(3)),MoveType != H
+TriggerAll = !InGuardDist
+TriggerAll = EnemyNear(Var(3)),StateNo != 5200 && EnemyNear(Var(3)),StateNo != 5210 
+TriggerAll = P2Dist X > 0
+TriggerAll = P2BodyDist X - IfElse(Vel X > 0, IfElse(6 < (Vel X/0.82),(Vel X*6-(0.82*(8**2)/2.0)),(Vel X**2)/(0.82*2)), 0)-(EnemyNear(Var(3)),Vel X*6+(Helper(25000),fvar(4)*(8**2)/2.0)) <= 50
+Trigger1 = Ctrl || StateNo = 52 && Var(9) >= 2
+Trigger2 = Var(2)/100%10 = 3 && MoveType != H || Var(2)/100%10 = 5 && MoveType != H || Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 != 3
+Trigger2 = Var(21)%10 = 0
+Trigger3 = Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 = 3
+Trigger3 = (StateNo = [200,209]) || StateNo = 230 || (StateNo = [400,409])
+Trigger3 = Var(21)%10 = 0
+
+[State -3,6B(牽制)]
+Type = ChangeState
+Value = 240
+TriggerAll = Var(59) > 0
+TriggerAll = Alive
+TriggerAll = RoundState = 2
+TriggerAll = Random <= Var(59) * 70
+TriggerAll = Var(57)/10%10 = 1
+TriggerAll = StateType != A
+TriggerAll = !IsHelper
+TriggerAll = NumHelper(25000)
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),StateType != A
+TriggerAll = EnemyNear(Var(3)),MoveType != H
+TriggerAll = !InGuardDist
+TriggerAll = EnemyNear(Var(3)),StateNo != 5200 && EnemyNear(Var(3)),StateNo != 5210 
+TriggerAll = P2Dist X > 0
+TriggerAll = P2BodyDist X - IfElse(Vel X > 0, IfElse(6 < (Vel X/0.82),(Vel X*6-(0.82*(8**2)/2.0)),(Vel X**2)/(0.82*2)), 0)-(EnemyNear(Var(3)),Vel X*6+(Helper(25000),fvar(4)*(8**2)/2.0)) <= 60
+Trigger1 = Ctrl
+Trigger2 = Var(2)/100%10 = 3 && MoveType != H || Var(2)/100%10 = 5 && MoveType != H || Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 != 3
+Trigger2 = Var(23)%10 = 0
+Trigger3 = Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 = 3
+Trigger3 = (StateNo = [200,219]) || StateNo = 230 || (StateNo = [400,419])
+Trigger3 = Var(23)%10 = 0
+
+;――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――
+;                                                           技振り(空中)
+;――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――
+
+[State -3,空投げ]
+Type = ChangeState
+Value = 820
+TriggerAll = Var(59) > 0
+TriggerAll = Random <= Var(59) * 200 || Var(59) > 5
+TriggerAll = Alive
+TriggerAll = RoundState = 2
+TriggerAll = StateType = A
+TriggerAll = !IsHelper
+TriggerAll = NumHelper(25000)
+TriggerAll = EnemyNear(Var(3)),StateType = A && Var(57)/10%10 != 4 || EnemyNear(Var(3)),StateType = S && Var(57)/10%10 = 4
+TriggerAll = EnemyNear(Var(3)),MoveType != H 
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateNo != 5200 && EnemyNear(Var(3)),StateNo != 5201 && EnemyNear(Var(3)),StateNo != 5210 || EnemyNear(Var(3)),StateNo != [120,159]
+TriggerAll = !InGuardDist || !EnemyNear(Var(3)),Ctrl && (EnemyNear(Var(3)),Time >= Helper(25000),Var(38) || Var(59) > 5) && EnemyNear(Var(3)),AnimTime <= -4
+TriggerAll = P2BodyDist X-(Vel X*3)-(EnemyNear(Var(3)),Vel X*3+(Helper(25000),fvar(4)*(3**2)/2.0)) = [-30,25]
+TriggerAll = P2BodyDist Y-(Vel Y*3+(0.52*(3**2)/2.0))+(EnemyNear(Var(3)),Vel Y*3+(Helper(25000),fvar(14)*(3**2)/2.0)) = [-40,25]
+Trigger1 = Ctrl
+Trigger2 = Var(2)/100%10 = 3 && MoveType != H || Var(2)/100%10 = 5 && MoveType != H
+Trigger3 = Var(2)/100 = 14 && MoveType != H || Var(2)/1000 = 1 && StateNo = 1310 || Var(2)/1000 = 1 && StateNo = 1320 || Var(2)/1000%10 > 0 && StateNo = [1500,1599]
+
+[State -3,JA]
+Type = ChangeState
+Value = 600
+TriggerAll = Var(59) > 0
+TriggerAll = Random <= Var(59) * 80
+TriggerAll = Var(57)/10%10 != 4
+TriggerAll = Alive
+TriggerAll = RoundState = 2
+TriggerAll = StateType = A
+TriggerAll = !IsHelper
+TriggerAll = NumHelper(25000)
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),MoveType != H
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = !InGuardDist
+TriggerAll = EnemyNear(Var(3)),StateNo != 5200 && EnemyNear(Var(3)),StateNo != 5210 
+TriggerAll = P2Dist X > 0
+TriggerAll = P2BodyDist X-(Vel X*4)-(EnemyNear(Var(3)),Vel X*4+(Helper(25000),fvar(4)*(4**2)/2.0)) <= 40
+TriggerAll = P2BodyDist Y-(Vel Y*4+(0.52*(4**2)/2.0))+(EnemyNear(Var(3)),Vel Y*4+(Helper(25000),fvar(14)*(4**2)/2.0)) = [-30,40]
+Trigger1 = Ctrl
+Trigger2 = Var(2)/100%10 = 3 && MoveType != H || Var(2)/100%10 = 5 && MoveType != H || Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 != 3
+Trigger2 = Var(20)/100 = 0
+Trigger3 = StateNo = [600,609]
+Trigger3 = Var(2)/100%10 = 3 && MoveType != H
+Trigger4 = StateNo = [600,609]
+Trigger4 = Var(2)/100%10 = 4 && MoveType != H
+
+[State -3,JB]
+Type = ChangeState
+Value = 610
+TriggerAll = Var(59) > 0
+TriggerAll = Random <= Var(59) * 80
+TriggerAll = Var(57)/10%10 != 4
+TriggerAll = Alive
+TriggerAll = RoundState = 2
+TriggerAll = StateType = A
+TriggerAll = !IsHelper
+TriggerAll = NumHelper(25000)
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),MoveType != H
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = !InGuardDist
+TriggerAll = EnemyNear(Var(3)),StateNo != 5200 && EnemyNear(Var(3)),StateNo != 5210 
+TriggerAll = P2Dist X > 0
+TriggerAll = P2BodyDist X-(Vel X*4)-(EnemyNear(Var(3)),Vel X*4+(Helper(25000),fvar(4)*(4**2)/2.0)) = [-40,70]
+TriggerAll = P2BodyDist Y-(Vel Y*4+(0.52*(4**2)/2.0))+(EnemyNear(Var(3)),Vel Y*4+(Helper(25000),fvar(14)*(4**2)/2.0)) = [-50,-10]
+Trigger1 = Ctrl
+Trigger2 = Var(2)/100%10 = 3 && MoveType != H || Var(2)/100%10 = 5 && MoveType != H || Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 != 3
+Trigger2 = Var(21)/100 = 0
+Trigger3 = Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 = 3
+Trigger3 = StateNo = [600,609]
+Trigger3 = Var(21)/100 = 0
+
+[State -3,JC]
+Type = ChangeState
+Value = 620
+TriggerAll = Var(59) > 0
+TriggerAll = Random <= Var(59) * 80
+TriggerAll = Var(57)/10%10 != 4
+TriggerAll = Alive
+TriggerAll = RoundState = 2
+TriggerAll = StateType = A
+TriggerAll = !IsHelper
+TriggerAll = NumHelper(25000)
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),MoveType != H
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = !InGuardDist
+TriggerAll = EnemyNear(Var(3)),StateNo != 5200 && EnemyNear(Var(3)),StateNo != 5210 
+TriggerAll = P2Dist X > 0
+TriggerAll = P2BodyDist X-(Vel X*4)-(EnemyNear(Var(3)),Vel X*4+(Helper(25000),fvar(4)*(4**2)/2.0)) = [-10,55]
+TriggerAll = P2BodyDist Y-(Vel Y*4+(0.52*(4**2)/2.0))+(EnemyNear(Var(3)),Vel Y*4+(Helper(25000),fvar(14)*(4**2)/2.0)) = [-30,70]
+Trigger1 = Ctrl
+Trigger2 = Var(2)/100%10 = 3 && MoveType != H || Var(2)/100%10 = 5 && MoveType != H || Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 != 3
+Trigger2 = Var(22)/100 = 0
+Trigger3 = Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 = 3
+Trigger3 = StateNo = [600,619]
+Trigger3 = Var(22)/100 = 0
+
+;------------------------------------------------------------------------------------------------------------------------------------
+;====================================================================================================================================
+;                                                             H-Style
+;====================================================================================================================================
+;------------------------------------------------------------------------------------------------------------------------------------
+
+;――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――
+;                                                           技振り(地上)
+;――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――
+
+[State -3,5A(H-Style対空)]
+Type = ChangeState
+Value = 201
+TriggerAll = Var(59) > 0
+TriggerAll = Alive
+TriggerAll = RoundState = 2
+TriggerAll = StateType != A
+TriggerAll = Random <= Var(59) * 70
+TriggerAll = Var(57)/10%10 = 2
+TriggerAll = NumHelper(25000)
+TriggerAll = !IsHelper
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),MoveType != H
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = !InGuardDist
+TriggerAll = EnemyNear(Var(3)),StateNo != 5200 && EnemyNear(Var(3)),StateNo != 5210 
+TriggerAll = P2Dist X > 0
+TriggerAll = P2BodyDist X-IfElse(Vel X>0, IfElse(4<(Vel X/0.85),(Vel X*4-(0.85*(4**2)/2.0)),(Vel X**2)/(0.85*2)), 0)-(EnemyNear(Var(3)),Vel X*4+(Helper(25000),fvar(4)*(4**2)/2.0)) <= 50
+TriggerAll = P2BodyDist Y+(EnemyNear(Var(3)),Vel Y*4+(Helper(25000),fvar(14)*(4**2)/2.0)) = [-50,14]
+Trigger1 = Ctrl || StateNo = 52 && Var(9) >= 1
+Trigger2 = Var(2)/100%10 = 3 && MoveType != H || Var(2)/100%10 = 5 && MoveType != H || Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 != 3
+Trigger2 = Var(20)%10 = 0
+Trigger3 = StateNo = [200,209]
+Trigger3 = Var(2)/100%10 = 3 && MoveType != H
+Trigger4 = (StateNo = [200,209]) || (StateNo = [400,409])
+Trigger4 = Var(2)/100%10 = 4 && MoveType != H
+
+[State -3,2B(H-Style対空)]
+Type = ChangeState
+Value = 411
+TriggerAll = Var(59) > 0
+TriggerAll = Alive
+TriggerAll = RoundState = 2
+TriggerAll = StateType != A
+TriggerAll = Random <= Var(59) * 70
+TriggerAll = Var(57)/10%10 = 2
+TriggerAll = NumHelper(25000)
+TriggerAll = !IsHelper
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),MoveType != H
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = !InGuardDist
+TriggerAll = EnemyNear(Var(3)),StateNo != 5200 && EnemyNear(Var(3)),StateNo != 5210 
+TriggerAll = P2Dist X > 0
+TriggerAll = P2BodyDist X-IfElse(Vel X>0, IfElse(4<(Vel X/0.85),(Vel X*4-(0.85*(4**2)/2.0)),(Vel X**2)/(0.85*2)), 0)-(EnemyNear(Var(3)),Vel X*4+(Helper(25000),fvar(4)*(4**2)/2.0)) <= 60
+TriggerAll = P2BodyDist Y+(EnemyNear(Var(3)),Vel Y*4+(Helper(25000),fvar(14)*(4**2)/2.0)) = [-80,14]
+Trigger1 = Ctrl || StateNo = 52 && Var(9) >= 2
+Trigger2 = Var(2)/100%10 = 3 && MoveType != H || Var(2)/100%10 = 5 && MoveType != H || Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 != 3
+Trigger2 = Var(21)/10%10 = 0
+Trigger3 = Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 = 3
+Trigger3 = (StateNo = [200,219]) || StateNo = 230 || (StateNo = [400,409])
+Trigger3 = Var(21)/10%10 = 0
+
+[State -3,2A(技振り)]
+Type = ChangeState
+Value = 401
+TriggerAll = Var(59) > 0
+TriggerAll = Alive
+TriggerAll = RoundState = 2
+TriggerAll = StateType != A
+TriggerAll = NumHelper(25000)
+TriggerAll = Random <= Var(59) * 70
+TriggerAll = Var(57)/10%10 = 2
+TriggerAll = !IsHelper
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),StateType = S
+TriggerAll = EnemyNear(Var(3)),MoveType != H
+TriggerAll = !InGuardDist
+TriggerAll = EnemyNear(Var(3)),StateNo != 5200 && EnemyNear(Var(3)),StateNo != 5210 
+TriggerAll = P2Dist X > 0
+TriggerAll = P2BodyDist X-IfElse(Vel X > 0, IfElse(4 < (Vel X/0.82),(Vel X*4-(0.82*(4**2)/2.0)),(Vel X**2)/(0.82*2)), 0)-(EnemyNear(Var(3)),Vel X*4+(Helper(25000),fvar(4)*(4**2)/2.0)) <= 50
+Trigger1 = Ctrl || StateNo = 52 && Var(9) >= 1
+Trigger2 = Var(2)/100%10 = 3 && MoveType != H || Var(2)/100%10 = 5 && MoveType != H || Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 != 3
+Trigger2 = Var(20)/10%10 = 0
+Trigger3 = StateNo = [400,409]
+Trigger3 = Var(2)/100%10 = 3 && MoveType != H
+Trigger4 = (StateNo = [200,209]) || (StateNo = [400,409])
+Trigger4 = Var(2)/100%10 = 4 && MoveType != H
+
+[State -3,H2C(技振り)]
+Type = ChangeState
+Value = 421
+TriggerAll = Var(59) > 0
+TriggerAll = Alive
+TriggerAll = RoundState = 2
+TriggerAll = StateType != A
+TriggerAll = NumHelper(25000)
+TriggerAll = Random <= Var(59) * 70
+TriggerAll = Var(57)/10%10 = 2
+TriggerAll = !IsHelper
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),StateType = S
+TriggerAll = EnemyNear(Var(3)),MoveType != H
+TriggerAll = !InGuardDist
+TriggerAll = EnemyNear(Var(3)),StateNo != 5200 && EnemyNear(Var(3)),StateNo != 5210 
+TriggerAll = P2Dist X > 0
+TriggerAll = P2BodyDist X-IfElse(Vel X > 0, IfElse(4 < (Vel X/0.82),(Vel X*4-(0.82*(4**2)/2.0)),(Vel X**2)/(0.82*2)), 0)-(EnemyNear(Var(3)),Vel X*4+(Helper(25000),fvar(4)*(4**2)/2.0)) <= 70
+Trigger1 = Ctrl
+Trigger2 = Var(2)/100%10 = 3 && MoveType != H || Var(2)/100%10 = 5 && MoveType != H || Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 != 3
+Trigger2 = Var(22)/10%10 = 0
+Trigger3 = Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 = 3
+Trigger3 = (StateNo = [200,219]) || (StateNo = [230,249]) || (StateNo = [400,419])
+Trigger3 = Var(22)/10%10 = 0
+
+[State -3,わんいんちぱんち(技振り)]
+Type = ChangeState
+Value = 260
+TriggerAll = Var(59) > 0
+TriggerAll = Alive
+TriggerAll = RoundState = 2
+TriggerAll = Random <= Var(59) * 80
+TriggerAll = Var(57)/10%10 = 2 || Var(57)/10%10 = 4
+TriggerAll = StateType != A
+TriggerAll = !IsHelper
+TriggerAll = NumHelper(25000)
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),StateType != A
+TriggerAll = EnemyNear(Var(3)),MoveType != H
+TriggerAll = !InGuardDist
+TriggerAll = EnemyNear(Var(3)),StateNo != 5200 && EnemyNear(Var(3)),StateNo != 5210 
+TriggerAll = P2Dist X > 0
+TriggerAll = P2BodyDist X - IfElse(Vel X > 0, IfElse(2 < (Vel X/0.82),(Vel X*2-(0.82*(8**2)/2.0)),(Vel X**2)/(0.82*2)), 0)-(EnemyNear(Var(3)),Vel X*2+(Helper(25000),fvar(4)*(8**2)/2.0)) <= 20
+Trigger1 = Ctrl
+Trigger2 = Var(2)/100%10 = 3 && MoveType != H || Var(2)/100%10 = 5 && MoveType != H
+
+[State -3,5B(技振り)]
+Type = ChangeState
+Value = 211
+TriggerAll = Var(59) > 0
+TriggerAll = Alive
+TriggerAll = RoundState = 2
+TriggerAll = Random <= Var(59) * 70
+TriggerAll = Var(57)/10%10 = 2
+TriggerAll = StateType != A
+TriggerAll = !IsHelper
+TriggerAll = NumHelper(25000)
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),StateType != A
+TriggerAll = EnemyNear(Var(3)),MoveType != H
+TriggerAll = !InGuardDist
+TriggerAll = EnemyNear(Var(3)),StateNo != 5200 && EnemyNear(Var(3)),StateNo != 5210 
+TriggerAll = P2Dist X > 0
+TriggerAll = P2BodyDist X - IfElse(Vel X > 0, IfElse(7 < (Vel X/0.82),(Vel X*7-(0.82*(8**2)/2.0)),(Vel X**2)/(0.82*2)), 0)-(EnemyNear(Var(3)),Vel X*7+(Helper(25000),fvar(4)*(8**2)/2.0)) <= 60
+Trigger1 = Ctrl || StateNo = 52 && Var(9) >= 2
+Trigger2 = Var(2)/100%10 = 3 && MoveType != H || Var(2)/100%10 = 5 && MoveType != H || Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 != 3
+Trigger2 = Var(21)%10 = 0
+Trigger3 = Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 = 3
+Trigger3 = (StateNo = [200,209]) || StateNo = 230 || (StateNo = [400,409])
+Trigger3 = Var(21)%10 = 0
+
+;------------------------------------------------------------------------------------------------------------------------------------
+;====================================================================================================================================
+;                                                             F-Style
+;====================================================================================================================================
+;------------------------------------------------------------------------------------------------------------------------------------
+
+;――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――
+;                                                          ゲージ溜め関連
+;――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――
+
+[State -3,ゲージ溜め]
+Type = ChangeState
+Value = 850
+TriggerAll = Var(59) > 0
+TriggerAll = RoundState = 2
+TriggerAll = StateType != A
+TriggerAll = !IsHelper
+TriggerAll = !InGuardDist
+TriggerAll = Var(57)%10 = 3
+TriggerAll = Var(13) = 0
+TriggerAll = FVar(29) <= 3000
+Trigger1 = Random <= Var(59) * 100
+Trigger1 = Ctrl
+Trigger1 = P2BodyDist X >= 140
+
+;――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――
+;                                                           技振り(地上)
+;――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――
+
+[State -3,5A(対空)]
+Type = ChangeState
+Value = 202
+TriggerAll = Var(59) > 0
+TriggerAll = Alive
+TriggerAll = RoundState = 2
+TriggerAll = StateType != A
+TriggerAll = Random <= Var(59) * 70
+TriggerAll = Var(57)/10%10 = 3
+TriggerAll = NumHelper(25000)
+TriggerAll = !IsHelper
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),StateType = A
+TriggerAll = EnemyNear(Var(3)),MoveType != H
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = !InGuardDist
+TriggerAll = EnemyNear(Var(3)),StateNo != 5200 && EnemyNear(Var(3)),StateNo != 5210 
+TriggerAll = P2Dist X > 0
+TriggerAll = P2BodyDist X-IfElse(Vel X>0, IfElse(4<(Vel X/0.85),(Vel X*4-(0.85*(4**2)/2.0)),(Vel X**2)/(0.85*2)), 0)-(EnemyNear(Var(3)),Vel X*4+(Helper(25000),fvar(4)*(4**2)/2.0)) <= 50
+TriggerAll = P2BodyDist Y+(EnemyNear(Var(3)),Vel Y*4+(Helper(25000),fvar(14)*(4**2)/2.0)) = [-60,14]
+Trigger1 = Ctrl || StateNo = 52 && Var(9) >= 1
+Trigger2 = Var(2)/100%10 = 3 && MoveType != H || Var(2)/100%10 = 5 && MoveType != H || Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 != 3
+Trigger2 = Var(20)%10 = 0
+Trigger3 = StateNo = [200,209]
+Trigger3 = Var(2)/100%10 = 3 && MoveType != H
+Trigger4 = (StateNo = [200,209]) || (StateNo = [400,409])
+Trigger4 = Var(2)/100%10 = 4 && MoveType != H
+
+[State -3,F6B(対空)]
+Type = ChangeState
+Value = 241
+TriggerAll = Var(59) > 0
+TriggerAll = Alive
+TriggerAll = RoundState = 2
+TriggerAll = StateType != A
+TriggerAll = Random <= Var(59) * 70
+TriggerAll = Var(57)/10%10 = 3
+TriggerAll = NumHelper(25000)
+TriggerAll = !IsHelper
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),StateType = A
+TriggerAll = EnemyNear(Var(3)),MoveType != H
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = !InGuardDist
+TriggerAll = EnemyNear(Var(3)),StateNo != 5200 && EnemyNear(Var(3)),StateNo != 5210 
+TriggerAll = P2Dist X > 0
+TriggerAll = P2BodyDist X-IfElse(Vel X>0, IfElse(4<(Vel X/0.85),(Vel X*4-(0.85*(4**2)/2.0)),(Vel X**2)/(0.85*2)), 0)-(EnemyNear(Var(3)),Vel X*4+(Helper(25000),fvar(4)*(4**2)/2.0)) <= 70
+TriggerAll = P2BodyDist Y+(EnemyNear(Var(3)),Vel Y*4+(Helper(25000),fvar(14)*(4**2)/2.0)) = [-60,14]
+Trigger1 = Ctrl
+Trigger2 = Var(2)/100%10 = 3 && MoveType != H || Var(2)/100%10 = 5 && MoveType != H || Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 != 3
+Trigger2 = Var(23)%10 = 0
+Trigger3 = Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 = 3
+Trigger3 = (StateNo = [200,219]) || StateNo = 230 || (StateNo = [400,419])
+Trigger3 = Var(23)%10 = 0
+
+[State -3,2A(技振り)]
+Type = ChangeState
+Value = 402
+TriggerAll = Var(59) > 0
+TriggerAll = Alive
+TriggerAll = RoundState = 2
+TriggerAll = StateType != A
+TriggerAll = NumHelper(25000)
+TriggerAll = Random <= Var(59) * 70
+TriggerAll = Var(57)/10%10 = 3
+TriggerAll = !IsHelper
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),StateType = S
+TriggerAll = EnemyNear(Var(3)),MoveType != H
+TriggerAll = !InGuardDist
+TriggerAll = EnemyNear(Var(3)),StateNo != 5200 && EnemyNear(Var(3)),StateNo != 5210 
+TriggerAll = P2Dist X > 0
+TriggerAll = P2BodyDist X-IfElse(Vel X > 0, IfElse(4 < (Vel X/0.82),(Vel X*4-(0.82*(4**2)/2.0)),(Vel X**2)/(0.82*2)), 0)-(EnemyNear(Var(3)),Vel X*4+(Helper(25000),fvar(4)*(4**2)/2.0)) <= 50
+Trigger1 = Ctrl || StateNo = 52 && Var(9) >= 1
+Trigger2 = Var(2)/100%10 = 3 && MoveType != H || Var(2)/100%10 = 5 && MoveType != H || Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 != 3
+Trigger2 = Var(20)/10%10 = 0
+Trigger3 = StateNo = [400,409]
+Trigger3 = Var(2)/100%10 = 3 && MoveType != H
+Trigger4 = (StateNo = [200,209]) || (StateNo = [400,409])
+Trigger4 = Var(2)/100%10 = 4 && MoveType != H
+
+[State -3,2B(技振り)]
+Type = ChangeState
+Value = 412
+TriggerAll = Var(59) > 0
+TriggerAll = Alive
+TriggerAll = RoundState = 2
+TriggerAll = StateType != A
+TriggerAll = NumHelper(25000)
+TriggerAll = Random <= Var(59) * 70
+TriggerAll = Var(57)/10%10 = 3
+TriggerAll = !IsHelper
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),StateType = S
+TriggerAll = EnemyNear(Var(3)),MoveType != H
+TriggerAll = !InGuardDist
+TriggerAll = EnemyNear(Var(3)),StateNo != 5200 && EnemyNear(Var(3)),StateNo != 5210 
+TriggerAll = P2Dist X > 0
+TriggerAll = P2BodyDist X-IfElse(Vel X > 0, IfElse(4 < (Vel X/0.82),(Vel X*4-(0.82*(4**2)/2.0)),(Vel X**2)/(0.82*2)), 0)-(EnemyNear(Var(3)),Vel X*4+(Helper(25000),fvar(4)*(4**2)/2.0)) <= 70
+Trigger1 = Ctrl || StateNo = 52 && Var(9) >= 2
+Trigger2 = Var(2)/100%10 = 3 && MoveType != H || Var(2)/100%10 = 5 && MoveType != H || Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 != 3
+Trigger2 = Var(21)/10%10 = 0
+Trigger3 = Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 = 3
+Trigger3 = (StateNo = [200,219]) || StateNo = 230 || (StateNo = [400,409])
+Trigger3 = Var(21)/10%10 = 0
+
+[State -3,5B(F-Style技振り)]
+Type = ChangeState
+Value = 212
+TriggerAll = Var(59) > 0
+TriggerAll = Alive
+TriggerAll = RoundState = 2
+TriggerAll = StateType != A
+TriggerAll = NumHelper(25000)
+TriggerAll = Random <= Var(59) * 70
+TriggerAll = Var(57)/10%10 = 3
+TriggerAll = !IsHelper
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),StateType != A
+TriggerAll = EnemyNear(Var(3)),MoveType != H
+TriggerAll = !InGuardDist
+TriggerAll = EnemyNear(Var(3)),StateNo != 5200 && EnemyNear(Var(3)),StateNo != 5210 
+TriggerAll = P2Dist X > 0
+TriggerAll = P2BodyDist X-IfElse(Vel X > 0, IfElse(4 < (Vel X/0.82),(Vel X*4-(0.82*(4**2)/2.0)),(Vel X**2)/(0.82*2)), 0)-(EnemyNear(Var(3)),Vel X*4+(Helper(25000),fvar(4)*(4**2)/2.0)) <= 60
+Trigger1 = Ctrl || StateNo = 52 && Var(9) >= 2
+Trigger2 = Var(2)/100%10 = 3 && MoveType != H || Var(2)/100%10 = 5 && MoveType != H || Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 != 3
+Trigger2 = Var(21)%10 = 0
+Trigger3 = Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 = 3
+Trigger3 = (StateNo = [200,209]) || StateNo = 230 || (StateNo = [400,409])
+Trigger3 = Var(21)%10 = 0
+
+[State -3,F6C(F-Style技振り)]
+Type = ChangeState
+Value = 251
+TriggerAll = Var(59) > 0
+TriggerAll = Alive
+TriggerAll = RoundState = 2
+TriggerAll = StateType != A
+TriggerAll = NumHelper(25000)
+TriggerAll = Random <= Var(59) * 70
+TriggerAll = Var(57)/10%10 = 3
+TriggerAll = !IsHelper
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),StateType != A
+TriggerAll = EnemyNear(Var(3)),MoveType != H
+TriggerAll = !InGuardDist
+TriggerAll = EnemyNear(Var(3)),StateNo != 5200 && EnemyNear(Var(3)),StateNo != 5210 
+TriggerAll = P2Dist X > 0
+TriggerAll = P2BodyDist X-IfElse(Vel X > 0, IfElse(4 < (Vel X/0.82),(Vel X*4-(0.82*(4**2)/2.0)),(Vel X**2)/(0.82*2)), 0)-(EnemyNear(Var(3)),Vel X*4+(Helper(25000),fvar(4)*(4**2)/2.0)) <= 80
+Trigger1 = Ctrl
+Trigger2 = Var(2)/100%10 = 3 && MoveType != H || Var(2)/100%10 = 5 && MoveType != H || Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 != 3
+Trigger2 = Var(23)/10%10 = 0
+Trigger3 = Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 = 3
+Trigger3 = (StateNo = [200,249]) || (StateNo = [400,429])
+Trigger3 = Var(23)/10%10 = 0
+
+;------------------------------------------------------------------------------------------------------------------------------------
+;====================================================================================================================================
+;                                                             E-Style
+;====================================================================================================================================
+;------------------------------------------------------------------------------------------------------------------------------------
+
+;――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――
+;                                                           技振り(地上)
+;――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――
+
+[State -3,E5A(対空)]
+Type = ChangeState
+Value = 203
+TriggerAll = Var(59) > 0
+TriggerAll = Alive
+TriggerAll = RoundState = 2
+TriggerAll = StateType != A
+TriggerAll = Random <= Var(59) * 70
+TriggerAll = Var(57)/10%10 = 4
+TriggerAll = NumHelper(25000)
+TriggerAll = !IsHelper
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),StateType != C
+TriggerAll = EnemyNear(Var(3)),MoveType != H
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = !InGuardDist
+TriggerAll = EnemyNear(Var(3)),StateNo != 5200 && EnemyNear(Var(3)),StateNo != 5210 
+TriggerAll = P2Dist X > 0
+TriggerAll = P2BodyDist X-IfElse(Vel X>0, IfElse(4<(Vel X/0.85),(Vel X*4-(0.85*(4**2)/2.0)),(Vel X**2)/(0.85*2)), 0)-(EnemyNear(Var(3)),Vel X*4+(Helper(25000),fvar(4)*(4**2)/2.0)) <= 50
+TriggerAll = P2BodyDist Y+(EnemyNear(Var(3)),Vel Y*4+(Helper(25000),fvar(14)*(4**2)/2.0)) = [-60,14]
+Trigger1 = Ctrl || StateNo = 52 && Var(9) >= 1
+Trigger2 = Var(2)/100%10 = 3 && MoveType != H || Var(2)/100%10 = 5 && MoveType != H || Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 != 3
+Trigger2 = Var(20)%10 = 0
+Trigger3 = StateNo = [200,209]
+Trigger3 = Var(2)/100%10 = 3 && MoveType != H
+Trigger4 = (StateNo = [200,209]) || (StateNo = [400,409])
+Trigger4 = Var(2)/100%10 = 4 && MoveType != H
+
+[State -3,E2B(対空)]
+Type = ChangeState
+Value = 413
+TriggerAll = Var(59) > 0
+TriggerAll = Alive
+TriggerAll = RoundState = 2
+TriggerAll = StateType != A
+TriggerAll = Random <= Var(59) * 70
+TriggerAll = Var(57)/10%10 = 4
+TriggerAll = NumHelper(25000)
+TriggerAll = !IsHelper
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),StateType != C
+TriggerAll = EnemyNear(Var(3)),MoveType != H
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = !InGuardDist
+TriggerAll = EnemyNear(Var(3)),StateNo != 5200 && EnemyNear(Var(3)),StateNo != 5210  
+TriggerAll = P2Dist X > 0
+TriggerAll = P2BodyDist X-IfElse(Vel X>0, IfElse(4<(Vel X/0.85),(Vel X*4-(0.85*(4**2)/2.0)),(Vel X**2)/(0.85*2)), 0)-(EnemyNear(Var(3)),Vel X*4+(Helper(25000),fvar(4)*(4**2)/2.0)) <= 80
+TriggerAll = P2BodyDist Y+(EnemyNear(Var(3)),Vel Y*4+(Helper(25000),fvar(14)*(4**2)/2.0)) = [-100,14]
+Trigger1 = Ctrl || StateNo = 52 && Var(9) >= 2
+Trigger2 = Var(2)/100%10 = 3 && MoveType != H || Var(2)/100%10 = 5 && MoveType != H || Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 != 3
+Trigger2 = Var(21)/10%10 = 0
+Trigger3 = Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 = 3
+Trigger3 = (StateNo = [200,219]) || StateNo = 230 || (StateNo = [400,409])
+Trigger3 = Var(21)/10%10 = 0
+
+[State -3,E2A(技振り)]
+Type = ChangeState
+Value = 403
+TriggerAll = Var(59) > 0
+TriggerAll = Alive
+TriggerAll = RoundState = 2
+TriggerAll = StateType != A
+TriggerAll = Random <= Var(59) * 70
+TriggerAll = Var(57)/10%10 = 4
+TriggerAll = NumHelper(25000)
+TriggerAll = !IsHelper
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),StateType = S
+TriggerAll = EnemyNear(Var(3)),MoveType != H
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = !InGuardDist
+TriggerAll = EnemyNear(Var(3)),StateNo != 5200 && EnemyNear(Var(3)),StateNo != 5210 
+TriggerAll = P2Dist X > 0
+TriggerAll = P2BodyDist X-IfElse(Vel X>0, IfElse(4<(Vel X/0.85),(Vel X*4-(0.85*(4**2)/2.0)),(Vel X**2)/(0.85*2)), 0)-(EnemyNear(Var(3)),Vel X*4+(Helper(25000),fvar(4)*(4**2)/2.0)) <= 50
+Trigger1 = Ctrl || StateNo = 52 && Var(9) >= 1
+Trigger2 = Var(2)/100%10 = 3 && MoveType != H || Var(2)/100%10 = 5 && MoveType != H || Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 != 3
+Trigger2 = Var(20)/10%10 = 0
+Trigger3 = StateNo = [400,409]
+Trigger3 = Var(2)/100%10 = 3 && MoveType != H
+Trigger4 = (StateNo = [200,209]) || (StateNo = [400,409])
+Trigger4 = Var(2)/100%10 = 4 && MoveType != H
+
+[State -3,E2C(技振り)]
+Type = ChangeState
+Value = 422
+TriggerAll = Var(59) > 0
+TriggerAll = Alive
+TriggerAll = RoundState = 2
+TriggerAll = StateType != A
+TriggerAll = Random <= Var(59) * 70
+TriggerAll = Var(57)/10%10 = 4
+TriggerAll = NumHelper(25000)
+TriggerAll = !IsHelper
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),StateType = S
+TriggerAll = EnemyNear(Var(3)),MoveType != H
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = !InGuardDist
+TriggerAll = EnemyNear(Var(3)),StateNo != 5200 && EnemyNear(Var(3)),StateNo != 5210 
+TriggerAll = P2Dist X > 0
+TriggerAll = P2BodyDist X-IfElse(Vel X>0, IfElse(4<(Vel X/0.85),(Vel X*4-(0.85*(4**2)/2.0)),(Vel X**2)/(0.85*2)), 0)-(EnemyNear(Var(3)),Vel X*4+(Helper(25000),fvar(4)*(4**2)/2.0)) <= 80
+Trigger1 = Ctrl
+Trigger2 = Var(2)/100%10 = 3 && MoveType != H || Var(2)/100%10 = 5 && MoveType != H || Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 != 3
+Trigger2 = Var(22)/10%10 = 0
+Trigger3 = Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 = 3
+Trigger3 = (StateNo = [200,219]) || (StateNo = [230,249]) || (StateNo = [400,419])
+Trigger3 = Var(22)/10%10 = 0
+
+[State -3,E5B]
+Type = ChangeState
+Value = 213
+TriggerAll = Var(59) > 0
+TriggerAll = Alive
+TriggerAll = RoundState = 2
+TriggerAll = StateType != A
+TriggerAll = Random <= Var(59) * 70
+TriggerAll = Var(57)/10%10 = 4
+TriggerAll = NumHelper(25000)
+TriggerAll = !IsHelper
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),StateType != A
+TriggerAll = EnemyNear(Var(3)),MoveType != H
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = !InGuardDist
+TriggerAll = EnemyNear(Var(3)),StateNo != 5200 && EnemyNear(Var(3)),StateNo != 5210 
+TriggerAll = P2Dist X > 0
+TriggerAll = P2BodyDist X-IfElse(Vel X>0, IfElse(4<(Vel X/0.85),(Vel X*4-(0.85*(4**2)/2.0)),(Vel X**2)/(0.85*2)), 0)-(EnemyNear(Var(3)),Vel X*4+(Helper(25000),fvar(4)*(4**2)/2.0)) <= 60
+Trigger1 = Ctrl || StateNo = 52 && Var(9) >= 2
+Trigger2 = Var(2)/100%10 = 3 && MoveType != H || Var(2)/100%10 = 5 && MoveType != H || Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 != 3
+Trigger2 = Var(21)%10 = 0
+Trigger3 = Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 = 3
+Trigger3 = (StateNo = [200,209]) || StateNo = 230 || (StateNo = [400,409])
+Trigger3 = Var(21)%10 = 0
+
+[State -3,E5C]
+Type = ChangeState
+Value = 224
+TriggerAll = Var(59) > 0
+TriggerAll = Alive
+TriggerAll = RoundState = 2
+TriggerAll = StateType != A
+TriggerAll = Random <= Var(59) * 70
+TriggerAll = Var(57)/10%10 = 4
+TriggerAll = NumHelper(25000)
+TriggerAll = !IsHelper
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),StateType != A
+TriggerAll = EnemyNear(Var(3)),MoveType != H
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = !InGuardDist
+TriggerAll = EnemyNear(Var(3)),StateNo != 5200 && EnemyNear(Var(3)),StateNo != 5210  
+TriggerAll = P2Dist X > 0
+TriggerAll = P2BodyDist X-IfElse(Vel X>0, IfElse(4<(Vel X/0.85),(Vel X*4-(0.85*(4**2)/2.0)),(Vel X**2)/(0.85*2)), 0)-(EnemyNear(Var(3)),Vel X*4+(Helper(25000),fvar(4)*(4**2)/2.0)) <= 70
+Trigger1 = Ctrl
+Trigger2 = Var(2)/100%10 = 3 && MoveType != H || Var(2)/100%10 = 5 && MoveType != H || Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 != 3
+Trigger2 = Var(22)%10 = 0
+Trigger3 = Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 = 3
+Trigger3 = (StateNo = [200,219]) || (StateNo = [230,249]) || (StateNo = [400,419])
+Trigger3 = Var(22)%10 = 0
+
+[State -3,E6B]
+Type = ChangeState
+Value = 243
+TriggerAll = Var(59) > 0
+TriggerAll = Alive
+TriggerAll = RoundState = 2
+TriggerAll = StateType != A
+TriggerAll = Random <= Var(59) * 70
+TriggerAll = Var(57)/10%10 = 4
+TriggerAll = NumHelper(25000)
+TriggerAll = !IsHelper
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),StateType != A
+TriggerAll = EnemyNear(Var(3)),MoveType != H
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = !InGuardDist
+TriggerAll = EnemyNear(Var(3)),StateNo != 5200 && EnemyNear(Var(3)),StateNo != 5210 
+TriggerAll = P2Dist X > 0
+TriggerAll = P2BodyDist X-IfElse(Vel X>0, IfElse(4<(Vel X/0.85),(Vel X*4-(0.85*(4**2)/2.0)),(Vel X**2)/(0.85*2)), 0)-(EnemyNear(Var(3)),Vel X*4+(Helper(25000),fvar(4)*(4**2)/2.0)) <= 80
+Trigger1 = Ctrl
+Trigger2 = Var(2)/100%10 = 3 && MoveType != H || Var(2)/100%10 = 5 && MoveType != H || Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 != 3
+Trigger2 = Var(23)%10 = 0
+Trigger3 = Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 = 3
+Trigger3 = (StateNo = [200,219]) || StateNo = 230 || (StateNo = [400,419])
+Trigger3 = Var(23)%10 = 0
+
+[State -3,E6C]
+Type = ChangeState
+Value = 253
+TriggerAll = Var(59) > 0
+TriggerAll = Alive
+TriggerAll = RoundState = 2
+TriggerAll = StateType != A
+TriggerAll = Random <= Var(59) * 70
+TriggerAll = Var(57)/10%10 = 4
+TriggerAll = NumHelper(25000)
+TriggerAll = !IsHelper
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),StateType != A
+TriggerAll = EnemyNear(Var(3)),MoveType != H
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = !InGuardDist
+TriggerAll = EnemyNear(Var(3)),StateNo != 5200 && EnemyNear(Var(3)),StateNo != 5210 
+TriggerAll = P2Dist X > 0
+TriggerAll = P2BodyDist X-IfElse(Vel X>0, IfElse(4<(Vel X/0.85),(Vel X*4-(0.85*(4**2)/2.0)),(Vel X**2)/(0.85*2)), 0)-(EnemyNear(Var(3)),Vel X*4+(Helper(25000),fvar(4)*(4**2)/2.0)) <= 90
+Trigger1 = Ctrl
+Trigger2 = Var(2)/100%10 = 3 && MoveType != H || Var(2)/100%10 = 5 && MoveType != H || Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 != 3
+Trigger2 = Var(23)/10%10 = 0
+Trigger3 = Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 = 3
+Trigger3 = (StateNo = [200,249]) || (StateNo = [400,429])
+Trigger3 = Var(23)/10%10 = 0
+
+;――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――
+;                                                           技振り(空中)
+;――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――
+
+[State -3,EJA]
+Type = ChangeState
+Value = 601
+TriggerAll = Var(59) > 0
+TriggerAll = Random <= Var(59) * 80
+TriggerAll = Var(57)/10%10 = 4
+TriggerAll = Alive
+TriggerAll = RoundState = 2
+TriggerAll = StateType = A
+TriggerAll = !IsHelper
+TriggerAll = NumHelper(25000)
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),MoveType != H
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = !InGuardDist 
+TriggerAll = P2Dist X > 0
+TriggerAll = P2BodyDist X-(Vel X*4)-(EnemyNear(Var(3)),Vel X*4+(Helper(25000),fvar(4)*(4**2)/2.0)) <= 45
+TriggerAll = P2BodyDist Y-(Vel Y*4+(0.52*(4**2)/2.0))+(EnemyNear(Var(3)),Vel Y*4+(Helper(25000),fvar(14)*(4**2)/2.0)) = [-30,40]
+Trigger1 = Ctrl
+Trigger2 = Var(2)/100%10 = 3 && MoveType != H || Var(2)/100%10 = 5 && MoveType != H || Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 != 3
+Trigger2 = Var(20)/100 = 0
+Trigger3 = StateNo = [600,609]
+Trigger3 = Var(2)/100%10 = 3 && MoveType != H
+Trigger4 = StateNo = [600,609]
+Trigger4 = Var(2)/100%10 = 4 && MoveType != H
+
+[State -3,EJB]
+Type = ChangeState
+Value = 611
+TriggerAll = Var(59) > 0
+TriggerAll = Random <= Var(59) * 80
+TriggerAll = Var(57)/10%10 = 4
+TriggerAll = Alive
+TriggerAll = RoundState = 2
+TriggerAll = StateType = A
+TriggerAll = !IsHelper
+TriggerAll = NumHelper(25000)
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),MoveType != H
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = !InGuardDist 
+TriggerAll = P2BodyDist X-(Vel X*4)-(EnemyNear(Var(3)),Vel X*4+(Helper(25000),fvar(4)*(4**2)/2.0)) = [-40,60]
+TriggerAll = P2BodyDist Y-(Vel Y*4+(0.52*(4**2)/2.0))+(EnemyNear(Var(3)),Vel Y*4+(Helper(25000),fvar(14)*(4**2)/2.0)) = [-50,-10]
+Trigger1 = Ctrl
+Trigger2 = Var(2)/100%10 = 3 && MoveType != H || Var(2)/100%10 = 5 && MoveType != H || Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 != 3
+Trigger2 = Var(21)/100 = 0
+Trigger3 = Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 = 3
+Trigger3 = StateNo = [600,609]
+Trigger3 = Var(21)/100 = 0
+
+[State -3,EJC]
+Type = ChangeState
+Value = 621
+TriggerAll = Var(59) > 0
+TriggerAll = Random <= Var(59) * 80
+TriggerAll = Var(57)/10%10 = 4
+TriggerAll = Alive
+TriggerAll = RoundState = 2
+TriggerAll = StateType = A
+TriggerAll = !IsHelper
+TriggerAll = NumHelper(25000)
+TriggerAll = EnemyNear(Var(3)),StateType != L
+TriggerAll = EnemyNear(Var(3)),MoveType != H
+TriggerAll = EnemyNear(Var(3)),Alive
+TriggerAll = !InGuardDist
+TriggerAll = P2Dist X > 0
+TriggerAll = P2BodyDist X-(Vel X*4)-(EnemyNear(Var(3)),Vel X*4+(Helper(25000),fvar(4)*(4**2)/2.0)) <= 55
+TriggerAll = P2BodyDist Y-(Vel Y*4+(0.52*(4**2)/2.0))+(EnemyNear(Var(3)),Vel Y*4+(Helper(25000),fvar(14)*(4**2)/2.0)) = [-40,70]
+Trigger1 = Ctrl
+Trigger2 = Var(2)/100%10 = 3 && MoveType != H || Var(2)/100%10 = 5 && MoveType != H || Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 != 3
+Trigger2 = Var(22)/100 = 0
+Trigger3 = Var(2)/100%10 = 4 && MoveType != H && Var(57)%10 = 3
+Trigger3 = StateNo = [600,619]
+Trigger3 = Var(22)/100 = 0
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+;--------------------------------------------------------------------------------------------------------------------------------
+;                                               特殊判定に引っかかると発動
+;--------------------------------------------------------------------------------------------------------------------------------
+
+;相手がアンリミテッドを使うならこっちも開放する。
+[State -2]
+Type = Null
+TriggerAll = Var(59) > 0
+Trigger1 = NumHelper(25000)
+Trigger1 = Helper(25000),Var(30) = [1000,1001]
+Trigger1 = Var(56) := 2
+Trigger2 = EnemyNear(Var(3)),PalNo > 10
+Trigger2 = Var(56) := 2
+

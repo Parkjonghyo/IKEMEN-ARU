@@ -1,0 +1,845 @@
+
+;イガアッパカット弱
+[Statedef 1000]
+type = S
+movetype = A
+physics = N
+anim = 1000
+ctrl = 0
+velset = 0,0
+sprpriority = 2
+movehitpersist = 1
+
+[State 300, 1]
+type = VarSet
+trigger1 = Time = 0
+V = 10
+value = 0
+
+[State 3000, 0]
+type = VarSet
+trigger1 = Time = 1
+V = 2
+value = 0
+
+[State 3000, 0]
+type = VarSet
+triggerall = Var(1) > 120
+trigger1 = AnimElem = 3
+V = 2
+value = 1
+
+[State 210, 5]
+type = MoveHitReset
+trigger1 = Time != 0
+
+[State 300, 1]
+type = VarSet
+trigger1 = Time = 0
+V = 25
+value = 1
+
+[State 300, 1]
+type = Null;VarSet
+trigger1 = AnimElem = 6
+V = 25
+value = 0
+
+[State 300, 1]
+type = VarAdd
+trigger1 = MoveContact
+V = 10
+value = 1
+
+[State 300, 1]
+type = MoveHitReset
+trigger1 = MoveContact
+
+[State 1];無敵の状態を作る
+type = NotHitBy
+trigger1 = Animelem = 4,<= 0
+value = SCA
+
+[State 1100, 0]
+type = PlaySnd
+trigger1 = Time = 0
+value = 333, 1
+
+[State 2];攻撃の指定
+type = HitDef
+trigger1 = animelem = 3
+Trigger2 = animelem = 4
+damage = 76,20;ヒット時,ガド時メジ
+guardflag = M;立ち、しゃがみのみガド可
+hitflag = MAF
+attr = S, SA
+animtype  = up
+pausetime = 20,20
+sparkno = S6001
+guard.sparkno = S6002
+sparkxy = -14,-62
+hitsound   = S8000,2
+guardsound = S2,0
+ground.type = Low
+ground.slidetime = 21
+ground.hittime  = 20
+guard.hitTime = 29
+ground.velocity = -3,-5.5
+air.hitTime = 20
+air.velocity = -3,-5.5
+Fall = 1
+fall = IfElse(Var(2) = 1,1,0)
+fall.recover = 0
+fall.yvelocity = -4
+yaccel = .25
+p2facing = 1
+
+[state 3];属性変更
+type = StatetypeSet
+trigger1 = Animelem = 4
+value = A
+
+[State 4];速度をえる
+type = VelSet
+trigger1 = Animelem = 5
+X = 1
+Y = -6
+
+[State 4];速度をえる
+type = VelSet
+trigger1 = Animelem = 5, = 10
+X = 0
+
+[State 5];空中になるので、重力をえる
+type = gravity
+trigger1 = Animelem = 4,>= 0
+
+[State 1100, 0]
+type = PlaySnd
+trigger1 = AnimElem = 5
+value = 1, 1
+
+[State 6]
+type = HitDef
+trigger1 = animelem = 5
+damage = 80,18;ヒット時,ガド時メジ
+guardflag = M;立ち、しゃがみのみガド可
+hitflag = MAF
+attr = S, SA
+animtype  = up
+pausetime = 20,20
+sparkno = S6001
+guard.sparkno = S6002
+sparkxy = -14,-62
+hitsound   = S8000,2
+guardsound = S2,0
+ground.type = Low
+ground.slidetime = 21
+ground.hittime  = 20
+guard.hitTime = 29
+ground.velocity = -1,-9.6
+air.hitTime = 20
+air.velocity = -1.3,-9.6
+Fall = 1
+fall = IfElse(Var(2) = 1,1,0)
+fall.recover = 0
+fall.yvelocity = -4
+yaccel = .25
+p2facing = 1
+
+[State 7];着地stateに移行
+type = ChangeState
+trigger1 = Vel Y > 0 && Pos Y >= 10
+value = 1001
+
+;---------------------------
+;着地state
+[Statedef 1001]
+type = S
+movetype = I
+physics = S
+anim = 10
+ctrl = 0
+velset = 0,0
+sprpriority = 2
+
+[State 8];地面に立たせる
+type = PosSet
+trigger1 = time = 0
+y = 0
+
+[State 300, 1]
+type = VarSet
+trigger1 = time = 0
+V = 25
+value = 0
+
+[State 9];立ちstateに戻る
+type = Changestate
+trigger1 = Animtime = 0
+value = 0
+ctrl = 1
+
+;イガアッパカット中
+[Statedef 1010]
+type = S
+movetype = A
+physics = N
+anim = 1001
+ctrl = 0
+velset = 0,0
+sprpriority = 2
+movehitpersist = 1
+juggle = 7
+
+[State 300, 1]
+type = VarSet
+trigger1 = Time = 0
+V = 10
+value = 0
+
+[State 3000, 0]
+type = VarSet
+trigger1 = Time = 1
+V = 2
+value = 0
+
+[State 3000, 0]
+type = VarSet
+triggerall = Var(1) > 120
+trigger1 = AnimElem = 3
+V = 2
+value = 1
+
+[State 210, 5]
+type = TargetState
+triggerall = Var(2) = 1
+trigger1 = Target,StateNo != [4000,4199]
+trigger1 = MoveHit
+value = 4000
+
+[State 210, 5]
+type = MoveHitReset
+trigger1 = Time != 0
+
+[State 300, 1]
+type = VarSet
+trigger1 = Time = 0
+V = 25
+value = 1
+
+[State 300, 1]
+type = Null;VarSet
+trigger1 = AnimElem = 6
+V = 25
+value = 0
+
+[State 300, 1]
+type = VarAdd
+trigger1 = MoveContact
+V = 10
+value = 1
+
+[State 300, 1]
+type = MoveHitReset
+trigger1 = MoveContact
+
+[State 1];無敵の状態を作る
+type = NotHitBy
+trigger1 = Animelem = 4,<= 0
+value = SCA
+
+[State 1100, 0]
+type = PlaySnd
+trigger1 = Time = 0
+value = 333, 1
+
+[State 2];攻撃の指定
+type = HitDef
+trigger1 = animelem = 3
+trigger2 = animelem = 4
+damage = 89,20;ヒット時,ガド時メジ
+guardflag = M;立ち、しゃがみのみガド可
+hitflag = MAF
+attr = S, SA
+animtype  = up
+pausetime = 20,20
+sparkno = S6001
+guard.sparkno = S6002
+sparkxy = -14,-62
+hitsound   = S8000,2
+guardsound = S0,0
+ground.type = Low
+ground.slidetime = 21
+ground.hittime  = 20
+guard.hitTime = 29
+ground.velocity = -3,-5.5
+air.hitTime = 20
+air.velocity = -3,-5.5
+Fall = 1
+fall = IfElse(Var(2) = 1,1,0)
+fall.recover = 0
+fall.yvelocity = -4
+yaccel = .25
+p2facing = 1
+
+[state 3];属性変更
+type = StatetypeSet
+trigger1 = Animelem = 4
+value = A
+
+[State 4];速度をえる
+type = VelSet
+trigger1 = Animelem = 5
+X = 2.5
+Y = -7.5
+
+[State 4];速度をえる
+type = VelSet
+trigger1 = Animelem = 5, = 10
+X = 0
+
+[State 5];空中になるので、重力をえる
+type = gravity
+trigger1 = Animelem = 4,>= 0
+
+[State 1100, 0]
+type = PlaySnd
+trigger1 = AnimElem = 5
+value = 1, 1
+
+[State 6]
+type = HitDef
+trigger1 = animelem = 5
+damage = 100,18;ヒット時,ガド時メジ
+guardflag = M;立ち、しゃがみのみガド可
+hitflag = MAF
+attr = S, SA
+animtype  = up
+pausetime = 20,20
+sparkno = S6001
+guard.sparkno = S6002
+sparkxy = -14,-62
+hitsound   = S8000,2
+guardsound = S0,0
+ground.type = Low
+ground.slidetime = 21
+ground.hittime  = 20
+guard.hitTime = 29
+ground.velocity = -3,-5.5
+air.hitTime = 20
+air.velocity = -1.3,-10.5
+Fall = 1
+fall = IfElse(Var(2) = 1,1,0)
+fall.recover = 0
+fall.yvelocity = -4
+yaccel = .25
+p2facing = 1
+
+[State 7];着地stateに移行
+type = ChangeState
+trigger1 = Vel Y > 0 && Pos Y >= 10
+value = 1001
+
+;イガアッパカット強
+[Statedef 1020]
+type = S
+movetype = A
+physics = N
+anim = 1002
+ctrl = 0
+velset = 0,0
+sprpriority = 2
+movehitpersist = 1
+juggle = 7
+
+[State 300, 1]
+type = VarSet
+trigger1 = Time = 0
+V = 10
+value = 0
+
+[State 3000, 0]
+type = VarSet
+trigger1 = Time = 1
+V = 2
+value = 0
+
+[State 3000, 0]
+type = VarSet
+triggerall = Var(1) > 120
+trigger1 = AnimElem = 3
+V = 2
+value = 1
+
+[State 210, 5]
+type = MoveHitReset
+trigger1 = Time != 0
+
+[State 300, 1]
+type = VarSet
+trigger1 = Time = 0
+V = 25
+value = 1
+
+[State 300, 1]
+type = Null;VarSet
+trigger1 = AnimElem = 6
+V = 25
+value = 0
+
+[State 300, 1]
+type = VarAdd
+trigger1 = MoveContact
+V = 10
+value = 1
+
+[State 300, 1]
+type = MoveHitReset
+trigger1 = MoveContact
+
+[State 1];無敵の状態を作る
+type = NotHitBy
+trigger1 = Animelem = 4,<= 0
+value = SCA
+
+[State 1100, 0]
+type = PlaySnd
+trigger1 = Time = 0
+value = 1, 0
+
+[State 2];攻撃の指定
+type = HitDef
+trigger1 = animelem = 3
+trigger2 = animelem = 4
+damage = 105,20;ヒット時,ガド時メジ
+guardflag = M;立ち、しゃがみのみガド可
+hitflag = MAF
+attr = S, SA
+animtype  = up
+pausetime = 23,23
+sparkno = S6001
+guard.sparkno = S6002
+sparkxy = -14,-62
+hitsound   = S8000,5
+guardsound = S0,0
+ground.type = Low
+ground.slidetime = 21
+ground.hittime  = 20
+guard.hitTime = 29
+ground.velocity = -3,-5.5
+air.hitTime = 20
+air.velocity = -1.3,-5.5
+Fall = 1
+fall = IfElse(Var(2) = 1,1,0)
+fall.recover = 0
+fall.yvelocity = -4
+yaccel = .25
+p2facing = 1
+
+[state 3];属性変更
+type = StatetypeSet
+trigger1 = Animelem = 4
+value = A
+
+[State 4];速度をえる
+type = VelSet
+trigger1 = Animelem = 5
+X = 4
+Y = -9.5
+
+[State 4];速度をえる
+type = VelSet
+trigger1 = Animelem = 5, = 10
+X = 0
+
+[State 5];空中になるので、重力をえる
+type = gravity
+trigger1 = Animelem = 4,>= 0
+
+[State 1100, 0]
+type = PlaySnd
+trigger1 = AnimElem = 5
+value = 1, 1
+
+[State 6]
+type = HitDef
+trigger1 = animelem = 5
+damage = 120,18;ヒット時,ガド時メジ
+guardflag = M;立ち、しゃがみのみガド可
+hitflag = MAF
+attr = S, SA
+animtype  = up
+pausetime = 23,23
+sparkno = S6001
+guard.sparkno = S6002
+sparkxy = -14,-62
+hitsound   = S8000,5
+guardsound = S0,0
+ground.type = Low
+ground.slidetime = 21
+ground.hittime  = 20
+guard.hitTime = 29
+ground.velocity = -3,-5.5
+air.hitTime = 20
+air.velocity = -3,-11.5
+Fall = 1
+fall = IfElse(Var(2) = 1,1,0)
+fall.recover = 0
+fall.yvelocity = -4
+yaccel = .25
+p2facing = 1
+
+[State 7];着地stateに移行
+type = ChangeState
+trigger1 = Vel Y > 0 && Pos Y >= 10
+value = 1001
+
+;イガショット弱
+[Statedef 1100]
+type = S
+movetype = A
+physics = S
+poweradd = 50
+velset = 0,0
+ctrl = 0
+juggle = 5
+anim = 1100
+
+[State 1100, 0]
+type = PlaySnd
+trigger1 = AnimElem = 3
+value = 2222,0
+
+[State 1100, 0]
+type = Projectile
+trigger1 = animelem = 3 ; 飛び道具が出る瞬間のアニメション番号。
+projanim = 1101 ; 飛び道具のアニメ
+ProjHitAnim = 1102
+offset = 0, 0 ; 飛び道具が出る座標
+projpriority = 1
+velocity = 1,0 ; 飛び道具のスピド
+attr = S, SP
+damage = 96, 12
+animtype = heavy
+air.animtype = back
+hitflag = MAFP
+guardflag = MA
+pausetime = 0,13
+SparkNo = -1
+Guard.SparkNo = -1
+sparkxy = 0,0
+hitsound = S8000,2
+guardsound = S2,0
+ground.type = High
+ground.slidetime = 21
+ground.hittime = 20
+guard.ctrltime = 29
+air.hittime = 20
+ground.velocity = -11,0
+guard.velocity = -10.5
+air.velocity = -5, -7.5
+air.juggle = 8
+Air.Fall = 1
+fall.recover = 0
+yaccel = .25
+fall.yvelocity = -4
+p2facing = 1
+forcestand = 1
+
+[State 1000, 0]
+type = ChangeState
+trigger1 = AnimTime = 0
+value = 0
+ctrl = 1
+
+;イガショット中
+[Statedef 1110]
+type = S
+movetype = A
+physics = S
+poweradd = 50
+velset = 0,0
+ctrl = 0
+juggle = 5
+anim = 1100
+
+[State 1100, 0]
+type = PlaySnd
+trigger1 = AnimElem = 3
+value = 2222,0
+
+[State 1100, 0]
+type = Projectile
+trigger1 = animelem = 3 ; 飛び道具が出る瞬間のアニメション番号。
+projanim = 1101 ; 飛び道具のアニメ
+ProjHitAnim = 1102
+offset = 0, 0 ; 飛び道具が出る座標
+projpriority = 1
+velocity = 3,0 ; 飛び道具のスピド
+attr = S, SP
+damage = 96, 12
+animtype = heavy
+air.animtype = back
+hitflag = MAFP
+guardflag = MA
+pausetime = 0,13
+SparkNo = -1
+Guard.SparkNo = -1
+sparkxy = 0,0
+hitsound = S8000,2
+guardsound = S2,0
+ground.type = High
+ground.slidetime = 21
+ground.hittime = 20
+guard.ctrltime = 29
+air.hittime = 20
+ground.velocity = -11,0
+guard.velocity = -10.5
+air.velocity = -5, -7.5
+air.juggle = 8
+Air.Fall = 1
+fall.recover = 0
+yaccel = .25
+fall.yvelocity = -4
+p2facing = 1
+forcestand = 1
+
+[State 1000, 0]
+type = ChangeState
+trigger1 = AnimTime = 0
+value = 0
+ctrl = 1
+
+;イガショット強
+[Statedef 1120]
+type = S
+movetype = A
+physics = S
+poweradd = 50
+velset = 0,0
+ctrl = 0
+juggle = 5
+anim = 1100
+
+[State 1100, 0]
+type = PlaySnd
+trigger1 = AnimElem = 3
+value = 2222,0
+
+[State 1100, 0]
+type = Projectile
+trigger1 = animelem = 3 ; 飛び道具が出る瞬間のアニメション番号。
+projanim = 1101 ; 飛び道具のアニメ
+ProjHitAnim = 1102
+offset = 0, 0 ; 飛び道具が出る座標
+projpriority = 1
+velocity = 6,0 ; 飛び道具のスピド
+attr = S, SP
+damage = 96, 12
+animtype = heavy
+air.animtype = back
+hitflag = MAFP
+guardflag = MA
+pausetime = 0,13
+SparkNo = -1
+Guard.SparkNo = -1
+sparkxy = 0,0
+hitsound = S8000,2
+guardsound = S2,0
+ground.type = High
+ground.slidetime = 21
+ground.hittime = 20
+guard.ctrltime = 29
+air.hittime = 20
+ground.velocity = -11,0
+guard.velocity = -10.5
+air.velocity = -5, -7.5
+air.juggle = 8
+Air.Fall = 1
+fall.recover = 0
+yaccel = .25
+fall.yvelocity = -4
+p2facing = 1
+forcestand = 1
+
+[State 1000, 0]
+type = ChangeState
+trigger1 = AnimTime = 0
+value = 0
+ctrl = 1
+
+;グランドイガショット弱
+[Statedef 1200]
+type = S
+movetype = A
+physics = S
+poweradd = 50
+velset = 0,0
+ctrl = 0
+juggle = 5
+anim = 1200
+
+[State 1200, 0]
+type = PlaySnd
+trigger1 = AnimElem = 3
+value = 2222,0
+
+[State 1200, 0]
+type = Projectile
+trigger1 = animelem = 3 ; 飛び道具が出る瞬間のアニメション番号。
+projanim = 1101 ; 飛び道具のアニメ
+ProjHitAnim = 1102
+offset = 0, 40 ; 飛び道具が出る座標
+projpriority = 1
+velocity = 1,0 ; 飛び道具のスピド
+attr = S, SP
+damage = 96, 12
+animtype = heavy
+air.animtype = back
+hitflag = MAFP
+guardflag = MA
+pausetime = 0,13
+SparkNo = -1
+Guard.SparkNo = -1
+sparkxy = 0,0
+hitsound = S8000,2
+guardsound = S2,0
+ground.type = High
+ground.slidetime = 21
+ground.hittime = 20
+guard.ctrltime = 29
+air.hittime = 20
+ground.velocity = -11,0
+guard.velocity = -10.5
+air.velocity = -5, -6.5
+air.juggle = 8
+Air.Fall = 1
+fall.recover = 0
+yaccel = .25
+fall.yvelocity = -4
+p2facing = 1
+forcestand = 1
+
+[State 1200, 0]
+type = ChangeState
+trigger1 = AnimTime = 0
+value = 0
+ctrl = 1
+
+;グランドイガショット中
+[Statedef 1210]
+type = S
+movetype = A
+physics = S
+poweradd = 50
+velset = 0,0
+ctrl = 0
+juggle = 5
+anim = 1200
+
+[State 1200, 0]
+type = PlaySnd
+trigger1 = AnimElem = 3
+value = 2222,0
+
+[State 1200, 0]
+type = Projectile
+trigger1 = animelem = 3 ; 飛び道具が出る瞬間のアニメション番号。
+projanim = 1101 ; 飛び道具のアニメ
+ProjHitAnim = 1102
+offset = 0, 40 ; 飛び道具が出る座標
+projpriority = 1
+velocity = 4,0 ; 飛び道具のスピド
+attr = S, SP
+damage = 96, 12
+animtype = heavy
+air.animtype = back
+hitflag = MAFP
+guardflag = MA
+pausetime = 0,13
+SparkNo = -1
+Guard.SparkNo = -1
+sparkxy = 0,0
+hitsound = S8000,2
+guardsound = S2,0
+ground.type = High
+ground.slidetime = 21
+ground.hittime = 20
+guard.ctrltime = 29
+air.hittime = 20
+ground.velocity = -11,0
+guard.velocity = -10.5
+air.velocity = -5, -6.5
+air.juggle = 8
+Air.Fall = 1
+fall.recover = 0
+yaccel = .25
+fall.yvelocity = -4
+p2facing = 1
+forcestand = 1
+
+[State 1200, 0]
+type = ChangeState
+trigger1 = AnimTime = 0
+value = 0
+ctrl = 1
+
+;グランドイガショット強
+[Statedef 1220]
+type = S
+movetype = A
+physics = S
+poweradd = 50
+velset = 0,0
+ctrl = 0
+juggle = 5
+anim = 1200
+
+[State 1200, 0]
+type = PlaySnd
+trigger1 = AnimElem = 3
+value = 2222,0
+
+[State 1200, 0]
+type = Projectile
+trigger1 = animelem = 3 ; 飛び道具が出る瞬間のアニメション番号。
+projanim = 1101 ; 飛び道具のアニメ
+ProjHitAnim = 1102
+offset = 0, 40 ; 飛び道具が出る座標
+projpriority = 1
+velocity = 7,0 ; 飛び道具のスピド
+attr = S, SP
+damage = 96, 12
+animtype = heavy
+air.animtype = back
+hitflag = MAFP
+guardflag = MA
+pausetime = 0,13
+SparkNo = -1
+Guard.SparkNo = -1
+sparkxy = 0,0
+hitsound = S8000,2
+guardsound = S2,0
+ground.type = High
+ground.slidetime = 21
+ground.hittime = 20
+guard.ctrltime = 29
+air.hittime = 20
+ground.velocity = -11,0
+guard.velocity = -10.5
+air.velocity = -5, -7.5
+air.juggle = 8
+Air.Fall = 1
+fall.recover = 0
+yaccel = .25
+fall.yvelocity = -4
+p2facing = 1
+forcestand = 1
+
+[State 1200, 0]
+type = ChangeState
+trigger1 = AnimTime = 0
+value = 0
+ctrl = 1
+

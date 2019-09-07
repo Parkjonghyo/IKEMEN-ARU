@@ -1,0 +1,845 @@
+															[StateDef 7000]
+															Anim = 10000
+															[State ]
+															Type = Null
+;==============================================================
+;			コンフィグ
+;==============================================================
+;必要に応じて、式の右辺の数値を変更してください。
+
+;--------------------------------------------------------------
+;			システム設定
+;--------------------------------------------------------------
+;●空中ガード可否
+Trigger1 = Var(0) := 1
+
+;相手の攻撃を空中ガードできるかどうかを切り替えられます。
+;こちらの攻撃は空中ガード不可で固定です。
+;0：不可	1：可能(デフォルト)
+
+;--------------------------------------------------------------
+;●逆根性補正ON/OFF
+Trigger2 = Var(1) := 1
+
+;相手の体力減少に合わせて攻撃力が下がる補正のON/OFFを切り替えられます。
+;0：なし	1：あり(デフォルト)
+
+;--------------------------------------------------------------
+;●ヒットカウント表示
+Trigger3 = Var(2) := 1
+
+;独自に表示しているヒットカウントを表示するかどうかを切り替えられます。
+;0：ヒットカウントを表示しません。MUGENデフォルトのものも表示しないようにしているため、
+;一切ヒットカウントが表示されなくなります。
+;1：ヒットカウントを表示します(デフォルト)
+
+;--------------------------------------------------------------
+;			表示位置調整
+;--------------------------------------------------------------
+;X座標は正数で中心寄り、負数で画面端寄りに移動します
+;Y座標は正数で下に、負数で上に移動します
+
+;●ムーンエイジ
+Trigger4 = Var(3) := 0	;X座標
+Trigger5 = Var(4) := 0	;Y座標
+
+;--------------------------------------------------------------
+;●ヒットカウント
+;	※X座標は固定です
+Trigger6 = Var(7) := 0	;Y座標
+
+;--------------------------------------------------------------
+;●システム文字(Counter等)
+;	※X座標は固定です
+Trigger7 = Var(8) := 0	;Y座標
+
+;--------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+==================================================================================
+;				以下、触れるべからず
+==================================================================================
+Trigger1 = 0
+Trigger2 = 0
+Trigger3 = 0
+Trigger4 = 0
+Trigger5 = 0
+Trigger6 = 0
+Trigger7 = 0
+
+;汎用(主にゲージ管理)ヘルパー-------------------------------------------------------
+;Var(0)：空中ガード可否
+;Var(1)：逆根性補正有無
+;Var(2)：ヒットカウント表示ON/OFF
+;Var(3)：ムーンエイジX座標
+;Var(4)：ムーンエイジY座標
+;Var(5)：
+;Var(6)：同キャラタッグフラグ
+;Var(7)：ヒットカウントY位置
+;Var(8)：システム文字Y位置
+;Var(9)：2P判定
+;Var(10)：3P補正
+;Var(11)：重複カウント防止
+;Var(12)：コンボ数カウント
+;Var(13)：1F前のコンボ数カウント
+;Var(14)：1F前のムーンエイジ
+
+
+[State 2P判定]
+Type = VarSet
+Trigger1 = Time = 0
+Trigger1 = TeamSide = 2
+var(9) = 1
+
+[State 同キャラタッグフラグ]
+Type = VarSet
+Trigger1 = Time = 0
+Trigger1 = NumPartner
+Trigger1 = Partner,Name = "Crescent"
+Trigger1 = Partner,AuthorName = "ShowBuySpirit"
+var(6) = 1
+
+[State 3P判定]
+Type = VarSet
+Trigger1 = Time = 0
+Trigger1 = NumPartner
+Trigger1 = Var(6)
+Trigger1 = Root,ID > Partner,ID
+var(10) = 1
+
+;--------------------------------------------------------------
+;			ムーンエイジ
+;--------------------------------------------------------------
+[State 枠]
+Type = Explod
+Trigger1 = !NumExplod(7000)
+Anim = 7000 +50*Var(9)
+ID = 7000
+PosType = Back
+Pos = 4+Var(3)+16*Var(10), 52+Var(4)+24*Var(10)
+OwnPal = 0
+Scale = 0.5, 0.5
+SprPriority = 100
+BindTime = -1
+RemoveTime = -1
+PauseMoveTime = 9999
+SuperMoveTime = 9999
+IgnoreHitPause = 1
+Facing = Facing
+
+[State 黒地]
+Type = Explod
+Trigger1 = !NumExplod(7001)
+Anim = 7001 +50*Var(9)
+ID = 7001
+PosType = Back
+Pos = 4+Var(3)+16*Var(10), 52+Var(4)+24*Var(10)
+OwnPal = 0
+Scale = 0.5, 0.5
+SprPriority = 101
+BindTime = -1
+RemoveTime = -1
+PauseMoveTime = 9999
+SuperMoveTime = 9999
+IgnoreHitPause = 1
+Facing = Facing
+
+[State Lv.下地]
+Type = Explod
+Trigger1 = !NumExplod(7002)
+Anim = 7002 +50*Var(9)
+ID = 7002
+PosType = Back
+Pos = 4+Var(3)+16*Var(10), 52+Var(4)+24*Var(10)
+OwnPal = 0
+Scale = 0.5, 0.5
+SprPriority = 100
+BindTime = -1
+RemoveTime = -1
+PauseMoveTime = 9999
+SuperMoveTime = 9999
+IgnoreHitPause = 1
+Facing = Facing
+
+[State Lv.]
+Type = Explod
+Trigger1 = !NumExplod(7003)
+Anim = 7003 +50*Var(9)
+ID = 7003
+PosType = Back
+Pos = 4+Var(3)+16*Var(10), 52+Var(4)+24*Var(10)
+OwnPal = 0
+Scale = 0.5, 0.5
+SprPriority = 101
+BindTime = -1
+RemoveTime = -1
+PauseMoveTime = 9999
+SuperMoveTime = 9999
+IgnoreHitPause = 1
+Facing = Facing
+
+;--------------------------------------------------------------
+;			月
+;--------------------------------------------------------------
+[State 月削除]
+Type = RemoveExplod
+Trigger1 = NumExplod(7010)
+Trigger1 = Root,Var(3) != Var(14)
+ID = 7010
+IgnoreHitPause = 1
+
+[State LvUp光]
+Type = Explod
+Trigger1 = Root,Var(3) != Var(14)
+Anim = 7004 +50*Var(9)
+ID = 7004
+PosType = Back
+Pos = 4+Var(3)+16*Var(10), 52+Var(4)+24*Var(10)
+OwnPal = 0
+Scale = 0.5, 0.5
+SprPriority = 103
+BindTime = -1
+PauseMoveTime = 9999
+SuperMoveTime = 9999
+IgnoreHitPause = 1
+Facing = Facing
+
+[State 月表示]
+Type = Explod
+Trigger1 = !NumExplod(7010)
+Anim = 7010 +Root,Var(3) +50*Var(9)
+ID = 7010
+PosType = Back
+Pos = 4+Var(3)+16*Var(10), 52+Var(4)+24*Var(10)
+OwnPal = 0
+Scale = 0.5, 0.5
+SprPriority = 102
+BindTime = -1
+RemoveTime = -1
+PauseMoveTime = 9999
+SuperMoveTime = 9999
+IgnoreHitPause = 1
+Facing = Facing
+
+;--------------------------------------------------------------
+;			Lv表示
+;--------------------------------------------------------------
+[State 下地削除]
+Type = RemoveExplod
+Trigger1 = Root,Var(3) != Var(14)
+Trigger1 = NumExplod(7020)
+ID = 7020
+IgnoreHitPause = 1
+
+[State LvUp光]
+Type = Explod
+Trigger1 = Root,Var(3) != Var(14)
+Anim = 7004 +Root,Var(3) +50*Var(9)
+ID = 7005
+PosType = Back
+Pos = 4+Var(3)+16*Var(10), 52+Var(4)+24*Var(10)
+OwnPal = 0
+Scale = 0.5, 0.5
+SprPriority = 103
+BindTime = -1
+PauseMoveTime = 9999
+SuperMoveTime = 9999
+IgnoreHitPause = 1
+Facing = Facing
+
+[State Lv下地表示]
+Type = Explod
+Trigger1 = !NumExplod(7020)
+Anim = 7020 +Root,Var(3) +50*Var(9)
+ID = 7020
+PosType = Back
+Pos = 4+Var(3)+16*Var(10), 52+Var(4)+24*Var(10)
+OwnPal = 0
+Scale = 0.5, 0.5
+SprPriority = 101
+BindTime = -1
+RemoveTime = -1
+PauseMoveTime = 9999
+SuperMoveTime = 9999
+IgnoreHitPause = 1
+Facing = Facing
+
+[State 数字削除]
+Type = RemoveExplod
+Trigger1 = Root,Var(3) != Var(14)
+Trigger1 = NumExplod(7025)
+ID = 7025
+IgnoreHitPause = 1
+
+[State Lv表示]
+Type = Explod
+Trigger1 = !NumExplod(7025)
+Anim = 7025 +Root,Var(3) +50*Var(9)
+ID = 7025
+PosType = Back
+Pos = 4+Var(3)+16*Var(10), 52+Var(4)+24*Var(10)
+OwnPal = 0
+Scale = 0.5, 0.5
+SprPriority = 102
+BindTime = -1
+RemoveTime = -1
+PauseMoveTime = 9999
+SuperMoveTime = 9999
+IgnoreHitPause = 1
+Facing = Facing
+
+[State 次のFで参照]
+Type = VarSet
+Trigger1 = 1
+var(14) = Root,Var(3)
+
+
+;--------------------------------------------------------------
+;			ヒットカウント
+;--------------------------------------------------------------
+[State 本体追従]
+Type = BindToRoot
+Trigger1 = 1
+
+[State リセット]
+Type = VarSet
+TriggerAll = Var(12) != 0
+TriggerAll = !Root,NumTarget
+Trigger1 = Root,P2MoveType != H
+Trigger2 = !EnemyNear,Alive
+var(12) = 0
+
+[State カウント]
+Type = VarAdd
+Trigger1 = !(Root,Var(1)&128)
+Trigger1 = Root,MoveHit = 1
+Trigger1 = Root,NumTarget
+Trigger2 = NumHelper(1000)		;波動
+Trigger2 = !(Root,Var(1)&256)
+Trigger2 = Helper(1000),MoveHit = [1,2]
+Trigger2 = Helper(1000),NumTarget
+Trigger3 = NumHelper(1200)		;設置
+Trigger3 = !(Root,Var(1)&512)
+Trigger3 = Helper(1200),MoveHit = [1,2]
+Trigger3 = Helper(1200),NumTarget
+Trigger4 = NumHelper(2000)		;EX波動
+Trigger4 = !(Root,Var(1)&256)
+Trigger4 = Helper(2000),MoveHit = [1,2]
+Trigger4 = Helper(2000),NumTarget
+Trigger5 = NumHelper(2200)		;EX設置
+Trigger5 = !(Root,Var(1)&512)
+Trigger5 = Helper(2200),MoveHit = [1,2]
+Trigger5 = Helper(2200),NumTarget
+Trigger6 = Root,StateNo = 2110	;EX昇龍
+Trigger6 = Root,MoveType = A
+Trigger6 = Root,AnimElem=5 || Root,AnimElem=8 || Root,AnimElem=11
+Trigger7 = Root,StateNo = 2111	;EX昇龍
+Trigger7 = Root,MoveType = A
+Trigger7 = Root,Time = 1
+Trigger8 = Root,StateNo = 3000	;逢魔
+Trigger8 = Root,MoveType = A
+Trigger8 = Root,AnimElemTime(6) = 0
+Trigger8 = Root,MoveHit
+Trigger9 = Root,StateNo = 3011	;逢魔演出
+Trigger9 = Root,MoveType = A
+Trigger9 = Root,Time = 1
+var(12) = 1
+
+[State 判定済みフラグセット]
+Type = ParentVarSet
+Trigger1 = Root,MoveHit = 1
+var(1) = (Root,Var(1) | 128)
+
+[State 判定済みフラグセット]
+Type = ParentVarSet
+Trigger1 = NumHelper(1000)
+Trigger1 = Helper(1000),MoveHit = [1,2]
+Trigger2 = NumHelper(2000)
+Trigger2 = Helper(2000),MoveHit = [1,2]
+var(1) = (Root,Var(1) | 256)
+
+[State 判定済みフラグセット]
+Type = ParentVarSet
+Trigger1 = NumHelper(1200)
+Trigger1 = Helper(1200),MoveHit = [1,2]
+Trigger2 = NumHelper(2200)
+Trigger2 = Helper(2200),MoveHit = [1,2]
+var(1) = (Root,Var(1) | 512)
+
+;-------------------------------------------------
+[State 下地削除(1の位)]
+Type = RemoveExplod
+TriggerAll = NumExplod(7100)
+Trigger1 = Var(12)%10 != Var(13)%10
+Trigger2 = Var(12) = 0
+ID = 7100
+[State 中身削除(1の位)]
+Type = RemoveExplod
+TriggerAll = NumExplod(7110)
+Trigger1 = Var(12)%10 != Var(13)%10
+Trigger2 = Var(12) = 0
+ID = 7110
+
+[State 下地削除(10の位)]
+Type = RemoveExplod
+TriggerAll = NumExplod(7101)
+Trigger1 = Floor( (Var(12)%100)/10 ) != Floor( (Var(13)%100)/10 )
+ID = 7101
+[State 中身削除(10の位)]
+Type = RemoveExplod
+TriggerAll = NumExplod(7111)
+Trigger1 = Floor( (Var(12)%100)/10 ) != Floor( (Var(13)%100)/10 )
+ID = 7111
+
+[State 下地削除(100の位)]
+Type = RemoveExplod
+TriggerAll = NumExplod(7102)
+Trigger1 = Floor( (Var(12)%1000)/100 ) != Floor( (Var(13)%1000)/100 )
+ID = 7102
+[State 中身削除(100の位)]
+Type = RemoveExplod
+TriggerAll = NumExplod(7112)
+Trigger1 = Floor( (Var(12)%1000)/100 ) != Floor( (Var(12)%1000)/100 )
+ID = 7112
+
+;--------------------------------------------------
+[State 1の位_下地]
+Type = Explod
+TriggerAll = Var(2)
+Trigger1 = Var(12) >= 2
+Trigger1 = !NumExplod(7100)
+Anim = 7100 +(Var(12)%10) +30*(Var(13)>=2) +100*Var(9)*(Var(13)<2)
+ID = 7100
+PosType = Back
+Pos = IfElse( Var(9), 48, 24), 88 +Var(7) +36*Var(10) +24*Var(6)
+OwnPal = 0
+Scale = 0.5, 0.5
+SprPriority = 105
+BindTime = -1
+RemoveTime = -1
+PauseMoveTime = 9999
+SuperMoveTime = 9999
+IgnoreHitPause = 1
+Facing = Facing
+
+[State 1の位_中身]
+Type = Explod
+TriggerAll = Var(2)
+Trigger1 = Var(12) >= 2
+Trigger1 = !NumExplod(7110)
+Anim = 7110 +(Var(12)%10) +30*(Var(13)>=2) +100*Var(9)*(Var(13)<2)
+ID = 7110
+PosType = Back
+Pos = IfElse( Var(9), 48, 24), 88 +Var(7) +36*Var(10) +24*Var(6)
+OwnPal = 0
+Scale = 0.5, 0.5
+SprPriority = 106
+BindTime = -1
+RemoveTime = -1
+PauseMoveTime = 9999
+SuperMoveTime = 9999
+IgnoreHitPause = 1
+Facing = Facing
+
+[State 10の位_下地]
+Type = Explod
+TriggerAll = Var(2)
+Trigger1 = Var(12) >= 10
+Trigger1 = !NumExplod(7101)
+Anim = 7100 +Floor( (Var(12)%100)/10 ) +30*(Var(13)>=2) +100*Var(9)*(Var(13)<2)
+ID = 7101
+PosType = Back
+Pos = IfElse( Var(9), 48, 24) +10*IfElse(TeamSide=1,-1,1), 88 +Var(7) +36*Var(10) +24*Var(6)
+OwnPal = 0
+Scale = 0.5, 0.5
+SprPriority = 105
+BindTime = -1
+RemoveTime = -1
+PauseMoveTime = 9999
+SuperMoveTime = 9999
+IgnoreHitPause = 1
+Facing = Facing
+
+[State 10の位_中身]
+Type = Explod
+TriggerAll = Var(2)
+Trigger1 = Var(12) >= 10
+Trigger1 = !NumExplod(7111)
+Anim = 7110 +Floor( (Var(12)%100)/10 ) +30*(Var(13)>=2) +100*Var(9)*(Var(13)<2)
+ID = 7111
+PosType = Back
+Pos = IfElse( Var(9), 48, 24) +10*IfElse(TeamSide=1,-1,1), 88 +Var(7) +36*Var(10) +24*Var(6)
+OwnPal = 0
+Scale = 0.5, 0.5
+SprPriority = 106
+BindTime = -1
+RemoveTime = -1
+PauseMoveTime = 9999
+SuperMoveTime = 9999
+IgnoreHitPause = 1
+Facing = Facing
+
+[State 100の位_下地]
+Type = Explod
+TriggerAll = Var(2)
+Trigger1 = Var(12) >= 100
+Trigger1 = !NumExplod(7102)
+Anim = 7100 +Floor( (Var(12)%1000)/100 ) +30*(Var(13)>=2) +100*Var(9)*(Var(13)<2)
+ID = 7102
+PosType = Back
+Pos = IfElse( Var(9), 48, 24) +20*IfElse(TeamSide=1,-1,1), 88 +Var(7) +36*Var(10) +24*Var(6)
+OwnPal = 0
+Scale = 0.5, 0.5
+SprPriority = 105
+BindTime = -1
+RemoveTime = -1
+PauseMoveTime = 9999
+SuperMoveTime = 9999
+IgnoreHitPause = 1
+Facing = Facing
+
+[State 100の位_中身]
+Type = Explod
+TriggerAll = Var(2)
+Trigger1 = Var(12) >= 100
+Trigger1 = !NumExplod(7112)
+Anim = 7110 +Floor( (Var(12)%1000)/100 ) +30*(Var(13)>=2) +100*Var(9)*(Var(13)<2)
+ID = 7112
+PosType = Back
+Pos = IfElse( Var(9), 48, 24) +20*IfElse(TeamSide=1,-1,1), 88 +Var(7) +36*Var(10) +24*Var(6)
+OwnPal = 0
+Scale = 0.5, 0.5
+SprPriority = 106
+BindTime = -1
+RemoveTime = -1
+PauseMoveTime = 9999
+SuperMoveTime = 9999
+IgnoreHitPause = 1
+Facing = Facing
+
+;--------------------------------------------------------------
+;			ヒットカウント撤退
+;--------------------------------------------------------------
+[State 1の位_下地]
+Type = Explod
+TriggerAll = Var(2)
+Trigger1 = Var(12) = 0
+Trigger1 = Var(13) >= 2
+Trigger1 = !NumExplod(7100)
+Trigger1 = !NumExplod(7150)
+Anim = 7150 +(Var(13)%10) +100*Var(9)
+ID = 7150
+PosType = Back
+Pos = IfElse( Var(9), 48, 24), 88 +Var(7) +36*Var(10) +24*Var(6)
+OwnPal = 0
+Scale = 0.5, 0.5
+SprPriority = 105
+BindTime = -1
+PauseMoveTime = 9999
+SuperMoveTime = 9999
+IgnoreHitPause = 1
+Facing = Facing
+
+[State 1の位_中身]
+Type = Explod
+TriggerAll = Var(2)
+Trigger1 = Var(12) = 0
+Trigger1 = Var(13) >= 2
+Trigger1 = !NumExplod(7110)
+Trigger1 = !NumExplod(7160)
+Anim = 7160 +(Var(13)%10) +100*Var(9)
+ID = 7160
+PosType = Back
+Pos = IfElse( Var(9), 48, 24), 88 +Var(7) +36*Var(10) +24*Var(6)
+OwnPal = 0
+Scale = 0.5, 0.5
+SprPriority = 106
+BindTime = -1
+PauseMoveTime = 9999
+SuperMoveTime = 9999
+IgnoreHitPause = 1
+Facing = Facing
+
+[State 10の位_下地]
+Type = Explod
+TriggerAll = Var(2)
+Trigger1 = Var(12) = 0
+Trigger1 = Var(13) >= 10
+Trigger1 = !NumExplod(7101)
+Trigger1 = !NumExplod(7151)
+Anim = 7150 +Floor( (Var(13)%100)/10 ) +100*Var(9)
+ID = 7151
+PosType = Back
+Pos = IfElse( Var(9), 48, 24) +10*IfElse(TeamSide=1,-1,1), 88 +Var(7) +36*Var(10) +24*Var(6)
+OwnPal = 0
+Scale = 0.5, 0.5
+SprPriority = 105
+BindTime = -1
+PauseMoveTime = 9999
+SuperMoveTime = 9999
+IgnoreHitPause = 1
+Facing = Facing
+
+[State 10の位_中身]
+Type = Explod
+TriggerAll = Var(2)
+Trigger1 = Var(12) = 0
+Trigger1 = Var(13) >= 10
+Trigger1 = !NumExplod(7111)
+Trigger1 = !NumExplod(7161)
+Anim = 7160 +Floor( (Var(13)%100)/10 ) +100*Var(9)
+ID = 7161
+PosType = Back
+Pos = IfElse( Var(9), 48, 24) +10*IfElse(TeamSide=1,-1,1), 88 +Var(7) +36*Var(10) +24*Var(6)
+OwnPal = 0
+Scale = 0.5, 0.5
+SprPriority = 106
+BindTime = -1
+PauseMoveTime = 9999
+SuperMoveTime = 9999
+IgnoreHitPause = 1
+Facing = Facing
+
+[State 100の位_下地]
+Type = Explod
+TriggerAll = Var(2)
+Trigger1 = Var(12) = 0
+Trigger1 = Var(13) >= 100
+Trigger1 = !NumExplod(7102)
+Trigger1 = !NumExplod(7152)
+Anim = 7150 +Floor( (Var(13)%1000)/100 ) +100*Var(9)
+ID = 7152
+PosType = Back
+Pos = IfElse( Var(9), 48, 24) +20*IfElse(TeamSide=1,-1,1), 88 +Var(7) +36*Var(10) +24*Var(6)
+OwnPal = 0
+Scale = 0.5, 0.5
+SprPriority = 105
+BindTime = -1
+PauseMoveTime = 9999
+SuperMoveTime = 9999
+IgnoreHitPause = 1
+Facing = Facing
+
+[State 100の位_中身]
+Type = Explod
+TriggerAll = Var(2)
+Trigger1 = Var(12) = 0
+Trigger1 = Var(13) >= 100
+Trigger1 = !NumExplod(7112)
+Trigger1 = !NumExplod(7162)
+Anim = 7160 +Floor( (Var(13)%1000)/100 ) +100*Var(9)
+ID = 7162
+PosType = Back
+Pos = IfElse( Var(9), 48, 24) +20*IfElse(TeamSide=1,-1,1), 88 +Var(7) +36*Var(10) +24*Var(6)
+OwnPal = 0
+Scale = 0.5, 0.5
+SprPriority = 106
+BindTime = -1
+PauseMoveTime = 9999
+SuperMoveTime = 9999
+IgnoreHitPause = 1
+Facing = Facing
+
+;-------------------------------------------------
+[State 下地削除(Chain!)]
+Type = RemoveExplod
+TriggerAll = NumExplod(7120)
+Trigger1 = Var(12) < 2
+ID = 7120
+[State 中身削除(Chain!)]
+Type = RemoveExplod
+TriggerAll = NumExplod(7121)
+Trigger1 = Var(12) < 2
+ID = 7121
+
+;--------------------------------------------------
+[State Chain!_下地]
+Type = Explod
+TriggerAll = Var(2)
+Trigger1 = Var(12) >= 2
+Trigger1 = !NumExplod(7120)
+Anim = 7120 +100*Var(9)
+ID = 7120
+PosType = Back
+Pos = IfElse( Var(9), 48, 24), 88 +Var(7) +36*Var(10) +24*Var(6)
+OwnPal = 0
+Scale = 0.5, 0.5
+SprPriority = 105
+BindTime = -1
+RemoveTime = -1
+PauseMoveTime = 9999
+SuperMoveTime = 9999
+IgnoreHitPause = 1
+Facing = Facing
+
+[State Chain!_中身]
+Type = Explod
+TriggerAll = Var(2)
+Trigger1 = Var(12) >= 2
+Trigger1 = !NumExplod(7121)
+Anim = 7121 +100*Var(9)
+ID = 7121
+PosType = Back
+Pos = IfElse( Var(9), 48, 24), 88 +Var(7) +36*Var(10) +24*Var(6)
+OwnPal = 0
+Scale = 0.5, 0.5
+SprPriority = 106
+BindTime = -1
+RemoveTime = -1
+PauseMoveTime = 9999
+SuperMoveTime = 9999
+IgnoreHitPause = 1
+Facing = Facing
+
+;--------------------------------------------------
+[State Chain!_下地]
+Type = Explod
+TriggerAll = Var(2)
+Trigger1 = Var(12) = 0
+Trigger1 = Var(13) >= 2
+Trigger1 = !NumExplod(7120)
+Trigger1 = !NumExplod(7125)
+Anim = 7125 +100*Var(9)
+ID = 7125
+PosType = Back
+Pos = IfElse( Var(9), 48, 24), 88 +Var(7) +36*Var(10) +24*Var(6)
+OwnPal = 0
+Scale = 0.5, 0.5
+SprPriority = 105
+BindTime = -1
+PauseMoveTime = 9999
+SuperMoveTime = 9999
+IgnoreHitPause = 1
+Facing = Facing
+
+[State Chain!_中身]
+Type = Explod
+TriggerAll = Var(2)
+Trigger1 = Var(12) = 0
+Trigger1 = Var(13) >= 2
+Trigger1 = !NumExplod(7121)
+Trigger1 = !NumExplod(7126)
+Anim = 7126 +100*Var(9)
+ID = 7126
+PosType = Back
+Pos = IfElse( Var(9), 48, 24), 88 +Var(7) +36*Var(10) +24*Var(6)
+OwnPal = 0
+Scale = 0.5, 0.5
+SprPriority = 106
+BindTime = -1
+PauseMoveTime = 9999
+SuperMoveTime = 9999
+IgnoreHitPause = 1
+Facing = Facing
+
+;--------------------------------------------
+[State 次のフレームで参照]
+Type = VarSet
+Trigger1 = 1
+var(13) = Var(12)
+
+
+;--------------------------------------------------------------
+;			CH表示
+;--------------------------------------------------------------
+[State CH表示_下地]
+Type = Explod
+TriggerAll = Root,MoveType != H
+TriggerAll = !NumExplod(7300)
+TriggerAll = Root,Var(1)&32		;カウンター
+TriggerAll = Root,MoveHit = 1		;ヒットした瞬間
+Trigger1 = Root,Var(1) > 0 || Root,NumTarget
+Anim = 7300 +10*Var(9)
+ID = 7300
+PosType = Back
+Pos = 40, 104 +Var(8) +36*Var(10) +24*Var(6)
+OwnPal = 0
+Scale = 0.5, 0.5
+SprPriority = 105
+BindTime = -1
+PauseMoveTime = 9999
+SuperMoveTime = 9999
+IgnoreHitPause = 1
+Facing = Facing
+
+[State CH表示_中身]
+Type = Explod
+TriggerAll = Root,MoveType != H
+TriggerAll = !NumExplod(7301)
+TriggerAll = Root,Var(1)&32
+TriggerAll = Root,MoveHit = 1
+Trigger1 = Root,Var(1) > 0 || Root,NumTarget
+Anim = 7301 +10*Var(9)
+ID = 7301
+PosType = Back
+Pos = 40, 104 +Var(8) +36*Var(10) +24*Var(6)
+OwnPal = 0
+Scale = 0.5, 0.5
+SprPriority = 106
+BindTime = -1
+PauseMoveTime = 9999
+SuperMoveTime = 9999
+IgnoreHitPause = 1
+Facing = Facing

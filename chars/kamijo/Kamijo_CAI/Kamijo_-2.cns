@@ -1,0 +1,1113 @@
+;---------------------------------------------------------------------------
+;コンフィグのステート 変更OK！
+;---------------------------------------------------------------------------
+[Statedef -2]
+;---------------------------------------------------------------------------
+;AI関連
+;---------------------------------------------------------------------------
+
+;---------------------------------------------------------------------------
+;初期設定
+;---------------------------------------------------------------------------
+[State -2, エンハンス初期設定]
+	type = VarSet
+	triggerAll = RoundsExisted = 0
+	triggerAll = RoundState = 0
+	trigger1 = TeamMode = Single ||TeamMode = simul
+	trigger2 = TeamMode = Turns
+	trigger2 = RoundNo > 0
+	
+	var(3) = 7	;ここの数字を変えることで設定可能 デフォルトは0(Badluck)
+				; 0 ;Badluck	（デフォルト）
+				; 1 ;Unlucky
+				; 2 ;HardLuck	（白）
+				; 3 ;HardLuck	（赤）
+				; 4 ;HardLuck	（黒）
+				; 5 ;HardLuck	（強運）
+				; 6 ;Calamity	（凶運）
+				; 7 ;SYSTEM		（天運）(ここで設定しないと常時天運になれない)
+
+[State -2,初期ゲージ設定]
+	Type= PowerSet
+	trigger1 = roundsexisted = 0 && roundstate = 0 && roundno = 1;
+	value = 1000 ; 0～6000で設定可能 1000単位で1本 デフォルトは1000
+
+[State -2];ハードラックゲージy軸
+	type = Varset
+	trigger1 = Numhelper(30000) = 0
+	var(31) = 0;デフォルトは0 -方向で中央に
+
+[State -2];ハードラックゲージx軸
+	type = Varset
+	trigger1 = Numhelper(30000) = 0
+	var(32) = 0;デフォルトは0 -方向で中央に
+
+[State -2];バーストアイコンy軸
+	type = Varset
+	trigger1 = Numhelper(30000) = 0
+	var(33) = 0;デフォルトは0 +方向で下に
+
+[State -2];バーストアイコンx軸
+	type = Varset
+	trigger1 = Numhelper(30000) = 0
+	var(34) = 0;デフォルトは0 -方向で中央に
+
+;ここから
+
+[state -2];右ステージ端判定用。IDやstatenoが他のヘルパーと被らないように注意。
+type=Helper
+triggerall=!ishelper
+trigger1=!numhelper(40000)
+helpertype=normal
+name="right_edge"
+ID=40000
+pos=0, 0
+postype=right
+:facing=1
+facing*(helper(40000+(facing=-1)*10),pos x-pos x);前方端
+stateno=40000
+ownpal=1
+supermovetime=99999
+pausemovetime=99999
+ignorehitpause=1
+
+[state -2];左ステージ端判定用。IDやstatenoが他のヘルパーと被らないように注意。
+type=Helper
+triggerall=!ishelper
+trigger1=!numhelper(40010)
+helpertype=normal
+name="left_edge"
+ID=40010
+pos=0, 0
+postype=left;right
+;facing=-1
+-facing*(helper(40000+(facing=1)*10),pos x-pos x);後方端
+stateno=40010
+ownpal=1
+supermovetime=99999
+pausemovetime=99999
+ignorehitpause=1
+
+[state -2,めくり対策ヘルパー後ろ側]
+type=helper
+triggerall=!ishelper
+trigger1=!numhelper(40020)
+helpertype=normal
+name="usiro_mekuri"
+ID=40020
+pos=ceil(pos x-100),ceil(pos y)
+facing=1
+stateno=40020
+ownpal=1
+supermovetime=999999999999
+pausemovetime=999999999999
+ignorehitpause=1
+
+[state -2,めくり対策ヘルパー前側]
+type=helper
+triggerall=!ishelper
+trigger1=!numhelper(40030)
+helpertype=normal
+name="mae_mekuri"
+ID=40030
+pos=ceil(pos x+100),ceil(pos y)
+facing=-1
+stateno=40030
+ownpal=1
+supermovetime=999999999999
+pausemovetime=999999999999
+ignorehitpause=1
+
+;ここまで
+
+;強化設定
+[state -2]
+type=null;varset
+trigger1=helper(40010),var(4)=[4,6]
+var(3)=helper(40010),var(4)
+
+[state -2]
+type=poweradd
+trigger1=1
+value=helper(40010),var(3)
+
+;===========================================================================
+;以下システム記述 変更×
+;===========================================================================
+[State -2, クリップボード]
+type = DisplayToClipboard
+trigger1 = 1
+text = "fvar(0)=%f,fvar(11)=%f,var(8)=%d \n"
+params = fvar(0),fvar(11),var(8)
+
+[State -2, クリップボード（追加専用）]
+	type = AppendToClipboard
+	TriggerAll = !IsHelper
+	trigger1 = 1
+	text = "Position X=%d,Y=%d, Velocity X=%f,Y=%f, Hit=%d \n"
+	params = floor(Pos X),floor(Pos Y),(Vel X),(Vel Y),(MoveHit)
+
+;===========================================================================
+;システム
+;===========================================================================
+;---------------------------------------------------------------------------
+;カラー別
+;---------------------------------------------------------------------------
+[State -2, コンボ補正強化];7P
+	type = VarSet
+	triggerAll = PalNo >= 7
+	trigger1 = fvar(0) < 0.20
+	fv = 0
+	value = 0.20
+	ignorehitpause = 1
+
+[State -2, ノックバック上限追加];8P
+	type = VarSet
+	triggerAll = PalNo >= 8
+ 	trigger1 = fVar(11) > 25
+ 	fVar(11) = 25
+	ignorehitpause = 1
+
+[State -2, ゲジマユ];10P
+	type = PowerSet
+	trigger1 = PalNo >= 10
+	trigger1 = power != powermax
+	value = PowerMax
+	ignorehitpause = 1
+
+[State -2,体力回復];10P
+	type = LifeAdd
+	trigger1 = PalNo >= 10
+	trigger1 = var(12) = 2
+	trigger1 = (GameTime%3) = 0
+	value = 1
+	ignorehitpause = 1
+
+[State -2,体力回復];10P
+	type = LifeAdd
+	trigger1 = PalNo >= 10
+	trigger1 = var(12) = 1
+	trigger1 = (GameTime%5) = 0
+	value = 1
+	ignorehitpause = 1
+
+[State -2, 食らいぬけ使い放題];11P
+	type = VarSet
+	trigger1 = PalNo >= 11
+	trigger1 = var(14)
+ 	var(14) = 0
+	ignorehitpause = 1
+
+;---------------------------------------------------------------------------
+;キャンセル初期化
+;---------------------------------------------------------------------------
+[State -2]
+	type = Varset
+	triggerall = var(1)
+	trigger1 = movetype = H
+	trigger2 = !numtarget && stateno != 2400
+	var(1) = 0
+	ignorehitpause = 1
+
+;---------------------------------------------------------------------------
+;ダメージ補正
+;---------------------------------------------------------------------------
+[State -2];補正
+	type = Varset
+	triggerAll = PalNo <= 6 
+	trigger1 = fvar(0) < 0
+	fv = 0
+	value = 0
+	ignorehitpause = 1
+
+[State -2];補正
+	type = Varset
+	trigger1 = enemy,movetype != H
+	trigger2 = enemy,stateno = [120,155]
+	fv = 0
+	value = 1
+	ignorehitpause = 1
+
+[State -2];補正
+	type = Varset
+	triggerAll = PalNo <= 6
+	trigger1 = fvar(10) < 0
+	fv = 10
+	value = 0
+	ignorehitpause = 1
+
+[State -2];補正
+	type = Varset
+	trigger1 = enemy,movetype != H
+	trigger2 = enemy,stateno = [120,155]
+	fv = 10
+	value = 1
+	ignorehitpause = 1
+
+;---------------------------------------------------------------------------
+;アーマーカウント初期化
+;---------------------------------------------------------------------------
+[State -2];アーマー
+ 	type = Varset
+ 	triggerAll = var(8)
+ 	trigger1 = StateNo != 2300
+ 	var(8) = 0
+	ignorehitpause = 1
+
+;---------------------------------------------------------------------------
+;ヒットバック初期化
+;---------------------------------------------------------------------------
+[State -2];ヒットバック
+	type = Varset
+	trigger1 = enemy,movetype != H
+	trigger2 = enemy,stateno = [120,155]
+	fvar(11)=0
+	ignorehitpause = 1
+	
+;---------------------------------------------------------------------------
+;超必殺技キャンセルカウント初期化
+;---------------------------------------------------------------------------
+[State -2];
+ 	type = Varset
+ 	triggerAll = var(11)
+ 	trigger1 = enemy,movetype != H
+ 	trigger2 = enemy,stateno = [120,155]
+ 	var(11)=0
+	ignorehitpause = 1
+
+;---------------------------------------------------------------------------
+;ロマキャン使用回数初期化
+;---------------------------------------------------------------------------
+[State -2];ループ
+ 	type = Varset
+ 	triggerAll = var(15)
+ 	trigger1 = enemy,movetype != H
+ 	trigger2 = enemy,stateno = [120,155]
+ 	var(15)=0
+	ignorehitpause = 1
+
+;---------------------------------------------------------------------------
+;ゲジマユエンハンス中ロマキャン連続使用判定初期化
+;---------------------------------------------------------------------------
+[State -2];ループ
+ 	type = Varset
+ 	triggerAll = var(16)
+ 	trigger1 = enemy,movetype != H
+ 	trigger2 = enemy,stateno = [120,155]
+ 	var(16)=0
+	ignorehitpause = 1
+
+;---------------------------------------------------------------------------
+;空中ダッシュ初期化
+;---------------------------------------------------------------------------
+[State -2];ループ
+ 	type = Varset
+ 	triggerAll = var(17)
+	trigger1 = statetype != A
+	trigger2 = movetype = H
+ 	var(17)=0
+	ignorehitpause = 1
+
+;---------------------------------------------------------------------------
+;根性値
+;---------------------------------------------------------------------------
+[State -2,ガード]
+Type     = VarSet
+Trigger1 = Ctrl && StateNo%2 && StateNo = [151,155]
+Trigger2 = PrevStateNo%2 = 0 && PrevStateNo = [150,154]
+Trigger2 = StateNo%2 = 0 && StateNo = [150,154]
+V        = 9
+Value    = 0
+Ignorehitpause = 1
+
+[State -2,ライフ反転]
+Type     = VarSet
+Trigger1 = MoveType != H
+V        = 9
+Value    = -Life
+Ignorehitpause = 1
+
+[State -2,一打目ダメージ軽減]
+Type     = LifeAdd
+Trigger1 = MoveType = H
+Trigger1 = Life && Alive
+Trigger1 = Life < Var(9)
+Value = Floor((Var(9)-Life)*FVar(9))
+Ignorehitpause = 1
+Absolute = 1
+
+[State -2,ダメージ軽減]
+Type     = DefenceMulSet
+Trigger1 = Var(9) >= -LifeMax
+Value    = 1-FVar(9)
+Ignorehitpause = 1
+
+[State -2,ダウン有効]
+Type     = VarSet
+Trigger1 = StateType = L || StateNo = 5070
+Trigger1 = Var(9) = 0
+V        = 9
+Value    = -1-LifeMax
+Ignorehitpause = 1
+
+[State -2,ダウン中ダメージ軽減]
+Type     = DefenceMulSet
+Trigger1 = Var(9) < -LifeMax
+Value    = (1-FVar(9))*Const(Data.Fall.Defence_Mul)
+Ignorehitpause = 1
+
+[State -2,一打終了]
+Type     = VarSet
+Trigger1 = MoveType = H
+Trigger1 = Life <= Var(9) && Var(9)
+V        = 9
+Value    = 0
+Ignorehitpause = 1
+
+[State -2,ライフ]
+Type     = VarSet
+Trigger1 = MoveType = H
+Trigger1 = Var(9) < 0 && Var(9) > -1-LifeMax
+V        = 9
+Value    = -Var(9)
+Ignorehitpause = 1
+
+;Valueがダメージ軽減率です。Value = 0.5なら、ダメージが50%軽減されます。
+[State -2,根性値];BadLuck,UnLucky,HardLuck(黒)
+Type     = VarSet
+Trigger1 = Var(3) = 0 || Var(3) = 1 || Var(3) = 4
+FV       = 9
+Value    = ifelse((Life > 0.3*LifeMax), 0.0, 0.3)
+Ignorehitpause = 1
+
+[State -2,根性値];HardLuck(白),HardLuck(赤)
+Type     = VarSet
+Trigger1 = Var(3) = 2 ||  Var(3) = 3
+FV       = 9
+Value    = ifelse((Life > 0.3*LifeMax), 0.0, 0.4)
+Ignorehitpause = 1
+
+[State -2,根性値];HardLuck(強),Calamity
+Type     = VarSet
+Trigger1 =  Var(3) = 5||Var(3) = 6
+FV       = 9
+Value    = ifelse((Life > 0.3*LifeMax), 0.0, 0.6)
+Ignorehitpause = 1
+
+[State -2,根性値];system
+Type     = VarSet
+Trigger1 =  Var(3) = 7
+FV       = 9
+Value    = ifelse((Life > 0.3*LifeMax), 0.0, 0.7)
+Ignorehitpause = 1
+
+;---------------------------------------------------------------------------
+;カウンター
+;---------------------------------------------------------------------------
+[State -2]
+ 	type = Varset
+ 	trigger1 = enemynear,movetype = A
+	var(2) = 1
+	ignorehitpause = 1
+
+[State -2]
+ 	type = Varset
+ 	triggerall = stateno !=[6300,6350]
+ 	triggerall = stateno !=[6400,6425]
+ 	triggerall = stateno !=[800,950]
+ 	triggerall = stateno !=[3200,3230]
+ 	triggerall = movetype != H
+ 	triggerall = enemynear,movetype = H 
+ 	triggerall = var(2) = 1
+ 	trigger1 = movehit
+ 	trigger2 = helper(2410),movehit
+	var(2) = 2
+	ignorehitpause = 1
+
+[State -2, カウンターアタックボイス]
+	type = PlaySnd
+	trigger1 = var(2)=2
+	value = 1, 33
+	ignorehitpause = 1
+
+[State -2]
+	type = Explod
+	trigger1 = var(2) = 2
+	trigger2 = numexplod(14000) = 0
+	trigger2 = var(2) = 3
+	anim = ifelse(var(2)=2,14000,14002)
+	ID = 14000
+	pos = ifelse(teamside=1,60,260),  60
+	postype = left
+	bindtime = -1
+	removetime = -1
+	supermovetime = 9999
+	pausemovetime = 9999
+	sprpriority = 9999
+	scale = .5,.5
+	ontop = 1
+	ownpal = 1
+	ignorehitpause = 1
+
+[State -2]
+ 	type = Varset
+ 	trigger1 = var(2) = 2
+	var(2) = 3
+	ignorehitpause = 1
+
+[State -2]
+	type = RemoveExplod
+	trigger1 = enemynear,movetype = I
+	trigger2 = target,stateno =[5110,5120]
+	trigger3 = RoundState = 3
+	ID = 14000
+	ignorehitpause = 1
+	
+[State -2]
+	type = Explod
+	triggerall =var(2) != 0
+	triggerall =var(2) != 1
+	trigger1 = enemynear,movetype = I
+	trigger2 = target,stateno =[5110,5120]
+	trigger3 = RoundState = 3
+	anim = 14001
+	pos = ifelse(teamside=1,60,260),  60
+	postype = left
+	bindtime = -1
+	supermovetime = 9999
+	pausemovetime = 9999
+	sprpriority = 9999
+	scale = .5,.5
+	ontop = 1
+	ownpal = 1
+	ignorehitpause = 1
+
+[State -2]
+ 	type = Varset
+	trigger1 = enemynear,movetype = I
+	trigger2 = target,stateno =[5110,5120]
+	trigger3 = RoundState = 3
+	var(2) = 0
+	ignorehitpause = 1
+
+;---------------------------------------------------------------------------
+;アーマー
+;---------------------------------------------------------------------------
+[State -2, アーマーヘルパー呼び出し]
+type = Helper
+triggerall = !NumHelper(9000) && MoveType != H
+trigger1 = StateNo = 2300 && Time = 1 ;FIRST…COMES…ROCK…
+trigger2 = var(13) 
+name = "Armor"
+stateno = 9000
+ID = 9000
+size.xscale = 1
+size.yscale = 1
+postype = p1
+pos = 0,0
+ownpal = 1
+supermovetime = 99999
+pausemovetime = 99999
+
+[State -2, アーマー中の投げ以外無敵]
+type = NotHitBy
+trigger1 = NumHelper(9000)
+value = ,AA,AP
+time = 2
+
+[State -2, アーマー中に被弾した時の無敵時間延長（２重被弾抑制処置）]
+type = NotHitBy
+trigger1 = NumHelper(9000)
+trigger1 = Helper(9000),GetHitVar(damage)
+value = SCA
+time = Helper(9000),GetHitVar(hitshaketime)+5
+
+;[State -2, アーマー受けした時の点滅]
+;type = PalFX
+;trigger1 = NumHelper(9000)
+;trigger1 = Helper(9000),GetHitVar(damage)
+;time = 5
+;add = 256,10,10
+
+[State -2, アーマー受けした時のライフ減少]
+type = LifeAdd
+trigger1 = NumHelper(9000)
+trigger1 = Helper(9000),GetHitVar(damage)
+value = -1*Helper(9000),GetHitVar(damage)
+absolute = 1
+ignorehitpause = 1
+;---------------------------------------------------------------------------
+;壁吹き飛ばし
+;---------------------------------------------------------------------------
+[State -2,壁吹き飛ばし]
+	type = TargetState
+	trigger1 = StateNo = 230 || StateNo =2300 || StateNo = 6300 || StateNo =6350; || StateNo =6667
+	trigger1 = movehit = 1
+	value = 7000
+
+[State -2,向き直し]
+	type = TargetFacing
+	trigger1 = StateNo = 230 || StateNo =2300 || StateNo = 6300 || StateNo =6350; || StateNo =6667
+	trigger1 = movehit = 1
+	value = -1
+		
+;[State -2,壁吹き飛ばしエフェクト]
+;	type = Explod
+;	triggerAll =Target(230),Pos Y > -10
+;	trigger1 = numTarget
+;	trigger1 = Target,StateNo = 7010
+;	trigger1 = Target,Time = 1
+;	anim = 13480
+;	pos = 0, 10
+;	postype = p2
+;	bindtime = -1
+;	removetime = -1
+;	supermovetime = 9999
+;	pausemovetime = 9999
+;	sprpriority = 9999
+;	scale = 1,1
+;	ontop = 1
+;	ownpal = 1
+;	facing =-1
+;	ignorehitpause = 1
+;	ID =13480
+
+[State -2,壁吹き飛ばしエフェクト消し]
+	type = RemoveExplod
+	trigger1 = numTarget
+	trigger1 = Target,StateNo = 7020
+	trigger1 = Target,Time = 1
+	trigger3 = numExplod(13480)
+	trigger3 = Target,StateNo != 7010
+	ID =13480
+
+[State -2,壁ぶつかりエフェクト]
+	type = Explod
+	trigger1 = numTarget
+	trigger1 = Target,StateNo = 7020
+	trigger1 = Target,Time = 1
+	anim = 6030
+	pos = -40, -70
+	postype = p2
+;	bindtime = -1
+	supermovetime = 9999
+	pausemovetime = 9999
+	sprpriority = 9999
+	scale = 1,1
+	ontop = 1
+	ownpal = 1
+	facing =-1
+	ignorehitpause = 1
+
+[State -2]
+	type = Targetvelset
+	trigger1 = numTarget
+	trigger1 = Target,StateNo = 7020
+	trigger1 = Target,Time = 1
+	y = -1.5
+
+[State -2]
+	type = Targetveladd
+	trigger1 = numTarget
+	trigger1 = Target,StateNo = 7020
+	trigger1 = Target,Time = 1
+		y = 0.25
+
+[State -2]
+	type = TargetVelSet
+	trigger1 = numTarget(230)
+	trigger1 = Target(230),StateNo = 7010
+	trigger1 = Target(230),Time = 1
+	x = -30
+	y = -15
+
+[State -2]
+	type = TargetVelSet
+	trigger1 = numTarget(2300)
+	trigger1 = Target(2300),StateNo = 7010
+	trigger1 = Target(2300),Time = 1
+	x = -28
+
+[State -2]
+	type = TargetVelSet
+	trigger1 = numTarget(230)
+	trigger1 = Target(230),StateNo = 7030
+	trigger1 = Target(230),Time = 1
+	x = -.1
+	y = -6.3
+
+;---------------------------------------------------------------------------
+;床バウンド
+;---------------------------------------------------------------------------
+
+	[State -2,向き直し]
+		type = TargetFacing
+		trigger1 = numTarget(630)
+		trigger1 = Target(630),statetype = A
+		trigger1 = movehit =1
+		trigger2 = numTarget(1075)
+		trigger2 = Target(1075),statetype = A
+		trigger2 = movehit =1
+		value = -1
+
+	[State -2,床吹き飛ばし]
+		type = TargetState
+;		trigger1 = var(10) = 1
+		trigger1 = numTarget(630)
+		trigger1 = Target(630),statetype = A
+		trigger1 = movehit =1
+		trigger2 = numTarget(1075)
+		trigger2 = Target(1075),statetype = A
+		trigger2 = movehit =1
+		value = 7050
+		persistent = 0
+
+[State -2]
+	type = TargetVelSet
+	trigger1 = numTarget
+	trigger1 = Target,StateNo = 7060
+	trigger1 = Target,Time = 1
+	x = -12.75
+	y = 20.5
+
+[State -2, 床ぶつかり音]
+	type = PlaySnd
+	trigger1 = numTarget
+	trigger1 = Target,StateNo = 7070
+	trigger1 = Target,Time = 1
+	value = 500, 2
+	
+;===========================================================================
+;特殊システム
+;===========================================================================
+;---------------------------------------------------------------------------
+;幻想殺し
+;---------------------------------------------------------------------------
+[State -2, 幻想殺しヘルパー呼び出し]
+	type = Helper
+	triggerall = !NumHelper(8000) && MoveType != H && alive 
+	;通常技
+	trigger1  = StateNo =  230 && AnimElemTime(3)=0;ふっ飛ばし攻撃
+	;必殺技
+	trigger2  = StateNo = 1000 && AnimElemTime(5)=0;連続そげぶ始動
+	trigger3  = StateNo = 1050 && AnimElemTime(2)=0;連続そげぶ上段派生1
+	trigger4  = StateNo = 1100 && AnimElemTime(5)=0;連続そげぶ下段派生1
+	trigger5  = StateNo = 1125 && AnimElemTime(6)=0;連続そげぶ上段派生2
+	trigger6  = StateNo = 1150 && AnimElemTime(4)=0;連続そげぶ中段派生2
+	trigger7  = StateNo = 1200 && AnimElemTime(4)=0;連続そげぶ下段派生2
+	trigger8  = StateNo = 1250 && AnimElemTime(5)=0;強連続そげぶ1
+	trigger9  = StateNo = 1251 && AnimElemTime(4)=0;強連続そげぶ2
+	trigger10 = StateNo = 1252 && AnimElemTime(4)=0;強連続そげぶ3
+	trigger11 = StateNo = 1500 && AnimElemTime(5)=0;昇竜そげぶ弱
+	trigger12 = StateNo = 1550 && AnimElemTime(5)=0;昇竜そげぶ強
+	trigger13 = StateNo = 1600 && AnimElemTime(4)=0;突撃そげぶ弱
+	trigger14 = StateNo = 1650 && AnimElemTime(6)=0;突撃そげぶ強
+	;超必殺技
+	trigger15 = StateNo = 2000 && AnimElemTime(5) =0;昇竜そげぶEX
+	trigger16 = StateNo = 2100 && AnimElemTime(5) =0;不幸だ☆そげぶEX
+	trigger17 = StateNo = 2101 && AnimElemTime(1) =1;不幸だ☆そげぶEX着地
+	trigger18 = StateNo = 2200 && AnimElemTime(5) =0;そげぶラッシュ
+	trigger19 = StateNo = 2300 && AnimElemTime(15)=0;FIRST…COMES…ROCK…
+	trigger20 = StateNo = 2500 && AnimElemTime(5) =0;バスターそげぶ
+	trigger21 = StateNo = 3000 && AnimElemTime(21)=0;その幻想をぶち殺す!!
+	trigger22 = StateNo = 3200 && Time=1			;最弱
+	;特殊技
+	trigger23 = StateNo = 6430 && AnimElemTime(4)=0;そげぶカウンター
+	trigger24 = StateNo = 6450 && AnimElemTime(1)=1;強運エンハンス
+	trigger25 = StateNo = 6662 && Anim = 6662 && AnimElemTime(1)=1;強運エンハンス
+	trigger26 = StateNo = 6666 && Anim = 6666 && AnimElemTime(1)=1;凶運エンハンス
+	trigger27 = Var(3)  =    6                     ;凶運状態
+	trigger28 = Var(3)  =    7                     ;天運状態
+	name = "Imagine Breaker"
+	stateno = 8000
+	ID = 8000
+	size.xscale = 1
+	size.yscale = 1
+	postype = p1
+	pos = 0,0
+	ownpal = 1
+	supermovetime = 99999
+	pausemovetime = 99999
+
+[State -2, 幻想殺し中の飛び道具無敵]
+	type = NotHitBy
+	trigger1 = NumHelper(8000)
+	trigger1 = !NumHelper(9000)
+	value = ,AP
+	time = 2
+
+;---------------------------------------------------------------------------
+;ハードラック
+;---------------------------------------------------------------------------
+[State -2];タッグパートナー判定
+	type = Varadd
+	trigger1 = Numhelper(30000) = 0
+	Trigger1 = P3Name="Accelerator" || P3Name="Kamijo toma";自分か上条
+	Trigger1 = NumPartner
+	Trigger1 = Partner,ID < ID		;相手が前
+	var(31) = -20;デフォルトは0 -方向で上に
+
+[State -2];ゲージ呼び出し
+	type = Helper
+	trigger1 = Numhelper(30000) = 0
+	trigger1 = time = 1
+	stateno = 30000
+	ID = 30000
+	pos = 0,0
+	postype = left
+	helpertype = normal
+	name = "gauge"
+	keyctrl = 0
+	ownpal = 1
+	pausemovetime = 9999
+	supermovetime = 9999
+
+[State -2];タイマー呼び出し
+	type = Helper
+	triggerAll = Numhelper(30001) = 0
+	trigger1 = time = 1
+	stateno = 30001
+	ID = 30001
+	pos = 0,0
+	postype = left
+	helpertype = normal
+	name = "timers"
+	keyctrl = 0
+	ownpal = 1
+	pausemovetime = 1
+	supermovetime = 1
+
+;---------------------------------------------------------------------------
+[State -2];不幸ダメージ増加
+	type = VarSet
+	trigger1 =  var(4) = 2
+	trigger1 = movetype != H
+	var(4) = 0
+;---------------------------------------------------------------------------
+[State -2,そげぶ補正];BadLuck
+	type = VarSet
+	trigger1 = Var(3) = 0
+	fvar(1) = 0.95
+	
+[State -2,そげぶ補正];UnLucky
+	type = VarSet
+	trigger1 = Var(3) = 1
+	fVar(1)  = 0.975
+
+[State -2,そげぶ補正];HardLuck(白)(黒)
+	type = VarSet
+	trigger1 = Var(3) = 2 || Var(3)  = 4
+	fVar(1)  = 1.00
+
+[State -2,そげぶ補正];HardLuck(赤)
+	type = VarSet
+	trigger1 = Var(3)  = 3
+	fVar(1)  = 1.05
+
+[State -2,そげぶ補正];HardLuck(強)
+	type = VarSet
+	trigger1 = Var(3) = 5
+	trigger1 = Var(12) != 2
+	fVar(1)  = 1.10
+
+[State -2,そげぶ補正];GoodLuck(幸)
+	type = VarSet
+	trigger1 = Var(12) = 2
+	trigger1 = Var(3) != 7
+	fVar(1)  = 1.15
+
+[State -2,そげぶ補正];Calamity
+	type = VarSet
+	trigger1 = Var(3)  = 6
+	fVar(1)  = 1.20
+
+[State -2,そげぶ補正];SYSTEM
+	type = VarSet
+	trigger1 = Var(3) = 7
+	fVar(1)  = 1.25
+
+;---------------------------------------------------------------------------
+[State -2,ゲージ増加];BadLuck,UnLucky,HardLuck(黒)
+	Type     = VarSet
+	Trigger1 = Var(3) = 0 || Var(3) = 1 || Var(3) = 4
+	var(6) = 0
+	Ignorehitpause = 1
+
+[State -2,ゲージ増加];HardLuck(白),HardLuck(赤)
+	Type     = VarSet
+	Trigger1 = Var(3) = 2 ||  Var(3) = 3
+	var(6) = 7
+	Ignorehitpause = 1
+
+[State -2,ゲージ増加];HardLuck(強),Calamity
+	Type     = VarSet
+	Trigger1 =  Var(3) = 5||Var(3) = 6
+	var(6) = 13
+	Ignorehitpause = 1
+
+[State -2,ゲージ増加];system
+	Type     = VarSet
+	Trigger1 =  Var(3) = 7
+	var(6) = 25
+	Ignorehitpause = 1
+
+;---------------------------------------------------------------------------
+[State -2,ガード不可];Calamity
+	type = AssertSpecial
+	trigger1 = Var(3)  = 6
+	trigger2 = Var(13)
+	flag = nostandguard
+	flag2 = nocrouchguard
+	flag3 = noairguard
+
+[State -2]
+	Type = AfterImage
+	trigger1 = !Time
+	Time = 1
+	length = 12
+	framegap = 5
+	PalBright = 0,0,0
+	PalContrast = 0,0,185
+	PalPostBright = 0,0,0
+	Paladd = 0,0,0
+	PalMul = 1,1,1
+	Trans = add1
+
+[State -2]
+	Type = AfterImageTime
+	trigger1 = stateno = 3205
+	trigger1 = Var(12)  != 0
+;	trigger2 = Var(3)  = 7	
+	Time = 2
+	Ignorehitpause = 1
+
+;---------------------------------------------------------------------------
+[State -2];UnLucky、HardLuck(白)
+	type = VarAdd
+	trigger1 = Anim = 6661 && AnimElemtime(2) = 60
+	var(3) = 1
+
+[State -2];HardLuck(赤)
+	type = Varset
+	trigger1 = var(3) < 3
+	trigger1 = var(5) = 44;GetHitVar(hitcount)= 1
+	var(3) = 3
+
+[State -2];HardLuck(赤)
+	type = Varset
+	trigger1 = var(5) > 44
+	var(5) = 44
+
+[State -2];HardLuck(黒)
+	type = Varset
+	trigger1 = var(7) = 1
+	trigger1 = StateNo != 6662 && StateNo != 6666;) && movetype = H && time =1
+	trigger1 = var(7) := 0 || 1
+	var(3) = 4
+
+[State -2];HardLuck(強)
+	type = Varset
+	trigger1 = StateNo = 6662 && Anim = 6665 && AnimElemtime(3) =  1
+	trigger1 = var(7) := 0 || 1
+	var(3) = 5
+
+[State -2];Calamity(凶)
+	type = Varset
+	trigger1 = StateNo = 6666 && Anim = 6669 && AnimElemtime(3) =  1
+	trigger1 = var(7) := 0 || 1
+	var(3) = 6
+
+[State -2];
+	type = Varset
+	trigger1 = var(18) = 1
+	trigger1 = StateNo != 3000 && StateNo != 3001 
+	trigger1 = StateNo != 3200 && StateNo != 3205 && StateNo != 3210
+	trigger1 = StateNo != 3300 && StateNo != 3310;) && movetype = H && time =1
+	trigger1 = var(18) := 0 || 1
+	var(3) = 5
+	ignorehitpause = 1
+
+[State -2];
+	type = Varset
+	trigger1 = StateNo = 6667 && Anim = 6676 && AnimElemtime(4) =  1
+	var(12) = 1
+
+[State -2];Goodluck(幸)
+	type = Varset
+	trigger1 = var(12) = 1 && Life < 0.3*LifeMax
+	var(12) = 2
+
+[State -2];system(天)
+	type = Varset
+	trigger1 = StateNo = 6668 && Anim = 6677 && AnimElemtime(8) =  1
+	var(3) = 7
+
+[State -2];
+	type = Varset
+	trigger1 = StateNo = 6300 && AnimElemtime(5) = 0;
+	trigger2 = StateNo = 6350 && AnimElemtime(5) = 0;
+	trigger3 = StateNo = 3200 && time = 1;	
+	var(14) = 1
+
+[State -2];
+	type = Varset
+	trigger1 = var(14)
+	trigger1 = StateNo = 3200 && time = 1;	
+	fvar(21) = 0
+
+;---------------------------------------------------------------------------
+;幻想殺し(対一方)
+;---------------------------------------------------------------------------
+[State -2, ]
+	type = varset
+	;通常技
+	triggerall= var(50) =    0
+	trigger1  = StateNo =  230 && AnimElemTime(3)=0;ふっ飛ばし攻撃
+	;必殺技
+	trigger2  = StateNo = 1000 && AnimElemTime(5)=0;連続そげぶ始動
+	trigger3  = StateNo = 1050 && AnimElemTime(2)=0;連続そげぶ上段派生1
+	trigger4  = StateNo = 1100 && AnimElemTime(5)=0;連続そげぶ下段派生1
+	trigger5  = StateNo = 1125 && AnimElemTime(6)=0;連続そげぶ上段派生2
+	trigger6  = StateNo = 1150 && AnimElemTime(4)=0;連続そげぶ中段派生2
+	trigger7  = StateNo = 1200 && AnimElemTime(4)=0;連続そげぶ下段派生2
+	trigger8  = StateNo = 1250 && AnimElemTime(5)=0;強連続そげぶ1
+	trigger9  = StateNo = 1251 && AnimElemTime(4)=0;強連続そげぶ2
+	trigger10 = StateNo = 1252 && AnimElemTime(4)=0;強連続そげぶ3
+	trigger11 = StateNo = 1500 && AnimElemTime(5)=0;昇竜そげぶ弱
+	trigger12 = StateNo = 1550 && AnimElemTime(5)=0;昇竜そげぶ強
+	trigger13 = StateNo = 1600 && AnimElemTime(4)=0;突撃そげぶ弱
+	trigger14 = StateNo = 1650 && AnimElemTime(6)=0;突撃そげぶ強
+	;超必殺技
+	trigger15 = StateNo = 2000 && AnimElemTime(5) =0;昇竜そげぶEX
+	trigger16 = StateNo = 2100 && AnimElemTime(5) =0;不幸だ☆そげぶEX
+	trigger17 = StateNo = 2101 && AnimElemTime(1) =0;不幸だ☆そげぶEX着地
+	trigger18 = StateNo = 2200 && AnimElemTime(5) =0;そげぶラッシュ
+	trigger19 = StateNo = 2300 && AnimElemTime(15)=0;FIRST…COMES…ROCK…
+	trigger20 = StateNo = 2500 && AnimElemTime(5) =0;バスターそげぶ
+	trigger21 = StateNo = 3000 && AnimElemTime(21)=0;その幻想をぶち殺す!!
+	;特殊技
+	trigger22 = StateNo = 6430 && AnimElemTime(4)=0;そげぶカウンター
+	trigger23 = Var(3)  =    6                     ;凶運状態
+	trigger24 = Var(3)  =    7                     ;天運状態
+	var(50) = 666
+
+	[State -2, ]
+		type = varset
+		triggerall = Var(3) !=[6,7] ;凶運状態
+		triggerall = var(50) = 666
+		trigger1 = StateNo !=  230 
+		trigger1 = StateNo != 1000 
+		trigger1 = StateNo != 1050 ;連続そげぶ上段派生1
+		trigger1 = StateNo != 1100 ;連続そげぶ下段派生1
+		trigger1 = StateNo != 1125 ;連続そげぶ上段派生2
+		trigger1 = StateNo != 1150 ;連続そげぶ中段派生2
+		trigger1 = StateNo != 1200 ;連続そげぶ下段派生2
+		trigger1 = StateNo != 1250 ;強連続そげぶ1
+		trigger1 = StateNo != 1251 ;強連続そげぶ2
+		trigger1 = StateNo != 1252 ;強連続そげぶ3
+		trigger1 = StateNo != 1500 ;昇竜そげぶ弱
+		trigger1 = StateNo != 1550 ;昇竜そげぶ強
+		trigger1 = StateNo != 1600 ;突撃そげぶ弱
+		trigger1 = StateNo != 1650 ;突撃そげぶ強
+		trigger1 = StateNo != 2000 ;昇竜そげぶEX
+		trigger1 = StateNo != 2101 ;不幸だ☆そげぶEX着地
+		trigger1 = StateNo != 2200 ;そげぶラッシュ
+		trigger1 = StateNo != 2300 ;FIRST…COMES…ROCK…
+		trigger1 = StateNo != 2500 ;バスターそげぶ
+		trigger1 = StateNo != 3000 ;その幻想をぶち殺す!!
+		trigger1 = StateNo != 6430 ;
+		;通常技
+		trigger2 = StateNo =  230 && AnimElemTime(6)>0
+		;必殺技
+		trigger3 = StateNo = 1000 && AnimElemTime(6)>0
+		trigger4 = StateNo = 1050 && AnimElemTime(5)>0 ;連続そげぶ上段派生1
+		trigger5 = StateNo = 1100 && AnimElemTime(7)>0 ;連続そげぶ下段派生1
+		trigger6 = StateNo = 1125 && AnimElemTime(8)>0 ;連続そげぶ上段派生2
+		trigger7 = StateNo = 1150 && AnimElemTime(7)>0 ;連続そげぶ中段派生2
+		trigger8 = StateNo = 1200 && AnimElemTime(5)>0 ;連続そげぶ下段派生2
+		trigger9 = StateNo = 1250 && AnimElemTime(9)>0 ;強連続そげぶ1
+		trigger10= StateNo = 1251 && AnimElemTime(8)>0 ;強連続そげぶ2
+		trigger11= StateNo = 1252 && AnimElemTime(9)>0 ;強連続そげぶ3
+		trigger12= StateNo = 1500 && AnimElemTime(10)>0;昇竜そげぶ弱
+		trigger13= StateNo = 1550 && AnimElemTime(12)>0;昇竜そげぶ強
+		trigger14= StateNo = 1600 && AnimElemTime(9)>0 ;突撃そげぶ弱
+		trigger15= StateNo = 1650 && AnimElemTime(9)>0 ;突撃そげぶ強
+		;超必殺技
+		trigger16= StateNo = 2000 && AnimElemTime(13)>0;昇竜そげぶEX
+		trigger17= StateNo = 2101 && AnimElemTime(7)>0 ;不幸だ☆そげぶEX着地
+		trigger18= StateNo = 2200 && AnimElemTime(6)>0 ;そげぶラッシュ
+		trigger19= StateNo = 2300 && AnimElemTime(12)>0;FIRST…COMES…ROCK…
+		trigger20= StateNo = 2500 && AnimElemTime(14)>0;バスターそげぶ
+		trigger21= StateNo = 3000 && AnimElemTime(25)>0;その幻想をぶち殺す!!
+		;特殊技
+		trigger22= StateNo = 6430 && AnimElemTime(6)>0
+		var(50) = 0
+;===========================================================================
+;音関連
+;===========================================================================
+;効果音
+[State -2, 効果音]
+	type = PlaySnd
+	triggerall = AnimElemTime(1) = 1
+	trigger1 = stateno = 53  ;着地ステート
+	trigger2 = stateno = 106 ;バックステップ後の着地ステート
+	value = 40, 0
+;---------------------------------------------------------------------------
+;ボイス
+[State -2, イントロスキップ]
+	type = StopSnd
+	TriggerAll = !IsHelper
+	Trigger1 = RoundState = 2
+	channel = 1
+
+[State -2, 変数 KOボイス重複スイッチ初期化]
+type = VarSet
+trigger1 = var(43)
+trigger1 = Alive
+var(43) = 0
+ignorehitpause = 1
+
+[State -2, KOボイス]
+type = playsnd
+trigger1 = !Alive
+trigger1 = !Var(43)
+value = S12,ifelse(Var(3) < 5,0,1)
+channel = 2
+lowpriority = 0
+ignorehitpause = 1
+
+[State -2, 変数 KOボイス重複防止]
+type = VarSet
+trigger1 = !var(43)
+trigger1 = !Alive
+var(43) = 1
+ignorehitpause = 1
+
+
+;===========================================================================
+;エフェクト関連
+;===========================================================================
+[State 2400,Explod Delete]
+Type=RemoveExplod
+trigger1 = numexplod(2401)
+trigger1 = stateno != 2400
+ID = 2401
+
+
+
+;===========================================================================
+;ステート奪われ判断
+;===========================================================================
+[State -2, gametime];-2ステートへ置く
+Type=varset
+Trigger1 = var(49) != Gametime
+var(49) = -1
+ignorehitpause=1 ;Var(49)=-1でステート奪われ状態の認識。
+
+[Statedef -3]
+
+[State -3, gametime];-3ステートへ置く
+Type=null
+Trigger1 = var(49) := Gametime
+ignorehitpause=1 ;Var(49)= Gametimeでステート奪われてない状態の認識。
+

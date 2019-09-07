@@ -1,0 +1,489 @@
+[StateDef -2]
+;ステート奪取感知---------------------------------------------------
+[State ]
+Type = VarAdd
+Trigger1 = 1
+var(11) = GameTime
+
+[State デバッグ]
+Type = DisplayToClipboard
+Trigger1 = 0
+Text = "%d"
+Params = MoveType = H
+IgnoreHitPause = 1
+
+
+;ダメージボイス---------------------------------------------------------------
+[State 保険]
+Type = VarSet
+Trigger1 = Var(12) < 0
+var(12) = 0
+
+[State 連続再生防止]
+Type = VarAdd
+Trigger1 = Var(12) > 0
+var(12) = -1
+
+[State 弱]
+Type = PlaySnd
+TriggerAll = Var(12) = 0
+TriggerAll = RoundState = 2
+TriggerAll = Alive
+TrigeerAll = MoveType = H
+TriggerAll = GetHitVar(Damage)
+TriggerAll = !GetHitVar(Guarded)
+TriggerAll = Random%2
+Trigger1 = !Var(11)
+Trigger1 = GetHitVar(AnimType) = 0
+Trigger1 = Var(12) := 30
+Value = 5000, Random%11
+Channel = 0
+Volume = 255
+
+[State 中]
+Type = PlaySnd
+TriggerAll = Var(12) = 0
+TriggerAll = RoundState = 2
+TriggerAll = Alive
+TrigeerAll = MoveType = H
+TriggerAll = GetHitVar(Damage)
+TriggerAll = !GetHitVar(Guarded)
+TriggerAll = Random%2
+Trigger1 = !Var(11)
+Trigger1 = GetHitVar(AnimType) = 1
+Trigger1 = Var(12) := 30
+Value = 5010, Random%9
+Channel = 0
+Volume = 255
+
+[State 強とか]
+Type = PlaySnd
+TriggerAll = Var(12) = 0
+TriggerAll = RoundState = 2
+TriggerAll = Alive
+TrigeerAll = MoveType = H
+TriggerAll = GetHitVar(Damage)
+TriggerAll = !GetHitVar(Guarded)
+TriggerAll = Random%2
+Trigger1 = !Var(11)
+Trigger1 = GetHitVar(AnimType) != [0,1]
+Trigger1 = Var(12) := 30
+Value = 5020, Random%10
+Channel = 0
+Volume = 255
+
+[State 強とか]
+Type = PlaySnd
+TriggerAll = Var(12) = 0
+TriggerAll = RoundState = 2
+TriggerAll = Alive
+TrigeerAll = MoveType = H
+TriggerAll = !GetHitVar(Damage)
+TriggerAll = Var(4) > Life
+TriggerAll = !GetHitVar(Guarded)
+TriggerAll = Random%2
+TriggerAll = !(P2Name="faust" && AuthorName="muteki" && StateNo = 3011 && P2StateNo = 3003)
+Trigger1 = Var(11)
+Trigger1 = Var(4) -Life > 20
+Trigger1 = Var(12) := 30
+Value = 5020, Random%9
+Channel = 0
+Volume = 255
+
+[State バウンド時]
+Type = PlaySnd
+TriggerAll = Var(12) = 0
+TriggerAll = RoundState = 2
+TriggerAll = Alive
+TriggerAll = Random%2
+Trigger1 = StateNo = 5100
+Trigger1 = Time = 1
+Trigger1 = Var(12) := 30
+Value = 5020, Random%9
+Channel = 0
+Volume = 255
+
+[State 脚払いにゅ]
+Type = PlaySnd
+TriggerAll = Var(12) = 0
+TriggerAll = Alive
+TriggerAll = MoveType = H
+TriggerAll = Time = 1
+Trigger1 = StateNo = 5070
+Trigger1 = Var(12) := 30
+Value = 5070, Random%5
+Channel = 0
+Volume = 255
+
+[State 復帰]
+Type = PlaySnd
+TriggerAll = Time = 1
+TriggerAll = Random%2
+Trigger1 = StateNo = [5120,5140]
+Trigger2 = StateNo = [5201,5220]
+Value = 5120, Random%6
+Channel = 0
+
+
+;特殊ガードライフ処理--------------------------------------------
+[State ライフ記憶]
+Type = VarSet
+Trigger1 = StateNo != [120,159]	;ガードしていない時
+Trigger2 = !Var(6)		;通常ガードの時
+var(4) = Life
+IgnoreHitPause = 1
+
+
+;タッグ用EnemyNear正常化スイッチ--------------------------------------------
+[State タッグ用生死判別]
+Type = VarSet
+TriggerAll = RoundState = 2
+TriggerAll = NumEnemy = 2
+Trigger1 = !EnemyNear(0),Alive
+var(1) = (Var(1)|1)
+IgnoreHitPause = 1
+
+[State タッグ用生死判別]
+Type = VarAdd
+TriggerAll = RoundState = 2
+TriggerAll = NumEnemy = 2
+TriggerAll = Var(1)&1
+Trigger1 = EnemyNear(0),Alive
+var(1) = -1
+IgnoreHitPause = 1
+
+
+;カウンター判定---------------------------------------------------------
+[State カウンター判定ON]
+Type = VarSet
+Trigger1 = !(Var(1)&32)
+Trigger1 = P2MoveType = A
+var(1) = (Var(1) | 32)
+
+[State カウンター判定OFF]
+Type = VarAdd
+Trigger1 = Var(1)&32
+Trigger1 = P2MoveType != A
+var(1) = -32
+
+
+;コンボ補正-------------------------------------------------------
+[State ヒット数]
+Type = VarAdd
+Trigger1 = MoveHit = 1
+Trigger1 = NumTarget
+var(0) = 1
+
+[State ヒット数初期化]
+Type = VarSet
+TriggerAll = Var(0) != 0
+Trigger1 = P2MoveType != H
+Trigger1 = !NumTarget
+var(0) = 0
+
+[State コンボ補正1]
+Type = VarSet
+Trigger1 = FVar(3) := ( 1.00 - 0.25*Var(0) ) || 1
+Trigger1 = FVar(3) < 0.25
+fvar(3) = 0.25
+
+[State コンボ補正リセット]
+Type = VarSet
+TriggerAll = FVar(0) != 1
+Trigger1 = Var(0) = 0
+fvar(3) = 1.00
+
+;積み補正---------------------------------------
+[State 攻撃力補正]
+Type = VarSet
+Trigger1 = 1
+fvar(4) = 1.0 +0.10*Var(3)
+
+;逆根性補正---------------------------------------
+[State 補正なし]
+Type = VarSet
+TriggerAll = NumHelper(7000)
+Trigger1 = !Helper(7000),Var(1)
+var(1) = (Var(1)|16)
+
+[State 無補正]
+Type = VarSet
+Trigger1 = 1
+fvar(5) = 1.0
+
+[State 体力が多い敵に合わせる]
+Type = Null
+Trigger1 = Var(2) := 0
+Trigger2 = NumEnemy >= 2
+Trigger2 = (Enemy,Life*100.0/Enemy,LifeMax) < (Enemy(1),Life*100.0/Enemy(1),LifeMax)
+Trigger2 = Var(2) := 1
+Trigger2 = 0
+
+[State 補正値]
+Type = Null
+TriggerAll = !(Var(1)&16)
+Trigger1 = (Enemy(Var(2)),Life*100.0/Enemy(Var(2)),LifeMax) <= 50
+Trigger1 = FVar(5) := 0.95
+Trigger1 = 0
+Trigger2 = (Enemy(Var(2)),Life*100.0/Enemy(Var(2)),LifeMax) <= 30
+Trigger2 = FVar(5) := 0.9
+Trigger2 = 0
+Trigger3 = (Enemy(Var(2)),Life*100.0/Enemy(Var(2)),LifeMax) <= 15
+Trigger3 = FVar(5) := 0.75
+Trigger3 = 0
+
+;---------------------------------------
+[State 総合補正]
+Type = VarSet
+Trigger1 = 1
+fvar(0) = FVar(3)*FVar(4)*FVar(5)*( 1 +0.25*!!(Var(1)&32) )
+
+
+;浮き補正-----------------------------------------
+[State 浮き補正ヒット数]
+Type = VarAdd
+TriggerAll = P2StateType = A
+Trigger1 = MoveHit = 1
+var(10) = 1
+
+[State 浮き補正ヒット数初期化]
+Type = VarSet
+TriggerAll = Var(10) != 0
+Trigger1 = P2MoveType != H
+Trigger1 = !NumTarget
+var(10) = 0
+
+[State 浮き補正]
+Type = VarSet
+Trigger1 = Var(10) >= 4
+fvar(7) = 0.30*Var(10)
+
+[State 浮き補正リセット]
+Type = VarSet
+Trigger1 = Var(10) = 0
+fvar(7) = 0
+
+
+;追撃制限-------------------------------------------------------
+[State 追撃管理(シングル)]
+Type = VarSet
+TriggerAll = NumTarget
+TriggerAll = MoveHit = 1
+TriggerAll = NumEnemy = 1
+TriggerAll = Enemy,Alive
+TriggerAll = Enemy,MoveType = H
+TriggerAll = Enemy,StateType = A
+TriggerAll = !Enemy,HitFall
+Trigger1 = Enemy,GetHitVar(Fall.EnvShake.Time) = 0
+Trigger1 = Enemy,GetHitVar(Fall.EnvShake.Freq) = 5300
+Trigger1 = Enemy,GetHitVar(Fall.EnvShake.Ampl) = 5300
+Trigger1 = Enemy,GetHitVar(Fall.EnvShake.Phase) = 5300
+var(9) = 1
+IgnoreHitPause = 1
+
+[State ]
+Type = Null
+Trigger1 = Var(2) := 0
+Trigger2 = NumEnemy >= 2
+Trigger2 = !Enemy(0),Alive
+Trigger2 = Var(2) := 1
+Trigger2 = 0
+
+[State 追撃管理(タッグ)]
+Type = VarSet
+TriggerAll = NumTarget
+TriggerAll = MoveHit = 1
+TriggerAll = NumEnemy >= 2
+TriggerAll = !Enemy(1),Alive || !Enemy,Alive	;タッグ時は敵が一人の場合のみ制限
+TriggerAll = Enemy(Var(2)),Alive
+TriggerAll = Enemy(Var(2)),MoveType = H
+TriggerAll = Enemy(Var(2)),StateType = A
+Trigger1 = Enemy(Var(2)),GetHitVar(Fall.EnvShake.Time) = 0
+Trigger1 = Enemy(Var(2)),GetHitVar(Fall.EnvShake.Freq) = 5300
+Trigger1 = Enemy(Var(2)),GetHitVar(Fall.EnvShake.Ampl) = 5300
+Trigger1 = Enemy(Var(2)),GetHitVar(Fall.EnvShake.Phase) = 5300
+var(9) = 1
+IgnoreHitPause = 1
+
+;----------------------------
+[State 追撃制限]
+Type = VarSet
+TriggerAll = Var(9) = 1
+Trigger1 = Enemy(Var(2)),HitOver
+var(9) = 2
+IgnoreHitPause = 1
+
+;----------------------------
+[State 制限解除(シングル)]
+Type = VarSet
+TriggerAll = Var(9)
+TriggerAll = NumEnemy = 1
+Trigger1 = Enemy(Var(2)),HitFall
+Trigger2 = Enemy(Var(2)),StateType != A
+Trigger2 = !(Enemy,StateNo=52 && !Enemy,Ctrl)
+var(9) = 0
+
+
+;ステート奪取--------------------------------------------------------
+[State 強制ダウン]
+Type = TargetState
+TriggerAll = NumTarget(420)
+TriggerAll = MoveHit = 1
+Trigger1 = Enemy,StateNo = [5000,5250]
+Trigger1 = Enemy,StateType != A
+Trigger2 = Enemy(NumEnemy>=2),StateNo = [5000,5250]
+Trigger2 = Enemy(NumEnemy>=2),StateType != A
+Value = 5600
+IgnoreHitPause = 1
+
+[State 叩きつけ]
+Type = TargetState
+TriggerAll = NumTarget(621)
+TriggerAll = MoveHit = 1
+Trigger1 = Enemy,StateNo = [5000,5250]
+Trigger2 = Enemy(NumEnemy>=2),StateNo = [5000,5250]
+Value = 5610
+IgnoreHitPause = 1
+
+
+;着地硬直判定---------------------------------------------------------
+[State 判定ON]
+Type = VarSet
+TriggerAll = !(Var(1)&64)
+Trigger1 = MoveType = A
+Trigger1 = Time = 1
+var(1) = (Var(1) | 64)
+
+[State 判定OFF]
+Type = VarAdd
+TriggerAll = Var(1)&64
+Trigger1 = StateType != A
+Trigger1 = StateNo != 52
+Trigger2 = MoveType = H
+var(1) = -64
+
+
+;空中ガード不可----------------------------------------------------
+[State 空ガ不可]
+Type = AssertSpecial
+Trigger1 = NumHelper(7000)
+Trigger1 = !Helper(7000),Var(0)
+Flag = NoAirGuard
+IgnoreHitPause = 1
+
+
+;防御力補正-------------------------------------------------------
+[State 積み補正]
+Type = VarSet
+Trigger1 = 1
+fvar(6) = 1.3 / ( 1.0+0.1*Var(3) )
+
+[State 初撃判定]
+Type = VarSet
+TriggerAll = !(Var(1)&2)
+Trigger1 = MoveType != H
+var(1) = (Var(1) | 2)
+
+[State 被ダメージ調整]
+Type = LifeAdd
+Trigger1 = Var(1)&2
+Trigger1 = Var(3) = [0,2]
+Trigger1 = GetHitVar(Damage)
+Value = -Floor( GetHitVar(Damage)*(FVar(6) - 1.0) )
+Absolute = 1
+Kill = 1
+
+[State コンボ中判定]
+Type = VarAdd
+TriggerAll = Var(1)&2
+Trigger1 = MoveType = H
+var(1) = -2
+
+[State 被ダメージ調整]
+Type = DefenceMulSet
+Trigger1 = !(Var(1)&2)
+Value = FVar(6)
+
+
+;ゲージ回収率-----------------------------------------------------------
+[State 自分]
+Type = VarSet
+Trigger1 = FVar(1) != 1.0
+fvar(1) = 1.0
+
+[State 相手]
+Type = VarSet
+Trigger1 = FVar(2) != 0.50
+fvar(2) = 0.50
+
+
+;エフェクト-------------------------------------------------------------
+[State 消去]
+Type = RemoveExplod
+Trigger1 = NumExplod(1100)
+Trigger1 = StateNo = [2000,3999]
+ID = 1100
+
+;対縁寿-------------------------------------------------------------
+[State 投げ弾き]
+Type = PlaySnd
+TriggerAll = EnemyNear(Var(1)&1),Name = "USHIROMIYA ANGE" && EnemyNear(Var(1)&1),AuthorName = "YU-TOHARU"
+Trigger1 = StateNo = 2851
+Trigger1 = MoveType = H
+Trigger1 = Time = 1
+Value = 5120, 3
+
+;メタ返し対応-------------------------------------------------------------
+[State メタ返し～カットイン]
+Type = Explod
+TriggerAll = EnemyNear(Var(1)&1),Name = "USHIROMIYA ANGE" && EnemyNear(Var(1)&1),AuthorName = "YU-TOHARU"
+Trigger1 = EnemyNear(Var(1)&1),StateNo = 2910 && EnemyNear(Var(1)&1),Time = 2
+Anim = 19864
+PosType = Back
+Pos = 0, 240
+Facing = 1
+Scale = 0.5, 0.5
+OwnPal = 1
+SprPriority = 50
+PauseMoveTime = 999999999
+SuperMoveTime = 999999999
+
+[State メタ返し～ボイス]
+Type = PlaySnd
+TriggerAll = EnemyNear(Var(1)&1),Name = "USHIROMIYA ANGE" && EnemyNear(Var(1)&1),AuthorName = "YU-TOHARU"
+Trigger1 = EnemyNear(Var(1)&1),StateNo = 2910 && EnemyNear(Var(1)&1),Time = 2
+Value = 2910, 0
+Volume = 255
+
+[State メタ返し～パワーゲージ消費]
+Type = PowerAdd
+TriggerAll = EnemyNear(Var(1)&1),Name = "USHIROMIYA ANGE" && EnemyNear(Var(1)&1),AuthorName = "YU-TOHARU"
+Trigger1 = EnemyNear(Var(1)&1),StateNo = 2910 && EnemyNear(Var(1)&1),Time = 2
+Value = -1000
+
+[State メタ再反論～カットイン]
+Type = Explod
+TriggerAll = EnemyNear(Var(1)&1),Name = "USHIROMIYA ANGE" && EnemyNear(Var(1)&1),AuthorName = "YU-TOHARU"
+Trigger1 = EnemyNear(Var(1)&1),StateNo = 2930 && EnemyNear(Var(1)&1),Time = 2
+Anim = 19865
+PosType = Back
+Pos = 0, 240
+Facing = 1
+Scale = 0.5, 0.5
+OwnPal = 1
+SprPriority = 50
+PauseMoveTime = 999999999
+SuperMoveTime = 999999999
+
+[State メタ再反論～ボイス]
+Type = PlaySnd
+TriggerAll = EnemyNear(Var(1)&1),Name = "USHIROMIYA ANGE" && EnemyNear(Var(1)&1),AuthorName = "YU-TOHARU"
+Trigger1 = EnemyNear(Var(1)&1),StateNo = 2930 && EnemyNear(Var(1)&1),Time = 2
+Value = 2910, 1
+Volume = 255
+
+[State メタ再反論～パワーゲージ消費]
+Type = PowerAdd
+TriggerAll = EnemyNear(Var(1)&1),Name = "USHIROMIYA ANGE" && EnemyNear(Var(1)&1),AuthorName = "YU-TOHARU"
+Trigger1 = EnemyNear(Var(1)&1),StateNo = 2930 && EnemyNear(Var(1)&1),Time = 2
+Value = -1000

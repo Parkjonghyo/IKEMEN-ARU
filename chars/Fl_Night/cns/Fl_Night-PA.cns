@@ -1,0 +1,416 @@
+;追加ステートファイル。 追加アビリティなどを記述。
+
+;---------------------------------------------------------------------------------
+; 特殊回避
+[Statedef 1900]
+type     = S
+movetype = I
+physics  = S
+velset   = 0,0
+ctrl     = 0
+anim     = 1900
+sprpriority = -1
+
+[State 1900, 効果音]
+type = PlaySnd
+trigger1 = Time = 1
+value = S300, 3
+
+[State 1900, リセット]
+type = VarSet
+trigger1 = Time = 0
+var(2) = 0
+
+[State 1900, 幅設定];ぶつかり判定出現の瞬間は幅を狭くして違和感を軽減
+type = Width
+trigger1 = AnimElem = 2
+edge = -13,0      ;自分の後ろの壁との距離を変更すると、壁端で画面がぶれる
+player = -13, -13
+
+[State 1900, アニメ変更]
+type = ChangeAnim
+trigger1 = Time = 31
+value = 0
+elem = 2
+
+[State 3020, 無敵]
+type = NotHitBy
+trigger1 = AnimElem = 1
+value = , NA, SA, AT
+time = 22
+
+[State 1900, 戻る]
+type = ChangeState
+trigger1 = Time = 32
+value = 0
+ctrl = 1
+
+
+
+;---------------------------------------------------------------------------------
+; カンフーローリング
+;
+; 所謂回り込みですが、相手に飛び込みつつ攻撃を回避するので
+; この系統の弱点である投げ技もある程度回避出来ます。
+; その代わり無敵発生は瞬時ではなく、動作も遅めです。
+
+;---------------------------------------------------------------------------------
+; 回り込み
+[Statedef 2100]
+type     = S
+movetype = I
+physics  = N
+velset   = 0,0
+anim     = 102
+ctrl     = 0
+sprpriority = -1
+
+
+;無敵判定の解説
+;
+;NotHitByはvalueで指定された属性の攻撃を無効化します。
+;HitByはvalueで指定された属性の攻撃以外を無効化します。
+;無敵判定はフラグで管理されており、フラグの組み合わせで無敵を設定します。
+;フラグは12種（S,C,AとNA,SA,HA,NT,ST,HT,NP,SP,HP）あり、それぞれの意味を羅列すると
+;一文字の3つ…S(立ち),C(屈み),A(空中)
+;二文字の9つ…頭のN(通常技),S(必殺技),H(超必殺技)と、
+; 　　　　　　後ろのA(打撃),T(投げ),P(飛び道具)の組み合わせ
+;
+;というようになっています。
+;NAとSAとHAをまとめてAA（All･A）と記述することも出来ます。同様にAT,APも使えます。
+;valueには、value = a, b という風に記述します。
+;aにはS,C,Aを指定し、bにはそれ以外のフラグを","で区切って指定します。
+;例：value = CA, NA,HT,SP
+;NotHitByの場合、value = , NA,HT,SPという様に記述することも出来ます。
+
+
+[State 2100, 無敵];32Fまでの間は空中攻撃と全飛び道具が回避可能
+type = NotHitBy
+trigger1 = Time < 32
+value = A, AP
+
+[State 2100, 非無敵];3～29Fの間は地上投げ属性のみ回避不能
+type = HitBy
+trigger1 = Time = [2,29)
+value = SC, AT
+
+[State 2100, 非無敵];5～28Fの間は空中投げ属性のみ回避不能
+type = null;HitBy
+trigger1 = Time = [4,28)
+value = A, AT
+
+
+;この技の無敵について
+;
+;まず上から、NotHitByのvalueに"A, AP"が指定されています。
+;次にHitByで"SC, AT"が指定されています。
+;これらが重なると下の方が優先され、前のフラグは無効になります。
+;（無効にさせないためには"value2"で指定するのですが、あまり使い道はありません）
+;さらにHitByで"A, AT"が指定され、前二者が無効になります。
+;それぞれの有効時間を見ると1～32、3～29、5～28と範囲が狭まっているので
+;結果として無敵フラグは、
+;開始から2FまでA,AP、そこから2FがA,AA,AP、次の24FはS,C,AA,AP、次が1FのA,AA,AP、残り3FがA,AP
+;ということになります。
+;
+;参考までに、フラグ管理上「屈み打撃と立ち投げだけを無効に」などということは不可能です。
+;Cを指定すれば全屈み攻撃が無効になり、ATを指定すれば全投げ技が無効化されてしまうためです。
+
+
+
+[State 2100, 幅追加];壁とのぶつかり判定を増大＋相手とのぶつかり判定を縮小
+type = Width
+trigger1 = Time = [2,32]
+edge = 4,0               ;画面端との衝突幅追加（前,後）
+player = -6, -5          ;相手との衝突幅追加（前,後）
+                         ;edgeとplayerを同時に変更する場合はvalueを使う
+
+[State 2100, 残像]
+type = AfterImage
+trigger1 = Time = 4
+time = 25
+trans = add1
+timegap = 1
+framegap = 3
+length = 7
+palbright = 0,0,0
+palcontrast = 128,128,128
+palpostbright = 0,8,8
+paladd = 0,4,8
+palmul = .8,.8,.8
+
+[State 2100, 速度設定];初速と減速を同時に設定
+type = VelSet
+trigger1 = Time = 2      ;X方向のみ
+trigger2 = Time = [4,26] ;Y方向追加
+x = 7.3
+y = ifelse(time=2,0,0) ;VelSetとVelAddを計算式を使って同時に設定
+
+[State 2100, 摩擦設定];着地後暫く滑らせて最後に速度0倍、つまり0にする
+type = VelMul
+trigger1 = Time > 26
+x = ifelse(time > 32, 0, 0.5) ;MUGEN1.0ではcond(time>32,0,0.5)でも可
+
+[State 2100, 速度設定];落下停止
+type = VelSet
+trigger1 = Time = 28
+y = 0
+
+[State 2100, 軸位置設定];約1/100ドット分地面に埋まるので補正
+type = PosSet
+trigger1 = Pos Y > 0 && Time > 28
+y = 0
+
+[State 105]
+type = Playsnd
+trigger1 = AnimElem = 1
+value = S0, 3
+persistent = 0
+
+[State 2100, ぶつかり判定];相手をすり抜けられるようにするため
+type = PlayerPush
+trigger1 = Time = [3,30]
+value = 0                ;0にしている間だけ相手をすり抜けられる
+
+[State 2100, 状態変更];空中状態に変更
+type = StateTypeSet
+trigger1 = Time = 4
+statetype = S       ;S,C,A,Lから選択、Statedef直下の設定を変更
+;movetype = I       ;I,A,H  から選択、Iは通常状態
+;physics =  N       ;S,C,A,Nから選択、Nは無重力状態
+
+[State 2100, 状態変更];屈み状態に戻す
+type = StateTypeSet
+trigger1 = Time = 28
+statetype = S
+
+[State 2100, 振り返る];相手の後ろに回り込んだとき、振り向いて終了させる
+type = Turn
+trigger1 = AnimTime = 0 && p2dist X < -10
+
+[State 2100, 終了]
+type = ChangeState
+trigger1 = AnimTime = 0
+value = 0
+ctrl = 1
+
+
+
+;---------------------------------------------------------------------------------
+; ガードキャンセルカウンター
+[Statedef 2300]
+type     = U   ;直前のタイプを維持
+movetype = A
+physics  = S
+poweradd = -1000
+velset   = 0,0
+ctrl     = 0
+sprpriority = 2
+
+[State 2300, 無敵になる];停止中は効果持続するので、攻撃判定出現直後まで有効
+type = NotHitBy
+trigger1 = Time = 0
+value = SCA
+time = 10
+
+[State 2300, 一瞬止まる]
+type = Pause
+trigger1 = Time = 0
+time = 12
+pausemovetime = 12
+
+[State 2300, 一瞬光る]
+type = Envcolor
+trigger1 = Time = 0
+value = 255, 255, 255
+time = 1
+under = 1
+supermove = 1
+persistent = 0
+ignorehitpause = 1
+
+[State 2300, EX音];カウンター発動音代用
+type = PlaySnd
+trigger1 = Time = 1
+value = S200, 3
+
+[State 2300, 残像];EXの色違い版
+type = AfterImage
+trigger1 = Time = 1
+length = 13
+palbright   =  30, 0,  30
+palcontrast =  70, 20, 70
+paladd      = -10,-10,-10
+palmul      = .85,.50,.85
+timegap  = 1
+framegap = 2
+trans = Add
+time = 34
+
+[State 2300, 色の変更];黄色からピンク系に入れ替え
+type = PalFX
+trigger1 = Time = 1
+time = 21
+add = 32,0,16
+sinadd = 64,5,32,3
+
+[State 2300, カウンター攻撃へ];立ちガードなら2310へ移行、それ以外は2320へ
+type = ChangeState
+trigger1 = Time = 1
+value = 2310
+
+
+; カンフーブロウ（カウンター）
+; 
+; 相手を勢い良く突き飛ばして転倒させます。
+; クリーンヒットしなかった場合、相手は吹き飛びません。
+
+[Statedef 2310]
+type     = S
+movetype = A
+physics  = S
+juggle   = 4
+poweradd = 0
+anim     = 210
+ctrl     = 0
+sprpriority = 2
+
+[State 2310, 効果音]
+type = PlaySnd
+trigger1 = AnimElem = 3
+value = 0, 3
+
+[State 2310, 幅設定];通常のKFブロウは10～20まで広がるが、ここでは15固定
+type = Width
+trigger1 = AnimElemTime(4) >= 0 && AnimElemTime(8) < 0
+value = 15,0
+
+[State 2310, 攻撃設定]
+type = HitDef
+trigger1 = Time = 15
+attr = S, SA
+animtype  = Hard
+damage    = 44, 4
+getpower  = 0
+priority  = 5
+guardflag = MA
+pausetime = 20,20
+sparkxy = 0,-65
+hitsound   = S200,4
+guardsound = 6,0
+ground.type = Low
+ground.slidetime = 16
+ground.hittime  = 20
+ground.velocity = -12,-3
+ground.cornerpush.veloff = -12
+guard.velocity = -7
+air.velocity = -8,-0.5
+airguard.velocity = -3.5,-4.5
+fall.recover = 0 ;受身不可
+fall = 1
+p2stateno = 2340
+p2facing = 1
+kill = 0 
+
+[State 2310, 攻撃設定];攻撃判定発生から1F後
+type = HitDef
+trigger1 = AnimElemTime(5) = 1 && !MoveContact
+attr = S, SA
+animtype  = Hard
+damage    = 44, 4
+priority  = 5
+guardflag = MA
+pausetime = 12,12
+sparkxy = 0,-65
+hitsound   = 5,3
+guardsound = 6,0
+ground.type = Low
+ground.slidetime = 16
+ground.hittime  = 20
+ground.velocity = -10,-3
+ground.cornerpush.veloff = -12
+guard.velocity = -7
+fall.recover = 0 ;受身不可
+fall = 1
+air.velocity = -3.5,-4.5
+airguard.velocity = -3.5,-4.5
+kill = 0
+
+[State 2310, チェンジ]
+type = ChangeState
+trigger1 = AnimTime = 0
+value = 0
+ctrl = 1
+
+; 相手のヒット硬直
+; 
+; EXカンフーパームのように、相手をこちらのステートで操作します。
+; まずはアニメ変更からです。
+
+[Statedef 2340]
+type     = U
+movetype = H
+physics  = N
+velset   = 0,0
+
+[State 2340, 制御した相手のアニメ変更]
+type = ChangeAnim2
+trigger1 = 1
+value = 1025
+
+[State 2340, 次へ]
+type = ChangeState
+trigger1 = HitShakeOver = 1
+value = 2350
+
+
+; 相手吹き飛び
+; 
+; 相手が地面を滑っていき、ある程度で躓いて転倒するように操作します。
+; 地面を滑る場合には摩擦も設定しています。
+
+[Statedef 2350]
+type     = A
+movetype = H
+physics  = N
+
+[State 2350, 攻撃を食らった時の移動速度]
+type = HitVelSet
+trigger1 = Time = 0
+x = 1               ;1にすると受けた攻撃の速度に設定される
+y = 1               ;0だと効果なし
+
+[State 2350, 重力];空中時
+type = VelAdd
+trigger1 = Pos Y < -15 && Vel Y != 0
+y = 0.3
+
+[State 2350, 摩擦];地上時、転倒前まで
+type = VelMul
+trigger1 = Time < 8 && Vel Y = 0
+x = 0.92
+
+;[State 2350, 砂埃];MakeDustは非推奨故に下のExplodで代用
+;type = MakeDust
+;trigger1 = Time = 8 && Vel Y = 0
+;pos = -5, 0   ;一箇所目
+;pos2 = 5, 0   ;二箇所目
+;spacing = 1   ;連続して出す場合、次回出現までの空き時間
+
+[State 2350, エフェクト];地上転倒時、足元から砂煙を出す
+type = Explod
+ownpal = 1
+trigger1 = Time = 8 && Vel Y = 0
+anim = F120  ;砂埃
+pos = -5, 0
+ownpal = 1
+
+[State 2350, 相手ステートに戻す];空中着地時
+type = SelfState
+trigger1 = Vel Y > 0 && Pos Y >= 0
+value = 5100
+
+[State 2350, 相手ステートに戻す]
+type = SelfState
+trigger1 = Time > 16
+value = 5050
+

@@ -1,0 +1,389 @@
+;---------------------------------------------------------------------------
+;壁激突
+;---------------------------------------------------------------------------
+[Statedef 7000,硬直時間]
+	type = A
+	movetype = H
+	physics = N
+	velset = 0,0
+
+	[State 7000]
+		type = changeanim
+		trigger1 = 1
+		value = 5002
+
+	[State 7000]
+		type = changestate
+		trigger1 = hitshakeover
+		value = 7010
+
+	[State 7000,エラー用]
+		type = SelfState
+		trigger1 = Time >= 150
+		value = 5050
+
+;--------------------------------------
+[Statedef 7010,吹っ飛ぶ]
+	type = A
+	movetype = H
+	physics = N
+
+	[State 7010]
+		type = hitvelset
+		trigger1 = Time = 0
+		x = 20
+
+	[State 7010]
+		type = playerpush
+		trigger1 = 1
+		value = 0
+
+	[State 7010]
+		type = changeanim
+		trigger1 = Time = 0
+		value = 5030
+
+	[State 7010]
+		type = changestate
+		trigger1 = backedgebodydist<=10 || frontedgebodydist<=10
+		value = 7020
+
+	[State 7010,エラー用]
+		type = SelfState
+		trigger1 = Time >= 150
+		value = 5050
+
+;--------------------------------------
+[Statedef 7020,壁バウンド]
+	type = A
+	movetype = H
+	physics = N
+
+[State -2,床SE]
+type = PlaySnd
+triggerAll = stateno != 2500
+trigger1 = time = 0
+value = F7, 2
+volume = 255
+
+[state 910, life add]
+type=lifeadd
+trigger1=time=0&&prevstateno=821
+value=-Const(Data.Life)/25
+
+	[State 7020, 画面揺れ]
+		type = EnvShake
+		trigger1 = Time = 0
+		time = 20
+		freq = 50
+		ampl = -16
+		phase = 0
+	
+	[State 7020, 落下ダメージ]
+		type = HitFallDamage
+		trigger1 = time = 0
+
+	[State 7020]
+		type = turn
+		trigger1 = Time = 0
+		trigger1 = frontedgedist<backedgedist
+
+	[State 7020]
+		type = posset
+		trigger1 = 1
+		x = -160*facing
+
+	[State 7020]
+		type = posfreeze
+		trigger1 = 1
+		x = 1
+		y = 1
+
+	[State 7020]
+		type = screenbound
+		trigger1 = 1
+		value =1 
+		movecamera = 0,1
+
+	[State 7020]
+		type = playerpush
+		trigger1 = 1
+		value = 1
+
+	[State 7020]
+		type = changeanim
+		trigger1 = 1
+		value = 5000
+
+	[State 7020]
+		type=changestate
+		trigger1 = time>=4
+		value = 7030
+
+	[State 7020,エラー用]
+		type = SelfState
+		trigger1 = Time >= 15
+		value = 5050
+
+;--------------------------------------
+[Statedef 7030,壁バウンド落下]
+	type = A
+	movetype = H
+	physics = N
+
+	[State 7030]
+		type = veladd
+		trigger1 = 1
+		y = 0.385
+
+	[State 7030]
+		type = velset
+		trigger1 = Time = 0
+		x = -1
+		y = -7
+
+	[State 7030]
+		type = changeanim
+		trigger1 = Time = 0
+		value = 5050;ifelse(selfanimexist(5051),5051,5030)
+
+	[State 7030]
+		type = screenbound
+		trigger1 = 1
+		value = 1
+		movecamera = 0,0
+
+	[State 7030]
+		type = playerpush
+		trigger1 = 1;anim != 5110
+		value = 0
+
+	[State 7030]
+		type = changestate;anim
+		triggerall = Vel Y > 0
+		trigger1 = Pos Y >= 0
+		value = 7040;5110
+
+	[State 7030]
+		type = velset
+		triggerall = Vel Y > 0
+		trigger1 = Pos Y >= 0
+		x = 0
+		y = 0
+
+	[State 7030]
+		type = posset
+		triggerall = Vel Y > 0
+		trigger1 = Pos Y >= 0
+		y = 0
+
+	[State 7030,エラー用]
+		type = SelfState
+		trigger1 = Time >= 100
+		value = 5050
+
+;--------------------------------------
+[Statedef 7040,壁バウンドダウン]
+	type = L
+	movetype = H
+	physics = N
+
+[State -2,床ぶつかりエフェクト]
+	type = Explod
+	trigger1 = time = 0
+	anim = F61
+	pos = 0, 0
+	postype = p1
+;	bindtime = -1
+	supermovetime = 9999
+	pausemovetime = 9999
+	sprpriority = 9999
+;	scale = .5,.5
+	ontop = 1
+	ownpal = 1
+	facing =-1
+	
+[State -2,床SE]
+type = PlaySnd
+trigger1 = time = 0
+value = F7, 2
+volume = 255
+
+	[State 7040]
+		type = changeanim
+		trigger1 = Time = 0
+		value = 5110;ifelse(selfanimexist(5051),5051,5030)
+
+	[State 7040]
+		type = velset
+		trigger1 = Time = 0
+		x = 0
+		y = 0
+
+	[State 7040]
+		type = posset
+		trigger1 = Time = 0
+		y = 0
+
+	[State 7040]
+		type = EnvShake
+		trigger1 = Time = 0
+		time = 10
+		freq = 60
+		ampl = -4
+		phase = 0
+		persistent = 0
+
+	[State 7040]
+		type = screenbound
+		trigger1 = 1
+		value = 1
+		movecamera = 0,0
+
+	[State 7040]
+		Type=SelfState
+		Trigger1 = alive
+		Trigger1 = time>=25
+		value = 5120
+
+	[State 7040]
+		Type = SelfState
+		Trigger1 =! alive
+		Trigger1 = time >= 1
+		value = 5110
+
+	[State 7020,エラー用]
+		type = SelfState
+		trigger1 = Time >= 300
+		value = 5050
+
+;---------------------------------------------------------------------------
+;바닥 격돌 본체
+;---------------------------------------------------------------------------
+[Statedef 7050,경직시간]
+	type = A
+	movetype = H
+	physics = N
+	velset = 0,0
+
+	[State 7050]
+		type = changeanim
+		trigger1 = 1
+		value = 5002
+
+	[State 7050]
+		type = changestate
+		trigger1 = hitshakeover
+		value = 7060
+
+;--------------------------------------
+[Statedef 7060,바닥에 닿을 때까지 날아가]
+	type = A
+	movetype = H
+	physics = N
+
+	[State 7060]
+		type = playerpush
+		trigger1 = 1
+		value = 0
+
+	[State 7060]
+		type = changeanim
+		trigger1 = Time = 0
+		value = 5050; 날아가 하강
+
+	[State 7060]
+		type = Changestate
+		trigger1 = Vel Y > 0
+		trigger1 = Pos Y >= 0
+		value=7070
+
+	[State a, error]
+		type = SelfState ;ステートを戻す
+		trigger1 = Time >= 600 ;5 초 경과 · 동작이 긴 경우 더 오래. 짧은 초과하지 않도록주의.
+		value = 5050 ;범용 정도 날아가 상태에
+
+
+;--------------------------------------
+[Statedef 7070,바닥 접지 바운드]
+	type = A
+	movetype = H
+	physics = N
+
+[State -2,바닥 SE]
+type = PlaySnd
+trigger1 = time = 0
+value = F7, 2
+volume = 255
+
+[State -2,바닥 부딪 효과]
+	type = Explod
+	trigger1 = time = 0
+	anim = F61
+	pos = 0, 0
+	postype = p1
+;	bindtime = -1
+	supermovetime = 9999
+	pausemovetime = 9999
+	sprpriority = 9999
+;	scale = .5,.5
+	ontop = 1
+	ownpal = 1
+	facing =-1
+	ignorehitpause = 1
+
+	[State 7070]
+		type = changeanim
+		trigger1 = time = 0
+		value = 5170; 충돌 후 바운드하여 위를 향해 쓰러 질 때까지 애니메이션
+
+	[State 7070，床接地]
+		type = PosSet
+		trigger1 = time = 0
+		y = 0
+
+	[State 7070，床接地]
+		type = velSet
+		trigger1 = time = 0
+		x = 0
+		y = 0
+
+	[State 7070]
+		type = playerpush
+		trigger1 = 1
+		value = 1
+
+	[State 7070]
+		type = PosSet
+		trigger1 = time = 1
+		y = -10
+
+	[State 7070]
+		type = velSet
+		trigger1 = time = 1
+		x = -2
+		y = -5.95
+
+	[State 7070]
+		type = velAdd
+		trigger1 = time >= 1
+		y = 0.30
+
+	[State 7070]
+		type = Changeanim
+		triggerAll = time >= 1
+		trigger1 = Anim =5170
+		trigger1 = AnimTime =0
+		value = 5050
+
+	[State 7070]
+		type = Selfstate
+		triggerAll = time >= 4
+		trigger1 = Vel Y > 0
+		trigger1 = Pos Y >= 0
+		value = 5100
+
+	[State a, error]
+		type = SelfState ;ステートを戻す
+		trigger1 = Time >= 600 ;5秒経過・動作が長い場合はもっと長く。短くしすぎないように注意。
+		value = 5050 ;汎用くらい吹っ飛びステートへ

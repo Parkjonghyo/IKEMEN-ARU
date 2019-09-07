@@ -1,0 +1,909 @@
+[Statedef 30000]
+anim = 20000
+Ctrl = 0
+
+[State 20000]
+Type = SelfState
+Trigger1 = !IsHelper
+value = 0
+
+[State 20000];プレイヤー座標に固定
+Type = PosSet
+Trigger1 = 1
+x = Root,Pos x+50*ifelse(root,facing=1,1,-1)
+y = Const(size.head.pos.y)+Root,Pos y
+
+[State 20000]
+Type = turn
+Trigger1 = Root,facing!=facing
+
+[State 10000]
+Type = AssertSpecial
+Trigger1 = 1
+flag = invisible
+
+;━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+;config
+;━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+;1でON　0でOFF
+
+[State 20000];死兆星フラグ
+Type=VarSet
+Trigger1 = 1
+var(0) = 1
+IgnoreHitPause = 1
+
+[State 20000];無想転生ﾌﾗｸﾞ
+Type=VarSet
+Trigger1 = 1
+var(1) = 1
+IgnoreHitPause = 1
+
+[State 20000];バスケﾌﾗｸﾞ(未実装?)
+Type=VarSet
+Trigger1 = 1
+var(2) = 1
+IgnoreHitPause = 1
+
+[State 20000];ﾑﾃｷﾝｸﾞﾌﾗｸﾞ
+Type=VarSet
+Trigger1 = 1
+var(3) = 1
+IgnoreHitPause = 1
+
+[State 20000];金黒白モード封印解除
+Type=VarSet
+Trigger1 = 1
+var(4) = 2
+IgnoreHitPause = 1
+;白＝ブーストゲージ常時MAX	5カラーと10カラー
+;黒＝ゲージ常時MAX		6カラーと11カラー
+;金＝いろいろ自重しない		12カラー
+;2にすると金モードは常時AI起動に
+
+[State 20000];強化(金)モード時虐指葬の回復無効　毒　フラグ
+Type = varSet
+Trigger1 = 1
+var(5) = 0
+IgnoreHitPause = 1
+;
+;0 = OFF
+;1 = 永続ﾀｰｹﾞｯﾄだけ取る(相手のゲージを増やす効果もしているので意味はあり(挑発と羽))
+;2 = 回復無効だけあり
+;3 = 回復無効　毒　両方あり　(強化モード=回復無効だけ 金モード=両方)
+;4 = モード＆虐指葬関係なしに常時毒＆回復無効(取り扱い注意)
+;
+;※このシステムには以下のバグがあります！注意してください。
+;・ヒット数が相手が立ち状態に戻っても継続されるので常時ヒット数が出ないようにしています。
+;　(ただし処理上(ダメージ補正とか)は問題なし)
+;
+;以下解説
+;・相手がStateNo=0時にProjの全体攻撃でステート奪って強制的に攻撃判定だす→当身永続ﾀｰｹﾞｯﾄ→StateNo=0に戻す この間1F　　　　　　なはず・・・
+;　Projの全体攻撃された相手は一瞬で立ちステートに戻るため違和感はほぼない・・・はず(一部をのぞく)･･･
+;・常時アーマーキャラのためProj攻撃はヒットしたら消滅(常時は出ない)
+;・TargetLifeAddの仕様により"holdback"orガードステートが効いてる時には毒が止まり回復できたりするがどっちも解けた瞬間にちゃんと効いてなかった分だけ減ります。
+;・毒はデバックキーのスペース押しっぱなしでも減るようになっている。
+;・相手が2人のときには無効にしてあります。無効を解除しても２人の片方にしか適用されません、両方対応させようとするとMUGENが止まります。
+;・当然のことながら常時アーマーが付いているキャラには効きません。他のもステート奪取対策しているキャラにも当然適用されません。要するに神キャラ全般にはこのシステムはほとんど無効にされる。
+;・相手が常時LifeSetしてるなら回復可能　LifeSetが解けた瞬間減りますが
+;・元々ｾｯｶｯｺｰ用の記述だったのに・・・
+;・ヒット数のリセットができたら即直す。いっそのことHelperでヒット数を表示するとか考え中
+;━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+;config終了
+;━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[State 30000];無敵
+Type = NotHitBy
+Trigger1 = 1
+value = SAC,NT,ST,HT,NA,SA,HA,NP,SP,HP,NA,SA,HA
+Time = 1
+
+;━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+;めくり対策用+ぴね
+;━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[Statedef 20000]
+Anim = 20000
+Ctrl = 0
+
+[State 20000];本体はこっちくんなし
+Type = SelfState
+Trigger1 = !IsHelper
+value = 0
+
+[State 10000]
+Type = AssertSpecial
+Trigger1 = 1
+flag = invisible
+
+[State 20000];プレイヤー座標の後ろに固定
+Type = PosSet
+Trigger1 = 1
+x = Root,Pos x-90*ifelse(Root,facing=1,1,-1)
+y = Const(size.head.pos.y)+Root,Pos y
+
+[State 20000]
+Type = turn
+Trigger1 = Root,facing!=facing
+
+[State 30000];無敵
+type=NotHitBy
+Trigger1 = 1
+value = SAC,NT,ST,HT,NA,SA,HA,NP,SP,HP,NA,SA,HA
+Time = 1
+
+;タッグ用
+[State -3]
+Type = varSet
+Trigger1 = NumEnemy=1
+fvar(18) = 0
+
+[State -3]
+Type = varSet
+Trigger1 = NumEnemy=2
+fvar(18) = 1
+
+[State -3]
+Type = varSet
+TriggerAll=NumEnemy=2
+TriggerAll=EnemyNear(0),ALive
+TriggerAll=EnemyNear(0),Life=Root,P2Life
+TriggerAll=EnemyNear(0),StateNo=Root,P2StateNo
+TriggerAll=EnemyNear(0),MoveType=I&&Root,P2MoveType=I||EnemyNear(0),MoveType=A&&Root,P2MoveType=A||EnemyNear(0),MoveType=H&&Root,P2MoveType=H
+Trigger1 = EnemyNear(0),StateType=A
+Trigger1 = Root,P2StateType=A
+Trigger2 = EnemyNear(0),StateType=S
+Trigger2 = Root,P2StateType=S
+Trigger3 = EnemyNear(0),StateType=C
+Trigger3 = Root,P2StateType=C
+Trigger4 = EnemyNear(0),StateType=L
+Trigger4 = Root,P2StateType=L
+fvar(18) = 0
+
+
+
+
+
+
+
+;var(0) = 技発生F
+;var(1) = 攻撃判定終了のおしらせ
+;var(2) = 技のリーチ距離
+;var(3) = 判定
+;var(4) = 技のリーチ高さ
+;var(5) = 飛び道具の経過時間
+;var(6) = 無敵　ｽｰﾊﾟｰｱｰﾏｰ　ﾊｲﾊﾟｰｱｰﾏｰ　判定
+;var(7) = ベスト距離
+;var(9) = ブロッキング判断
+;var(10) = 空ジャンプ判断
+;var(20) = 投げ無敵
+;var(50) = ｻｲｸﾊﾞｰｽﾄ判断
+;var(51) = ｻｰｷｯﾄｽﾊﾟｰｸ判断
+;━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+;ぴね
+;━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+;技発生
+;━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+;━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+;判定が終わるF
+;━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+;━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+;技距離判定用
+;━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[State -3];リセッツォ
+Type = varSet
+Trigger1 = 1
+var(2) = 0
+
+;━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+;打撃　投げ　飛び道具　か判定
+;━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[State -3];リセッツォ
+Type = varSet
+Trigger1 = 1
+var(3) = 0
+
+;1 = 飛び道具発射しそう
+;2 = 途中で消えるか設置型
+;3 = 完全な移動飛び道具
+
+[State -3,v2=3];飛び道具
+Type = VarSet
+TriggerAll=NumEnemy>0
+TriggerAll=Root,P2Name="Ryu"
+Trigger1 = Root,P2StateNo=1000||EnemyNear(floor(fvar(18))),NumHelper(1005)
+Trigger2 = Root,P2StateNo=1010||EnemyNear(floor(fvar(18))),NumHelper(1015)
+Trigger3 = Root,P2StateNo=1020||EnemyNear(floor(fvar(18))),NumHelper(1025)
+Trigger4 = Root,P2StateNo=3000||EnemyNear(floor(fvar(18))),NumHelper(3005)
+Trigger5 = Root,P2StateNo=3200||EnemyNear(floor(fvar(18))),NumHelper(3025)
+Trigger6 = Root,P2StateNo=3040||EnemyNear(floor(fvar(18))),NumHelper(3045)
+Trigger7 = Root,P2StateNo=3050||EnemyNear(floor(fvar(18))),NumHelper(3055)
+var(3) = 3
+
+[State -3,v2=3];飛び道具
+Type = VarSet
+TriggerAll=NumEnemy>0
+TriggerAll=Root,P2Name="cvsryu"||Root,P2Name="cvsryu_ex"||Root,P2Name="cvsryu_normal"
+Trigger1 = Root,P2StateNo=1000||EnemyNear(floor(fvar(18))),NumHelper(7000)
+Trigger2 = Root,P2StateNo=1300||EnemyNear(floor(fvar(18))),NumHelper(7100)
+Trigger3 = Root,P2StateNo=3000||EnemyNear(floor(fvar(18))),NumHelper(7300)
+Trigger3 = Root,P2StateNo=3400||EnemyNear(floor(fvar(18))),NumHelper(7400)
+var(3) = 3
+
+[State -3,v2=3];飛び道具
+Type = VarSet
+TriggerAll=NumEnemy>0
+TriggerAll=Root,P2Name="cvsken"||Root,P2Name="cvsken_ex"||Root,P2Name="cvsken_normal"
+Trigger1 = Root,P2StateNo=1000||EnemyNear(floor(fvar(18))),NumHelper(7000)
+var(3) = 3
+
+[State -3,v2=3];飛び道具
+Type = VarSet
+TriggerAll=NumEnemy>0
+TriggerAll=Root,P2Name="cvsguile"
+Trigger1 = Root,P2StateNo=1000||EnemyNear(floor(fvar(18))),NumHelper(7000)
+Trigger2 = Root,P2StateNo=3200||EnemyNear(floor(fvar(18))),NumHelper(7200)
+var(3) = 3
+
+[State -3,v2=3];飛び道具
+Type = VarSet
+TriggerAll=NumEnemy>0
+TriggerAll=Root,P2Name="cvsathena"
+Trigger1 = Root,P2StateNo=1000||EnemyNear(floor(fvar(18))),NumHelper(7000)
+Trigger2 = Root,P2StateNo=3000||EnemyNear(floor(fvar(18))),NumHelper(7600)||EnemyNear(floor(fvar(18))),NumHelper(7610)
+Trigger3 = (Root,P2StateNo=[3100,3101])||EnemyNear(floor(fvar(18))),NumHelper(7700)
+var(3) = 3
+
+[State -3,v2=3];飛び道具
+Type = VarSet
+TriggerAll=NumEnemy>0
+TriggerAll=Root,P2Name="cvsgouki"||Root,P2Name="cvsgouki_normal"||Root,P2Name="cvsgouki_ex"
+Trigger1 = Root,P2StateNo=1000||EnemyNear(floor(fvar(18))),NumHelper(7000)
+Trigger2 = Root,P2StateNo=1300||EnemyNear(floor(fvar(18))),NumHelper(7100)
+Trigger3 = Root,P2StateNo=1400||EnemyNear(floor(fvar(18))),NumHelper(7200)||EnemyNear(floor(fvar(18))),NumHelper(7201)
+Trigger4 = Root,P2StateNo=3000||EnemyNear(floor(fvar(18))),NumHelper(7300)
+Trigger5 = Root,P2StateNo=3200||EnemyNear(floor(fvar(18))),NumHelper(7400)
+var(3) = 3
+
+[State -3,v2=3];飛び道具
+Type = VarSet
+TriggerAll=NumEnemy>0
+TriggerAll=Root,P2Name="Jedah"
+TriggerAll=EnemyNear(floor(fvar(18))),AutHorName="Deuce"
+Trigger1 = (Root,P2StateNo=[1000,1002])||EnemyNear(floor(fvar(18))),NumHelper(1000)
+Trigger2 = Root,P2StateNo=1300
+Trigger3 = Root,P2StateNo=2000
+Trigger4 = Root,P2StateNo=2300
+var(3) = 3
+
+[State -3,v2=3];飛び道具
+Type = VarSet
+TriggerAll=NumEnemy>0
+TriggerAll=Root,P2Name="Jedah"
+TriggerAll=EnemyNear(floor(fvar(18))),AutHorName="rei"
+Trigger1 = Root,P2StateNo=1100||EnemyNear(floor(fvar(18))),NumHelper(6000)
+Trigger2 = Root,P2StateNo=1150
+Trigger3 = Root,P2StateNo=1200
+Trigger4 = Root,P2StateNo=1250
+var(3) = 3
+
+[State -3,v2=3];飛び道具
+Type = VarSet
+TriggerAll=NumEnemy>0
+TriggerAll=Root,P2Name="Ash"
+Trigger1 = (Root,P2StateNo=[1000,1001])||EnemyNear(floor(fvar(18))),NumProjID(1000)
+Trigger2 = (Root,P2StateNo=[1050,1051])
+Trigger3 = Root,P2StateNo=2000||EnemyNear(floor(fvar(18))),NumProjID(2000)
+Trigger3 = Root,P2StateNo=3000||EnemyNear(floor(fvar(18))),NumProjID(3000)
+var(3) = 3
+
+[State -3,v2=3];飛び道具
+Type = VarSet
+TriggerAll=NumEnemy>0
+TriggerAll=Root,P2Name="Ky=kiske"
+Trigger1 = Root,P2StateNo=1000||EnemyNear(floor(fvar(18))),NumProjID(1002)
+Trigger2 = Root,P2StateNo=1020||EnemyNear(floor(fvar(18))),NumHelper(1025)
+Trigger3 = Root,P2StateNo=1050||EnemyNear(floor(fvar(18))),NumProjID(1053)
+Trigger4 = Root,P2StateNo=1100||EnemyNear(floor(fvar(18))),NumProjID(1102)
+Trigger5 = Root,P2StateNo=1150
+Trigger6 = Root,P2StateNo=3200||EnemyNear(floor(fvar(18))),NumHelper(3200)
+Trigger7 = Root,P2StateNo=3800||EnemyNear(floor(fvar(18))),NumProjID(3801)||EnemyNear(floor(fvar(18))),NumProjID(3205)
+var(3) = 3
+
+[State -3,v2=3];飛び道具
+Type = VarSet
+TriggerAll=NumEnemy>0
+TriggerAll=Root,P2Name="sol"
+Trigger1 = Root,P2StateNo=1000||EnemyNear(floor(fvar(18))),NumHelper(1001)
+Trigger2 = Root,P2StateNo=2000||EnemyNear(floor(fvar(18))),NumHelper(2001)
+Trigger3 = EnemyNear(floor(fvar(18))),NumHelper(3010)
+var(3) = 3
+
+[State -3,v2=3];飛び道具
+Type = VarSet
+TriggerAll=NumEnemy>0
+TriggerAll=Root,P2Name="johnny"
+Trigger1 = Root,P2StateNo=1400||EnemyNear(floor(fvar(18))),NumHelper(1401)
+Trigger2 = Root,P2StateNo=1150||EnemyNear(floor(fvar(18))),NumHelper(1180)
+var(3) = 3
+
+[State -3,v2=3];飛び道具
+Type = VarSet
+TriggerAll=NumEnemy>0
+TriggerAll=Root,P2Name="BRIDGET"
+TriggerAll=EnemyNear(floor(fvar(18))),AutHorName="EL"
+Trigger1 = Root,P2StateNo=1572
+Trigger2 = Root,P2StateNo=1577
+Trigger3 = Root,P2StateNo=1580
+Trigger4 = Root,P2StateNo=1585
+Trigger5 = Root,P2StateNo=1590
+Trigger6 = Root,P2StateNo=1595
+Trigger7 = Root,P2StateNo=1550
+Trigger8 = Root,P2StateNo=1552
+Trigger9 = Root,P2StateNo=1555
+Trigger10= Root,P2StateNo=1557
+Trigger11= Root,P2StateNo=1560
+Trigger12= Root,P2StateNo=1565
+Trigger13= Root,P2StateNo=1575
+Trigger14= Root,P2StateNo=1530
+Trigger15= Root,P2StateNo=1540
+var(3) = 3
+
+[State -3,v2=3];飛び道具
+Type = VarSet
+TriggerAll=NumEnemy>0
+TriggerAll=Root,P2Name="BRIDGET"
+TriggerAll=EnemyNear(floor(fvar(18))),AutHorName="muteki"
+Trigger1 = Root,P2StateNo=1005
+Trigger2 = Root,P2StateNo=1059
+Trigger3 = Root,P2StateNo=1400
+Trigger4 = Root,P2StateNo=1450
+Trigger5 = Root,P2StateNo=1480
+Trigger6 = Root,P2StateNo=1500
+Trigger7 = Root,P2StateNo=3200
+Trigger8 = Root,P2StateNo=3100
+var(3) = 3
+
+[State -3,v2=3];飛び道具
+Type = VarSet
+TriggerAll=NumEnemy>0
+TriggerAll=Root,P2Name="chipp"
+Trigger1 = Root,P2StateNo=1200||EnemyNear(floor(fvar(18))),NumHelper(1205)
+Trigger2 = Root,P2StateNo=680||EnemyNear(floor(fvar(18))),NumHelper(690)
+Trigger3 = Root,P2StateNo=685||EnemyNear(floor(fvar(18))),NumHelper(691)
+var(3) = 3
+
+[State -3,v2=3];飛び道具
+Type = VarSet
+TriggerAll=NumEnemy>0
+TriggerAll=Root,P2Name="eddie"
+Trigger1 = Root,P2StateNo=3000||EnemyNear(floor(fvar(18))),NumHelper(3010)
+Trigger2 = Root,P2StateNo=3200
+Trigger3 = Root,P2StateNo=3500
+Trigger4 = Root,P2StateNo=1530
+Trigger5 = Root,P2StateNo=1520
+Trigger6 = Root,P2StateNo=1510
+Trigger7 = Root,P2StateNo=1500
+Trigger8 = Root,P2StateNo=1000||EnemyNear(floor(fvar(18))),NumHelper(1001)
+Trigger9 = Root,P2StateNo=1050||EnemyNear(floor(fvar(18))),NumHelper(1002)
+Trigger10= Root,P2StateNo=1800
+Trigger11= Root,P2StateNo=1850
+var(3) = 3
+
+[State -3,v2=3];飛び道具
+Type = VarSet
+TriggerAll=NumEnemy>0
+TriggerAll=Root,P2Name="gg_venom"
+Trigger1 = Root,P2StateNo=3000||EnemyNear(floor(fvar(18))),NumHelper(3010)
+Trigger2 = Root,P2StateNo=3200
+Trigger3 = Root,P2StateNo=1200
+Trigger4 = Root,P2StateNo=1250
+Trigger5 = Root,P2StateNo=2200
+Trigger6 = Root,P2StateNo=2250
+Trigger7 = EnemyNear(floor(fvar(18))),NumHelper(1001)
+Trigger8 = EnemyNear(floor(fvar(18))),NumHelper(1002)
+Trigger9 = EnemyNear(floor(fvar(18))),NumHelper(1003)
+Trigger10= EnemyNear(floor(fvar(18))),NumHelper(1011)
+Trigger11= EnemyNear(floor(fvar(18))),NumHelper(1012)
+Trigger12= EnemyNear(floor(fvar(18))),NumHelper(1013)
+Trigger13= EnemyNear(floor(fvar(18))),NumHelper(1021)
+Trigger14= EnemyNear(floor(fvar(18))),NumHelper(1022)
+Trigger15= EnemyNear(floor(fvar(18))),NumHelper(1023)
+Trigger16= EnemyNear(floor(fvar(18))),NumHelper(1031)
+Trigger17= EnemyNear(floor(fvar(18))),NumHelper(1032)
+Trigger18= EnemyNear(floor(fvar(18))),NumHelper(1033)
+Trigger19= EnemyNear(floor(fvar(18))),NumHelper(1210)
+Trigger20= EnemyNear(floor(fvar(18))),NumHelper(1211)
+Trigger21= EnemyNear(floor(fvar(18))),NumHelper(1212)
+Trigger22= EnemyNear(floor(fvar(18))),NumHelper(1260)
+Trigger23= EnemyNear(floor(fvar(18))),NumHelper(1261)
+Trigger24= EnemyNear(floor(fvar(18))),NumHelper(1262)
+Trigger25= EnemyNear(floor(fvar(18))),NumHelper(2210)
+Trigger26= EnemyNear(floor(fvar(18))),NumHelper(2211)
+Trigger27= EnemyNear(floor(fvar(18))),NumHelper(2212)
+Trigger28= EnemyNear(floor(fvar(18))),NumHelper(2260)
+Trigger29= EnemyNear(floor(fvar(18))),NumHelper(2261)
+Trigger30= EnemyNear(floor(fvar(18))),NumHelper(2262)
+var(3) = 3
+
+[State -3,v2=3];飛び道具
+Type = VarSet
+TriggerAll=NumEnemy>0
+TriggerAll=Root,P2Name="millia"
+Trigger1 = Root,P2StateNo=3100||EnemyNear(floor(fvar(18))),NumHelper(3110)
+Trigger2 = Root,P2StateNo=1700||EnemyNear(floor(fvar(18))),NumHelper(1710)
+Trigger3 = Root,P2StateNo=1600
+Trigger4 = Root,P2StateNo=1650
+Trigger5 = Root,P2StateNo=1100||EnemyNear(floor(fvar(18))),NumHelper(1101)
+Trigger6 = Root,P2StateNo=1150||EnemyNear(floor(fvar(18))),NumHelper(1151)
+var(3) = 3
+
+[State -3,v2=3];飛び道具
+Type = VarSet
+TriggerAll=NumEnemy>0
+TriggerAll=Root,P2Name="jam"
+Trigger1 = Root,P2StateNo=1600||EnemyNear(floor(fvar(18))),NumHelper(1610)
+Trigger2 = Root,P2StateNo=3000||EnemyNear(floor(fvar(18))),NumHelper(3010)
+var(3) = 3
+
+[State -3,v2=3];飛び道具
+Type = VarSet
+TriggerAll=NumEnemy>0
+TriggerAll=Root,P2Name="AXL"
+Trigger1 = Root,P2StateNo=1500||EnemyNear(floor(fvar(18))),NumHelper(1500)
+Trigger2 = Root,P2StateNo=1100||EnemyNear(floor(fvar(18))),NumHelper(1100)
+Trigger3 = Root,P2StateNo=1110
+Trigger4 = Root,P2StateNo=1120
+var(3) = 3
+
+[State -3,v2=3];飛び道具
+Type = VarSet
+TriggerAll=NumEnemy>0
+TriggerAll=Root,P2Name="justice"
+Trigger1 = Root,P2StateNo=1300||EnemyNear(floor(fvar(18))),NumHelper(1350)
+Trigger2 = Root,P2StateNo=1310
+Trigger3 = Root,P2StateNo=3000||EnemyNear(floor(fvar(18))),NumHelper(3003)
+Trigger4 = Root,P2StateNo=3100||EnemyNear(floor(fvar(18))),NumHelper(3101)||EnemyNear(floor(fvar(18))),NumHelper(3102)
+Trigger5 = Root,P2StateNo=3200||EnemyNear(floor(fvar(18))),NumHelper(3201)
+var(3) = 3
+
+[State -3,v2=3];飛び道具
+Type = VarSet
+TriggerAll=NumEnemy>0
+TriggerAll=Root,P2Name="potemkin"
+Trigger1 = Root,P2StateNo=3000||EnemyNear(floor(fvar(18))),NumHelper(3010)
+Trigger2 = EnemyNear(floor(fvar(18))),NumHelper(1550)
+var(3) = 3
+
+;━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+;攻撃判定の高さ
+;━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+;━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+;全体攻撃＋AI殺し対策
+;━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[State -3];リセッツォ
+Type = varSet
+Trigger1 = 0
+var(5) = 0
+IgNoreHitPause = 1
+
+[State -3,v2=3];飛び道具
+Type = VarSet
+TriggerAll=NumEnemy
+Trigger1 = 0
+var(5) = 2
+
+[State -3];タイマァ処理
+Type = varAdd
+Trigger1 = var(5)>0
+var(5) = -1
+IgNoreHitPause = 1
+
+;━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+;常時アーマーキャラ対策
+;━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[State -3];リセッツォ
+Type = varSet
+Trigger1 = 1
+var(6) = 0
+IgNoreHitPause = 1
+
+[State -3];ﾊｲﾊﾟｰｱｰﾏｰ警報
+Type = Varset
+Trigger1 = P2Name="Giant_Mech-HISUI"
+Trigger2 = P2Name="CheetahMen"
+Trigger3 = P2Name="LEOPALDON_GGI"
+Trigger4 = P2Name="Mega_weapon"
+Trigger5 = P2Name="G-akiha"
+Trigger6 = P2Name="Apocalypse"
+Trigger7 = P2Name="Abyss"
+var(6) = 1
+IgNoreHitPause = 1
+
+;━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+;相手キャラのベスト距離(メイン牽制技がギリ当たらない距離)
+;━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[State -3];リセッツォ
+Type = varSet
+Trigger1 = 1
+var(7) = 120
+IgNoreHitPause = 1
+
+[State -3,72];屈強K？
+Type = varSet
+Trigger1 = Root,P2Name="cvsryu"||Root,P2Name="Ryu"
+var(7) = 72
+IgNoreHitPause = 1
+
+[State -3,110];いっくよー！
+Type = varSet
+Trigger1 = Root,P2Name="Yumiduka_Satsuki"
+var(7) = 110
+IgNoreHitPause = 1
+
+[State -3,110];立C
+Type = varSet
+Trigger1 = Root,P2Name="Kishima_kouma"
+var(7) = 110
+IgNoreHitPause = 1
+
+[State -3,110];屈P
+Type = varSet
+Trigger1 = Root,P2Name="Sakuya Izayoi"
+var(7) = 110
+IgNoreHitPause = 1
+
+[State -3,115];→HS
+Type = varSet
+Trigger1 = Root,P2Name="chipp"
+var(7) = 125
+IgNoreHitPause = 1
+
+[State -3,125];鳥を落とす EX
+Type = varSet
+Trigger1 = P2Name="Akiha_Vermilion"
+var(7) = 120
+IgNoreHitPause = 1
+
+[State -3,121];屈S
+Type = varSet
+Trigger1 = Root,P2Name="baiken"
+var(7) = 121
+IgNoreHitPause = 1
+
+[State -3,124];遠S
+Type = varSet
+Trigger1 = Root,P2Name="justice"
+var(7) = 124
+IgNoreHitPause = 1
+
+[State -3,125];屈C
+Type = varSet
+Trigger1 = Root,P2Name="Nanaya_Shiki"
+var(7) = 125
+IgNoreHitPause = 1
+
+[State -3,125];屈S
+Type = varSet
+Trigger1 = Root,P2Name="order-Sol=Badguy"
+var(7) = 125
+IgNoreHitPause = 1
+
+[State -3,130];屈P
+Type = varSet
+Trigger1 = Root,P2Name="Reimu_Hakurei"
+var(7) = 130
+IgNoreHitPause = 1
+
+[State -3,130];百歩沁鐘
+Type = varSet
+Trigger1 = Root,P2Name="jam"
+var(7) = 130
+IgNoreHitPause = 1
+
+[State -3,115];立HS
+Type = varSet
+Trigger1 = Root,P2Name="millia"
+var(7) = 140
+IgNoreHitPause = 1
+
+[State -3,140];屈K
+Type = varSet
+Trigger1 = Root,P2Name="ROBO-KY1"||Root,P2Name="ROBO-KY"
+var(7) = 140
+IgNoreHitPause = 1
+
+[State -3,144];遠S
+Type = varSet
+Trigger1 = Root,P2Name="testament"
+var(7) = 144
+IgNoreHitPause = 1
+
+[State -3,150];屈C
+Type = varSet
+Trigger1 = Root,P2Name="Kohaku"
+var(7) = 150
+IgNoreHitPause = 1
+
+[State -3,153];遠S
+Type = varSet
+Trigger1 = Root,P2Name="Ky=kiske"
+var(7) = 153
+IgNoreHitPause = 1
+
+[State -3,160];パワースウィープ or マスィブブルーム
+Type = varSet
+Trigger1 = Root,P2Name="Marisa Kirisame"
+var(7) = 160
+IgNoreHitPause = 1
+
+[State -3,160];ガンフレイム
+Type = varSet
+Trigger1 = Root,P2Name="sol"
+var(7) = 160
+IgNoreHitPause = 1
+
+[State -3,170];中段ミストファイナー
+Type = varSet
+Trigger1 = Root,P2Name="johnny"
+var(7) = 180
+IgNoreHitPause = 1
+
+[State -3,65];アルトシューレA
+Type = varSet
+Trigger1 = Root,P2Name="Red_Arcueid"
+var(7) = 175
+IgNoreHitPause = 1
+
+[State -3,178];立HS
+Type = varSet
+Trigger1 = Root,P2Name="potemkin"
+var(7) = 178
+IgNoreHitPause = 1
+
+[State -3,178];立HS
+Type = varSet
+Trigger1 = Root,P2Name="gg_venom"
+var(7) = 178
+IgNoreHitPause = 1
+
+[State -3,65];立B
+Type = varSet
+Trigger1 = Root,P2Name="Nrvnqsr_Chaos"
+var(7) = 180
+IgNoreHitPause = 1
+
+[State -3,180];→HS
+Type = varSet
+Trigger1 = Root,P2Name="SLAYER"
+var(7) = 180
+IgNoreHitPause = 1
+
+[State -3,195];屈S
+Type = varSet
+Trigger1 = Root,P2Name="kliff"
+var(7) = 200
+IgNoreHitPause = 1
+
+[State -3,240];屈P
+Type = varSet
+Trigger1 = Root,P2Name="AXL"
+var(7) = 240
+IgNoreHitPause = 1
+
+;━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+;ブロッキングorリコイルorシールドor弾き用
+;━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[State -3];リセッツォ
+Type = varSet
+Trigger1 = 1
+var(9) = 0
+
+[State -3,47];空地両対応ブロッキング用
+Type = VarSet
+TriggerAll=NumEnemy>0
+Trigger1 = EnemyNear(floor(fvar(18))),AutHorName="Warusaki3"
+Trigger1 = EnemyNear(floor(fvar(18))),var(20)=2||EnemyNear(floor(fvar(18))),var(20)=6
+Trigger2 = EnemyNear(floor(fvar(18))),AutHorName="Phantom.of.the.Server"
+Trigger3 = EnemyNear(floor(fvar(18))),AutHorName="GM"
+Trigger4 = EnemyNear(floor(fvar(18))),AutHorName="⑨"
+Trigger5 = Root,P2Name="Mai Kawasumi"
+Trigger6 = Root,P2Name="Unknown"
+Trigger7 = Root,P2Name="Kanna"
+Trigger8 = Root,P2Name="Ayu Tukimiya"
+Trigger9 = Root,P2Name="jam";ホチフ
+Trigger10= Root,P2Name="Moriya Minakata"
+Trigger11= Root,P2Name="washizuka"
+Trigger12= Root,P2Name="washizuka B"
+Trigger13= Root,P2Name="Moriya Minakata"
+Trigger14= Root,P2Name="kaede"
+var(9) = 1
+
+;━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+;もう2段ジャンプ不可or2段ジャンプできない子
+;━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[State -3];リセッツォ
+Type = varSet
+Trigger1 = 1
+var(10) = 0
+
+[State -3,47]
+Type = VarSet
+TriggerAll=NumEnemy>0
+Trigger1 = EnemyNear(floor(fvar(18))),AutHorName="Warusaki3"
+Trigger2 = EnemyNear(floor(fvar(18))),AutHorName="Phantom.of.the.Server"
+Trigger3 = EnemyNear(floor(fvar(18))),AutHorName="GM"
+var(10) = 1
+
+;━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+;食らいキャンセル関連
+;━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[State -3];青サイク対策
+Type = varSet
+Trigger1 = 1
+var(50) = 0
+
+[State -3];青サイク対策
+Type = varSet
+TriggerAll=NumEnemy>0
+Trigger1 = EnemyNear(floor(fvar(18))),AutHorName="muteki"
+Trigger1 = EnemyNear(floor(fvar(18))),fvar(33)>=1.5
+Trigger2 = EnemyNear(floor(fvar(18))),AutHorName="Akutagawa"
+Trigger2 = EnemyNear(floor(fvar(18))),fvar(30)>=15000
+Trigger3 = EnemyNear(floor(fvar(18))),AutHorName="EL"
+Trigger3 = EnemyNear(floor(fvar(18))),fvar(10)>=15000
+var(50) = 1
+
+[State -3];サキスパ対策
+Type = varSet
+Trigger1 = 1
+var(51) = 0
+
+[State -3];サキスパ対策
+Type = varSet
+TriggerAll=NumEnemy>0
+Trigger1 = EnemyNear(floor(fvar(18))),AutHorName="⑨"
+Trigger1 = EnemyNear(floor(fvar(18))),Var(13)||EnemyNear(floor(fvar(18))),Var(14)
+var(51) = 1
+
+;━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+;投げ無敵
+;━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[State -3];リセット
+Type = varSet
+Trigger1 = var(20)<0
+var(20) = 0
+
+[State -3];タイマー
+Type = varAdd
+Trigger1 = var(20)>0
+var(20) = -1
+
+[State -3]
+Type = varSet
+TriggerAll=NumEnemy>0
+Trigger1 = P2MoveType=H
+Trigger1 = Root,P2StateNo=[150,155]
+Trigger1 = EnemyNear(floor(fvar(18))),AutHorName="muteki"
+var(20) = 6
+
+[State -3]
+Type = varSet
+TriggerAll=NumEnemy>0
+Trigger1 = P2MoveType=H
+Trigger1 = Root,P2StateNo=[150,155]
+Trigger1 = Root,P2Name="Reimu_Hakurei"
+var(20) = 10
+
+;━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+;飛び道具確認前2
+;━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[Statedef 40000]
+Anim = 20000
+Ctrl = 0
+
+[State 40000];プレイヤーはこっちくんなし
+Type = SelfState
+Trigger1 = !ishelper
+value = 0
+Ctrl = 1
+
+[State 40000];プレイヤー座標に固定
+Type = PosSet
+Trigger1 = 1
+x = Root,Pos x+100*ifelse(Root,facing=1,1,-1)
+y = Const(size.head.pos.y)+Root,Pos y+30
+
+[State 40000]
+Type = turn
+Trigger1 = Root,facing!=facing
+
+[State 10000]
+Type = AssertSpecial
+Trigger1 = 1
+flag = invisible
+
+[State 40000];無敵
+Type = NotHitBy
+Trigger1 = 1
+value = SAC,NT,ST,HT,NA,SA,HA,NP,SP,HP,NA,SA,HA
+Time = 1
+
+;━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+;飛び道具確認前3
+;━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[Statedef 50001]
+Anim = 20000
+Ctrl = 0
+
+[State 50000];プレイヤーはこっちくんなし
+Type = SelfState
+Trigger1 = !ishelper
+value = 0
+Ctrl = 1
+
+[State 50000];プレイヤー座標に固定
+Type = PosSet
+Trigger1 = 1
+x = Root,Pos x+150*ifelse(Root,facing=1,1,-1)
+y = Const(size.head.pos.y)+Root,Pos y+60
+
+[State 50000]
+Type = turn
+Trigger1 = Root,facing!=facing
+
+[State 10000]
+Type = AssertSpecial
+Trigger1 = 1
+flag = invisible
+
+[State 50000];無敵
+Type = NotHitBy
+Trigger1 = 1
+value = SAC,NT,ST,HT,NA,SA,HA,NP,SP,HP,NA,SA,HA
+Time = 1
+
+;━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+;飛び道具確認前3
+;━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[Statedef 60000]
+Anim = 20000
+Ctrl = 0
+
+[State 60000];プレイヤーはこっちくんなし
+Type = SelfState
+Trigger1 = !ishelper
+value = 0
+Ctrl = 1
+
+[State 60000];プレイヤー座標に固定
+Type = PosSet
+Trigger1 = 1
+x = Root,Pos x+200*ifelse(Root,facing=1,1,-1)
+y = Const(size.head.pos.y)+Root,Pos y+90
+
+[State 60000]
+Type = Turn
+Trigger1 = Root,facing!=facing
+
+[State 10000]
+Type = AssertSpecial
+Trigger1 = 1
+flag = invisible
+
+[State 60000];無敵
+Type = NotHitBy
+Trigger1 = 1
+value = SAC,NT,ST,HT,NA,SA,HA,NP,SP,HP,NA,SA,HA
+Time = 1

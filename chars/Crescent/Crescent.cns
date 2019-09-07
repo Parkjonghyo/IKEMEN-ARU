@@ -1,0 +1,270 @@
+;基本データ部分---------------------------------------------------------------
+[Data]
+Life		= 1000	;体力。デフォルト：1000
+Power		= 3000	;ゲージ最大値。デフォルト：3000
+Attack		= 100	;攻撃力。デフォルト：100
+Defence		= 130	;防御力。デフォルト：130(※防御力強化技との兼ね合いによるもの。詳細はReadmeにて。)
+Fall.Defence_Up	= 50	;ダウン時防御力補正
+LieDown.Time	= 60	;ダウン時間
+AirJuggle		= 999	;エリアル制限
+SparkNo		= 2	;デフォルトヒットスパークナンバー
+Guard.SparkNo	= S6010	;デフォルトガードスパークナンバー
+KO.Echo		= 0	;KOボイスエコー：オフ
+Volume		= 150	;音量調節
+IntPersistIndex	= 56	;Var持ち越し
+FloatPersistIndex	= 40	;FVar持ち越し
+
+
+;サイズ設定------------------------------------------------------------------
+[Size]
+XScale		= 1	;X拡大率
+YScale		= 1	;Y拡大率
+Ground.Front	= 16	;地上前幅 
+Ground.Back	= 12	;地上後ろ幅
+Air.Front		= 16	;空中前幅
+Air.Back		= 16	;空中後ろ幅
+Height		= 50	;ジャンプ飛び越し可能高さ
+Attack.Dist	= 120	;ガード圏
+Proj.Attack.Dist	= 90	;飛び道具ガード圏
+Proj.DoScale	= 1	;飛び道具倍率影響
+Head.Pos		= 5, -84	;頭座標
+Mid.Pos		= 7, -50	;体中心座標
+ShadowOffset	= 0	;影オフセット
+Draw.Offset	= 0,0	;本体オフセット
+
+;移動速度設定----------------------------------------------------------------
+[Velocity]
+Walk.Fwd		= 2.8	;前進速度
+Walk.Back		= -2.4	;後退速度
+Run.Fwd		= 8	;前ステップ速度
+Run.Back		= -4, -2.5;後ろステップ速度
+Jump.Neu		= 0, -8	;垂直ジャンプ速度
+Jump.Fwd		= 2.4	;前ジャンプ速度
+Jump.Back	= -2.4	;後ろジャンプ速度
+RunJump.Fwd	= 3	;前ダッシュジャンプ速度
+RunJump.Back	= -3	;後ろダッシュジャンプ速度
+AirJump.Neu	= 0, 0	;空中垂直ジャンプ速度
+AirJump.Fwd	= 0	;空中前ジャンプ速度
+AirJump.Back	= 0	;空中後ろジャンプ速度
+
+;動作設定--------------------------------------------------------------------
+[Movement]
+Airjump.Num	= 0	;空中ジャンプ回数(Varで制御するためこっちは0)
+AirJump.Height	= 35	;空中ジャンプ高度制限
+YAccel		= 0.44	;重力
+Stand.Friction	= 0.85	;立ち状態での摩擦
+Crouch.Friction	= 0.82	;しゃがみ状態での摩擦
+
+;変数------------------------------------------------------------------------
+;Var(0)：ヒット数
+;Var(1)：フラグ圧縮
+;512：設置ヒット済みフラグ
+;256：波動ヒット済みフラグ
+;128：本体ヒット済みフラグ
+;64：着地硬直
+;32：カウンター判定
+;16：逆根性補正なし
+;8：波動射出可能フラグ
+;4：設置可能フラグ
+;2：ダメージ調整用LifeAdd発動フラグ
+;1：EnemyNear正常化
+
+;Var(2)：追撃制限Enemy判定
+;Var(3)：積みレベル
+;Var(4)：直ガ用ライフ記憶
+;Var(5)：波動/設置強度選択
+;Var(6)：一時変数
+;投げ方向
+;直ガ成否判定
+
+;Var(7)：直ガ入力判定
+;Var(8)：直ガ硬直時間
+;Var(9)：追撃制限
+;Var(10)：浮き補正用空中ヒット数
+;Var(11)：GameTime
+;Var(12)：食らいボイス連続再生防止
+
+;------------------------------
+;FVar(0)：攻撃力補正
+;FVar(1)：ゲージ回収率
+;FVar(2)：与ゲージ率
+;FVar(3)：コンボ補正
+;FVar(4)：積み補正
+;FVar(5)：逆根性補正
+;FVar(6)：被ダメージ増加率
+;FVar(7)：浮き補正
+
+;---------------------------------------------------------------------------
+[StateDef 170]
+Type = S
+Ctrl = 0
+Anim = 170
+
+[State ]
+Type = NotHitBy
+Trigger1 = 1
+Value = SCA
+
+[State 声]
+Type = PlaySnd
+Trigger1 = AnimElem = 3
+Value = 170, 0
+Channel = 0
+
+;---------------------------------------------------------------------------
+;勝利
+[StateDef 180]
+Type = S
+Ctrl = 0
+
+[State ]
+Type = NotHitBy
+Trigger1 = 1
+Value = SCA
+
+[State 通常]
+Type = ChangeState
+Trigger1 = Time = 0
+Value = 181 +Random%2
+
+;勝利：腕組み-------------------------
+[StateDef 181]
+Type = S
+Ctrl = 0
+Anim = 180
+
+[State ]
+Type = NotHitBy
+Trigger1 = 1
+Value = SCA
+
+[State まだ終了してないぜ]
+Type = AssertSpecial
+Trigger1 = Time = [0,120]
+Flag = RoundNotOver
+
+;勝利：髪上げ-------------------------
+[StateDef 182]
+Type = S
+Ctrl = 0
+Anim = 181
+
+[State ]
+Type = NotHitBy
+Trigger1 = 1
+Value = SCA
+
+[State ]
+Type = ChangeAnim
+Trigger1 = Anim = 181
+Trigger1 = AnimTime = 0
+Value = 0
+
+[State まだ終了してないぜ]
+Type = AssertSpecial
+Trigger1 = Time = [0,120]
+Flag = RoundNotOver
+
+
+;---------------------------------------------------------------------------
+;イントロ
+[StateDef 190]
+Type = S
+Ctrl = 0
+Anim = 190
+
+[State 対魔法少女･･･？]
+Type = ChangeState
+TriggerAll = Time = 0
+Trigger1 = P2Name = "Jun"
+Trigger1 = Enemy,AuthorName = "Kunshomo"
+Trigger2 = P2Name = "Akemi-Homura"
+Value = 1900
+
+[State 通常]
+Type = ChangeState
+Trigger1 = Time = 0
+Value = 191
+
+;---------------------------------------------------------------------------
+;イントロ
+[StateDef 191]
+Type = S
+Ctrl = 0
+Anim = 190
+
+[State イントロフラグ]
+Type = AssertSpecial
+Trigger1 = 1
+Flag = Intro
+
+[State 声]
+Type = PlaySnd
+Trigger1 = AnimElem = 2
+Value = 190, 0
+Channel = 0
+
+[State 待機状態へ]
+Type = ChangeState
+Trigger1 = AnimTime = 0
+Value = 0
+
+;対魔法少女･･･？-------------------------------------------------------------------
+[StateDef 1900]
+Type = S
+Ctrl = 0
+Anim = 190
+
+[State イントロフラグ]
+Type = AssertSpecial
+Trigger1 = 1
+Flag = Intro
+
+[State 待機]
+Type = ChangeAnim
+Trigger1 = Time < 60
+Value = 190
+
+[State 待機]
+Type = ChangeAnim
+Trigger1 = Time >= 60
+Trigger1 = P2StateNo != 0
+Value = 1900
+
+[State 待機]
+Type = ChangeAnim
+Trigger1 = Time = 60
+Value = 1900
+
+[State 声]
+Type = PlaySnd
+Trigger1 = Anim = 1900
+Trigger1 = AnimElem = 2
+Value = 191, 0
+Channel = 0
+
+[State 待機状態へ]
+Type = ChangeState
+Trigger1 = AnimTime = 0
+Value = 0
+
+;---------------------------------------------------------------------------
+;挑発
+[StateDef 195]
+Type = S
+Ctrl = 0
+Anim = 195
+VelSet = 0, 0
+
+[State 声]
+Type = PlaySnd
+Trigger1 = AnimElem = 4
+Value = 195, 0
+Channel = 0
+Volume = 255
+
+[State 待機状態へ]
+Type = ChangeState
+Trigger1 = AnimTime = 0
+Value = 0
+Ctrl = 1

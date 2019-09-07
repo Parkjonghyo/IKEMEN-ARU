@@ -1,0 +1,615 @@
+﻿;追加ステートファイル。 追加アビリティなどを記述。
+
+;---------------------------------------------------------------------------------
+
+;---------------------------------------------------------------------------------
+
+;---------------------------------------------------------------------------------
+; ガードキャンセル
+
+[Statedef 2800]
+type     = U   ;直前のタイプを維持
+movetype = A
+physics  = S
+poweradd = -1000
+velset   = 0,0
+ctrl     = 0
+sprpriority = 2
+
+[State -1]
+Type = Helper
+trigger1 = time = 0
+StateNo = 15002
+ID = 15002
+Ownpal = 1
+SprPriority = 4
+PauseMoveTime = 9999
+
+[State 2300, 無敵になる]
+type = NotHitBy
+trigger1 = Time = 0
+value = SCA
+time = 1
+
+[State 2300, カウンター攻撃へ]
+type = ChangeState
+trigger1 = Time = 1
+value = 2810
+
+
+; カウンター
+; 
+; 相手を勢い良く突き飛ばす。
+; ヒットしなかった場合、隙が大きい。
+
+[Statedef 2810]
+type     = S
+movetype = A
+physics  = S
+juggle   = 4
+poweradd = 0
+anim     = 3010
+ctrl     = 0
+sprpriority = 2
+
+[State 2300, 無敵になる]
+type = NotHitBy
+trigger1 = Time = [0,20]
+value = SCA
+time = 1
+
+[State 2300, 一瞬光る]
+type = Envcolor
+trigger1 = Time = 0
+value = 255, 255, 255
+time = 1
+under = 1
+supermove = 1
+persistent = 0
+ignorehitpause = 1
+
+[State 1027, 円]
+type = Explod
+trigger1 = time = 16
+anim = 6301
+scale = 1,1
+pos = 0,-40
+;postype = p1
+sprpriority = 5
+bindtime = 5
+supermove = 1
+ownpal = 1
+
+[State 1027, 砂埃]
+type = Explod
+trigger1 = time = 16
+anim = 6002
+pos = -30,0
+;postype = p1
+sprpriority = 5
+bindtime = 5
+
+[State 1027, 砂埃]
+type = Explod
+trigger1 = time = 16
+anim = 6002
+scale = -1,1
+pos = 60,0
+;postype = p1
+sprpriority = 5
+bindtime = 5
+
+[State 2300, EX音];カウンター発動音代用
+type = PlaySnd
+trigger1 = Time = 0
+value = s6, 4
+
+[State 2300, 残像];EXの色違い版
+type = AfterImage
+trigger1 = Time = 0
+length = 13
+palbright   =  30, 30, 30
+palcontrast =  70, 20, 0
+paladd      = 0,0,0
+palmul      = .85,.50,.85
+timegap  = 1
+framegap = 2
+trans = Add
+time = 40
+
+[State 2300, 一瞬止まる]
+type = Pause
+trigger1 = Time = 0
+time = 15
+movetime = 15
+
+[State 1050, 軸位置移動]
+type = PosAdd
+trigger1 = AnimElem = 1
+x = 20
+
+[State 1050, 軸位置移動]
+type = PosAdd
+trigger1 = AnimElem = 4
+x = 20
+
+[State 2310, 効果音]
+type = PlaySnd
+trigger1 = AnimElem = 4
+value = s0, 3
+
+[State 2300, 外した場合を考えると恥ずかしい台詞]
+type = PlaySnd
+trigger1 = animelem = 4
+value = s5, 19
+
+
+[State 2310, 攻撃設定]
+type = HitDef
+trigger1 = Time = 0
+attr = S, SA
+animtype  = Hard
+damage    = 50, 5
+getpower  = 0
+priority  = 5
+guardflag = MA
+pausetime = 20,20
+sparkno = s4002
+sparkxy = -30,-70
+hitsound   = s6,2
+guardsound = s7,1
+ground.type = Low
+ground.slidetime = 16
+ground.hittime  = 40
+guard.ctrltime = 40
+ground.velocity = -7,-2.2
+ground.cornerpush.veloff = -12
+guard.velocity = -7
+air.velocity = -8,-1.4
+airguard.velocity = -3.5,-4.5
+fall.recover = 0
+fall.recovertime = 99999999
+Yaccel = 0.35
+Fall.YVelocity = -4.5
+fall = 1
+kill = 0
+
+[State 2310, チェンジ]
+type = ChangeState
+trigger1 = AnimTime = 0
+value = 0
+ctrl = 1
+
+;---------------------------------------------------------------------------------
+
+;リペルバースト
+;いわゆるバースト。
+;バランス崩壊しかねんやつなので要調整。
+
+[Statedef 2900]
+type = A
+movetype = A
+physics = N
+velset = 0,-5.5
+poweradd = 0
+ctrl = 0
+anim = 2900
+
+[State -1]
+Type = Helper
+trigger1 = time = 0
+StateNo = 15001
+ID = 15001
+Ownpal = 1
+SprPriority = 4
+PauseMoveTime = 9999
+
+[State 300]
+type = statetypeset
+trigger1 = animelemtime(4) = 14
+movetype = I
+
+[State 300]
+type = hitby
+trigger1 = 1
+value = SCA,AT
+time = 2
+ignorehitpause = 1
+
+[State 200]
+type = PlaySnd
+trigger1 = Animelem = 1
+value = 6,4
+channel = 0
+
+[State 200]
+type = PlaySnd
+trigger1 = Animelem = 2
+value = 5, 22
+
+[State 200]
+type = PlaySnd
+trigger1 = Animelem = 4
+value = 1, 5
+
+[State 200]
+type = PlaySnd
+trigger1 = Animelem = 4
+value = s9, 12
+
+[State -1]
+Type = Helper
+trigger1 = animelem = 1
+StateNo = 6200
+ID = 6200
+Ownpal = 1
+pos = 0,-90
+SprPriority = 4
+PauseMoveTime = 9999
+
+
+[state 1000]
+type = veladd
+trigger1 = animelemtime(6) >= 0
+y = 0.6
+
+[state 1000]
+type = velset
+trigger1 = animelem = 3
+y = 0
+
+[State 1055, varSet]
+type = Varset
+trigger1 = time = 0;animelem = 4
+var(21) = 0
+
+
+[State 1055, varSet]
+type = Varset
+trigger1 = time = 0;animelem = 4
+var(3) = 0
+
+[State 1027, 円]
+type = Explod
+trigger1 = animelem = 4
+anim = 6390
+scale = 1,1
+pos = 0,-80
+;postype = p1
+sprpriority = 5
+bindtime = 1
+supermove = 1
+ownpal = 1
+
+[State 1027, 円]
+type = Explod
+trigger1 = animelem = 4
+anim = 6300
+scale = 1,0.3
+pos = 0,-80
+;postype = p1
+sprpriority = 5
+bindtime = 1
+supermove = 1
+ownpal = 1
+
+[State 1027, 円]
+type = Explod
+trigger1 = animelem = 4
+anim = 6390
+scale = 0.3,1
+pos = 0,-80
+;postype = p1
+sprpriority = 5
+bindtime = 1
+supermove = 1
+ownpal = 1
+
+[State 1027, 円]
+type = Explod
+trigger1 = animelem = 4
+anim = 6390
+scale = 1,0.6
+pos = 0,-80
+;postype = p1
+sprpriority = 5
+bindtime = 1
+supermove = 1
+ownpal = 1
+
+[State 1027, 円]
+type = Explod
+trigger1 = animelem = 4
+anim = 6300
+scale = 0.6,1
+pos = 0,-80
+;postype = p1
+sprpriority = 5
+bindtime = 1
+supermove = 1
+ownpal = 1
+
+
+[State 2310, 攻撃設定]
+type = HitDef
+trigger1 = Time = 1
+attr = S, SA
+animtype  = Hard
+damage    = 0
+getpower  = 0
+priority  = 5
+guardflag = MA
+pausetime = 12,12
+sparkno = s4003
+sparkxy = 0,-65
+hitsound   = s6,6
+guardsound = s7,1
+ground.type = Low
+ground.slidetime = 16
+ground.hittime  = 20
+ground.velocity = -12,-4
+ground.cornerpush.veloff = -12
+guard.velocity = -7
+air.velocity = -8,-0.5
+airguard.velocity = -3.5,-4.5
+fall.recover = 0
+fall.recovertime = 99999999
+Yaccel = 0.35
+Fall.YVelocity = -4.5
+fall = 1
+kill = 0         
+
+[State 5, 7]
+type = ChangeState
+trigger1 = Pos Y >= 0
+trigger1 = Vel Y >  0
+value = 52
+ctrl = 0
+
+;アップザッツ
+;アップザッツ地上
+[Statedef 2950]
+type = S
+movetype = I
+physics = N
+velset = 0,0
+poweradd = 0
+ctrl = 0
+anim = 2950
+movehitpersist = 1
+
+[State 1055, varadd]
+type = Varadd
+var(22) = -250
+trigger1 = time = 0
+trigger1 = movecontact
+trigger2 = time = 0
+trigger2 = enemy,movetype = H
+
+[State 1055, varadd]
+type = Varadd
+var(22) = -250
+trigger1 = time = 0
+
+[State -1]
+Type = Helper
+trigger1 = time = 0
+StateNo = 15011
+ID = 15011
+Ownpal = 1
+SprPriority = 4
+PauseMoveTime = 9999
+
+[State -1]
+Type = Helper
+trigger1 = time = 0
+StateNo = 6201
+ID = 6201
+Ownpal = 1
+pos = 0,-57
+SprPriority = 5
+PauseMoveTime = 9999
+supermoveTime = 9999
+
+[State 210, ブリッツ]
+type = PlaySnd
+trigger1 = time = 0
+value = s6,10
+channel = 4
+
+[State 1027, 推進手前]
+type = explod
+trigger1 = time = 2
+trigger2 = time = 4
+trigger3 = time = 6
+anim = 6225 
+scale = 0.1,0.5
+pos = 0,-50
+;postype = p1
+sprpriority = 5
+bindtime = 1
+supermovetime = 9999999999
+pausemovetime = 9999999999
+ownpal = 1
+
+[State 1027, 推進奥]
+type = explod
+trigger1 = time = 2
+trigger2 = time = 4
+trigger3 = time = 6
+anim = 6235
+scale = 0.1,0.5
+pos = 0,-50
+;postype = p1
+sprpriority = -2
+bindtime = 1
+supermovetime = 9999999999
+pausemovetime = 9999999999
+ownpal = 1
+
+[State 53, 1]
+type = velset
+triggerall = time = 0
+trigger1 = var(59) = 0
+trigger1 = command !="holddown"
+trigger2 = var(59) > 0
+trigger2 = prevstateno = 1023 || (var(58) = [140,142]) || (var(58) = [144,147])
+trigger3 = var(59) > 0
+trigger3 = p2bodydist x > 35
+trigger3 = p2movetype != A
+trigger4 = var(59) > 0
+trigger4 = var(58) = 18
+trigger4 = p2bodydist x >= 10
+x = 16
+y = 0
+
+[State 53, 1]
+type = velmul
+trigger1 = var(59) = 0
+trigger1 = command !="holddown"
+trigger2 = var(59) > 0
+trigger2 = p2bodydist x < 70
+trigger3 = var(59) > 0
+trigger3 = var(58) = 18
+trigger3 = p2bodydist x >= 10
+x = 0.95
+
+[State 105, 2]
+type = CtrlSet
+trigger1 = time = 0
+value = 1
+
+;AI用記述
+;アップザッツからの行動決定
+;三角蹴り
+[State -1]
+type = VarSet
+TriggerAll = (var(59)%100) > 0
+Triggerall = RoundState = 2
+triggerall = var(21) >= 1
+trigger1 = var(58) = [144,147]
+trigger1 = stateno = 2950
+trigger1 = (Random = [0*(var(59)%100),100*(var(59)%100)])
+trigger1 = random%7 <= 1
+trigger1 = ((helper(13501),pos x)-(pos x) < (85+15*(stateno=100)+15*(p2statetype = L))) && (facing = 1) || (abs(((helper(13501),pos x)-(helper(13501),var(6)))-(pos x)) < (85+15*(stateno=100)+15*(p2statetype = L))) && (facing = -1)
+Trigger1 = enemynear,backedgedist < 100
+Trigger1 = statetype != A
+V = 58
+Value = 149
+;固め継続
+[State -1]
+type = VarSet
+triggerall = (var(59)%100) > 0
+Trigger1 = var(58) = 144
+Trigger1 = stateno = 2950
+V = 58
+Value = 122
+;様子見
+[State -1]
+type = VarSet
+triggerall = (var(59)%100) > 0
+Trigger1 = var(58) = 145
+Trigger1 = stateno = 2950
+V = 58
+Value = 110
+;ジャンプ
+[State -1]
+type = VarSet
+triggerall = (var(59)%100) > 0
+Trigger1 = var(58) = 146
+Trigger1 = stateno = 2950
+V = 58
+Value = 126
+;投げ
+[State -1]
+type = VarSet
+triggerall = (var(59)%100) > 0
+Trigger1 = var(58) = 147
+Trigger1 = stateno = 2950
+V = 58
+Value = 121
+
+
+
+
+[State 105, チェンジ]
+type = ChangeState
+trigger1 = time = 0
+trigger1 = var(59) = 0
+trigger1 = command ="holddown"
+trigger2 = time = 30
+trigger3 = time = 0
+trigger3 = var(59) > 0
+trigger3 = p2bodydist x < 35
+trigger3 = var(58) != 142
+trigger4 = time = 0
+trigger4 = var(59) > 0
+trigger4 = var(58) = 150
+trigger5 = time = 0
+trigger5 = var(59) > 0
+trigger5 = var(58) = 0 && p2movetype = A
+value = 0
+ctrl = 1
+
+;アップザッツ
+;アップザッツ空中
+[Statedef 2951]
+type = A
+movetype = I
+physics = N
+;velset = 0,0
+poweradd = 0
+ctrl = 0
+anim = 44
+movehitpersist = 1
+
+[State 1055, varadd]
+type = Varadd
+var(22) = -250
+trigger1 = time = 0
+trigger1 = movecontact
+trigger2 = time = 0
+trigger2 = enemy,movetype = H
+
+[State 1055, varadd]
+type = Varadd
+var(22) = -250
+trigger1 = time = 0
+
+[State -1]
+Type = Helper
+trigger1 = time = 0
+StateNo = 15011
+ID = 15011
+Ownpal = 1
+SprPriority = 4
+PauseMoveTime = 9999
+
+[State -1]
+Type = Helper
+trigger1 = time = 0
+StateNo = 6201
+ID = 6201
+Ownpal = 1
+pos = 0,-57
+SprPriority = 5
+PauseMoveTime = 9999
+supermoveTime = 9999
+
+[State 210, ブリッツ]
+type = PlaySnd
+trigger1 = time = 0
+value = s6,10
+channel = 4
+
+[State 105, 2]
+type = CtrlSet
+trigger1 = time = 1
+value = 1
+
+[State 105, チェンジ]
+type = ChangeState
+trigger1 = time = 0
+value = 51
+ctrl = 1
+

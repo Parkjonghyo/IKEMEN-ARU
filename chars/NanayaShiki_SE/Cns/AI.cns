@@ -1,0 +1,3195 @@
+ ;------------------------------------------------------------------
+[Statedef -3]
+;------------------------------------------------------------------
+
+[State -3, AIフラグセット]
+type=VarSet
+TriggerAll=((Var(55)=0)&&(RoundState!=3))
+Trigger1=Command="AI0"||Command="AI1"||Command="AI2"||Command="AI3"
+Trigger2=Command="AI4"||Command="AI5"||Command="AI6"||Command="AI7"
+Trigger3=Command="AI8"||Command="AI9"||Command="AI10"||Command="AI11"
+Trigger4=Command="AI12"||Command="AI13"||Command="AI14"||Command="AI15"
+Trigger5=Command="AI16"||Command="AI17"||Command="AI18"||Command="AI19"
+Trigger6=Command="AI20"||Command="AI21"||Command="AI22"||Command="AI23"
+Trigger7=Command="AI24"||Command="AI25"||Command="AI26"||Command="AI27"
+Trigger8=Command="AI29"||Command="AI30"||Command="AI31"||Command="AI32"
+Trigger9=Command="AI33"||Command="AI34"||Command="AI35"||Command="AI36"
+Trigger10=Command="AI37"||Command="AI38"||Command="AI39"||Command="AI40"
+Trigger11=Command="AI41"||Command="AI42"||Command="AI43"||Command="AI44"
+Trigger12=Command="AI45"||Command="AI46"||Command="AI47"||Command="AI48"
+Trigger13=Command="AI49"||Command="AI50"
+Trigger14=NumHelper(10000)>0&&RoundState=2
+Trigger14=Helper(10000),Var(59)=1
+Trigger15=0;Palno!=1&&Palno!=7	;常時起動用スイッチ(Trigger15=1に変更すると常時AIが起動します）
+V=55
+Value=1
+
+[State -3,AIレベル配置]
+Type=VarSet
+Trigger1=(Var(55)>0)*(NumHelper(4444+ID))
+Trigger1=Helper(4444+ID),Var(55)>0
+var(55)=Helper(4444+ID),var(55)
+IgnoreHitPause=1
+
+;==================================================================
+;			AI用変数
+;==================================================================
+[State -3,コンボ用Var]
+Type = VarSet
+TriggerAll=PlayerIDExist(Var(58))*NumHelper(4444+ID)
+TriggerAll=Var(55)>0||Helper(4444+ID),Var(6)
+TriggerAll=Var(21)
+trigger1=PlayerID(Var(58)),Statetype=L
+trigger2=PlayerID(Var(58)),Movetype!=H
+trigger3=PlayerID(Var(58)),stateno<200
+trigger4=MoveType=H
+var(21)=0
+
+[State -3,ランダムVar]
+Type=VarRandom
+TriggerAll=NumHelper(4444+ID)
+TriggerAll=Var(55)>0||Helper(4444+ID),Var(6)
+Trigger1=Var(4):=(StateNo=53||StateNo=5120)+(StateNo=[150,152])||1;+(StateNo/100=[2,6])
+Trigger1=IfElse(Var(4),Time=1,!(GameTime%3))
+V=56
+Range=1,100
+IgnoreHitPause=1
+SuperMoveTime=9999
+PauseMoveTime=9999
+
+[State -1,InGuardDist計測処理:最大過去8F分記憶]
+Type = VarSet
+Trigger1 = 1
+V = 9
+Value = InGuardDist*(100000000)+Var(9)/10
+IgnoreHitPause = 1
+
+;==================================================================
+;			AI用ヘルパー
+;==================================================================
+;防御用ヘルパー
+[State -3,防御用ヘルパー]
+Type=Helper
+Trigger1=!(NumHelper(4444+ID))
+Name="GUARD"
+StateNo=4444
+PosType=p1
+Pos=0,0
+facing=-1
+Ownpal=1
+IgnoreHitPause=1
+SuperMoveTime=99999
+PauseMoveTime=99999
+SprPriority=7
+ID=4444+ID
+;-----------------------------------------------------
+;画面端検出ヘルパー
+[State -3,画面端判定ヘルパーその1]
+Type=Helper
+Trigger1=NumHelper(4444+ID)
+Trigger1=(Var(55)>0||Helper(4444+ID),Var(6))
+Trigger1=!(NumHelper(5555+ID))
+Helpertype=Normal
+Name="HIDARI"
+Postype=p1
+Facing=1
+StateNo=5555
+ID=5555+ID
+Pausemovetime=0
+Persistent=0
+Ignorehitpause=1
+Keyctrl=0
+Ownpal=1
+;-----------------------------------------------------
+[State -3,画面端判定ヘルパーその2]
+Type=Helper
+Trigger1=(NumHelper(4444+ID)>0)
+Trigger1=Var(55)>0||Helper(4444+ID),Var(6)
+Trigger1=!NumHelper(6666+ID)
+Helpertype=Normal
+Name="MIGI"
+Postype=p1
+Facing=-1
+StateNo=6666
+ID=6666+ID
+Pausemovetime=0
+Persistent=0
+Ignorehitpause=1
+Keyctrl=0
+Ownpal=1
+;━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+;						AI行動
+;━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+;===================================================================
+;			[逃げ]
+;===================================================================
+[State -3,逃げダッシュ]
+Type=ChangeState
+Value=100
+TriggerAll=Var(55)>0
+TriggerAll=PlayerIDExist(Var(58))
+TriggerAll=StateType!=A
+TriggerAll=RoundState=2
+TriggerAll=NumHelper(4444+ID)
+TriggerAll=(Random<=Var(55)*100)*(StateNo!=[100,102])*(Ctrl)
+Trigger1=(Helper(4444+ID),Var(49)=3)*(PlayerID(Var(58)),time=[74,84])*(BackEdgeBodyDist<=50)*(PrevStateNo!=105)
+;----------------------------------------------------
+[State -3,逃げバクステ]
+Type=ChangeState
+Value=105
+TriggerAll=Var(55)>0
+TriggerAll=PlayerIDExist(Var(58))*NumHelper(4444+ID)
+TriggerAll=StateType!=A
+TriggerAll=RoundState=2
+TriggerAll=(Random<=Var(55)*100)*(StateNo!=[100,102])*(Ctrl)
+Trigger1=(Helper(4444+ID),Var(49)=3)*(PlayerID(Var(58)),time=[74,84])
+;===================================================================
+;			[切り替えし]
+;===================================================================
+;無空
+[State -3]
+Type=ChangeState
+Value=24500
+TriggerAll=(Var(55))*(Var(46)=3)*(Ctrl||StateNo=19)*NumHelper(35000+ID)*NumHelper(9100+ID)*!NumHelper(7778)*NumHelper(4444+ID)
+TriggerAll=PlayerIDExist(Var(58))*(RoundNo>=3)*(TeamMode=Single)*(Enemy,TeamMode=Single)*(Var(6)/100%100=[11,12])*Var(57)
+Trigger1=(Var(6)/100000%10=2)*(Abs(Fvar(4)+7*PlayerID(Var(58)),Vel X)<35)*(PlayerID(Var(58)),Time<3)
+Trigger1=IfElse((Var(6)/10000%10=3),(PlayerID(Var(58)),Pos Y+7*Helper(4444+ID),Fvar(15)+28*Helper(4444+ID),Fvar(16)=(-107,0)),1)
+Trigger2=(0)*(Var(4):=PlayerID(Var(58)),StateNo)
+Trigger2=Var(4):=(Var(4)=Helper(35000+ID),Var(28)||Var(4)=Helper(35000+ID),Var(30)||Var(4)=Helper(35000+ID),Var(44))||1
+Trigger2=Var(4):=(PlayerID(Var(58)),StateNo=Helper(35000+ID),Var(48))+Var(4)||1
+Trigger2=Var(4):=(Var(6)/1000000%10=[1,3])*(PlayerID(Var(58)),AnimTime<-35)+Var(4)||1
+Trigger2=Var(4):=(Var(6)/1000000%10>6)*(Abs(Fvar(4))<20)+(Abs(Fvar(4))<35)*(PrevStateNo=800)+Var(4)||1
+Trigger2=(Facing*(PlayerID(Var(58)),Pos X-Pos X)<70)*(Var(6)/100000%10=2)+Var(31)
+Trigger3=(BackEdgeBodyDist<45)*(Abs(PlayerID(Var(58)),Pos X-Pos X)<45)
+Trigger3=(Facing*(PlayerID(Var(58)),Pos X-Pos X)>0)*(Var(6)/10000%100=23)
+Trigger3=(PlayerID(Var(58)),Pos Y+7*Helper(4444+ID),Fvar(15)+28*Helper(4444+ID),Fvar(16)=(-120,0))
+;----------------------------------------------------
+[State -3, 切り替えし強制開放]
+Type=ChangeState
+Value=990
+TriggerAll=(Var(55)>0)*PlayerIDExist(Var(58))*NumHelper(4444+ID)
+TriggerAll=RoundState=2
+TriggerAll=Random<=Var(55)*40||(Var(46)=2&&Power>=500)
+TriggerAll=StateType!=A
+TriggerAll=!IsHelper
+TriggerAll=Helper(4444+ID),Var(49)=0
+TriggerAll=PlayerID(Var(58)),Alive
+TriggerAll=PlayerID(Var(58)),StateType!=L
+TriggerAll=PlayerID(Var(58)),MoveType!=H
+TriggerAll=((Fvar(4)=[-20,20])&&(Fvar(5)>=-50))||Fvar(4)>=200
+TriggerAll=(Var(46)=2&&Power>=500)
+TriggerAll=Ctrl||(StateNo=[100,102])
+Trigger1=PlayerID(Var(58)),Time>=26-(Var(55)*2)||Var(55)>10
+Trigger2=(PrevStateNo=[150,159])
+Trigger3=!(Life>=300)
+Trigger4=(Var(46)=2&&Power>=500)
+;----------------------------------------------------
+[State -3, リバサ強制開放]
+Type=ChangeState
+Value=990
+TriggerAll=(Var(55)>0)*PlayerIDExist(Var(58))*NumHelper(4444+ID)
+TriggerAll=RoundState=2
+TriggerAll=Random<=Var(55)*40+60*(Var(55)>10)
+TriggerAll=StateType=L
+TriggerAll=!IsHelper
+TriggerAll=PlayerID(Var(58)),Alive
+TriggerAll=PlayerID(Var(58)),StateType!=L
+TriggerAll=PlayerID(Var(58)),MoveType!=H
+TriggerAll=((Fvar(4)-Ceil(Vel X*5)-Ceil(Helper(4444+ID),Fvar(5)*5)=[-24,24])&&(Fvar(5)>=-50))||Fvar(4)>=200
+TriggerAll=(Var(46)=2&&Power>=500);||(Var(46)=0&&power>=2500)
+TriggerAll=NumHelper(4444+ID)
+TriggerAll=Helper(4444+ID),Var(49)=0
+Trigger1=StateNo=5120
+Trigger1=Animtime>=-1
+;----------------------------------------------------
+[State -3, 切り替えし表AAD]
+Type=ChangeState
+Value=13006
+TriggerAll=(Var(55)>0)*PlayerIDExist(Var(58))*NumHelper(4444+ID)
+TriggerAll=RoundState=2
+TriggerAll=Random<=Var(55)*60+40*(Var(55)>10)
+TriggerAll=StateType!=A
+TriggerAll=!IsHelper
+TriggerAll=PlayerID(Var(58)),Alive
+TriggerAll=PlayerID(Var(58)),StateType!=L
+TriggerAll=PlayerID(Var(58)),MoveType=A
+TriggerAll=Fvar(4)-Ceil(Vel X*5)-Ceil(Helper(4444+ID),Fvar(5)*5)=[0,70]
+TriggerAll=Fvar(5)+(Helper(4444+ID),FVar(15)*5+Helper(4444+ID),FVar(16)*15)=[-60,0]
+TriggerAll=Var(46)=3
+TriggerAll=Helper(4444+ID),Var(47)<=4
+TriggerAll=Helper(4444+ID),Var(48)!=2
+TriggerAll=Helper(4444+ID),Var(49)=0
+TriggerAll=Ctrl||(StateNo=[100,102])||(Stateno=700&&Time>=5)
+Trigger1=PlayerID(Var(58)),Time>=26-(Var(55)*2)||Var(55)>9
+;----------------------------------------------------
+[State -3, 切り替えし立ちシールド]
+Type=ChangeState
+Value=900
+TriggerAll=Var(55)>0
+TriggerAll=PlayerIDExist(Var(58))*NumHelper(4444+ID)
+TriggerAll=Facing!=PlayerID(Var(58)),Facing
+TriggerAll=Random<=Var(55)*(45+(Var(55)>10)*55)||Var(46)=3||StateNo=22300
+TriggerAll=(RoundState=2)*(StateType!=A)*(MoveType!=A)*(Helper(4444+ID),Var(47)<=6)
+TriggerAll=PlayerID(Var(58)),HitDefAttr=S,NA,SA,HA||PlayerID(Var(58)),HitDefAttr=A,NA,SA
+TriggerAll=(PlayerID(Var(58)),MoveType=A)*(Enemy,NumProj=0)
+TriggerAll=Fvar(4)-Ceil(Vel X)-Ceil(Helper(4444+ID),Fvar(5))=[-40+15*(Var(46)=3),8]
+TriggerAll=Fvar(5)-(Vel Y-const(Movement.yaccel))+(Helper(4444+ID),Fvar(15)+Helper(4444+ID),Fvar(16))=[-110+70*(Var(46)=3),4]
+TriggerAll=(PrevStateNo!=[900,930])&&(PrevStateNo!=[20950,20953])
+TriggerAll=(StateNo!=[900,930])&&(StateNo!=[20950,20953])
+TriggerAll=Ctrl||(StateNo=[100,102])||StateNo=22300
+Trigger1=(PlayerID(Var(58)),StateType=A)*(Ifelse(Var(46)=3,(Helper(4444+ID),Fvar(15)>=-1),1))
+Trigger2=(PlayerID(Var(58)),StateType=S)
+;----------------------------------------------------
+[State -3, リバサ立ちシールド]
+Type=ChangeState
+Value=900
+TriggerAll=Var(55)>0
+TriggerAll=PlayerIDExist(Var(58))*NumHelper(4444+ID)
+TriggerAll=Facing!=PlayerID(Var(58)),Facing
+TriggerAll=Random<=Var(55)*(45+(Var(55)>10)*55)||Var(46)=3
+TriggerAll=(RoundState=2)*(StateType!=A)*(MoveType!=A)*(Helper(4444+ID),Var(47)<=6)
+TriggerAll=(PlayerID(Var(58)),MoveType=A)*(Enemy,NumProj=0)
+TriggerAll=Fvar(4)-Ceil(Vel X)-Ceil(Helper(4444+ID),Fvar(5))=[-40+15*(Var(46)=3),8]
+TriggerAll=Fvar(5)+(Helper(4444+ID),Fvar(15)+Helper(4444+ID),Fvar(16))=[-110,4]
+TriggerAll=(PrevStateNo!=[900,929])&&(PrevStateNo!=[20950,20959])
+TriggerAll=(StateNo!=[900,929])&&(StateNo!=[20950,20959])
+TriggerAll=PlayerID(Var(58)),HitDefAttr=S,NA,SA,HA||PlayerID(Var(58)),HitDefAttr=A,NA,SA
+TriggerAll=(StateNo=5120)*(Animtime>=-1)
+Trigger1=(PlayerID(Var(58)),StateType=A)*(Ifelse(Var(46)=3,(Helper(4444+ID),Fvar(15)>=-1),1))
+Trigger2=PlayerID(Var(58)),StateType=S
+;----------------------------------------------------
+[State -3, 切り替えししゃがみシールド]
+Type=ChangeState
+value=910
+TriggerAll=Var(55)>0
+TriggerAll=PlayerIDExist(Var(58))*NumHelper(4444+ID)
+TriggerAll=Facing!=PlayerID(Var(58)),Facing
+TriggerAll=Random<=Var(55)*(45+(Var(55)>10)*55)||Var(46)=3||StateNo=22300
+TriggerAll=(RoundState=2)*(StateType!=A)*(MoveType!=A)*(Helper(4444+ID),Var(47)<=6)
+TriggerAll=(PlayerID(Var(58)),MoveType=A)*(Enemy,NumProj=0)*(PlayerID(Var(58)),StateType=C)
+TriggerAll=Fvar(4)-Ceil(Vel X)-Ceil(Helper(4444+ID),Fvar(5))=[-40,80+(Var(46)=3)*40]
+TriggerAll=PlayerID(Var(58)),HitDefAttr=C,NA,SA,HA
+TriggerAll=(PrevStateNo!=[900,930])&&(PrevStateNo!=[20950,20953])
+TriggerAll=(StateNo!=[900,930])&&(StateNo!=[20950,20953])
+Trigger1=Ctrl||(StateNo=[100,102])
+
+[State -3, リバサしゃがみシールド]
+Type=ChangeState
+value=910
+TriggerAll=Var(55)>0
+TriggerAll=PlayerIDExist(Var(58))*NumHelper(4444+ID)
+TriggerAll=Facing!=PlayerID(Var(58)),Facing
+TriggerAll=Random<=Var(55)*(45+(Var(55)>10)*55)||Var(46)=3
+TriggerAll=(RoundState=2)*(StateType!=A)*(MoveType!=A)*(Helper(4444+ID),Var(47)<=6)
+TriggerAll=(PlayerID(Var(58)),MoveType=A)*(Enemy,NumProj=0)*(PlayerID(Var(58)),StateType=C)
+TriggerAll=Fvar(4)-Ceil(Vel X)-Ceil(Helper(4444+ID),Fvar(5))=[-40,80+(Var(46)=3)*40]
+TriggerAll=(PrevStateNo!=[900,929])&&(PrevStateNo!=[20950,20959])
+TriggerAll=(StateNo!=[900,929])&&(StateNo!=[20950,20959])
+TriggerAll=PlayerID(Var(58)),HitDefAttr=C,NA,SA,HA
+Trigger1=(StateNo=5120)*(Animtime>=-1)
+;----------------------------------------------------
+[State -3, 切り替えし空中シールド]
+Type=ChangeState
+value=920
+TriggerAll=Var(55)>0
+TriggerAll=PlayerIDExist(Var(58))*NumHelper(4444+ID)
+TriggerAll=Facing!=PlayerID(Var(58)),Facing
+TriggerAll=Random<=Var(55)*(45+(Var(55)>10)*55)
+TriggerAll=(RoundState=2)*(StateType=A)*(MoveType!=A)*(Helper(4444+ID),Var(47)<=6)
+TriggerAll=PlayerID(Var(58)),MoveType=A
+TriggerAll=Fvar(4)-Ceil(Vel X)-Ceil(Helper(4444+ID),Fvar(5))=[-2,60]
+TriggerAll=(PrevStateNo!=[900,929])&&(PrevStateNo!=[20950,20959])
+TriggerAll=(StateNo!=[900,929])&&(StateNo!=[20950,20959])
+TriggerAll=StateNo=110||PlayerID(Var(58)),HitDefAttr=SA,NA,SA,HA
+TriggerAll=Ctrl||StateNo=730||StateNo=21052
+Trigger1=Fvar(5)-(Vel Y-0.54)+(Helper(4444+ID),Fvar(15)+Helper(4444+ID),Fvar(16))=[-70,70]
+Trigger1=PlayerID(Var(58)),StateType=A
+Trigger2=Fvar(5)-(Vel Y-0.54)=[0,90]
+Trigger2=PlayerID(Var(58)),StateType!=A
+Trigger2=Vel Y>=-1
+;----------------------------------------------------
+[State -3, シールド]
+Type=ChangeState
+TriggerAll=(Var(55)>0)*PlayerIDExist(Var(58))*!(StateType=A)*(Ctrl||StateNo=22300||(StateNo=[100,102]))*!Enemy,NumProj
+TriggerAll=Random<=Var(55)*100
+TriggerAll=(Var(6)/1000000%10=[1,3])*(Var(6)/100000%10=2)*(Var(12)>9)*NumHelper(9100+ID)*(NumHelper(4444+ID)>0)
+TriggerAll=PlayerID(Var(58)),AnimElemTime(1)>Ceil(0.75*(PlayerID(Var(58)),AnimElemTime(1)-PlayerID(Var(58)),AnimTime)/4)
+TriggerAll=IfElse((Var(6)/10000%10=3),(PlayerID(Var(58)),Pos Y+Helper(4444+ID),Fvar(15)+Helper(4444+ID),Fvar(16)=(-76,-1)),1)
+TriggerAll=IfElse((Facing=PlayerID(Var(58)),Facing),Abs(PlayerID(Var(58)),Pos X-Pos X)<30,1)
+TriggerAll=(Fvar(4)-PlayerID(Var(58)),Vel X=[-50,70])
+Trigger1=Var(56)>60-(Var(6)/10000%10=3)*(Helper(9100+ID),Var(23)/10)||Var(46)=3
+Value=900+10*(Var(6)/10000000%10=2)
+
+[State -3, シールド]
+Type=ChangeState
+TriggerAll=(Var(55)>0)*PlayerIDExist(Var(58))*!(StateType=A)*(Ctrl||StateNo=22300||(StateNo=[100,102]))*!(Enemy,NumProj)
+TriggerAll=(Var(6)/10000%100=[21,22])*(Var(6)/1000000%10=[1,6])*(PlayerID(Var(58)),StateNo)*NumHelper(9100+ID)*Var(12)
+TriggerAll=Random<=Var(55)*100&&(NumHelper(4444+ID)>0)
+Trigger1=Var(4):=Ceil(Fvar(5)+Helper(4444+ID),Fvar(15)+Helper(4444+ID),Fvar(16))||1
+Trigger1=(PlayerID(Var(58)),StateNo=Helper(9100+ID),Var(8))*(Abs(PlayerID(Var(58)),Time-Helper(9100+ID),Var(9))<3)
+Trigger1=(Abs(Fvar(4)-PlayerID(Var(58)),Vel X-Helper(9100+ID),Fvar(3))<35)*(Helper(9100+ID),Fvar(3)=[-60,70])
+Trigger1=IfElse((Var(6)/10000%10=3),(Var(4)<0)*(Helper(9100+ID),Fvar(4)<0),1)
+Trigger1=(Abs(Var(4)-Helper(9100+ID),Fvar(4)*(Var(6)/10000%10=3))<20)*(Helper(9100+ID),Fvar(4)=[-80,0])
+Trigger1=Var(4):=-999999&&0
+Trigger2=!(Var(4)=-999999)
+Trigger2=Var(4):=Ceil(Fvar(5)+Helper(4444+ID),Fvar(15)+Helper(4444+ID),Fvar(16))||1
+Trigger2=(PlayerID(Var(58)),StateNo=Helper(9100+ID),Var(10))*(Abs(PlayerID(Var(58)),Time-Helper(9100+ID),Var(11))<3)
+Trigger2=(Abs(Fvar(4)-Helper(4444+ID),Fvar(5)-Helper(9100+ID),Fvar(5))<35)*(Helper(9100+ID),Fvar(5)=[-60,70])
+Trigger2=IfElse((Var(6)/10000%10=3),(Var(4)<0)*(Helper(9100+ID),Fvar(6)<0),1)
+Trigger2=(Abs(Var(4)-Helper(9100+ID),Fvar(6)*(Var(6)/10000%10=3))<20)*(Helper(9100+ID),Fvar(6)=[-80,0])
+Trigger2=Var(4):=-999999&&0
+Trigger3=!(Var(4)=-999999)
+Trigger3=Var(4):=Ceil(Fvar(5)+Helper(4444+ID),Fvar(15)+Helper(4444+ID),Fvar(16))||1
+Trigger3=(PlayerID(Var(58)),StateNo=Helper(9100+ID),Var(12))*(Abs(PlayerID(Var(58)),Time-Helper(9100+ID),Var(13))<3)
+Trigger3=(Abs(Fvar(4)-PlayerID(Var(58)),Vel X-Helper(9100+ID),Fvar(7))<35)*(Helper(9100+ID),Fvar(7)=[-60,70])
+Trigger3=IfElse((Var(6)/10000%10=3),(Var(4)<0)*(Helper(9100+ID),Fvar(8)<0),1)
+Trigger3=(Abs(Var(4)-Helper(9100+ID),Fvar(8)*(Var(6)/10000%10=3))<20)*(Helper(9100+ID),Fvar(8)=[-80,0])
+Trigger3=Var(4):=-999999&&0
+Trigger4=Var(4)=-999999
+Trigger4=Var(4):=910-10*(Var(6)/10000000%2)
+Value=Var(4)
+
+[State -1, シールド]
+Type=ChangeState
+Value=900+20*(StateType=A)
+Trigger1=(Var(55)>0)&&PlayerIDExist(Var(58))&&NumHelper(52000+ID)&&!(StateType=L)&&!(MoveType=H)&&!Enemy,NumProj
+Trigger1=Helper(52000+ID),Fvar(5)&&(Ctrl||StateNo=22300||(StateNo=[100,102])&&!MoveHit)&&(Var(6)/100%10<3||Pos Y<-14)
+Trigger1=Var(6)/10000%10<4&&!(StateNo/100=9)&&Random<=Var(55)*100
+
+[State -1, シールド]
+Type=ChangeState
+Value=900+10*Var(4)*!(StateType=A)+20*(StateType=A)
+TriggerAll=(Var(55)>0)&&PlayerIDExist(Var(58))&&NumHelper(52000+ID)&&!(StateType=L)&&!(MoveType=H)&&!Enemy,NumProj
+TriggerAll=Helper(52000+ID),Fvar(3)&&(Ctrl||StateNo=22300||(StateNo=[100,102])&&!MoveHit)&&(Var(6)/100%10<3||Pos Y<-14)
+TriggerAll=Var(55)*100
+Trigger1=PlayerIDExist(Helper(52000+ID),Var(3))&&Helper(52000+ID),Var(4)%100=[-3,-1]
+Trigger1=Helper(52000+ID),Var(4)/10000<1&&Ceil(Helper(52000+ID),Fvar(3))%2
+Trigger1=PlayerID(Helper(52000+ID),Var(3)),HitDefAttr=SCA,AA,AP
+Trigger1=Var(4):=PlayerID(Helper(52000+ID),Var(3)),HitDefAttr=C,AA,AP||1
+Trigger2=PlayerIDExist(Helper(52000+ID),Var(5))&&Helper(52000+ID),Var(6)%100=[-3,-1]
+Trigger2=Helper(52000+ID),Var(6)/10000<1&&Ceil(Helper(52000+ID),Fvar(3))%10%4>1
+Trigger2=PlayerID(Helper(52000+ID),Var(5)),HitDefAttr=SCA,AA,AP
+Trigger2=Var(4):=PlayerID(Helper(52000+ID),Var(5)),HitDefAttr=C,AA,AP||1
+Trigger3=PlayerIDExist(Helper(52000+ID),Var(7))&&Helper(52000+ID),Var(8)%100=[-3,-1]
+Trigger3=Helper(52000+ID),Var(8)/10000<1&&Ceil(Helper(52000+ID),Fvar(3))%10>3
+Trigger3=PlayerID(Helper(52000+ID),Var(7)),HitDefAttr=SCA,AA,AP
+Trigger3=Var(4):=PlayerID(Helper(52000+ID),Var(7)),HitDefAttr=C,AA,AP||1
+Trigger4=PlayerIDExist(Helper(52000+ID),Var(9))&&Helper(52000+ID),Var(10)%100=[-3,-1]
+Trigger4=Helper(52000+ID),Var(10)/10000<1&&Ceil(Helper(52000+ID),Fvar(3))/10%2
+Trigger4=PlayerID(Helper(52000+ID),Var(9)),HitDefAttr=SCA,AA,AP
+Trigger4=Var(4):=PlayerID(Helper(52000+ID),Var(9)),HitDefAttr=C,AA,AP||1
+Trigger5=PlayerIDExist(Helper(52000+ID),Var(11))&&Helper(52000+ID),Var(12)%100=[-3,-1]
+Trigger5=Helper(52000+ID),Var(12)/10000<1&&Ceil(Helper(52000+ID),Fvar(3))/10%10%4>1
+Trigger5=PlayerID(Helper(52000+ID),Var(11)),HitDefAttr=SCA,AA,AP
+Trigger5=Var(4):=PlayerID(Helper(52000+ID),Var(11)),HitDefAttr=C,AA,AP||1
+Trigger6=PlayerIDExist(Helper(52000+ID),Var(13))&&Helper(52000+ID),Var(14)%100=[-3,-1]
+Trigger6=Helper(52000+ID),Var(14)/10000<1&&Ceil(Helper(52000+ID),Fvar(3))/10%10>3
+Trigger6=PlayerID(Helper(52000+ID),Var(13)),HitDefAttr=SCA,AA,AP
+Trigger6=Var(4):=PlayerID(Helper(52000+ID),Var(13)),HitDefAttr=C,AA,AP||1
+Trigger7=PlayerIDExist(Helper(52000+ID),Var(15))&&Helper(52000+ID),Var(16)%100=[-3,-1]
+Trigger7=Helper(52000+ID),Var(16)/10000<1&&Ceil(Helper(52000+ID),Fvar(3))/100%2
+Trigger7=PlayerID(Helper(52000+ID),Var(15)),HitDefAttr=SCA,AA,AP
+Trigger7=Var(4):=PlayerID(Helper(52000+ID),Var(15)),HitDefAttr=C,AA,AP||1
+Trigger8=PlayerIDExist(Helper(52000+ID),Var(17))&&Helper(52000+ID),Var(18)%100=[-3,-1]
+Trigger8=Helper(52000+ID),Var(18)/10000<1&&Ceil(Helper(52000+ID),Fvar(3))/100%10%4>1
+Trigger8=PlayerID(Helper(52000+ID),Var(17)),HitDefAttr=SCA,AA,AP
+Trigger8=Var(4):=PlayerID(Helper(52000+ID),Var(17)),HitDefAttr=C,AA,AP||1
+Trigger9=PlayerIDExist(Helper(52000+ID),Var(19))&&Helper(52000+ID),Var(20)%100=[-3,-1]
+Trigger9=Helper(52000+ID),Var(20)/10000<1&&Ceil(Helper(52000+ID),Fvar(3))/100%10>3
+Trigger9=PlayerID(Helper(52000+ID),Var(19)),HitDefAttr=SCA,AA,AP
+Trigger9=Var(4):=PlayerID(Helper(52000+ID),Var(19)),HitDefAttr=C,AA,AP||1
+Trigger10=PlayerIDExist(Helper(52000+ID),Var(21))&&Helper(52000+ID),Var(22)%100=[-3,-1]
+Trigger10=Helper(52000+ID),Var(22)/10000<1&&Ceil(Helper(52000+ID),Fvar(3))/1000%2
+Trigger10=PlayerID(Helper(52000+ID),Var(21)),HitDefAttr=SCA,AA,AP
+Trigger10=Var(4):=PlayerID(Helper(52000+ID),Var(21)),HitDefAttr=C,AA,AP||1
+Trigger11=PlayerIDExist(Helper(52000+ID),Var(23))&&Helper(52000+ID),Var(24)%100=[-3,-1]
+Trigger11=Helper(52000+ID),Var(24)/10000<1&&Ceil(Helper(52000+ID),Fvar(3))/1000%10%4>1
+Trigger11=PlayerID(Helper(52000+ID),Var(23)),HitDefAttr=SCA,AA,AP
+Trigger11=Var(4):=PlayerID(Helper(52000+ID),Var(23)),HitDefAttr=C,AA,AP||1
+Trigger12=PlayerIDExist(Helper(52000+ID),Var(25))&&Helper(52000+ID),Var(26)%100=[-3,-1]
+Trigger12=Helper(52000+ID),Var(26)/10000<1&&Ceil(Helper(52000+ID),Fvar(3))/1000%10>3
+Trigger12=PlayerID(Helper(52000+ID),Var(25)),HitDefAttr=SCA,AA,AP
+Trigger12=Var(4):=PlayerID(Helper(52000+ID),Var(25)),HitDefAttr=C,AA,AP||1
+Trigger13=PlayerIDExist(Helper(52000+ID),Var(27))&&Helper(52000+ID),Var(28)%100=[-3,-1]
+Trigger13=Helper(52000+ID),Var(28)/10000<1&&Ceil(Helper(52000+ID),Fvar(3))/10000%2
+Trigger13=PlayerID(Helper(52000+ID),Var(27)),HitDefAttr=SCA,AA,AP
+Trigger13=Var(4):=PlayerID(Helper(52000+ID),Var(27)),HitDefAttr=C,AA,AP||1
+Trigger14=PlayerIDExist(Helper(52000+ID),Var(29))&&Helper(52000+ID),Var(30)%100=[-3,-1]
+Trigger14=Helper(52000+ID),Var(30)/10000<1&&Ceil(Helper(52000+ID),Fvar(3))/10000%10%4>1
+Trigger14=PlayerID(Helper(52000+ID),Var(29)),HitDefAttr=SCA,AA,AP
+Trigger14=Var(4):=PlayerID(Helper(52000+ID),Var(29)),HitDefAttr=C,AA,AP||1
+Trigger15=PlayerIDExist(Helper(52000+ID),Var(31))&&Helper(52000+ID),Var(32)%100=[-3,-1]
+Trigger15=Helper(52000+ID),Var(32)/10000<1&&Ceil(Helper(52000+ID),Fvar(3))/10000%10>3
+Trigger15=PlayerID(Helper(52000+ID),Var(31)),HitDefAttr=SCA,AA,AP
+Trigger15=Var(4):=PlayerID(Helper(52000+ID),Var(31)),HitDefAttr=C,AA,AP||1
+
+[State -1, シールド]
+Type=ChangeState
+Value=900+10*Var(4)*!(StateType=A)+20*(StateType=A)
+TriggerAll=(Var(55)>0)&&PlayerIDExist(Var(58))&&NumHelper(52000+ID)&&!(StateType=L)&&!(MoveType=H)&&!Enemy,NumProj
+TriggerAll=Helper(52000+ID),Fvar(4)&&(Ctrl||StateNo=22300||(StateNo=[100,102])&&!MoveHit)&&(Var(6)/100%10<3||Pos Y<-14)
+TriggerAll=Var(55)*100
+Trigger1=PlayerIDExist(Helper(52000+ID),Var(3))&&Helper(52000+ID),Var(4)%100=[-3,-1]
+Trigger1=Helper(52000+ID),Var(4)/10000<1&&Ceil(Helper(52000+ID),Fvar(4))%2
+Trigger1=(InGuardDist||PlayerID(Helper(52000+ID),Var(3)),Time/180)&&PlayerID(Helper(52000+ID),Var(3)),HitDefAttr=SCA,AA,AP
+Trigger1=Var(4):=PlayerID(Helper(52000+ID),Var(3)),HitDefAttr=C,AA,AP||1
+Trigger2=PlayerIDExist(Helper(52000+ID),Var(5))&&Helper(52000+ID),Var(6)%100=[-3,-1]
+Trigger2=Helper(52000+ID),Var(6)/10000<1&&Ceil(Helper(52000+ID),Fvar(4))%10%4>1
+Trigger2=(InGuardDist||PlayerID(Helper(52000+ID),Var(5)),Time/180)&&PlayerID(Helper(52000+ID),Var(5)),HitDefAttr=SCA,AA,AP
+Trigger2=Var(4):=PlayerID(Helper(52000+ID),Var(5)),HitDefAttr=C,AA,AP||1
+Trigger3=PlayerIDExist(Helper(52000+ID),Var(7))&&Helper(52000+ID),Var(8)%100=[-3,-1]
+Trigger3=Helper(52000+ID),Var(8)/10000<1&&Ceil(Helper(52000+ID),Fvar(4))%10>3
+Trigger3=(InGuardDist||PlayerID(Helper(52000+ID),Var(7)),Time/180)&&PlayerID(Helper(52000+ID),Var(7)),HitDefAttr=SCA,AA,AP
+Trigger3=Var(4):=PlayerID(Helper(52000+ID),Var(7)),HitDefAttr=C,AA,AP||1
+Trigger4=PlayerIDExist(Helper(52000+ID),Var(9))&&Helper(52000+ID),Var(10)%100=[-3,-1]
+Trigger4=Helper(52000+ID),Var(10)/10000<1&&Ceil(Helper(52000+ID),Fvar(4))/10%2
+Trigger4=(InGuardDist||PlayerID(Helper(52000+ID),Var(9)),Time/180)&&PlayerID(Helper(52000+ID),Var(9)),HitDefAttr=SCA,AA,AP
+Trigger4=Var(4):=PlayerID(Helper(52000+ID),Var(9)),HitDefAttr=C,AA,AP||1
+Trigger5=PlayerIDExist(Helper(52000+ID),Var(11))&&Helper(52000+ID),Var(12)%100=[-3,-1]
+Trigger5=Helper(52000+ID),Var(12)/10000<1&&Ceil(Helper(52000+ID),Fvar(4))/10%10%4>1
+Trigger5=(InGuardDist||PlayerID(Helper(52000+ID),Var(11)),Time/180)&&PlayerID(Helper(52000+ID),Var(11)),HitDefAttr=SCA,AA,AP
+Trigger5=Var(4):=PlayerID(Helper(52000+ID),Var(11)),HitDefAttr=C,AA,AP||1
+Trigger6=PlayerIDExist(Helper(52000+ID),Var(13))&&Helper(52000+ID),Var(14)%100=[-3,-1]
+Trigger6=Helper(52000+ID),Var(14)/10000<1&&Ceil(Helper(52000+ID),Fvar(4))/10%10>3
+Trigger6=(InGuardDist||PlayerID(Helper(52000+ID),Var(13)),Time/180)&&PlayerID(Helper(52000+ID),Var(13)),HitDefAttr=SCA,AA,AP
+Trigger6=Var(4):=PlayerID(Helper(52000+ID),Var(13)),HitDefAttr=C,AA,AP||1
+Trigger7=PlayerIDExist(Helper(52000+ID),Var(15))&&Helper(52000+ID),Var(16)%100=[-3,-1]
+Trigger7=Helper(52000+ID),Var(16)/10000<1&&Ceil(Helper(52000+ID),Fvar(4))/100%2
+Trigger7=(InGuardDist||PlayerID(Helper(52000+ID),Var(15)),Time/180)&&PlayerID(Helper(52000+ID),Var(15)),HitDefAttr=SCA,AA,AP
+Trigger7=Var(4):=PlayerID(Helper(52000+ID),Var(15)),HitDefAttr=C,AA,AP||1
+Trigger8=PlayerIDExist(Helper(52000+ID),Var(17))&&Helper(52000+ID),Var(18)%100=[-3,-1]
+Trigger8=Helper(52000+ID),Var(18)/10000<1&&Ceil(Helper(52000+ID),Fvar(4))/100%10%4>1
+Trigger8=(InGuardDist||PlayerID(Helper(52000+ID),Var(17)),Time/180)&&PlayerID(Helper(52000+ID),Var(17)),HitDefAttr=SCA,AA,AP
+Trigger8=Var(4):=PlayerID(Helper(52000+ID),Var(17)),HitDefAttr=C,AA,AP||1
+Trigger9=PlayerIDExist(Helper(52000+ID),Var(19))&&Helper(52000+ID),Var(20)%100=[-3,-1]
+Trigger9=Helper(52000+ID),Var(20)/10000<1&&Ceil(Helper(52000+ID),Fvar(4))/100%10>3
+Trigger9=(InGuardDist||PlayerID(Helper(52000+ID),Var(19)),Time/180)&&PlayerID(Helper(52000+ID),Var(19)),HitDefAttr=SCA,AA,AP
+Trigger9=Var(4):=PlayerID(Helper(52000+ID),Var(19)),HitDefAttr=C,AA,AP||1
+Trigger10=PlayerIDExist(Helper(52000+ID),Var(21))&&Helper(52000+ID),Var(22)%100=[-3,-1]
+Trigger10=Helper(52000+ID),Var(22)/10000<1&&Ceil(Helper(52000+ID),Fvar(4))/1000%2
+Trigger10=(InGuardDist||PlayerID(Helper(52000+ID),Var(21)),Time/180)&&PlayerID(Helper(52000+ID),Var(21)),HitDefAttr=SCA,AA,AP
+Trigger10=Var(4):=PlayerID(Helper(52000+ID),Var(21)),HitDefAttr=C,AA,AP||1
+Trigger11=PlayerIDExist(Helper(52000+ID),Var(23))&&Helper(52000+ID),Var(24)%100=[-3,-1]
+Trigger11=Helper(52000+ID),Var(24)/10000<1&&Ceil(Helper(52000+ID),Fvar(4))/1000%10%4>1
+Trigger11=(InGuardDist||PlayerID(Helper(52000+ID),Var(23)),Time/180)&&PlayerID(Helper(52000+ID),Var(23)),HitDefAttr=SCA,AA,AP
+Trigger11=Var(4):=PlayerID(Helper(52000+ID),Var(23)),HitDefAttr=C,AA,AP||1
+Trigger12=PlayerIDExist(Helper(52000+ID),Var(25))&&Helper(52000+ID),Var(26)%100=[-3,-1]
+Trigger12=Helper(52000+ID),Var(26)/10000<1&&Ceil(Helper(52000+ID),Fvar(4))/1000%10>3
+Trigger12=(InGuardDist||PlayerID(Helper(52000+ID),Var(25)),Time/180)&&PlayerID(Helper(52000+ID),Var(25)),HitDefAttr=SCA,AA,AP
+Trigger12=Var(4):=PlayerID(Helper(52000+ID),Var(25)),HitDefAttr=C,AA,AP||1
+Trigger13=PlayerIDExist(Helper(52000+ID),Var(27))&&Helper(52000+ID),Var(28)%100=[-3,-1]
+Trigger13=Helper(52000+ID),Var(28)/10000<1&&Ceil(Helper(52000+ID),Fvar(4))/10000%2
+Trigger13=(InGuardDist||PlayerID(Helper(52000+ID),Var(27)),Time/180)&&PlayerID(Helper(52000+ID),Var(27)),HitDefAttr=SCA,AA,AP
+Trigger13=Var(4):=PlayerID(Helper(52000+ID),Var(27)),HitDefAttr=C,AA,AP||1
+Trigger14=PlayerIDExist(Helper(52000+ID),Var(29))&&Helper(52000+ID),Var(30)%100=[-3,-1]
+Trigger14=Helper(52000+ID),Var(30)/10000<1&&Ceil(Helper(52000+ID),Fvar(4))/10000%10%4>1
+Trigger14=(InGuardDist||PlayerID(Helper(52000+ID),Var(29)),Time/180)&&PlayerID(Helper(52000+ID),Var(29)),HitDefAttr=SCA,AA,AP
+Trigger14=Var(4):=PlayerID(Helper(52000+ID),Var(29)),HitDefAttr=C,AA,AP||1
+Trigger15=PlayerIDExist(Helper(52000+ID),Var(31))&&Helper(52000+ID),Var(32)%100=[-3,-1]
+Trigger15=Helper(52000+ID),Var(32)/10000<1&&Ceil(Helper(52000+ID),Fvar(4))/10000%10>3
+Trigger15=(InGuardDist||PlayerID(Helper(52000+ID),Var(31)),Time/180)&&PlayerID(Helper(52000+ID),Var(31)),HitDefAttr=SCA,AA,AP
+Trigger15=Var(4):=PlayerID(Helper(52000+ID),Var(31)),HitDefAttr=C,AA,AP||1
+
+[State -1, シールド]
+Type=ChangeState
+Value=900+10*Var(4)*!(StateType=A)+20*(StateType=A)
+TriggerAll=(Var(55)>0)&&PlayerIDExist(Var(58))&&NumHelper(52000+ID)&&!(StateType=L)&&!(MoveType=H)&&!Enemy,NumProj
+TriggerAll=Helper(52000+ID),Fvar(7)&&InGuardDist&&(Ctrl||StateNo=22300||(StateNo=[100,102])&&!MoveHit)&&(Var(6)/100%10<3||Pos Y<-14)
+TriggerAll=Var(55)*100
+Trigger1=PlayerIDExist(Helper(52000+ID),Var(3))&&Helper(52000+ID),Var(4)%100=[-3,-1]
+Trigger1=Helper(52000+ID),Var(4)/10000<1&&Ceil(Helper(52000+ID),Fvar(7))%2
+Trigger1=PlayerID(Helper(52000+ID),Var(3)),HitDefAttr=SCA,AA,AP
+Trigger1=Var(4):=PlayerID(Helper(52000+ID),Var(3)),HitDefAttr=C,AA,AP||1
+Trigger2=PlayerIDExist(Helper(52000+ID),Var(5))&&Helper(52000+ID),Var(6)%100=[-3,-1]
+Trigger2=Helper(52000+ID),Var(6)/10000<1&&Ceil(Helper(52000+ID),Fvar(7))%10%4>1
+Trigger2=PlayerID(Helper(52000+ID),Var(5)),HitDefAttr=SCA,AA,AP
+Trigger2=Var(4):=PlayerID(Helper(52000+ID),Var(5)),HitDefAttr=C,AA,AP||1
+Trigger3=PlayerIDExist(Helper(52000+ID),Var(7))&&Helper(52000+ID),Var(8)%100=[-3,-1]
+Trigger3=Helper(52000+ID),Var(8)/10000<1&&Ceil(Helper(52000+ID),Fvar(7))%10>3
+Trigger3=PlayerID(Helper(52000+ID),Var(7)),HitDefAttr=SCA,AA,AP
+Trigger3=Var(4):=PlayerID(Helper(52000+ID),Var(7)),HitDefAttr=C,AA,AP||1
+Trigger4=PlayerIDExist(Helper(52000+ID),Var(9))&&Helper(52000+ID),Var(10)%100=[-3,-1]
+Trigger4=Helper(52000+ID),Var(10)/10000<1&&Ceil(Helper(52000+ID),Fvar(7))/10%2
+Trigger4=PlayerID(Helper(52000+ID),Var(9)),HitDefAttr=SCA,AA,AP
+Trigger4=Var(4):=PlayerID(Helper(52000+ID),Var(9)),HitDefAttr=C,AA,AP||1
+Trigger5=PlayerIDExist(Helper(52000+ID),Var(11))&&Helper(52000+ID),Var(12)%100=[-3,-1]
+Trigger5=Helper(52000+ID),Var(12)/10000<1&&Ceil(Helper(52000+ID),Fvar(7))/10%10%4>1
+Trigger5=PlayerID(Helper(52000+ID),Var(11)),HitDefAttr=SCA,AA,AP
+Trigger5=Var(4):=PlayerID(Helper(52000+ID),Var(11)),HitDefAttr=C,AA,AP||1
+Trigger6=PlayerIDExist(Helper(52000+ID),Var(13))&&Helper(52000+ID),Var(14)%100=[-3,-1]
+Trigger6=Helper(52000+ID),Var(14)/10000<1&&Ceil(Helper(52000+ID),Fvar(7))/10%10>3
+Trigger6=PlayerID(Helper(52000+ID),Var(13)),HitDefAttr=SCA,AA,AP
+Trigger6=Var(4):=PlayerID(Helper(52000+ID),Var(13)),HitDefAttr=C,AA,AP||1
+Trigger7=PlayerIDExist(Helper(52000+ID),Var(15))&&Helper(52000+ID),Var(16)%100=[-3,-1]
+Trigger7=Helper(52000+ID),Var(16)/10000<1&&Ceil(Helper(52000+ID),Fvar(7))/100%2
+Trigger7=PlayerID(Helper(52000+ID),Var(15)),HitDefAttr=SCA,AA,AP
+Trigger7=Var(4):=PlayerID(Helper(52000+ID),Var(15)),HitDefAttr=C,AA,AP||1
+Trigger8=PlayerIDExist(Helper(52000+ID),Var(17))&&Helper(52000+ID),Var(18)%100=[-3,-1]
+Trigger8=Helper(52000+ID),Var(18)/10000<1&&Ceil(Helper(52000+ID),Fvar(7))/100%10%4>1
+Trigger8=PlayerID(Helper(52000+ID),Var(17)),HitDefAttr=SCA,AA,AP
+Trigger8=Var(4):=PlayerID(Helper(52000+ID),Var(17)),HitDefAttr=C,AA,AP||1
+Trigger9=PlayerIDExist(Helper(52000+ID),Var(19))&&Helper(52000+ID),Var(20)%100=[-3,-1]
+Trigger9=Helper(52000+ID),Var(20)/10000<1&&Ceil(Helper(52000+ID),Fvar(7))/100%10>3
+Trigger9=PlayerID(Helper(52000+ID),Var(19)),HitDefAttr=SCA,AA,AP
+Trigger9=Var(4):=PlayerID(Helper(52000+ID),Var(19)),HitDefAttr=C,AA,AP||1
+Trigger10=PlayerIDExist(Helper(52000+ID),Var(21))&&Helper(52000+ID),Var(22)%100=[-3,-1]
+Trigger10=Helper(52000+ID),Var(22)/10000<1&&Ceil(Helper(52000+ID),Fvar(7))/1000%2
+Trigger10=PlayerID(Helper(52000+ID),Var(21)),HitDefAttr=SCA,AA,AP
+Trigger10=Var(4):=PlayerID(Helper(52000+ID),Var(21)),HitDefAttr=C,AA,AP||1
+Trigger11=PlayerIDExist(Helper(52000+ID),Var(23))&&Helper(52000+ID),Var(24)%100=[-3,-1]
+Trigger11=Helper(52000+ID),Var(24)/10000<1&&Ceil(Helper(52000+ID),Fvar(7))/1000%10%4>1
+Trigger11=PlayerID(Helper(52000+ID),Var(23)),HitDefAttr=SCA,AA,AP
+Trigger11=Var(4):=PlayerID(Helper(52000+ID),Var(23)),HitDefAttr=C,AA,AP||1
+Trigger12=PlayerIDExist(Helper(52000+ID),Var(25))&&Helper(52000+ID),Var(26)%100=[-3,-1]
+Trigger12=Helper(52000+ID),Var(26)/10000<1&&Ceil(Helper(52000+ID),Fvar(7))/1000%10>3
+Trigger12=PlayerID(Helper(52000+ID),Var(25)),HitDefAttr=SCA,AA,AP
+Trigger12=Var(4):=PlayerID(Helper(52000+ID),Var(25)),HitDefAttr=C,AA,AP||1
+Trigger13=PlayerIDExist(Helper(52000+ID),Var(27))&&Helper(52000+ID),Var(28)%100=[-3,-1]
+Trigger13=Helper(52000+ID),Var(28)/10000<1&&Ceil(Helper(52000+ID),Fvar(7))/10000%2
+Trigger13=PlayerID(Helper(52000+ID),Var(27)),HitDefAttr=SCA,AA,AP
+Trigger13=Var(4):=PlayerID(Helper(52000+ID),Var(27)),HitDefAttr=C,AA,AP||1
+Trigger14=PlayerIDExist(Helper(52000+ID),Var(29))&&Helper(52000+ID),Var(30)%100=[-3,-1]
+Trigger14=Helper(52000+ID),Var(30)/10000<1&&Ceil(Helper(52000+ID),Fvar(7))/10000%10%4>1
+Trigger14=PlayerID(Helper(52000+ID),Var(29)),HitDefAttr=SCA,AA,AP
+Trigger14=Var(4):=PlayerID(Helper(52000+ID),Var(29)),HitDefAttr=C,AA,AP||1
+Trigger15=PlayerIDExist(Helper(52000+ID),Var(31))&&Helper(52000+ID),Var(32)%100=[-3,-1]
+Trigger15=Helper(52000+ID),Var(32)/10000<1&&Ceil(Helper(52000+ID),Fvar(7))/10000%10>3
+Trigger15=PlayerID(Helper(52000+ID),Var(31)),HitDefAttr=SCA,AA,AP
+Trigger15=Var(4):=PlayerID(Helper(52000+ID),Var(31)),HitDefAttr=C,AA,AP||1
+
+[State -1, シールド]
+Type=ChangeState
+Value=900+10*Var(4)*!(StateType=A)+20*(StateType=A)
+TriggerAll=(Var(55)>0)&&PlayerIDExist(Var(58))&&NumHelper(52000+ID)&&!(StateType=L)&&!(MoveType=H)&&!Enemy,NumProj
+TriggerAll=Helper(52000+ID),Fvar(9)&&(Ctrl||StateNo=22300||(StateNo=[100,102])&&!MoveHit)&&(Var(6)/100%10<3||Pos Y<-14)
+TriggerAll=Var(55)*100
+Trigger1=PlayerIDExist(Helper(52000+ID),Var(3))&&Helper(52000+ID),Var(4)%100=[-3,-1]
+Trigger1=Helper(52000+ID),Var(4)/10000<1&&Ceil(Helper(52000+ID),Fvar(9))%2
+Trigger1=PlayerID(Helper(52000+ID),Var(3)),HitDefAttr=SCA,AA,AP
+Trigger1=Var(4):=PlayerID(Helper(52000+ID),Var(3)),HitDefAttr=C,AA,AP||1
+Trigger2=PlayerIDExist(Helper(52000+ID),Var(5))&&Helper(52000+ID),Var(6)%100=[-3,-1]
+Trigger2=Helper(52000+ID),Var(6)/10000<1&&Ceil(Helper(52000+ID),Fvar(9))%10%4>1
+Trigger2=PlayerID(Helper(52000+ID),Var(5)),HitDefAttr=SCA,AA,AP
+Trigger2=Var(4):=PlayerID(Helper(52000+ID),Var(5)),HitDefAttr=C,AA,AP||1
+Trigger3=PlayerIDExist(Helper(52000+ID),Var(7))&&Helper(52000+ID),Var(8)%100=[-3,-1]
+Trigger3=Helper(52000+ID),Var(8)/10000<1&&Ceil(Helper(52000+ID),Fvar(9))%10>3
+Trigger3=PlayerID(Helper(52000+ID),Var(7)),HitDefAttr=SCA,AA,AP
+Trigger3=Var(4):=PlayerID(Helper(52000+ID),Var(7)),HitDefAttr=C,AA,AP||1
+Trigger4=PlayerIDExist(Helper(52000+ID),Var(9))&&Helper(52000+ID),Var(10)%100=[-3,-1]
+Trigger4=Helper(52000+ID),Var(10)/10000<1&&Ceil(Helper(52000+ID),Fvar(9))/10%2
+Trigger4=PlayerID(Helper(52000+ID),Var(9)),HitDefAttr=SCA,AA,AP
+Trigger4=Var(4):=PlayerID(Helper(52000+ID),Var(9)),HitDefAttr=C,AA,AP||1
+Trigger5=PlayerIDExist(Helper(52000+ID),Var(11))&&Helper(52000+ID),Var(12)%100=[-3,-1]
+Trigger5=Helper(52000+ID),Var(12)/10000<1&&Ceil(Helper(52000+ID),Fvar(9))/10%10%4>1
+Trigger5=PlayerID(Helper(52000+ID),Var(11)),HitDefAttr=SCA,AA,AP
+Trigger5=Var(4):=PlayerID(Helper(52000+ID),Var(11)),HitDefAttr=C,AA,AP||1
+Trigger6=PlayerIDExist(Helper(52000+ID),Var(13))&&Helper(52000+ID),Var(14)%100=[-3,-1]
+Trigger6=Helper(52000+ID),Var(14)/10000<1&&Ceil(Helper(52000+ID),Fvar(9))/10%10>3
+Trigger6=PlayerID(Helper(52000+ID),Var(13)),HitDefAttr=SCA,AA,AP
+Trigger6=Var(4):=PlayerID(Helper(52000+ID),Var(13)),HitDefAttr=C,AA,AP||1
+Trigger7=PlayerIDExist(Helper(52000+ID),Var(15))&&Helper(52000+ID),Var(16)%100=[-3,-1]
+Trigger7=Helper(52000+ID),Var(16)/10000<1&&Ceil(Helper(52000+ID),Fvar(9))/100%2
+Trigger7=PlayerID(Helper(52000+ID),Var(15)),HitDefAttr=SCA,AA,AP
+Trigger7=Var(4):=PlayerID(Helper(52000+ID),Var(15)),HitDefAttr=C,AA,AP||1
+Trigger8=PlayerIDExist(Helper(52000+ID),Var(17))&&Helper(52000+ID),Var(18)%100=[-3,-1]
+Trigger8=Helper(52000+ID),Var(18)/10000<1&&Ceil(Helper(52000+ID),Fvar(9))/100%10%4>1
+Trigger8=PlayerID(Helper(52000+ID),Var(17)),HitDefAttr=SCA,AA,AP
+Trigger8=Var(4):=PlayerID(Helper(52000+ID),Var(17)),HitDefAttr=C,AA,AP||1
+Trigger9=PlayerIDExist(Helper(52000+ID),Var(19))&&Helper(52000+ID),Var(20)%100=[-3,-1]
+Trigger9=Helper(52000+ID),Var(20)/10000<1&&Ceil(Helper(52000+ID),Fvar(9))/100%10>3
+Trigger9=PlayerID(Helper(52000+ID),Var(19)),HitDefAttr=SCA,AA,AP
+Trigger9=Var(4):=PlayerID(Helper(52000+ID),Var(19)),HitDefAttr=C,AA,AP||1
+Trigger10=PlayerIDExist(Helper(52000+ID),Var(21))&&Helper(52000+ID),Var(22)%100=[-3,-1]
+Trigger10=Helper(52000+ID),Var(22)/10000<1&&Ceil(Helper(52000+ID),Fvar(9))/1000%2
+Trigger10=PlayerID(Helper(52000+ID),Var(21)),HitDefAttr=SCA,AA,AP
+Trigger10=Var(4):=PlayerID(Helper(52000+ID),Var(21)),HitDefAttr=C,AA,AP||1
+Trigger11=PlayerIDExist(Helper(52000+ID),Var(23))&&Helper(52000+ID),Var(24)%100=[-3,-1]
+Trigger11=Helper(52000+ID),Var(24)/10000<1&&Ceil(Helper(52000+ID),Fvar(9))/1000%10%4>1
+Trigger11=PlayerID(Helper(52000+ID),Var(23)),HitDefAttr=SCA,AA,AP
+Trigger11=Var(4):=PlayerID(Helper(52000+ID),Var(23)),HitDefAttr=C,AA,AP||1
+Trigger12=PlayerIDExist(Helper(52000+ID),Var(25))&&Helper(52000+ID),Var(26)%100=[-3,-1]
+Trigger12=Helper(52000+ID),Var(26)/10000<1&&Ceil(Helper(52000+ID),Fvar(9))/1000%10>3
+Trigger12=PlayerID(Helper(52000+ID),Var(25)),HitDefAttr=SCA,AA,AP
+Trigger12=Var(4):=PlayerID(Helper(52000+ID),Var(25)),HitDefAttr=C,AA,AP||1
+Trigger13=PlayerIDExist(Helper(52000+ID),Var(27))&&Helper(52000+ID),Var(28)%100=[-3,-1]
+Trigger13=Helper(52000+ID),Var(28)/10000<1&&Ceil(Helper(52000+ID),Fvar(9))/10000%2
+Trigger13=PlayerID(Helper(52000+ID),Var(27)),HitDefAttr=SCA,AA,AP
+Trigger13=Var(4):=PlayerID(Helper(52000+ID),Var(27)),HitDefAttr=C,AA,AP||1
+Trigger14=PlayerIDExist(Helper(52000+ID),Var(29))&&Helper(52000+ID),Var(30)%100=[-3,-1]
+Trigger14=Helper(52000+ID),Var(30)/10000<1&&Ceil(Helper(52000+ID),Fvar(9))/10000%10%4>1
+Trigger14=PlayerID(Helper(52000+ID),Var(29)),HitDefAttr=SCA,AA,AP
+Trigger14=Var(4):=PlayerID(Helper(52000+ID),Var(29)),HitDefAttr=C,AA,AP||1
+Trigger15=PlayerIDExist(Helper(52000+ID),Var(31))&&Helper(52000+ID),Var(32)%100=[-3,-1]
+Trigger15=Helper(52000+ID),Var(32)/10000<1&&Ceil(Helper(52000+ID),Fvar(9))/10000%10>3
+Trigger15=PlayerID(Helper(52000+ID),Var(31)),HitDefAttr=SCA,AA,AP
+Trigger15=Var(4):=PlayerID(Helper(52000+ID),Var(31)),HitDefAttr=C,AA,AP||1
+;----------------------------------------------------
+[State -3, 空中シールド]
+Type=ChangeState
+Value=920
+TriggerAll=(NumHelper(4444+ID)>0)
+Trigger1=(Var(55)>0)*!NumHelper(7778)*!(Enemy,NumProj)*PlayerIDExist(Var(58))*(StateType=A)*Ctrl*(StateNo=155)
+Trigger1=(Fvar(5)+Vel Y+0.54+Helper(4444+ID),Fvar(15)+Helper(4444+ID),Fvar(16)=(-30,130))*(Pos Y<-14)
+Trigger1=(Var(6)/100000%10=2)*(Var(6)/1000000%10=[1,3])
+Trigger1=(PlayerID(Var(58)),Time<-PlayerID(Var(58)),AnimTime)*(PlayerID(Var(58)),Time-PlayerID(Var(58)),AnimTime<50)
+Trigger1=(Fvar(4)-Vel X-PlayerID(Var(58)),Vel X=[-60,80])
+
+[State -3, 空中シールド]
+Type=ChangeState
+Value=920
+TriggerAll=(NumHelper(4444+ID)>0)
+TriggerAll=(Var(55)>0)*!NumHelper(7778)*!(Enemy,NumProj)*PlayerIDExist(Var(58))*(StateType=A)*!(StateNo/100=9)*Ctrl
+TriggerAll=(Fvar(5)-Vel Y-0.75+Helper(4444+ID),Fvar(15)+0.15*Helper(4444+ID),Fvar(16)=[-40,95])*(Pos Y<-14)*(Var(12)>9)
+TriggerAll=(Var(6)/100000%10=2)*(Var(6)/1000000%10=[1,3])*(Fvar(4)-Vel X-Helper(4444+ID),Fvar(5)=[-90,80])
+TriggerAll=!(PrevStateNo/100=9)
+Trigger1=!(PlayerID(Var(58)),StateNo=Helper(35000+ID),Var(5))*!(PlayerID(Var(58)),StateNo=Helper(35000+ID),Var(17))
+Trigger1=Var(4):=Ceil(Fvar(5)+Vel Y+0.54+Helper(4444+ID),Fvar(15)+Helper(4444+ID),Fvar(16))||1
+Trigger1=IfElse(Var(8)/10%10,Var(4)<30+60*(Var(6)/10000%10<3)*(Vel Y>0.5),1)*(Helper(9100+ID),Var(30)<2||InGuardDist)
+Trigger1=IfElse(Var(8)/10%10,1,IfElse(Var(8)%10*(Var(6)/10000%10=2),Fvar(4)>40,1))
+Trigger1=Random<=Var(55)*100
+Trigger1=IfElse(Var(6)/10000%10>2,Var(56)%5<2,1)
+Trigger2=(PlayerID(Var(58)),StateNo=Helper(35000+ID),Var(5)||PlayerID(Var(58)),StateNo=Helper(35000+ID),Var(17))
+Trigger2=(Var(55)>8)*(Helper(9100+ID),Var(30)<2||InGuardDist)
+;----------------------------------------------------
+[State -3, 切り替えしシールドバンカー]
+Type=ChangeState
+Value=20950
+TriggerAll=(Var(55)>0)
+TriggerAll=PlayerIDExist(Var(58))*NumHelper(4444+ID)
+TriggerAll=RoundState=2
+TriggerAll=StateType!=A
+TriggerAll=HitShakeOver
+TriggerAll=!IsHelper
+TriggerAll=MoveType=H
+TriggerAll=Random<=Var(55)*100
+TriggerAll=Helper(4444+ID),Var(47)<=4
+TriggerAll=Helper(4444+ID),Var(48)!=2
+TriggerAll=Helper(4444+ID),Var(49)=0
+TriggerAll=PlayerID(Var(58)),Alive
+TriggerAll=PlayerID(Var(58)),StateType!=L
+TriggerAll=PlayerID(Var(58)),StateType!=A
+TriggerAll=PlayerID(Var(58)),HitDefAttr=SCA,NA,SA,HA
+TriggerAll=NumEnemy<=1
+TriggerAll=(StateNo=[150,153])||StateNo=22300
+Trigger1=Fvar(4)-Ceil(Vel X)-Ceil(Helper(4444+ID),Fvar(5))=[-5,50]
+;----------------------------------------------------
+[State -3, 切り替えしバクステ]
+Type=ChangeState
+Value=105
+TriggerAll=Var(55)>0
+TriggerAll=PlayerIDExist(Var(58))*NumHelper(4444+ID)
+TriggerAll=RoundState=2
+TriggerAll=Fvar(4)-Ceil(Vel X)-Ceil(Helper(4444+ID),Fvar(5))=[-5,90]
+TriggerAll=BackEdgeBodyDist>50
+TriggerAll=Helper(4444+ID),Var(48)!=2
+TriggerAll=PlayerID(Var(58)),Vel X<3
+TriggerAll=PlayerID(Var(58)),MoveType=A
+TriggerAll=PlayerID(Var(58)),HitDefAttr=SCA,AT||(PlayerID(Var(58)),StateNo=[200,699])||PlayerID(Var(58)),HitDefAttr=SCA,AA
+TriggerAll=Random<=Var(55)*60||Var(55)>9
+TriggerAll=PlayerID(Var(58)),Time>=30||(!Time&&Var(55)=[9,10])||Var(55)=10
+Trigger1=Ctrl||(StateNo=[100,102])||StateNo=22300
+Trigger1=StateType!=A
+Trigger1=PlayerID(Var(58)),Time>=24-(Var(55)*2)||Var(55)=10
+Trigger2=Ctrl||(StateNo=[100,102])
+Trigger2=StateType!=A
+Trigger2=(PrevStateNo=[150,159])
+;----------------------------------------------------
+[State -3, リバサバクステ]
+Type=ChangeState
+Value=105
+TriggerAll=(Var(55)>0)*PlayerIDExist(Var(58))*NumHelper(4444+ID)
+TriggerAll=RoundState=2
+TriggerAll=Fvar(4)-Ceil(Vel X)-Ceil(Helper(4444+ID),Fvar(5))=[-5,90]
+TriggerAll=Helper(4444+ID),Var(48)!=2
+TriggerAll=PlayerID(Var(58)),HitDefAttr=SCA,AT||(PlayerID(Var(58)),StateNo=[200,699])||PlayerID(Var(58)),HitDefAttr=SCA,AA
+TriggerAll=PlayerID(Var(58)),Vel X<3
+TriggerAll=PlayerID(Var(58)),MoveType=A
+TriggerAll=Random<=Var(55)*60||Var(55)>9
+TriggerAll=PlayerID(Var(58)),Time>=30||(!Time&&Var(55)>9)||Var(55)>10
+TriggerAll=BackEdgeBodyDist>30
+Trigger1=StateType=L
+Trigger1=StateNo=5120
+Trigger1=Animtime>=-1
+;----------------------------------------------------
+[State -3, 閃鞘･三柳]
+Type=ChangeState
+Value=21000
+Trigger1=(Var(55)>0)*(Var(57)=1)*!NumHelper(7778)*NumHelper(35000+ID)*PlayerIDExist(Var(58))*!(StateType=A)
+Trigger1=(Helper(35000+ID),Var(2)/10)*(Ctrl||StateNo=19||(StateNo=[100,102])&&!MoveHit)*(Var(6)/100000%10<3)
+Trigger1=(PlayerID(Var(58)),Time>(Helper(35000+ID),Var(7+12*((Helper(35000+ID),Var(2))/10>2))-5))
+Trigger1=NumHelper(4444+ID)
+Trigger1=(Helper(4444+ID),Var(48)!=2)*(Random<=Var(55)*50+50*(Var(55)>10))
+
+[State -1, 閃鞘･三柳]
+Type=ChangeState
+Value=21000
+TriggerAll=(Var(55)>0)*(Var(57)=1)*PlayerIDExist(Var(58))*NumHelper(35000+ID)*NumHelper(52000+ID)*!(StateType=A)*!(MoveType=H)
+TriggerAll=(Ctrl||StateNo=21||(StateNo=[100,102])&&!MoveHit)&&Var(6)/100000%10<3&&Helper(52000+ID),Var(58)&&!NumHelper(7778)
+TriggerAll=NumHelper(4444+ID)
+TriggerAll=Helper(4444+ID),Var(48)!=2
+TriggerAll=Random<=Var(55)*50+50*(Var(55)>10)
+Trigger1=!(Helper(52000+ID),Fvar(0)=2)
+Trigger2=!(Abs(Fvar(4))<10||Fvar(4)-3*PlayerID(Var(58)),Vel X<10)
+Trigger3=!(PlayerID(Var(58)),Time+PlayerID(Var(58)),AnimTime>0)
+Trigger4=!(Var(6)/100000%10=2||!(PlayerID(Var(58)),Ctrl))
+Trigger5=!(Var(6)/1000000%100)
+Trigger6=!(PlayerID(Var(58)),AnimTime<-3)
+
+[State -3, 閃鞘･三柳]
+Type=ChangeState
+Value=21000
+TriggerAll=(Var(55)>0)*(Var(57)=1)*PlayerIDExist(Var(58))*!(StateType=A)*!NumHelper(7778)*!NumTarget*(NumHelper(4444+ID)>0)
+TriggerAll=(Helper(4444+ID),Var(48)!=2)*(Random<=Var(55)*50+50*(Var(55)>10))
+TriggerAll=(Ctrl||StateNo=19||(StateNo=[100,102])&&!MoveHit)
+TriggerAll=Var(4):=PlayerID(Var(58)),StateNo||1
+TriggerAll=!(Var(4)/100=56)*!(Var(4)=[5200,5299])*(Var(6)/100000%10<3)
+Trigger1=InGuardDist*(Var(6)/1000000%10=[4,6])
+Trigger1=IfElse(Life<=LifeMax*3/10,Var(56)<81,IfElse(Life<=LifeMax*7/10,Var(56)<61,Var(56)<51))
+Trigger1=IfElse((PlayerID(Var(58)),Time<3),Var(56)>=40,Var(56)>=20)
+Trigger2=IfElse(Var(6)/100000%10=2,(PlayerID(Var(58)),Time>12)*Var(56)>95,Var(4)=5120)
+Trigger2=IfElse(Var(4)=5120,(PlayerID(Var(58)),AnimTime=-1),1)*(BackEdgeBodyDist<31)*(Fvar(4)<=30)
+;----------------------------------------------------
+[State -3, 閃鞘･三柳/バクステ]
+Type=ChangeState
+Trigger1=(Var(55)>0)*PlayerIDExist(Var(58))*!NumHelper(7778)*NumHelper(9100+ID)*!(StateType=A)*(Var(6)/10000%100=23)
+Trigger1=(NumHelper(4444+ID)>0)*(Var(57)=1)
+Trigger1=Helper(4444+ID),Var(48)!=2
+Trigger1=((BackEdgeBodyDist>40)*(Ctrl||StateNo=19||(StateNo=[100,102])))*(Var(12)>9)*(Random<=Var(55)*100)
+Trigger1=(Fvar(4)<70+70*((StateNo=[100,102])))*(Facing*(PlayerID(Var(58)),Pos X-Pos X)>0)
+Trigger1=(Fvar(5)<95.0)*(Helper(4444+ID),Fvar(15)<Helper(4444+ID),Fvar(16))
+Value=21000-20895*(PlayerID(Var(58)),Pos Y+10*(Vel Y+5.5*Helper(4444+ID),Fvar(16))<0)
+;----------------------------------------------------
+[State -3, 閃鞘･三斧]
+Type=ChangeState
+Value=21010
+TriggerAll=(Var(55)>0)*!(StateType=A)*(Ctrl||StateNo=19||(StateNo=[100,102])&&!MoveHit)*PlayerIDExist(Var(58))
+TriggerAll=!NumHelper(7778)*!NumTarget(953)*!(PlayerID(Var(58)),StateNo=[2970,2971])*!(PlayerID(Var(58)),StateNo=[1020,1022])
+TriggerAll=!NumTarget(21000)*!NumTarget(21005)*!NumTarget(21060)*!NumTarget(21100)*(RoundState=2)*Var(57)
+TriggerAll=Var(4):=PlayerID(Var(58)),StateNo||1
+TriggerAll=!(Var(4)=[5200,5299])*!(Var(4)=5611)
+TriggerAll=NumHelper(4444+ID)
+TriggerAll=Helper(4444+ID),Var(48)!=2
+Trigger1=Fvar(4)=(87,130)
+Trigger1=Random<=Var(55)*10+90*(Var(55)>10)
+Trigger2=(FrontEdgeBodyDist<121)*(Fvar(4)=[-20,97])
+Trigger2=IfElse(Var(6)/100000%10=2,((PlayerID(Var(58)),Time)>16)*(Random<=Var(55)*45+55*(Var(55)>9)),1)
+Trigger2=Var(4):=(Var(6)/10000%10<3)*(Var(56)=[69,75])||1
+Trigger2=(PlayerID(Var(58)),StateNo=5120)*(PlayerID(Var(58)),AnimTime=-1)+Var(4)
+;----------------------------------------------------
+[State -3, 切り替えしEX閃走・一鹿]
+Type=ChangeState
+Value=26002
+TriggerAll=(Var(55)>0)*PlayerIDExist(Var(58))*NumHelper(4444+ID)
+TriggerAll=RoundState=2
+TriggerAll=Var(57)=0
+TriggerAll=Random<=Var(55)*20+80*(Var(55)>10)
+TriggerAll=StateType!=A
+TriggerAll=!IsHelper
+TriggerAll=Helper(4444+ID),Var(47)<=4
+TriggerAll=Helper(4444+ID),Var(48)!=2
+TriggerAll=Helper(4444+ID),Var(49)=0
+TriggerAll=PlayerID(Var(58)),Alive
+TriggerAll=PlayerID(Var(58)),StateType!=L
+TriggerAll=PlayerID(Var(58)),MoveType=A
+TriggerAll=P2Dist X>=0
+TriggerAll=Fvar(4)-Ceil(Vel X*11)-Ceil(Helper(4444+ID),Fvar(5)*11)=[-5,50]
+TriggerAll=Fvar(5)+(Helper(4444+ID),Fvar(15)*11+Helper(4444+ID),Fvar(16)*66)=[-40,0]
+TriggerAll=(Var(46)=0&&Power>=1000)||Var(46)=[1,3]
+TriggerAll=Ctrl||(StateNo=[100,102])||StateNo=700&&Time>5
+Trigger1=PlayerID(Var(58)),Time>=31-(Var(55)*2)||Var(55)>10
+;----------------------------------------------------
+[State -3, リバサEX閃走・一鹿]
+Type=ChangeState
+Value=26002
+TriggerAll=(Var(55)>0)*PlayerIDExist(Var(58))*NumHelper(4444+ID)
+TriggerAll=RoundState=2
+TriggerAll=Random<=Var(55)*20+80*(Var(55)>10)
+TriggerAll=StateType=L
+TriggerAll=Helper(4444+ID),Var(47)<=4
+TriggerAll=Helper(4444+ID),Var(48)!=2
+TriggerAll=Helper(4444+ID),Var(49)=0
+TriggerAll=Var(57)=0
+TriggerAll=PlayerID(Var(58)),StateType!=L
+TriggerAll=PlayerID(Var(58)),MoveType=A
+TriggerAll=Fvar(4)-Ceil(Vel X*11)-Ceil(Helper(4444+ID),Fvar(5)*11)=[-50,40]
+TriggerAll=Fvar(5)=[-40,0]
+TriggerAll=(Var(46)=0&&Power>=1000)||Var(46)=[1,3]
+TriggerAll=NumEnemy<=1
+Trigger1=StateNo=5120 
+Trigger1=Animtime>=-1
+;----------------------------------------------------
+[State -3, 切り替えし空中EX閃走・一鹿]
+Type=ChangeState
+Value=26012
+TriggerAll=(Var(55)>0)*PlayerIDExist(Var(58))*NumHelper(4444+ID)
+TriggerAll=RoundState=2
+TriggerAll=Var(57)=0
+TriggerAll=Random<=Var(55)*20+80*(Var(55)>10)
+TriggerAll=StateType=A
+TriggerAll=!IsHelper
+TriggerAll=Helper(4444+ID),Var(47)<=4
+TriggerAll=Helper(4444+ID),Var(48)!=2
+TriggerAll=Helper(4444+ID),Var(49)=0
+TriggerAll=PlayerID(Var(58)),Alive
+TriggerAll=PlayerID(Var(58)),StateType!=L
+TriggerAll=PlayerID(Var(58)),MoveType=A
+TriggerAll=P2Dist X>=0
+TriggerAll=Fvar(4)-Ceil(Vel X*11)-Ceil(Helper(4444+ID),Fvar(5)*11)=[-5,80]
+TriggerAll=Fvar(5)-(Vel Y*11-0.54*66)+(Helper(4444+ID),Fvar(15)*11+Helper(4444+ID),Fvar(16)*66)=[-60,40]
+TriggerAll=(Var(46)=0&&Power>=2500)||Var(46)=[1,3]
+TriggerAll=(Ctrl)||(StateNo=[110,115])||StateNo=21052||StateNo=730
+Trigger1=PlayerID(Var(58)),Time>=35-(Var(55)*2)||Var(55)>10
+;----------------------------------------------------
+[State -3, 切り替えしEX閃走・一咲]
+Type=ChangeState
+Value=22211
+TriggerAll=(Var(55)>0)*PlayerIDExist(Var(58))*NumHelper(4444+ID)
+TriggerAll=RoundState=2
+TriggerAll=Var(57)=1
+TriggerAll=Random<=Var(55)*20+80*(Var(55)>10)
+TriggerAll=StateType=A
+TriggerAll=!IsHelper
+TriggerAll=Helper(4444+ID),Var(47)<=4
+TriggerAll=Helper(4444+ID),Var(48)!=2
+TriggerAll=Helper(4444+ID),Var(49)=0
+TriggerAll=PlayerID(Var(58)),Alive
+TriggerAll=PlayerID(Var(58)),StateType!=L
+TriggerAll=PlayerID(Var(58)),MoveType=A
+TriggerAll=P2Dist X>=0
+TriggerAll=Fvar(4)-(Vel X*5)-(Helper(4444+ID),Fvar(5)*5)=[-5,40]
+TriggerAll=Fvar(5)-(Vel Y*5-15*0.54)-(Helper(4444+ID),Fvar(15)*5+Helper(4444+ID),Fvar(16)*15)=[-20,130]
+TriggerAll=(Var(46)=0&&Power>=2500)||Var(46)=[1,3]
+TriggerAll=(Ctrl)||(StateNo=[110,115])||StateNo=21052||StateNo=730
+Trigger1=PlayerID(Var(58)),Time>=35-(Var(55)*2)||Var(55)>10
+;----------------------------------------------------
+[State -3, 切り替えしB閃走・一咲]
+Type=ChangeState
+Value=21215
+TriggerAll=(Var(55)>0)*PlayerIDExist(Var(58))*NumHelper(4444+ID)
+TriggerAll=RoundState=2
+TriggerAll=Var(57)=1
+TriggerAll=Random<=Var(55)*20+80*(Var(55)>10)
+TriggerAll=StateType=A
+TriggerAll=!IsHelper
+TriggerAll=Helper(4444+ID),Var(47)<=4
+TriggerAll=Helper(4444+ID),Var(48)!=2
+TriggerAll=Helper(4444+ID),Var(49)=0
+TriggerAll=PlayerID(Var(58)),Alive
+TriggerAll=PlayerID(Var(58)),StateType!=L
+TriggerAll=PlayerID(Var(58)),MoveType=A
+TriggerAll=P2Dist X>=0
+TriggerAll=Fvar(4)-Vel X*2-Helper(4444+ID),Fvar(5)*2=[-5,40]
+TriggerAll=Fvar(5)-(Vel Y*2+3*0.54)+(Helper(4444+ID),Fvar(15)*2+Helper(4444+ID),Fvar(16)*3)=[-20,170]
+TriggerAll=(Ctrl)||(StateNo=[110,115])||StateNo=730||StateNo=21052
+Trigger1=PlayerID(Var(58)),Time>=35-(Var(55)*2)||Var(55)>10
+;----------------------------------------------------
+[State -3, 切り替えしEX閃走・六鴉]
+Type=ChangeState
+Value=22200
+TriggerAll=(Var(55)>0)*PlayerIDExist(Var(58))*NumHelper(4444+ID)
+TriggerAll=RoundState=2
+TriggerAll=Random<=Var(55)*20+80*(Var(55)>10)
+TriggerAll=StateType!=A
+TriggerAll=!IsHelper
+TriggerAll=Helper(4444+ID),Var(47)<=4
+TriggerAll=Helper(4444+ID),Var(48)!=2
+TriggerAll=Helper(4444+ID),Var(49)=0
+TriggerAll=PlayerID(Var(58)),Alive
+TriggerAll=PlayerID(Var(58)),StateType!=L
+TriggerAll=PlayerID(Var(58)),MoveType=A
+TriggerAll=P2Dist X>=0
+TriggerAll=Fvar(4)-Ceil(Vel X*6)-Ceil(Helper(4444+ID),Fvar(5)*6)=[-5,30]
+TriggerAll=Fvar(5)+(Helper(4444+ID),Fvar(15)*6+Helper(4444+ID),Fvar(16)*21)=[-70,0]
+TriggerAll=(Var(46)=0&&Power>=1000)||Var(46)=[1,3]
+TriggerAll=Ctrl||(StateNo=[100,102])||StateNo=700&&Time>5
+Trigger1=PlayerID(Var(58)),Time>=26-(Var(55)*2)||Var(55)>10
+;----------------------------------------------------
+[State -3, リバサEX閃走・六鴉]
+Type=ChangeState
+Value=22200
+TriggerAll=(Var(55)>0)*PlayerIDExist(Var(58))*NumHelper(4444+ID)
+TriggerAll=RoundState=2
+TriggerAll=Random<=Var(55)*20+80*(Var(55)>10)
+TriggerAll=StateType=L
+TriggerAll=Helper(4444+ID),Var(47)<=4
+TriggerAll=Helper(4444+ID),Var(48)!=2
+TriggerAll=Helper(4444+ID),Var(49)=0
+TriggerAll=PlayerID(Var(58)),StateType!=L
+TriggerAll=PlayerID(Var(58)),MoveType=A
+TriggerAll=Fvar(4)-Ceil(Vel X*6)-Ceil(Helper(4444+ID),Fvar(5)*6)=[-60,20]
+TriggerAll=Fvar(5)=[-70,0]
+TriggerAll=(Var(46)=0&&Power>=1000)||Var(46)=[1,3]
+TriggerAll=NumEnemy<=1
+Trigger1=StateNo=5120 
+Trigger1=Animtime>=-1
+;----------------------------------------------------
+[State -3, 切り替えしB閃走・六鴉]
+Type=ChangeState
+Value=21210
+TriggerAll=(Var(55)>0)*PlayerIDExist(Var(58))*NumHelper(4444+ID)
+TriggerAll=RoundState=2
+TriggerAll=Random<=Var(55)*30+70*(Var(55)>10)
+TriggerAll=StateType!=A
+TriggerAll=!IsHelper
+TriggerAll=Helper(4444+ID),Var(47)<=4
+TriggerAll=Helper(4444+ID),Var(48)!=2
+TriggerAll=Helper(4444+ID),Var(49)=0
+TriggerAll=PlayerID(Var(58)),Alive
+TriggerAll=PlayerID(Var(58)),StateType!=L
+TriggerAll=PlayerID(Var(58)),MoveType=A
+TriggerAll=P2Dist X>=0
+TriggerAll=Fvar(4)-Ceil(Vel X*7)-Ceil(Helper(4444+ID),Fvar(5)*7)=[-5,30]
+TriggerAll=Fvar(5)+(Helper(4444+ID),Fvar(15)*7+Helper(4444+ID),Fvar(16)*28)=[-70,0]
+TriggerAll=Ctrl||(StateNo=[100,102])||StateNo=700&&Time>5
+Trigger1=PlayerID(Var(58)),Time>=27-(Var(55)*2)||Var(55)>10
+;----------------------------------------------------
+[State -3, リバサB閃走・六鴉]
+Type=ChangeState
+Value=21210
+TriggerAll=(Var(55)>0)*PlayerIDExist(Var(58))*NumHelper(4444+ID)
+TriggerAll=RoundState=2
+TriggerAll=Random<=Var(55)*30+70*(Var(55)>10)
+TriggerAll=StateType=L
+TriggerAll=Helper(4444+ID),Var(47)<=4
+TriggerAll=Helper(4444+ID),Var(48)!=2
+TriggerAll=Helper(4444+ID),Var(49)=0
+TriggerAll=PlayerID(Var(58)),StateType!=L
+TriggerAll=PlayerID(Var(58)),MoveType=A
+TriggerAll=Fvar(4)-Ceil(Vel X*6)-Ceil(Helper(4444+ID),Fvar(5)*6)=[-60,30]
+TriggerAll=Fvar(5)=[-70,0]
+TriggerAll=NumEnemy<=1
+Trigger1=StateNo=5120 
+Trigger1=Animtime>=-1
+;===================================================================
+;			[反応]
+;===================================================================
+[State -3, 反応上段避け]
+Type=ChangeState
+Value=700
+TriggerAll=Var(55)>0
+TriggerAll=PlayerIDExist(Var(58))
+TriggerAll=StateType!=A
+TriggerAll=Ctrl||(StateNo=[100,102])
+TriggerAll=NumHelper(4444+ID)
+;TriggerAll=Helper(4444+ID),Var(47)<=4
+TriggerAll=Helper(4444+ID),Var(48)!=2
+TriggerAll=Helper(4444+ID),Var(49)=0
+TriggerAll=Fvar(4)-Ceil(Vel X)-Ceil(Helper(4444+ID),Fvar(5))=[-15,90]
+TriggerAll=PlayerID(Var(58)),HitDefAttr=SA,AA,AT,AP
+TriggerAll=InGuardDist
+TriggerAll=Random<=Var(55)*60||Var(55)>9
+TriggerAll=PlayerID(Var(58)),Time>=30||(!Time&&Var(55)>9)||Var(55)>10
+Trigger1=PlayerID(Var(58)),Time>=50||Var(55)>9
+Trigger2=PrevStateNo=[5000,5270]
+Trigger3=(PrevStateNo=[120,159])
+Trigger4=PlayerID(Var(58)),Ctrl
+
+[State -3, 反応上段避け･飛び道具用]
+Type=ChangeState
+Value=700
+TriggerAll=Var(55)>0
+TriggerAll=PlayerIDExist(Var(58))
+TriggerAll=StateType!=A
+TriggerAll=Ctrl||(StateNo=[100,102])
+TriggerAll=Var(9)/100000000%10=1
+TriggerAll=!(PlayerID(Var(58)),HitDefAttr=SCA,AA,AT,AP)
+TriggerAll=PlayerID(Var(58)),MoveType = A
+Trigger1=Var(0)=111111111
+Trigger2=Var(0)=111111110
+Trigger3=Var(0)=111111100
+Trigger4=Var(0)=111111000
+Trigger5=Var(0)=111110000
+Trigger6=Var(0)=111100000
+Trigger7=Var(0)=111000000
+Trigger8=Var(0)=110000000
+;----------------------------------------------------
+[State -3, 反応下段避け]
+Type=ChangeState
+Value=730
+TriggerAll=Var(55)>0
+TriggerAll=PlayerIDExist(Var(58))
+TriggerAll=StateType!=A
+TriggerAll=Ctrl||(StateNo=[100,102])
+TriggerAll=NumHelper(4444+ID)
+;TriggerAll=Helper(4444+ID),Var(47)<=4
+TriggerAll=Helper(4444+ID),Var(48)!=2
+TriggerAll=Helper(4444+ID),Var(49)=0
+TriggerAll=Fvar(4)-Ceil(Vel X)-Ceil(Helper(4444+ID),Fvar(5))=[-15,70]
+TriggerAll=PlayerID(Var(58)),HitDefAttr=C,AA,AP;||Var(55)>10
+TriggerAll=InGuardDist
+TriggerAll=Random<=Var(55)*60||Var(55)>9
+TriggerAll=PlayerID(Var(58)),Time>=30||(!Time&&Var(55)>9)||Var(55)>10||PlayerID(Var(58)),Ctrl
+Trigger1=PlayerID(Var(58)),Time>=50||Var(55)>9
+Trigger2=PrevStateNo=[5000,5270]
+Trigger3=(PrevStateNo=[120,159])
+Trigger4=PlayerID(Var(58)),Ctrl
+;----------------------------------------------------
+[State -3,反応閃鞘・三柳]
+Type=ChangeState
+Value=21000+10*(BackEdgeDist>60)
+
+TriggerAll=Var(55)>0
+TriggerAll=PlayerIDExist(Var(58))
+TriggerAll=Var(57)=1
+TriggerAll=StateType!=A
+TriggerAll=Ctrl||(StateNo=[100,102])
+TriggerAll=NumHelper(4444+ID)
+TriggerAll=Helper(4444+ID),Var(48)!=2
+TriggerAll=Helper(4444+ID),Var(49)=0
+TriggerAll=Fvar(4)>90+140||(PlayerID(Var(58)),AnimTime<=-3&&!PlayerID(Var(58)),Ctrl)
+TriggerAll=PlayerID(Var(58)),HitDefAttr=SAC, NA,SA,HA,NT,ST,HT,NP,SP,HP
+TriggerAll=InGuardDist
+TriggerAll=Random<=Var(55)*60||Var(55)>9
+TriggerAll=PlayerID(Var(58)),Time>=30||(!Time&&Var(55)>9)||Var(55)>10||PlayerID(Var(58)),Ctrl
+Trigger1=PlayerID(Var(58)),Time>=50||Var(55)>9
+Trigger2=PrevStateNo=[5000,5270]
+Trigger3=(PrevStateNo=[120,159])
+Trigger4=PlayerID(Var(58)),Ctrl
+;----------------------------------------------------
+[State -3,反応ジャンプ]
+Type=ChangeState
+Value=39
+TriggerAll=Var(55)>0
+TriggerAll=PlayerIDExist(Var(58))
+TriggerAll=StateType!=A
+TriggerAll=Ctrl||(StateNo=[100,102])
+TriggerAll=NumHelper(4444+ID)
+TriggerAll=Helper(4444+ID),Var(48)!=2
+TriggerAll=Helper(4444+ID),Var(49)=0
+TriggerAll=PlayerID(Var(58)),HitDefAttr=SCA,AT
+TriggerAll=Random<=Var(55)*60||Var(55)>9
+TriggerAll=PlayerID(Var(58)),Time>=30||(!Time&&Var(55)>9)||Var(55)>10
+Trigger1=PlayerID(Var(58)),Time>=50||Var(55)>10
+Trigger2=(PrevStateNo=[5000,5270])
+Trigger3=(PrevStateNo=[120,159])
+;----------------------------------------------------
+[State -3, 反応閃鞘・五界]
+Type=ChangeState
+Value=20
+TriggerAll=Var(55)>0
+TriggerAll=Var(57)=1
+TriggerAll=PlayerIDExist(Var(58))
+TriggerAll=StateType!=A
+TriggerAll=Ctrl;||(Helper(4444+ID),Var(4)/100%10>=1&&MoveType!=H)
+TriggerAll=NumHelper(4444+ID)
+TriggerAll=Fvar(4)>90+140||(PlayerID(Var(58)),AnimTime<=-2&&!PlayerID(Var(58)),Ctrl)
+TriggerAll=PlayerID(Var(58)),HitDefAttr=SAC,NP,SP,HP
+TriggerAll=InGuardDist
+TriggerAll=Random<=Var(55)*60||Var(55)>9
+TriggerAll=PlayerID(Var(58)),Time>=30||(!Time&&Var(55)>9)||Var(55)>10||PlayerID(Var(58)),Ctrl
+Trigger1=PlayerID(Var(58)),Time>=50||Var(55)>9
+Trigger2=PrevStateNo=[5000,5270]
+Trigger3=(PrevStateNo=[120,159])
+Trigger4=PlayerID(Var(58)),Ctrl
+;===================================================================
+;			[ガード]
+;===================================================================
+[State -3,ガード始動]
+Type=ChangeState
+Value=120
+TriggerAll=Var(55)>0
+TriggerAll=RoundState=2
+
+TriggerAll=PlayerIDExist(Var(58))
+TriggerAll=Ctrl||(StateNo=[700,730])&&AnimTime=0||(StateNo=[100,102])&&!MoveHit||StateNo=[110,115]
+TriggerAll=StateNo!=[120,159]
+TriggerAll=StateNo!=[920,923]
+TriggerAll=NumHelper(4444+ID)
+TriggerAll=InguardDist
+Trigger1=!PlayerID(Var(58)),HitDefAttr=,NT,ST,HT&&!(PlayerID(Var(58)),StateType=C&&StateType=A)
+Trigger1=Random<=Var(55)*150
+Trigger2=PlayerID(Var(58)),NumHelper>0&&PlayerID(Var(58)),NumProj>0
+Trigger2=Random<=Var(55)*150
+Trigger3=PlayerID(Var(58)),HitDefAttr=SCA,AA,AP
+Trigger3=Fvar(4)=[-50,50]
+Trigger3=Facing*PlayerID(Var(58)),Facing!=-1||P2Dist X<0
+Trigger3=Random<=Var(55)*150
+Trigger4=Helper(4444+ID),RootDist X>90||PlayerID(Var(58)),Time>50
+Trigger4=Random<=Var(55)*150
+Trigger5=Random<=Var(55)*60||Var(55)>9
+IgnoreHitPause=1
+;===================================================================
+;			[地上起き攻め]
+;===================================================================
+[State -3,起き攻めジャンプ]
+Type=ChangeState
+Value=39
+TriggerAll=Var(55)>0&&Random<=Var(55)*20||Helper(4444+ID),Var(6)
+TriggerAll=RoundState=2
+
+TriggerAll=PlayerIDExist(Var(58))
+TriggerAll=StateType!=A
+TriggerAll=NumHelper(4444+ID)
+TriggerAll=Helper(4444+ID),Var(48)!=2
+TriggerAll=Helper(4444+ID),Var(49)=0
+TriggerAll=PlayerID(Var(58)),StateType=L
+TriggerAll=Ctrl||(StateNo=[100,102])
+Trigger1=Fvar(4)<=80
+Trigger1=PlayerID(Var(58)),StateNo/10=512
+Trigger1=PlayerID(Var(58)),AnimTime=[-35,-32]
+Trigger1=PlayerID(Var(58)),Vel X=0
+;----------------------------------------------------
+[State -3,起き攻め2B]
+Type=ChangeState
+Value=410
+TriggerAll=Var(55)>0&&Random<=Var(55)*60||Helper(4444+ID),Var(6)
+TriggerAll=StateType!=A
+TriggerAll=RoundState=2
+
+TriggerAll=PlayerIDExist(Var(58))
+TriggerAll=PlayerID(Var(58)),StateType=L
+TriggerAll=Ctrl||(StateNo=[100,102])
+TriggerAll=NumHelper(4444+ID)
+TriggerAll=Helper(4444+ID),Var(48)!=2
+TriggerAll=Helper(4444+ID),Var(49)=0
+TriggerAll=(Helper(4444+ID),Var(46)=[1,4])&&(Var(57)=0)||(Helper(4444+ID),Var(46)=[1,2])&&(Var(57)=1)
+Trigger1=Fvar(4)=[-10,60]
+Trigger1=(Facing*Helper(5555+ID),Facing<0)*(Helper(5555+ID),Pos X-Pos X>60)
+Trigger1=PlayerID(Var(58)),StateNo=5120
+Trigger1=PlayerID(Var(58)),AnimTime=-1
+Trigger2=Fvar(4)=[-10,60]
+Trigger2=(Facing*Helper(6666+ID),Facing<0)*(Helper(6666+ID),Pos X-Pos X>60)
+Trigger2=PlayerID(Var(58)),StateNo=5120
+Trigger2=PlayerID(Var(58)),AnimTime=-1
+Trigger3=Fvar(4)=[60,130]
+Trigger3=PlayerID(Var(58)),StateNo=5120
+Trigger3=PlayerID(Var(58)),AnimTime=[-6,-2]
+;----------------------------------------------------
+[State -3, 起き攻め閃鞘・三斧]
+Type=ChangeState
+Value=21010
+TriggerAll=Var(55)>0&&Random<=Var(55)*60||Helper(4444+ID),Var(6)
+TriggerAll=RoundState=2
+
+TriggerAll=PlayerIDExist(Var(58))
+TriggerAll=StateType!=A
+TriggerAll=(NumHelper(4444+ID)>0)*NumHelper(5555+ID)*NumHelper(6666+ID)
+TriggerAll=Helper(4444+ID),Var(48)!=2
+TriggerAll=Helper(4444+ID),Var(49)=0
+TriggerAll=PlayerID(Var(58)),StateType=L
+TriggerAll=Var(57)=1
+TriggerAll=Ctrl
+TriggerAll=Helper(4444+ID),Var(46)=[3,4]
+Trigger1=PlayerID(Var(58)),StateNo=5120
+Trigger1=PlayerID(Var(58)),AnimTime=[-25,-16]
+Trigger1=(NumHelper(5555+ID)!=0)&&(Helper(5555+ID),Pos X-Pos X<=100)&&(Facing!=Helper(5555+ID),Facing)
+Trigger2=PlayerID(Var(58)),StateNo=5120
+Trigger2=PlayerID(Var(58)),AnimTime=[-25,-16]
+Trigger2=(NumHelper(6666+ID)!=0)&&(Helper(6666+ID),Pos X-Pos X<=100)&&(Facing!=Helper(6666+ID),Facing)
+;----------------------------------------------------
+[State -3,起き攻めバクステ]
+Type=ChangeState
+Value=105
+TriggerAll=Var(55)>0&&Random<=Var(55)*60||Helper(4444+ID),Var(6)
+TriggerAll=RoundState=2
+
+TriggerAll=PlayerIDExist(Var(58))
+TriggerAll=StateType!=A
+TriggerAll=NumHelper(4444+ID)
+TriggerAll=PlayerID(Var(58)),StateType=L
+TriggerAll=Fvar(4)<=90
+TriggerAll=Ctrl
+TriggerAll=Helper(4444+ID),Var(46)=5
+TriggerAll=BackEdgeBodyDist>30
+Trigger1=PlayerID(Var(58)),StateNo=5120
+;Trigger1=PlayerID(Var(58)),AnimTime=[-7,-5]
+;===================================================================
+;			[空中起き攻め]
+;===================================================================
+[State -3,起き攻めJC]
+Type=ChangeState
+Value=625
+TriggerAll=Var(55)>0&&Random<=Var(55)*20||Helper(4444+ID),Var(6)
+TriggerAll=RoundState=2
+
+TriggerAll=PlayerIDExist(Var(58))
+TriggerAll=StateType=A
+TriggerAll=!IsHelper
+TriggerAll=NumHelper(4444+ID)
+TriggerAll=PlayerID(Var(58)),StateType=L
+TriggerAll=P2Dist X>=-10||PlayerID(Var(58)),BackEdgeBodyDist<=20
+TriggerAll=(Var(13)%10<4)
+TriggerAll=Vel Y>0|| StateNo=110||StateNo=115
+TriggerAll=Ctrl
+Trigger1=Fvar(4)-Vel X*6=[5,40]
+Trigger1=Fvar(5)-(Vel Y*6-0.54*21)=[70,120]
+Trigger2=Fvar(4)-Vel X*6=[-20,5]
+Trigger2=Fvar(5)-(Vel Y*6-0.54*21)=[50,105]
+;===================================================================
+;			[地上目押し]
+;===================================================================
+[State -3,目押しジャンプ]
+type=ChangeState
+value=39
+TriggerAll=Var(55)>0&&Random<=Var(55)*100||Helper(4444+ID),Var(6)
+TriggerAll=RoundState=2
+
+TriggerAll=PlayerIDExist(Var(58))*(NumHelper(4444+ID)>0)
+TriggerAll=StateType!=A
+TriggerAll=PlayerID(Var(58)),StateType!=L
+TriggerAll=!inguarddist
+TriggerAll=PlayerID(Var(58)),MoveType=H
+TriggerAll=PlayerID(Var(58)),StateNo!=[120,159]
+TriggerAll=Ctrl
+TriggerAll=Fvar(5)<-50
+TriggerAll=Helper(4444+ID),Var(7)>1
+Trigger1=PlayerID(Var(58)),StateNo=[2970,2971]
+Trigger1=Helper(4444+ID),Fvar(15)=[0.1,2]
+Trigger1=Fvar(4)=[-50,50]
+Trigger2=0;NumTarget(21005)
+Trigger2=(Fvar(4)=[-10,30])
+Trigger3=0;NumTarget(21200)
+Trigger3=Helper(4444+ID),Var(43)
+Trigger3=Fvar(4)<=50
+Trigger3=Ctrl
+;----------------------------------------------------
+[State -3,目押しダッシュ]
+type=ChangeState
+value=100
+TriggerAll=Var(55)>0&&Random<=Var(55)*100||Helper(4444+ID),Var(6)
+TriggerAll=RoundState=2
+
+TriggerAll=PlayerIDExist(Var(58))
+TriggerAll=StateType!=A
+TriggerAll=NumHelper(4444+ID)
+TriggerAll=PlayerID(Var(58)),StateType!=L
+TriggerAll=!inguarddist
+TriggerAll=Ctrl
+TriggerAll=StateNo!=[100,102]
+TriggerAll=PlayerID(Var(58)),MoveType=H
+Trigger1=Fvar(4)>=150
+Trigger1=PlayerID(Var(58)),StateNo=[1021,1022]
+Trigger2=NumTarget(21005)>0
+Trigger2=Fvar(4)!=[-100,100]
+Trigger3=NumTarget(26000)
+Trigger3=PlayerID(Var(58)),BackEdgeDist>10&&PlayerID(Var(58)),FrontEdgeDist>10
+Trigger3=BackEdgeDist>10
+;----------------------------------------------------
+[State -3,目押し5A]
+type=ChangeState
+value=200
+TriggerAll=Var(55)>0&&Random<=Var(55)*100||Helper(4444+ID),Var(6)
+TriggerAll=RoundState=2
+
+TriggerAll=PlayerIDExist(Var(58))
+TriggerAll=StateType!=A
+TriggerAll=NumHelper(4444+ID)
+TriggerAll=Helper(4444+ID),Var(48)!=2
+TriggerAll=PlayerID(Var(58)),StateType!=L
+TriggerAll=!inguarddist
+TriggerAll=PrevStateNo!=200
+TriggerAll=Fvar(4)-Ceil(Vel X*5)-Ceil(Helper(4444+ID),Fvar(5)*5)=[-5,30]
+TriggerAll=(Fvar(5)+(Helper(4444+ID),Fvar(15)*5+Helper(4444+ID),Fvar(16)*15))=[-70,-50+55*(PlayerID(Var(58)),StateType!=A)]
+TriggerAll=Ctrl||(StateNo=[100,102])
+TriggerAll=FrontEdgeDist>15
+TriggerAll=PlayerID(Var(58)),Vel Y>0&&PlayerID(Var(58)),StateType=A||PlayerID(Var(58)),StateType!=A
+TriggerAll=(PlayerID(Var(58)),StateNo!=[2970,2971])&&!(PlayerID(Var(58)),Stateno=13511&&Vel Y<=0)
+Trigger1=PlayerID(Var(58)),MoveType=H
+Trigger1=(PlayerID(Var(58)),StateNo!=[120,159])
+Trigger2=(PlayerID(Var(58)),StateNo=[120,159])
+Trigger2=PlayerID(Var(58)),StateType!=A
+;----------------------------------------------------
+[State -3,目押し2A]
+type=ChangeState
+value=400
+TriggerAll=Var(55)>0&&Random<=Var(55)*100||Helper(4444+ID),Var(6)
+TriggerAll=RoundState=2
+
+TriggerAll=PlayerIDExist(Var(58))
+TriggerAll=StateType!=A
+TriggerAll=NumHelper(4444+ID)
+TriggerAll=Helper(4444+ID),Var(48)!=2
+TriggerAll=PlayerID(Var(58)),StateType!=L
+TriggerAll=!inguarddist
+TriggerAll=Fvar(4)-Ceil(Vel X*2)-Ceil(Helper(4444+ID),Fvar(5)*2)=[-5-40*(PlayerID(Var(58)),StateType!=A),40]
+TriggerAll=(Fvar(5)+(Helper(4444+ID),Fvar(15)*2+Helper(4444+ID),Fvar(16)*3))=[-45,-20+40*(PlayerID(Var(58)),StateType!=A)]
+TriggerAll=Ctrl||(StateNo=[100,102])
+TriggerAll=(PlayerID(Var(58)),Vel Y>0&&PlayerID(Var(58)),StateType=A)||PlayerID(Var(58)),StateType!=A
+TriggerAll=(PlayerID(Var(58)),StateNo!=[2970,2971])&&!(PlayerID(Var(58)),Stateno=13511&&Vel Y<=0)
+Trigger1=PlayerID(Var(58)),MoveType=H
+Trigger1=(PlayerID(Var(58)),StateNo!=[120,159])
+Trigger2=(PlayerID(Var(58)),StateNo=[120,159])
+Trigger2=PlayerID(Var(58)),StateType!=A
+;----------------------------------------------------
+[State -3,目押し2B]
+type=ChangeState
+value=410 
+TriggerAll=Var(55)>0&&Random<=Var(55)*100||Helper(4444+ID),Var(6)
+TriggerAll=RoundState=2
+
+TriggerAll=PlayerIDExist(Var(58))
+TriggerAll=StateType!=A
+TriggerAll=NumHelper(4444+ID)*NumHelper(5555+ID)*NumHelper(6666+ID)
+TriggerAll=!inguarddist
+TriggerAll=Ctrl||(StateNo=[100,102])
+TriggerAll=PlayerID(Var(58)),StateType!=L 
+TriggerAll=PlayerID(Var(58)),MoveType=H
+Trigger1=(PlayerID(Var(58)),StateType=A)*(Helper(4444+ID),Fvar(15)>0)
+Trigger1=(Fvar(4)-Ceil(Vel X*4)-Ceil(Helper(4444+ID),Fvar(5)*4))=[0,100]
+Trigger1=(Fvar(5)+(Helper(4444+ID),Fvar(15)*4+Helper(4444+ID),Fvar(16)*10))=[-5,0]
+Trigger2=(PlayerID(Var(58)),StateType=A)*(Helper(4444+ID),Fvar(15)>0)
+Trigger2=(Fvar(4)-Ceil(Vel X*5)-Ceil(Helper(4444+ID),Fvar(5)*5))=[5,105]
+Trigger2=(Fvar(5)+(Helper(4444+ID),Fvar(15)*5+Helper(4444+ID),Fvar(16)*15))=[-15,0]
+Trigger3=(PlayerID(Var(58)),StateType=A)*(Helper(4444+ID),Fvar(15)>0)
+Trigger3=(Fvar(4)-Ceil(Vel X*8)-Ceil(Helper(4444+ID),Fvar(5)*8))=[5,110]
+Trigger3=(Fvar(5)+(Helper(4444+ID),Fvar(15)*8+Helper(4444+ID),Fvar(16)*36))=[-15,0]
+
+[State -3,2B]
+type=ChangeState
+value=410
+TriggerAll=Var(55)>0&&Random<=Var(55)*100||Helper(4444+ID),Var(6)
+TriggerAll=RoundState=2
+
+TriggerAll=PlayerIDExist(Var(58))
+TriggerAll=StateType!=A
+TriggerAll=NumHelper(4444+ID)
+TriggerAll=!inguarddist
+TriggerAll=Ctrl||(StateNo=[100,102])
+TriggerAll=PlayerID(Var(58)),StateType!=L 
+TriggerAll=PlayerID(Var(58)),MoveType=H
+Trigger1=Ctrl
+Trigger1=Fvar(4)=[-5,120]
+Trigger1=PlayerID(Var(58)),StateType!=A
+;----------------------------------------------------
+[State -3,目押し5C]
+type=ChangeState
+value=220
+TriggerAll=Var(55)>0&&Random<=Var(55)*100||Helper(4444+ID),Var(6)
+TriggerAll=RoundState=2
+TriggerAll=PlayerIDExist(Var(58))
+TriggerAll=StateType!=A
+TriggerAll=PlayerID(Var(58)),StateType!=L
+TriggerAll=!inguarddist
+TriggerAll=PlayerID(Var(58)),StateType=A&&Helper(4444+ID),Fvar(15)!=0
+TriggerAll=(Fvar(5)+(Helper(4444+ID),Fvar(15)*8+Helper(4444+ID),Fvar(16)*36))=[-50,0]
+TriggerAll=NumHelper(4444+ID)*NumHelper(5555+ID)*NumHelper(6666+ID)
+TriggerAll=Helper(4444+ID),Var(7)>2
+TriggerAll=Helper(4444+ID),Fvar(15)>0
+TriggerAll=Ctrl||(StateNo=[100,102])
+TriggerAll=PlayerID(Var(58)),MoveType=H
+Trigger1=(Fvar(4)-Ceil(Vel X*8)-Ceil(Helper(4444+ID),Fvar(5)*8))=[5,100]
+Trigger1=PlayerID(Var(58)),StateNo=[1021,1022]
+Trigger1=PlayerID(Var(58)),Time>Ifelse((PlayerID(Var(58)),Pos Y<=50),13,18)
+Trigger2=(Fvar(4)-Ceil(Vel X*8)-Ceil(Helper(4444+ID),Fvar(5)*8))=[0,70]
+Trigger2=NumTarget(26000)||NumTarget(26001)||NumTarget(20953)||NumTarget(21005)||PlayerID(Var(58)),StateNo=13511||PlayerID(Var(58)),StateNo=[2970,2971]
+Trigger2=PlayerID(Var(58)),StateNo!=[120,159]
+;===================================================================
+;			[地上隙突き]
+;===================================================================
+[State -3,2A]
+Type = ChangeState
+TriggerAll=Var(55)>0
+TriggerAll=RoundState=2
+TriggerAll=StateType!=A
+TriggerAll=PlayerIDExist(Var(58))*NumHelper(4444+ID)
+TriggerAll=PlayerID(Var(58)),StateType!=L
+TriggerAll=Helper(4444+ID),Var(48)!=2
+TriggerAll=Helper(4444+ID),Var(49)=0
+TriggerAll=!inguarddist
+TriggerAll=Random <= Var(55)*100
+TriggerAll=Fvar(4)=[-5,40]
+TriggerAll=Fvar(5)=[-40,0]
+TriggerAll=Ctrl||(StateNo=[100,102])
+TriggerAll=PlayerID(Var(58)),AnimTime<=-2
+TriggerAll=PlayerID(Var(58)),MoveType=I
+Trigger1=(PlayerID(Var(58)),StateNo=[200,649])
+Trigger2=PlayerID(Var(58)),StateType=A
+Trigger2=!PlayerID(Var(58)),Ctrl
+value=400
+
+[State -3,2B]
+Type=ChangeState
+TriggerAll=Var(55)>0
+TriggerAll=RoundState=2
+TriggerAll=StateType!=A
+TriggerAll=PlayerIDExist(Var(58))*NumHelper(4444+ID)
+TriggerAll=PlayerID(Var(58)),StateType!=L
+TriggerAll=Helper(4444+ID),Var(48)!=2
+TriggerAll=Helper(4444+ID),Var(49)=0
+TriggerAll=!inguarddist
+TriggerAll=Random<=Var(55)*100
+TriggerAll=Fvar(4)=[-5,100]
+TriggerAll=Fvar(5)+(Helper(4444+ID),Fvar(15)*4+Helper(4444+ID),Fvar(16)*10)=[-30,0]
+TriggerAll=Ctrl||(StateNo=[100,102])
+TriggerAll=PlayerID(Var(58)),AnimTime<=-4
+TriggerAll=PlayerID(Var(58)),MoveType=I
+Trigger1=(PlayerID(Var(58)),StateNo=[200,649])
+Trigger2=PlayerID(Var(58)),StateType=A
+Trigger2=!PlayerID(Var(58)),Ctrl
+value=410
+;===================================================================
+;			[地上コンボ]
+;===================================================================
+[State -3, 繋ぎジャンプ]
+Type=ChangeState
+Value=39 
+TriggerAll=(Var(55)>0&&Random<=Var(55)*100)||Helper(4444+ID),Var(6)
+TroggerAll=PlayerIDExist(Var(58))*(NumHelper(4444+ID)>0)
+TriggerAll=RoundState=2
+TriggerAll=StateType!=A
+TriggerAll=PlayerID(Var(58)),Alive
+TriggerAll=PlayerID(Var(58)),StateType!=L
+TriggerAll=PlayerID(Var(58)),MoveType=H
+TriggerAll=!InGuardDist
+TriggerAll=Fvar(5)>=-140
+TriggerAll=Helper(4444+ID),Var(7)>1
+Trigger1=StateNo=210
+Trigger1=PlayerID(Var(58)),StateType=A
+Trigger1=MoveHit
+Trigger1=Fvar(4)=[-5,50]
+Trigger2=StateNo=230
+Trigger2=PlayerID(Var(58)),StateType=A
+Trigger2=Fvar(4)=[-5,60]
+Trigger2=MoveHit
+Trigger3=StateNo=230
+Trigger3=PlayerID(Var(58)),StateType=S
+Trigger3=(Var(56)=[1,80])&&(Fvar(4)=[-5,50])&&!(Helper(4444+ID),Var(42))||Var(55)>11
+Trigger3=MoveHit
+Trigger4=StateNo=230
+Trigger4=(Var(56)=[1,50])&&(Fvar(4)<=30)
+Trigger4=!(Helper(4444+ID),Var(42))
+Trigger4=Fvar(4)=[-5,80]
+Trigger4=MoveGuarded
+Trigger5=StateNo=216
+Trigger5=MoveHit
+Trigger5=Fvar(4)=[-5,50]
+Trigger6=StateNo=230
+Trigger6=(Var(13)%10%4>=2)
+Trigger6=MoveHit
+Trigger6=Fvar(4)=[-5,50]
+Trigger7=StateNo=410
+Trigger7=MoveHit
+Trigger7=Fvar(4)=[-5,50]
+Trigger7=Fvar(5)<=-15||Var(21)
+Trigger7=PlayerID(Var(58)),StateType=A
+Trigger8=StateNo=200
+Trigger8=PrevStateNo=200||Fvar(5)<-30
+Trigger8=PlayerID(Var(58)),StateType=A
+Trigger8=Fvar(4)=[-5,50]
+Trigger8=MoveHit
+;----------------------------------------------------
+[State -3, 三斧繋ぎ]
+Type=ChangeState
+Value=Ifelse(BackEdgeBodyDist<40,21000,21010)
+TriggerAll=(Var(55)>0&&Random<=Var(55)*100)||Helper(4444+ID),Var(6)
+TriggerAll=RoundState=2
+
+TriggerAll=PlayerIDExist(Var(58))
+TriggerAll=StateType!=A
+TriggerAll=NumHelper(4444+ID)
+TriggerAll=PlayerID(Var(58)),Alive
+TriggerAll=!InGuardDist
+TriggerAll=Var(57)=1
+TriggerAll=Fvar(4)=[-5,120]
+TriggerAll=MoveGuarded
+TriggerAll=Var(56)=[1,40]
+Trigger1=StateNo=230
+;----------------------------------------------------
+[State -3, A一鹿繋ぎ]
+Type=Null;ChangeState
+Value=26000
+TriggerAll=(Var(55)>0&&Random<=Var(55)*100)||Helper(4444+ID),Var(6)
+TriggerAll=RoundState=2
+
+TriggerAll=PlayerIDExist(Var(58))
+TriggerAll=StateType!=A
+TriggerAll=NumHelper(4444+ID)*NumHelper(5555+ID)*NumHelper(6666+ID)
+TriggerAll=PlayerID(Var(58)),Alive
+TriggerAll=PlayerID(Var(58)),StateType=A
+TriggerAll=PlayerID(Var(58)),MoveType=H
+TriggerAll=Var(57)=0
+TriggerAll=!InGuardDist
+TriggerAll=Fvar(4)=[-5,100]
+TriggerAll=Fvar(5)=[-80,30]
+TriggerAll=MoveHit
+TriggerAll=Var(56)=[1,60]
+Trigger1=StateNo=420
+Trigger1=(Helper(5555+ID),Facing!=Facing&&Helper(5555+ID),RootDist X<100)||(Facing!=Helper(6666+ID),Facing&&Helper(6666+ID),RootDist X<100)
+Trigger2=StateNo=410
+Trigger2=Helper(4444+ID),Var(7)<=4||Fvar(4)>50||Var(55)>11
+;----------------------------------------------------
+[State -3, B一鹿繋ぎ]
+Type=ChangeState
+Value=26001
+TriggerAll=(Var(55)>0&&Random<=Var(55)*100)||Helper(4444+ID),Var(6)
+TriggerAll=RoundState=2
+
+TriggerAll=PlayerIDExist(Var(58))
+TriggerAll=StateType!=A
+TriggerAll=NumHelper(4444+ID)
+TriggerAll=Helper(4444+ID),Var(7)>4
+TriggerAll=PlayerID(Var(58)),Alive
+TriggerAll=PlayerID(Var(58)),StateType=A
+TriggerAll=PlayerID(Var(58)),MoveType=H
+TriggerAll=Var(57)=0
+TriggerAll=!InGuardDist
+TriggerAll=Fvar(4)=[-5,100]
+TriggerAll=Fvar(5)=[-80,30]
+TriggerAll=MoveHit
+TriggerAll=Var(56)=[1,60]
+TriggerAll=Helper(4444+ID),Var(3)!=-1
+Trigger1=StateNo=420
+Trigger1=(NumHelper(5555+ID)!=0&&Facing!=Helper(5555+ID),Facing&&Helper(5555+ID),ParentDist X>100)
+Trigger1=Var(2):=1||1
+Trigger2=StateNo=420
+Trigger2=(NumHelper(6666+ID)!=0&&Facing!=Helper(6666+ID),Facing&&Helper(6666+ID),ParentDist X>100)
+Trigger2=Var(2):=1||1
+;----------------------------------------------------
+[State -3, 閃鞘･七夜繋ぎ]
+Type=ChangeState
+Value=21150
+TriggerAll=(Var(55)>0&&Random<=Var(55)*100)||Helper(4444+ID),Var(6)
+TriggerAll=RoundState=2
+
+TriggerAll=PlayerIDExist(Var(58))*((NumHelper(4444+ID)>0)>0)*(NumHelper(5555+ID)>0)*(NumHelper(6666+ID)>0)
+TriggerAll=StateType!=A
+TriggerAll=NumHelper(4444+ID)
+TriggerAll=PlayerID(Var(58)),Alive
+TriggerAll=Helper(4444+ID),Var(7)>4
+TriggerAll=PlayerID(Var(58)),MoveType=H
+TriggerAll=!InGuardDist
+TriggerAll=MoveHit
+TriggerAll=StateNo=230
+TriggerAll=Fvar(4)>60
+Trigger1=(PlayerID(Var(58)),Facing=Helper(5555+ID),Facing)&&(Helper(5555+ID),Pos X-PlayerID(Var(58)),Pos X)>80
+Trigger2=(PlayerID(Var(58)),Facing=Helper(6666+ID),Facing)&&(Helper(6666+ID),Pos X-PlayerID(Var(58)),Pos X)>80
+;----------------------------------------------------
+[State -3, B水月繋ぎ]
+Type=ChangeState
+Value=21350
+TriggerAll=(Var(55)>0&&Random<=Var(55)*100)||Helper(4444+ID),Var(6)
+TriggerAll=RoundState=2
+
+TriggerAll=PlayerIDExist(Var(58))
+TriggerAll=StateType!=A
+TriggerAll=NumHelper(4444+ID)
+TriggerAll=PlayerID(Var(58)),Alive
+TriggerAll=PlayerID(Var(58)),MoveType=H
+TriggerAll=!InGuardDist
+TriggerAll=Fvar(4)=[-5,120]
+TriggerAll=MoveGuarded
+Trigger1=StateNo=230
+Trigger1=Var(56)=[1,40]
+Trigger2=StateNo=210
+Trigger2=Var(56)=[1,50]
+;----------------------------------------------------
+[State -3, A八点衝繋ぎ]
+Type=ChangeState
+Value=25000
+TriggerAll=(Var(55)>0&&Random<=Var(55)*100)||Helper(4444+ID),Var(6)
+TriggerAll=RoundState=2
+
+TriggerAll=PlayerIDExist(Var(58))
+TriggerAll=StateType!=A
+TriggerAll=NumHelper(4444+ID)
+TriggerAll=PlayerID(Var(58)),Alive
+TriggerAll=PlayerID(Var(58)),MoveType=H
+TriggerAll=!InGuardDist
+TriggerAll=Fvar(4)=[-5,120]
+TriggerAll=Fvar(5)=[-15-50*(Stateno=200),0]
+TriggerAll=StateNo!=25000
+Trigger1=StateNo=210
+Trigger1=Var(56)=[31,50]
+Trigger1=MoveGuarded
+Trigger2=StateNo=216
+Trigger2=MoveGuarded
+Trigger3=stateNo=230
+Trigger3=Fvar(4)>50
+Trigger3=PlayerID(Var(58)),StateType=A 
+Trigger3=MoveContAct
+Trigger4=StateNo=200
+Trigger4=MoveGuarded
+Trigger4=PlayerID(Var(58)),StateType=A
+Trigger5=StateNo=410
+Trigger5=Var(13)>70
+;----------------------------------------------------
+[State -3, A八点衝繋ぎ]
+Type=ChangeState
+Value=25000
+TriggerAll=(Var(55)>0&&Random<=Var(55)*100)||Helper(4444+ID),Var(6)
+TriggerAll=RoundState=2
+
+TriggerAll=PlayerIDExist(Var(58))
+TriggerAll=StateType!=A
+TriggerAll=NumHelper(4444+ID)*NumHelper(5555+ID)*NumHelper(6666+ID)
+TriggerAll=PlayerID(Var(58)),Alive
+TriggerAll=PlayerID(Var(58)),MoveType=H
+TriggerAll=Var(46)=0
+TriggerAll=!InGuardDist
+TriggerAll=Fvar(4)=[-5,120]
+TriggerAll=MoveHit
+Trigger1=StateNo=200
+Trigger1=Helper(4444+ID),Var(7)<=1
+Trigger2=StateNo=210
+Trigger2=Helper(4444+ID),Var(7)<=1
+Trigger3=StateNo=230
+Trigger3=Helper(4444+ID),Var(7)<=1
+Trigger4=StateNo=410
+Trigger4=Helper(4444+ID),Var(7)<=4&&(Fvar(4)>=50^^Fvar(5)<=-15)
+Trigger5=StateNo=420
+Trigger5=Helper(4444+ID),Var(7)<=1
+Trigger6=StateNo=230||StateNo=410
+Trigger6=Fvar(4)>40
+Trigger6=PlayerID(Var(58)),StateType=A
+Trigger6=(PlayerID(Var(58)),Facing=Helper(5555+ID),Facing)&&(Helper(5555+ID),Pos X-PlayerID(Var(58)),Pos X)<80
+Trigger7=StateNo=230||StateNo=410
+Trigger7=Fvar(4)>50
+Trigger7=PlayerID(Var(58)),StateType=A
+Trigger7=(PlayerID(Var(58)),Facing=Helper(6666+ID),Facing)&&(Helper(6666+ID),Pos X-PlayerID(Var(58)),Pos X)<80
+;----------------------------------------------------
+[State -3, B八点衝繋ぎ]
+Type=ChangeState
+Value=25010
+TriggerAll=(Var(55)>0&&Random<=Var(55)*100)||Helper(4444+ID),Var(6)
+TriggerAll=RoundState=2
+
+TriggerAll=PlayerIDExist(Var(58))
+TriggerAll=StateType!=A
+TriggerAll=NumHelper(4444+ID)
+TriggerAll=PlayerID(Var(58)),Alive
+TriggerAll=PlayerID(Var(58)),StateType=A
+TriggerAll=PlayerID(Var(58)),MoveType=H
+TriggerAll=!InGuardDist
+TriggerAll=Fvar(4)=[-5,120]
+TriggerAll=Fvar(5)=[-100,0]
+TriggerAll=StateNo!=25010
+Trigger1=PlayerID(Var(58)),StateNo=[2970,2971]
+Trigger1=Helper(4444+ID),Fvar(15)>0
+Trigger1=Helper(4444+ID),Var(7)<=1
+;----------------------------------------------------
+[State -3, EX八点衝繋ぎ]
+Type=ChangeState
+Value=25020
+TriggerAll=(Var(55)>0&&Random<=Var(55)*100)||Helper(4444+ID),Var(6)
+TriggerAll=RoundState=2
+
+TriggerAll=PlayerIDExist(Var(58))
+TriggerAll=StateType!=A
+TriggerAll=NumHelper(4444+ID)
+TriggerAll=PlayerID(Var(58)),Alive
+TriggerAll=PlayerID(Var(58)),MoveType=H
+TriggerAll=Var(46)=[1,3]
+TriggerAll=!InGuardDist
+TriggerAll=Fvar(4)=[-5,120]
+TriggerAll=MoveHit
+Trigger1=StateNo=200
+Trigger1=Helper(4444+ID),Var(7)<=1
+Trigger2=StateNo=210
+Trigger2=Helper(4444+ID),Var(7)<=1
+Trigger3=StateNo=230
+Trigger3=Helper(4444+ID),Var(7)<=1
+Trigger4=StateNo=410
+Trigger4=Helper(4444+ID),Var(7)<=4&&(Fvar(4)>=50^^Fvar(5)<=15)&&Helper(4444+ID),Var(42)!=25020
+Trigger5=StateNo=420
+Trigger5=Helper(4444+ID),Var(7)<=1
+;----------------------------------------------------
+[State -3, 5A繋ぎ]
+Type=ChangeState
+Value=200
+TriggerAll=(Var(55)>0&&Random<=Var(55)*100)||Helper(4444+ID),Var(6)
+TriggerAll=RoundState=2
+
+TriggerAll=PlayerIDExist(Var(58))
+TriggerAll=StateType!=A
+TriggerAll=NumHelper(4444+ID)
+TriggerAll=PlayerID(Var(58)),StateType=A
+TriggerAll=PlayerID(Var(58)),Alive
+TriggerAll=PlayerID(Var(58)),MoveType=H
+TriggerAll=!InGuardDist
+TriggerAll=Fvar(4)=[-5,45]
+TriggerAll=Fvar(5)=[-90,0]
+Trigger1=StateNo=210
+Trigger1=MoveGuarded
+Trigger1=Var(13)=76
+Trigger2=StateNo=210
+Trigger2=Fvar(4)>5
+Trigger2=Var(13)%10=5
+Trigger2=MoveGuarded
+Trigger3=StateNo=420
+Trigger3=Var(13)%10=6||Fvar(4)>30
+Trigger3=MoveGuarded
+Trigger4=StateNo=200
+Trigger4=PrevStateNo!=200
+Trigger4=Fvar(5)>-30
+Trigger5=StateNo=230
+Trigger5=MoveGuarded
+Trigger5=Var(13)%10=4
+Trigger5=Fvar(4)>50
+Trigger5=Var(56)=[1,30]
+;----------------------------------------------------
+[State -3, 5B繋ぎ]
+Type=ChangeState
+Value=210
+TriggerAll=(Var(55)>0&&Random<=Var(55)*100)||Helper(4444+ID),Var(6)
+TriggerAll=RoundState=2
+
+TriggerAll=PlayerIDExist(Var(58))
+TriggerAll=StateType!=A
+TriggerAll=(Var(13)%10%4<2)
+TriggerAll=NumHelper(4444+ID)
+TriggerAll=PlayerID(Var(58)),Alive
+TriggerAll=PlayerID(Var(58)),StateType!=L
+TriggerAll=PlayerID(Var(58)),MoveType=H
+TriggerAll=!InGuardDist
+TriggerAll=Fvar(4)=[-5,45]
+TriggerAll=Fvar(5)=[-80,0]
+Trigger1=StateNo=200
+Trigger1=MoveContAct
+Trigger1=PlayerID(Var(58)),StateType=A
+Trigger1=Fvar(5)>=-40
+Trigger2=StateNo=400
+Trigger2=MoveContAct
+Trigger2=PlayerID(Var(58)),StateType=A ||Var(13)>=70||PrevStateNo=420
+Trigger3=StateNo=410
+Trigger3=Fvar(4)<=40
+Trigger3=Fvar(5)<0
+Trigger3=MoveContAct
+Trigger3=PlayerID(Var(58)),StateType=A
+Trigger4=StateNo=420
+Trigger4=MoveContAct
+;----------------------------------------------------
+[State -3, 5C繋ぎ]
+Type=ChangeState
+Value=220
+TriggerAll=(Var(55)>0&&Random<=Var(55)*100)||Helper(4444+ID),Var(6)
+TriggerAll=RoundState=2
+
+TriggerAll=PlayerIDExist(Var(58))
+TriggerAll=StateType!=A
+TriggerAll=(Var(13)%10<4)
+TriggerAll=NumHelper(4444+ID)
+TriggerAll=PlayerID(Var(58)),Alive
+TriggerAll=PlayerID(Var(58)),StateType!=L
+TriggerAll=PlayerID(Var(58)),MoveType=H
+TriggerAll=!InGuardDist
+TriggerAll=Fvar(4)=[-5,130]
+TriggerAll=Fvar(5)>=-50
+TriggerAll=MoveContAct
+Trigger1=StateNo=410
+Trigger1=PlayerID(Var(58)),StateType!=A
+Trigger1=MoveContact||Var(13)=[20,33]
+Trigger2=StateNo=420
+Trigger2=PlayerID(Var(58)),StateType=A
+Trigger2=Fvar(4)>45
+Trigger3=StateNo=210
+Trigger3=Var(13)%10%4>=2
+Trigger3=PlayerID(Var(58)),StateType!=A
+Trigger4=StateNo=400
+Trigger4=(MoveContAct)*(PlayerID(Var(58)),StateType=A)*(Fvar(4)>45)||MoveGuarded
+Trigger5=StateNo=410
+Trigger5=PlayerID(Var(58)),StateType=A
+Trigger5=Fvar(4)>40
+;----------------------------------------------------
+[State -3, 2A繋ぎ]
+Type=ChangeState
+Value=400
+TriggerAll=(Var(55)>0&&Random<=Var(55)*100)||Helper(4444+ID),Var(6)
+TriggerAll=RoundState=2
+
+TriggerAll=PlayerIDExist(Var(58))
+TriggerAll=StateType!=A
+TriggerAll=NumHelper(4444+ID)
+TriggerAll=PlayerID(Var(58)),StateType!=A
+TriggerAll=PlayerID(Var(58)),Alive
+TriggerAll=PlayerID(Var(58)),MoveType=H
+TriggerAll=!InGuardDist
+TriggerAll=Fvar(4)=[-25,45]
+TriggerAll=Fvar(5)>=-55
+TriggerAll=MoveContAct
+Trigger1=Var(21)<5||Var(56)=[1,5*Var(55)]
+Trigger1=StateNo=400
+Trigger1=Fvar(4)<35
+Trigger1=MoveHit=1
+Trigger1=var(21):=var(21)+1
+Trigger2=StateNo=230
+Trigger2=!(Var(13)/10%10%2)
+Trigger3=StateNo=200
+Trigger3=(Var(13)/10%10%4<2)&&(Var(13)/10%10<4)
+Trigger4=StateNo=420
+Trigger4=Var(13)%10%4=2
+;----------------------------------------------------
+[State -3, 2B繋ぎ]
+Type=ChangeState
+Value=410
+TriggerAll=(Var(55)>0&&Random<=Var(55)*100)||Helper(4444+ID),Var(6)
+TriggerAll=RoundState=2
+
+TriggerAll=PlayerIDExist(Var(58))
+TriggerAll=StateType!=A
+TriggerAll=(Var(13)/10%10%4<2)
+TriggerAll=NumHelper(4444+ID)
+TriggerAll=PlayerID(Var(58)),StateType!=A
+TriggerAll=PlayerID(Var(58)),Alive
+TriggerAll=PlayerID(Var(58)),MoveType=H
+TriggerAll=!InGuardDist
+TriggerAll=Fvar(4)=[-5,120]
+TriggerAll=Fvar(5)>=-20
+TriggerAll=MoveContAct
+Trigger1=StateNo=400
+Trigger1=(Fvar(4)>=35||MoveGuarded)||Helper(4444+ID),Var(42)=27001
+Trigger2=StateNo=200
+Trigger3=StateNo=420
+;----------------------------------------------------
+[State -3, 2C繋ぎ]
+Type=ChangeState
+Value=420
+TriggerAll=(Var(55)>0&&Random<=Var(55)*100)||Helper(4444+ID),Var(6)
+TriggerAll=RoundState=2
+
+TriggerAll=PlayerIDExist(Var(58))
+TriggerAll=StateType!=A
+TriggerAll=(Var(13)/10%10<4)
+TriggerAll=NumHelper(4444+ID)
+TriggerAll=PlayerID(Var(58)),Alive
+TriggerAll=PlayerID(Var(58)),StateType!=A
+TriggerAll=PlayerID(Var(58)),MoveType=H
+TriggerAll=!InGuardDist
+TriggerAll=Fvar(4)=[-5,120]
+TriggerAll=Fvar(5)=[-15,0]
+TriggerAll=MoveContAct
+Trigger1=StateNo=230
+Trigger1=(Var(56)=[31,100])||(Helper(4444+ID),Var(42)=27001)
+Trigger2=StateNo=230
+Trigger2=MoveHit
+Trigger3=StateNo=410
+Trigger3=MoveContAct
+Trigger3=Var(13)%10>=4||Var(13)=20
+Trigger4=StateNo=210
+Trigger4=MoveGuarded
+Trigger5=StateNo=400
+Trigger5=MoveContAct
+Trigger5=Var(13)<40
+;----------------------------------------------------
+[State -3, バクステ繋ぎ]
+Type=ChangeState
+Value=105
+TriggerAll=(Var(55)>0&&Random<=Var(55)*100)||Helper(4444+ID),Var(6)
+TriggerAll=RoundState=2
+
+TriggerAll=PlayerIDExist(Var(58))
+TriggerAll=StateType!=A
+TriggerAll=NumHelper(4444+ID)
+TriggerAll=PlayerID(Var(58)),Alive
+TriggerAll=!InGuardDist
+TriggerAll=Fvar(4)=[-5,120]
+TriggerAll=MoveGuarded
+Trigger1=StateNo=210
+Trigger2=Stateno=230
+;----------------------------------------------------
+[State -3, 5B派生繋ぎ]
+Type=ChangeState
+Value=216
+TriggerAll=Var(55)>0
+Trigger1=StateNo=215
+Trigger1=animelemtime(1)>=1
+Trigger1=animelemtime(2)<=10
+;----------------------------------------------------
+[State -3, 5B派生繋ぎ]
+Type=ChangeState
+Value=215
+TriggerAll=(Var(55)>0&&Random<=Var(55)*100)||Helper(4444+ID),Var(6)
+TriggerAll=RoundState=2
+
+TriggerAll=PlayerIDExist(Var(58))
+TriggerAll=StateType!=A
+TriggerAll=NumHelper(4444+ID)
+TriggerAll=PlayerID(Var(58)),Alive
+TriggerAll=PlayerID(Var(58)),MoveType=H
+TriggerAll=!InGuardDist
+TriggerAll=Fvar(4)=[-5,50]
+TriggerAll=MoveContAct
+Trigger1=StateNo=210
+Trigger1=PlayerID(Var(58)),Pos Y>=-5||Var(13)>=70
+;===================================================================
+;			[空中目押し]
+;===================================================================
+[State -3, 低ダ]
+Type=ChangeState
+Value=110 
+TriggerAll=(Var(55)>0&&Random<=Var(55)*100)||Helper(4444+ID),Var(6)
+TriggerAll=RoundState=2
+
+TriggerAll=PlayerIDExist(Var(58))
+TriggerAll=NumHelper(4444+ID)
+TriggerAll=StateType=A
+TriggerAll=PlayerID(Var(58)),StateType!=L
+TriggerAll=PlayerID(Var(58)),MoveType=H
+TriggerAll=Var(11)=0
+TriggerAll=Var(57)=1||!Var(57)&&Var(56)<85||Var(55)>11
+TriggerAll=Fvar(4)=[-5,70]
+TriggerAll=Vel Y<0
+TriggerAll=Ctrl
+TriggerAll=StateNo!=730
+TriggerAll=!inguarddist
+Trigger1=PlayerID(Var(58)),StateType!=A
+Trigger2=PlayerID(Var(58)),StateType=A
+Trigger2=Fvar(4)>50
+Trigger2=!NumTarget(200)
+;----------------------------------------------------
+[State -3, 目押しJC]
+Type=ChangeState
+Value=625
+TriggerAll=((Var(55)>0&&Random<=Var(55)*100)||Helper(4444+ID),Var(6))*(RoundState=2)*PlayerIDExist(Var(58))
+TriggerAll=(NumHelper(4444+ID)>0)*(Helper(4444+ID),Var(7)>=2)*(StateType=A)*(PlayerID(Var(58)),StateType!=L)
+TriggerAll=(Fvar(4)-(Helper(4444+ID),Fvar(5)*6))=[-15,50]
+TriggerAll=Fvar(5)-(Vel Y*6+0.54*21)+(Helper(4444+ID),Fvar(15)*6+Helper(4444+ID),Fvar(16)*21*(Helper(4444+ID),Fvar(15)!=0&&PlayerID(Var(58)),StateType=A))=[-50,80]
+TriggerAll=Ctrl
+TriggerAll=PlayerID(Var(58)),MoveType=H
+TriggerAll=(PlayerID(Var(58)),StateNo!=[120,159])
+TriggerAll=!inguarddist
+Trigger1=PlayerID(Var(58)),BackEdgeDist<=5
+Trigger1=PrevStateno=46
+Trigger2=StateNo=110
+Trigger2=Var(10)=1&&PlayerID(Var(58)),StateType=A
+Trigger3=Var(10)=1&&Var(11)=0
+Trigger3=PlayerID(Var(58)),StateType=A
+;----------------------------------------------------
+[State -3, 目押しJB]
+Type=ChangeState
+Value=610
+TriggerAll=(Var(55)>0&&Random<=Var(55)*100)||Helper(4444+ID),Var(6)
+TriggerAll=RoundState=2
+
+TriggerAll=PlayerIDExist(Var(58))
+TriggerAll=NumHelper(4444+ID)
+TriggerAll=Helper(4444+ID),Var(7)>=2
+TriggerAll=StateType=A
+TriggerAll=PlayerID(Var(58)),StateType!=L
+TriggerAll=(Var(13)%10%4<2)
+TriggerAll=Fvar(4)-(Vel X*4)-(Helper(4444+ID),Fvar(5)*4)=[-15,60]
+TriggerAll=(Fvar(5)-(Vel Y*4-0.54*10)+(Helper(4444+ID),Fvar(15)*4+(Helper(4444+ID),Fvar(16))*10)*(Helper(4444+ID),Fvar(15)!=0))=[-50,80]
+TriggerAll=Ctrl||StateNo=21052
+TriggerAll=StateNo!=730
+TriggerAll=!inguarddist
+TriggerAll=PlayerID(Var(58)),MoveType=H
+Trigger1=PlayerID(Var(58)),StateType=A
+Trigger2=StateNo=110&&Ctrl
+Trigger2=PlayerID(Var(58)),StateType!=A
+;----------------------------------------------------
+[State -3, 目押し閃走・降臨]
+Type=ChangeState
+Value=27001
+TriggerAll=(Var(55)>0&&Random<=Var(55)*100)||Helper(4444+ID),Var(6)
+TriggerAll=RoundState=2
+
+TriggerAll=PlayerIDExist(Var(58))
+TriggerAll=NumHelper(4444+ID)
+TriggerAll=StateType=A
+TriggerAll=MoveType!=A
+TriggerAll=PlayerID(Var(58)),StateType!=L
+TriggerAll=Var(57)=0
+TriggerAll=Fvar(4)=[-5,50]
+TriggerAll=Fvar(5)>=20
+TriggerAll=Ctrl
+TriggerAll=PlayerID(Var(58)),StateType!=A
+Trigger1=PlayerID(Var(58)),MoveType=H
+Trigger1=(PlayerID(Var(58)),StateNo!=[120,159])
+Trigger1=Var(2):=2||1
+Trigger2=(PlayerID(Var(58)),StateNo=[120,159])
+Trigger2=Var(2):=2||1
+;----------------------------------------------------
+[State -3, 目押し空中投げ]
+Type=ChangeState
+Value=621
+TriggerAll=(Var(55)>0&&Random<=Var(55)*100)||Helper(4444+ID),Var(6)
+TriggerAll=RoundState=2
+
+TriggerAll=PlayerIDExist(Var(58))
+TriggerAll=NumHelper(4444+ID)
+TriggerAll=StateType=A
+TriggerAll=PlayerID(Var(58)),StateType!=L
+TriggerAll=Fvar(4)=[-5,40]
+TriggerAll=Fvar(5)=[-40,60]
+TriggerAll=Ctrl
+TriggerAll=PlayerID(Var(58)),StateType=A
+TriggerAll=Helper(4444+ID),Var(7)<=1
+Trigger1=PlayerID(Var(58)),MoveType=H
+Trigger1=(PlayerID(Var(58)),StateNo!=[120,159])
+;===================================================================
+;			[空中隙突き]
+;===================================================================
+[State -3,JB]
+Type = ChangeState
+TriggerAll=Var(55)>0
+TriggerAll=RoundState=2
+TriggerAll=StateType=A
+TriggerAll=PlayerIDExist(Var(58))
+TriggerAll=PlayerID(Var(58)),StateType!=L
+TriggerAll=!inguarddist
+TriggerAll=Random<=Var(55)*100
+TriggerAll=Fvar(4)-(Vel X*5)-(Helper(4444+ID),Fvar(5)*5)=[-5,40]
+TriggerAll=Fvar(5)-(Vel Y*5-0.54*15)+(Helper(4444+ID),Fvar(15)*5+Helper(4444+ID),Fvar(16)*15)=[10,50]
+TriggerAll=Ctrl
+TriggerAll=PlayerID(Var(58)),AnimTime<=-2
+TriggerAll=PlayerID(Var(58)),MoveType=I
+Trigger1=(PlayerID(Var(58)),StateNo=[200,649])
+Trigger1=StateNo=110||StateNo=21052||PrevStateNo=41||(Ctrl&&Vel Y>0&&PlayerID(Var(58)),StateType!=A)
+Trigger2=PlayerID(Var(58)),StateType=A
+Trigger2=!PlayerID(Var(58)),Ctrl
+value=610
+;----------------------------------------------------
+[State -3,JC]
+Type = ChangeState
+TriggerAll=Var(55)>0
+TriggerAll=RoundState=2
+TriggerAll=StateType=A
+TriggerAll=PlayerIDExist(Var(58))
+TriggerAll=PlayerID(Var(58)),StateType!=L
+TriggerAll=!inguarddist
+TriggerAll=Random <= Var(55)*100
+TriggerAll=Fvar(4)-(Vel X*7)-(Helper(4444+ID),Fvar(5)*7)=[-5,60]
+TriggerAll=Fvar(5)-(Vel Y*7-0.54*28)+(Helper(4444+ID),Fvar(15)*7+Helper(4444+ID),Fvar(16)*28*(PlayerID(Var(58)),StateType=A&&Helper(4444+ID),Fvar(15)!=0))=[-50,90]
+TriggerAll=Ctrl
+TriggerAll=PlayerID(Var(58)),AnimTime<=-2
+TriggerAll=PlayerID(Var(58)),MoveType=I
+Trigger1=(PlayerID(Var(58)),StateNo=[200,649])
+Trigger2=PlayerID(Var(58)),StateType=A
+Trigger2=!PlayerID(Var(58)),Ctrl
+value=625
+;===================================================================
+;			[空中コンボ]
+;===================================================================
+[State -3, 空中ジャンプ(コンボ)]
+Type=ChangeState
+Value=46 
+TriggerAll=(Var(55)>0&&Random<=Var(55)*100)||Helper(4444+ID),Var(6)
+TriggerAll=StateType=A
+TriggerAll=NumHelper(4444+ID)
+TriggerAll=Helper(4444+ID),Var(7)>=2
+TriggerAll=PlayerID(Var(58)),Alive
+TriggerAll=PlayerID(Var(58)),StateType=A
+TriggerAll=PlayerID(Var(58)),MoveType=H
+TriggerAll=Var(10)=0
+TriggerAll=!InGuardDist
+TriggerAll=Fvar(4)=[-10,70]
+TriggerAll=(Fvar(5)=[-80,51+5*(PlayerID(Var(58)),BackEdgeDist<5)])||Var(11)=1
+Trigger1=StateNo=610
+Trigger1=PrevStateNo=21052||Vel X>Abs(6.5)
+Trigger1=HitCount=2||AnimElem=5,>=1
+Trigger2=StateNo=625
+Trigger2=MoveHit
+Trigger3=StateNo=600
+Trigger3=MoveHit
+;----------------------------------------------------
+[State -3, 空中ダッシュ(コンボ)]
+Type=ChangeState
+Value=110
+TriggerAll=(Var(55)>0&&Random<=Var(55)*100)||Helper(4444+ID),Var(6)
+TriggerAll=RoundState=2
+
+TriggerAll=PlayerIDExist(Var(58))
+TriggerAll=StateType=A
+TriggerAll=NumHelper(4444+ID)
+TriggerAll=PlayerID(Var(58)),Alive
+TriggerAll=PlayerID(Var(58)),MoveType=H
+TriggerAll=Var(11)=0
+TriggerAll=!InGuardDist
+TriggerAll=Fvar(4)=[-15-20*(PlayerID(Var(58)),BackEdgeDist<=5),100]
+TriggerAll=Fvar(5)=[-50,80]
+TriggerAll=MoveContAct
+Trigger1=StateNo=610
+Trigger1=Fvar(4)>=40||Var(13)%10>=4
+Trigger1=HitCount=2||AnimElem=5,>=1
+Trigger2=StateNo=625
+Trigger2=Var(10)=1&&Var(13)%10>4||Fvar(4)>=40
+Trigger2=Fvar(5)<=60
+Trigger3=PlayerID(Var(58)),StateType!=A
+Trigger3=Ctrl||StateNo=50
+Trigger3=Helper(4444+ID),Var(42)=0
+Trigger3=Var(57)=1
+Trigger4=Helper(4444+ID),Var(7)<=1
+Trigger4=StateNo=[600,625]
+Trigger4=Ifelse(StateNo=610,(HitCount>=2||AnimElem=5,>=1),(MoveHit))
+;----------------------------------------------------
+[State -3, 空中EX一鹿(繋ぎ)]
+Type=ChangeState
+Value=26012
+TriggerAll=(Var(55)>0&&Random<=Var(55)*100)||Helper(4444+ID),Var(6)
+TriggerAll=RoundState=2
+
+TriggerAll=PlayerIDExist(Var(58))
+TriggerAll=StateType=A
+TriggerAll=NumHelper(4444+ID)
+TriggerAll=PlayerID(Var(58)),Alive
+TriggerAll=PlayerID(Var(58)),MoveType=H
+TriggerAll=Var(57)=0
+TriggerAll=!InGuardDist
+TriggerAll=Fvar(4)=[-30,70]
+TriggerAll=Fvar(5)=[-80,80]
+TriggerAll=MoveContAct
+Trigger1=StateNo=625||StateNo=610&&AnimElem>=5,>0
+Trigger1=Var(10)=1&&(Var(11)=1||Fvar(5)>50)
+Trigger1=Helper(4444+ID),Var(7)>1
+Trigger1=(Var(46)=[1,2])||(Var(46)=0)&&(Power>=2500)
+Trigger1=Var(56)<=45
+Trigger1=Var(13)>4
+;----------------------------------------------------
+[State -3, 空中AB一鹿(繋ぎ)]
+Type=ChangeState
+TriggerAll=(Var(55)>0&&Random<=Var(55)*100)||Helper(4444+ID),Var(6)
+TriggerAll=RoundState=2
+
+TriggerAll=PlayerIDExist(Var(58))
+TriggerAll=StateType=A
+TriggerAll=NumHelper(4444+ID)
+TriggerAll=PlayerID(Var(58)),Alive
+TriggerAll=PlayerID(Var(58)),MoveType=H
+TriggerAll=Var(57)=0
+TriggerAll=!InGuardDist
+TriggerAll=Fvar(4)=[-30,70]
+TriggerAll=Fvar(5)=[-80,80]
+TriggerAll=MoveHit
+TriggerAll=PlayerID(Var(58)),BackEdgeDist>10
+Trigger1=StateNo=625
+Trigger1=Var(10)=1&&Var(11)=1
+Trigger1=Helper(4444+ID),Var(7)>1
+Trigger1=Var(56)=[1,80]
+Trigger2=StateNo=610
+Trigger2=HitCount=2||AnimElem=5,>=1
+Trigger2=Helper(4444+ID),Var(7)>1
+Trigger2=Var(11)*(PlayerID(Var(58)),StateType=A)
+Trigger2=Var(56)=[1,60]
+Trigger2=PrevStateNo=620
+Value=26011
+;----------------------------------------------------
+[State -3, 空中一鹿(繋ぎ)]
+Type=ChangeState
+TriggerAll=(Var(55)>0&&Random<=Var(55)*100)||Helper(4444+ID),Var(6)
+TriggerAll=RoundState=2
+
+TriggerAll=PlayerIDExist(Var(58))
+TriggerAll=StateType=A
+TriggerAll=NumHelper(4444+ID)*NumHelper(5555+ID)*NumHelper(6666+ID)
+TriggerAll=PlayerID(Var(58)),Alive
+TriggerAll=PlayerID(Var(58)),MoveType=H
+TriggerAll=Var(57)=0
+TriggerAll=!InGuardDist
+TriggerAll=Fvar(4)=[-30,45]
+TriggerAll=Fvar(5)=[-80,80]
+TriggerAll=MoveHit
+TriggerAll=Var(56)=[1,60]
+TriggerAll=Var(55)<12
+Trigger1=(StateNo=610&&(HitCount=2||AnimElem=5,>=1))||StateNo=625&&MoveHit
+Trigger1=Helper(4444+ID),Var(7)>1&&Var(13)>4
+Trigger1=PlayerID(Var(58)),StateType=S
+Value=Ifelse(((Helper(5555+ID),Facing!=Facing&&Helper(5555+ID),RootDist X>100)||(Helper(6666+ID),Facing!=Facing&&Helper(6666+ID),RootDist X>100)),26011,26010)
+;----------------------------------------------------
+[State -3, EX閃走・一咲(繋ぎ)]
+Type=ChangeState
+Value=22211
+TriggerAll=(Var(55)>0&&Random<=Var(55)*100) || Helper(4444+ID),Var(6)
+TriggerAll=RoundState=2
+
+TriggerAll=PlayerIDExist(Var(58))
+TriggerAll=StateType=A
+TriggerAll=(NumHelper(4444+ID)>0)>0
+TriggerAll=PlayerID(Var(58)),Alive
+TriggerAll=PlayerID(Var(58)),MoveType=H
+TriggerAll=Var(57)=1
+TriggerAll=(Var(46)=[1,2]) || (Var(46)=0)&&(Power>=2500)
+TriggerAll=Helper(4444+ID),Var(7)>5
+TriggerAll=!InGuardDist
+TriggerAll=Fvar(4)=[-30,45]
+TriggerAll=Fvar(5)=[-20,80]
+TriggerAll=MoveHit
+Trigger1=StateNo=625||StateNo=610&&AnimElem=5,>0
+Trigger1=Var(10)&&Var(11)
+Trigger1=Var(13)>=4||Fvar(5)>50
+;----------------------------------------------------
+[State -3, B閃走・一咲(繋ぎ)]
+Type=ChangeState
+Value=21215
+TriggerAll=(Var(55)>0&&Random<=Var(55)*100)||Helper(4444+ID),Var(6)
+TriggerAll=RoundState=2
+
+TriggerAll=PlayerIDExist(Var(58))
+TriggerAll=StateType=A
+TriggerAll=NumHelper(4444+ID)
+TriggerAll=PlayerID(Var(58)),Alive
+TriggerAll=PlayerID(Var(58)),StateType!=A
+TriggerAll=PlayerID(Var(58)),MoveType=H
+TriggerAll=Var(55)<12
+TriggerAll=Var(57)=1
+TriggerAll=!InGuardDist
+TriggerAll=Fvar(4)=[-30,45]
+TriggerAll=Fvar(5)=[-5,80]
+TriggerAll=MoveHit
+Trigger1=StateNo=610
+Trigger1=HitCount=2||AnimElem=5,>=1
+Trigger1=PlayerID(Var(58)),StateType=S
+Trigger1=Var(13)>4
+Trigger2=StateNo=625
+Trigger2=MoveHit=1
+Trigger2=Fvar(5)<=40||Vel Y<0
+Trigger2=Var(13)>=4
+Trigger2=Var(56)=[1,40]
+;----------------------------------------------------
+[State -3, 空中投げ･表版]
+Type=ChangeState
+Value=621
+TriggerAll=(Var(55)>0&&Random<=Var(55)*100)||Helper(4444+ID),Var(6)
+TriggerAll=RoundState=2
+
+TriggerAll=PlayerIDExist(Var(58))
+TriggerAll=StateType=A
+TriggerAll=NumHelper(4444+ID)
+TriggerAll=PlayerID(Var(58)),Alive
+TriggerAll=PlayerID(Var(58)),StateType=A
+TriggerAll=PlayerID(Var(58)),MoveType=H
+TriggerAll=!InGuardDist
+TriggerAll=Fvar(4)=[-30,40]
+TriggerAll=Fvar(5)=[-30,80]
+TriggerAll=MoveContAct
+TriggerAll=Var(57)=0
+Trigger1=(StateNo=610&&(HitCount=2||AnimElem=5,>=1))||StateNo=625
+Trigger1=Helper(4444+ID),Var(7)<=1
+Trigger2=StateNo=610&&(HitCount=2||AnimElem=5,>=1)
+Trigger2=Var(10)=1&&Var(11)=1
+;----------------------------------------------------
+[State -3, 空中投げ･裏版]
+Type=ChangeState
+Value=621
+TriggerAll=(Var(55)>0&&Random<=Var(55)*100)||Helper(4444+ID),Var(6)
+TriggerAll=RoundState=2
+
+TriggerAll=PlayerIDExist(Var(58))
+TriggerAll=StateType=A
+TriggerAll=NumHelper(4444+ID)
+TriggerAll=PlayerID(Var(58)),Alive
+TriggerAll=PlayerID(Var(58)),StateType=A
+TriggerAll=PlayerID(Var(58)),MoveType=H
+TriggerAll=!InGuardDist
+TriggerAll=Fvar(4)=[-30,40]
+TriggerAll=Fvar(5)=[-80,80]
+TriggerAll=MoveContAct
+TriggerAll=Var(57)=1
+Trigger1=StateNo=625
+Trigger1=Var(11)=1&&Var(10)=1
+Trigger1=Var(46)=0&&Power<2500
+Trigger2=StateNo=625
+Trigger2=Helper(4444+ID),Var(7)<=Ifelse(!(Helper(4444+ID),Var(42)=22211),1,Ifelse((Helper(4444+ID),Var(42)=21005),1,5))
+Trigger3=StateNo=610
+Trigger3=HitCount=2||AnimElem=5,>=1
+Trigger3=Helper(4444+ID),Var(7)<=1||(Fvar(5)!=[-10,50])&&Var(11)=1&&Vel Y>0
+Trigger3=Helper(4444+ID),Var(42)=22211
+Trigger4=StateNo=610
+Trigger4=HitCount=2||AnimElem=5,>=1
+Trigger4=Helper(4444+ID),Var(7)<=5||(Fvar(5)!=[-10,50])&&Var(11)=1&&Vel Y>0
+Trigger4=Helper(4444+ID),Var(42)!=22211
+;----------------------------------------------------
+[State -3, 閃鞘・三柳/前(繋ぎ)]
+Type=ChangeState
+Value=21052
+TriggerAll=(Var(55)>0&&Random<=Var(55)*100)||Helper(4444+ID),Var(6)
+TriggerAll=RoundState=2
+
+TriggerAll=PlayerIDExist(Var(58))
+TriggerAll=NumHelper(4444+ID)
+TriggerAll=PlayerID(Var(58)),Alive
+TriggerAll=PlayerID(Var(58)),MoveType=H
+TriggerAll=StateNo=21050
+TriggerAll=Time>=8+Ifelse(Var(55)>=11,0,(10-Var(55)))
+TriggerAll=Var(57)=1
+TriggerAll=!InGuardDist
+Trigger1=NumTarget(21005)>0
+Trigger1=Target(21005),Pos X-Pos X=[-180,-140]
+;----------------------------------------------------
+[State -3, 閃鞘・三柳/下(繋ぎ)]
+Type=ChangeState
+Value=21053
+TriggerAll=(Var(55)>0&&Random<=Var(55)*100)||Helper(4444+ID),Var(6)
+TriggerAll=(RoundState=2)*Var(57)
+TriggerAll=PlayerIDExist(Var(58))
+TriggerAll=NumHelper(4444+ID)
+TriggerAll=PlayerID(Var(58)),Alive
+TriggerAll=StateNo=21050&&Time>=13+Ifelse(Var(55)>=11,0,(10-Var(55)))
+TriggerAll=!InGuardDist
+TriggerAll=PlayerID(Var(58)),StateType=A
+Trigger1=NumTarget(21005)>0
+Trigger1=Target(21005),Pos X-Pos X>-140||Target(21005),Pos X-Pos X<-180
+Trigger1=PlayerID(Var(58)),MoveType=H
+;----------------------------------------------------
+[State -3, 閃走・降臨]
+Type=ChangeState
+Value=27001
+TriggerAll=(Var(55)>0&&Random<=Var(55)*100)||Helper(4444+ID),Var(6)
+TriggerAll=RoundState=2
+
+TriggerAll=PlayerIDExist(Var(58))
+TriggerAll=StateType=A
+TriggerAll=NumHelper(4444+ID)
+TriggerAll=PlayerID(Var(58)),Alive
+TriggerAll=PlayerID(Var(58)),MoveType=H
+TriggerAll=Var(57)=0
+TriggerAll=!InGuardDist
+TriggerAll=MoveGuarded
+TriggerAll=Fvar(5)>=55||PlayerID(Var(58)),StateType=A
+Trigger1=StateNo=600
+Trigger1=Var(2):=2||1
+Trigger2=StateNo=610
+Trigger2=HitCount=2||AnimElem=5,>=1
+Trigger2=Var(2):=2||1
+Trigger3=StateNo=625
+Trigger3=Var(2):=2||1
+;----------------------------------------------------
+[State -3, JA繋ぎ]
+Type=ChangeState
+Value=600
+TriggerAll=(Var(55)>0&&Random<=Var(55)*100)||Helper(4444+ID),Var(6)
+TriggerAll=RoundState=2
+
+TriggerAll=PlayerIDExist(Var(58))
+TriggerAll=StateType=A
+TriggerAll=NumHelper(4444+ID)
+TriggerAll=PlayerID(Var(58)),Alive
+TriggerAll=PlayerID(Var(58)),MoveType=H
+TriggerAll=!InGuardDist
+TriggerAll=Fvar(4)=[-25,70]
+TriggerAll=Fvar(5)=[-80,80]
+TriggerAll=MoveContAct
+Trigger1=StateNo=600
+Trigger1=MoveGuarded
+Trigger2=StateNo=610
+Trigger2=HitCount=2||AnimElem=5,>0
+Trigger2=PlayerID(Var(58)),StateType=A||Var(57)=0&&(Var(13)>4)
+Trigger2=MoveGuarded
+Trigger3=StateNo=625
+Trigger3=PlayerID(Var(58)),StateType=A||(Var(13)%10%4=2)
+Trigger3=MoveGuarded
+Trigger4=StateNo=625
+Trigger4=MoveHit
+Trigger4=!Var(11)&&!Var(10)
+Trigger4=Fvar(5)>50
+Trigger4=PlayerID(Var(58)),StateType=A
+;----------------------------------------------------
+[State -3, JB繋ぎ]
+Type=ChangeState
+Value=610
+TriggerAll=(Var(55)>0&&Random<=Var(55)*100)||Helper(4444+ID),Var(6)
+TriggerAll=RoundState=2
+
+TriggerAll=PlayerIDExist(Var(58))
+TriggerAll=StateType=A
+TriggerAll=NumHelper(4444+ID)
+TriggerAll=PlayerID(Var(58)),Alive
+TriggerAll=PlayerID(Var(58)),MoveType=H
+TriggerAll=(Var(13)%10%4<2)
+TriggerAll=!InGuardDist
+TriggerAll=Fvar(4)=[-25,80]
+TriggerAll=Fvar(5)=[-70,100]
+TriggerAll=MoveContAct
+Trigger1=StateNo=625
+Trigger1=Helper(4444+ID),Var(7)>1
+Trigger2=StateNo=600
+Trigger2=Fvar(4)<40
+;----------------------------------------------------
+[State -3, JC繋ぎ]
+Type=ChangeState
+Value=625
+TriggerAll=(Var(55)>0&&Random<=Var(55)*100)||Helper(4444+ID),Var(6)
+TriggerAll=RoundState=2
+
+TriggerAll=PlayerIDExist(Var(58))
+TriggerAll=StateType=A
+TriggerAll=NumHelper(4444+ID)
+TriggerAll=PlayerID(Var(58)),Alive
+TriggerAll=PlayerID(Var(58)),MoveType=H
+TriggerAll=(Var(13)%10<4)
+TriggerAll=!InGuardDist
+TriggerAll=Fvar(4)=[-25,70]
+TriggerAll=Fvar(5)=[-30,100-40*(StateType=A)*(Var(11))]
+TriggerAll=MoveContAct
+Trigger1=StateNo=610
+Trigger1=HitCount=2||AnimElem=5,>=1
+Trigger1=Helper(4444+ID),Var(7)>1
+Trigger2=StateNo=600
+Trigger2=Fvar(4)=[-5,70]
+;===================================================================
+;			[地上立ち回り]
+;===================================================================
+;━━━━━━━━━━━━━━━━━━━━━━━
+;		[ゲージ溜め・開放]
+;━━━━━━━━━━━━━━━━━━━━━━━
+[State -3,パワーチャージ]
+Type=ChangeState
+Value=30950
+TriggerAll=Var(55)>0&&Var(55)<10
+TriggerAll=RoundState=2
+
+TriggerAll=PlayerIDExist(Var(58))
+TriggerAll=StateType!=A
+TriggerAll=!IsHelper
+TriggerAll=!InGuardDist
+TriggerAll=Var(46)=0
+TriggerAll=PrevStateNo!=30950
+TriggerAll=PlayerID(Var(58)),StateType=L||NumTarget(27000)
+TriggerAll=!NumTarget(26001)
+Trigger1=Random<=Var(55)*8
+Trigger1=Ctrl
+Trigger1=Fvar(4)>=160
+;----------------------------------------------------
+[State -3,開放]
+Type = ChangeState
+Value = 990
+TriggerAll=Var(55)>0
+TriggerAll=RoundState=2
+
+TriggerAll=PlayerIDExist(Var(58))*NumHelper(4444+ID)
+TriggerAll=StateType!=A
+TriggerAll=!IsHelper
+TriggerAll=!InGuardDist
+TriggerAll=Var(46)=2&&Power>1000
+TriggerAll=PrevStateNo!=990
+TriggerAll=PlayerID(Var(58)),StateType=L||NumTarget(27000)
+;TriggerAll=!NumTarget(26001)
+Trigger1=Random<=Var(55)*14
+Trigger1=Ctrl||(StateNo=[100,102])
+Trigger1=Fvar(4)-Ceil(Vel X*5)-Ceil(Helper(4444+ID),Fvar(5)*5)>=160
+;━━━━━━━━━━━━━━━━━━━━━━━
+;		    [移動]
+;━━━━━━━━━━━━━━━━━━━━━━━
+;----------------------------------------------------
+[State -3,ダッシュ(立ち回り)]
+Type=ChangeState
+Value=100
+TriggerAll=Var(55)>0
+TriggerAll=RoundState=2
+
+TriggerAll=PlayerIDExist(Var(58))
+TriggerAll=StateType!=A
+TriggerAll=NumHelper(4444+ID)
+TriggerAll=Helper(4444+ID),Var(49)=0
+TriggerAll=PlayerID(Var(58)),StateType!=L
+TriggerAll=PlayerID(Var(58)),MoveType=I
+TriggerAll=!inguarddist
+TriggerAll=StateNo!=100
+TriggerAll=Ctrl
+TriggerAll=PrevStateNo!=39
+Trigger1=Random<=Var(55)*18
+Trigger1=Fvar(4)>=80
+;----------------------------------------------------
+[State -3,ﾊﾞｯｸｽﾃｯﾌﾟ]
+Type=ChangeState
+Value=105
+TriggerAll=Var(55)>0
+TriggerAll=RoundState=2
+
+TriggerAll=PlayerIDExist(Var(58))
+TriggerAll=StateType!=A
+TriggerAll=NumHelper(4444+ID)
+TriggerAll=Helper(4444+ID),Var(48)!=2
+TriggerAll=Helper(4444+ID),Var(49)=0
+TriggerAll=PlayerID(Var(58)),StateType!=L
+TriggerAll=PlayerID(Var(58)),MoveType!=H
+TriggerAll=PlayerID(Var(58)),Stateno!=[120,159]
+TriggerAll=Ctrl||(StateNo=[100,102])
+TriggerAll=backedgebodydist>62
+Trigger1=Fvar(4)<=90
+Trigger1=Random<=Var(55)*1
+;----------------------------------------------------
+[State -3,ｼﾞｬﾝﾌﾟ]
+Type=ChangeState
+Value=39
+TriggerAll=Var(55)>0
+TriggerAll=RoundState=2
+
+TriggerAll=PlayerIDExist(Var(58))
+TriggerAll=StateType!=A
+TriggerAll=NumHelper(4444+ID)
+TriggerAll=Helper(4444+ID),Var(48)!=2
+TriggerAll=Helper(4444+ID),Var(49)=0
+TriggerAll=PlayerID(Var(58)),StateType!=L
+TriggerAll=PlayerID(Var(58)),MoveType!=H
+TriggerAll=!inguarddist
+TriggerAll=Ctrl
+TriggerAll=Var(55)<9
+Trigger1=Random<=Var(55)*5
+;----------------------------------------------------
+[State -3,ハイジャンプ(立ち回り)]
+Type=ChangeState
+Value=41
+TriggerAll=Var(55)>0
+TriggerAll=Random<=Var(55)*20
+TriggerAll=RoundState=2
+
+TriggerAll=PlayerIDExist(Var(58))
+TriggerAll=StateType!=A
+TriggerAll=!IsHelper
+TriggerAll=!InGuardDist
+TriggerAll=PlayerID(Var(58)),Alive
+TriggerAll=StateNo!=[200,499]
+TriggerAll=PlayerID(Var(58)),MoveType=I||PlayerID(Var(58)),StateNo=[120,159]
+TriggerAll=Var(11)=0
+TriggerAll=NumHelper(4444+ID)
+TriggerAll=Helper(4444+ID),Var(48)!=2
+TriggerAll=Helper(4444+ID),Var(49)=0
+TriggerAll=Ctrl
+Trigger1=Var(56)=[70,74]
+Trigger1=Fvar(4)>=180
+;----------------------------------------------------
+[State -3,歩き]
+Type=ChangeState
+Value=19
+TriggerAll=Var(55)>0
+TriggerAll=Random<=Var(55)*100
+TriggerAll=RoundState=2
+
+TriggerAll=PlayerIDExist(Var(58))
+TriggerAll=StateType!=A
+TriggerAll=!IsHelper
+TriggerAll=!InGuardDist
+TriggerAll=PlayerID(Var(58)),Alive
+TriggerAll=Ctrl
+Trigger1=PlayerID(Var(58)),StateType=L
+Trigger1=PlayerID(Var(58)),StateNo=[5110,5120]
+Trigger1=Fvar(4)=[-10,60]
+Trigger2=PlayerID(Var(58)),MoveType=I
+Trigger2(NumHelper(4444+ID)>0)
+Trigger2=Var(56)=[75,100]
+Trigger3=PlayerID(Var(58)),MoveType=H
+Trigger3=Fvar(4)<=90
+Trigger3(NumHelper(4444+ID)>0)
+Trigger3=Var(56)=[1,79]
+Trigger3=PlayerID(Var(58)),StateType=A
+;━━━━━━━━━━━━━━━━━━━━━━━
+;			[技振り]
+;━━━━━━━━━━━━━━━━━━━━━━━
+[State -3,ぶっぱAAD]
+Type = ChangeState
+value = Ifelse(Var(57)=0,13006,14500)
+TriggerAll=Var(55)>0&&PlayerIDExist(Var(58))&&NumHelper(4444+ID)>0
+TriggerAll=RoundState=2
+TriggerAll=StateType !=A
+TriggerAll=Var(46)=3
+TriggerAll=PlayerID(Var(58)),StateType != L
+TriggerAll=PlayerID(Var(58)),MoveType != H
+TriggerAll=PlayerID(Var(58)),MoveType=A||PlayerID(Var(58)),Ctrl
+TriggerAll=Ctrl||(StateNo=[100,102])
+Trigger1 = Var(55)<6
+Trigger1 = Random<=Var(55)*40
+Trigger2 = Var(55)=[5,9]
+Trigger2 = Random<=(10-Var(55))*40
+;----------------------------------------------------
+[State -3,ぶっぱAD]
+Type = ChangeState
+value = Ifelse(Var(57)=0,24000,14000)
+TriggerAll=Var(55)>0&&PlayerIDExist(Var(58))&&NumHelper(4444+ID)>0
+TriggerAll=RoundState=2
+TriggerAll=StateType !=A
+TriggerAll=Var(46)=[1,2]
+TriggerAll=PlayerID(Var(58)),StateType != L
+TriggerAll=PlayerID(Var(58)),MoveType != H
+TriggerAll=PlayerID(Var(58)),MoveType=A||PlayerID(Var(58)),Ctrl
+TriggerAll=Ctrl||(StateNo=[100,102])
+Trigger1 = Var(55)<6
+Trigger1 = Random<=Var(55)*40
+Trigger2 = Var(55)=[5,9]
+Trigger2 = Random<=(10-Var(55))*40
+;----------------------------------------------------
+[State -3,ぶっぱEX八点]
+Type = ChangeState
+value = 25020
+TriggerAll=Var(55)>0&&PlayerIDExist(Var(58))&&NumHelper(4444+ID)>0
+TriggerAll=RoundState=2
+TriggerAll=StateType !=A
+TriggerAll=Power>999&&Var(46)=0||Var(46)=[1,3]
+TriggerAll=PlayerID(Var(58)),StateType != L
+TriggerAll=PlayerID(Var(58)),MoveType != H
+TriggerAll=PlayerID(Var(58)),MoveType=A||PlayerID(Var(58)),Ctrl
+TriggerAll=Ctrl||(StateNo=[100,102])
+Trigger1 = Var(55)<6
+Trigger1 = Random<=Var(55)*20
+Trigger2 = Var(55)=[5,9]
+Trigger2 = Random<=(10-Var(55))*20
+;----------------------------------------------------
+[State -3,ぶっぱEX六鴉]
+Type = ChangeState
+value = 21210
+TriggerAll=Var(55)>0&&PlayerIDExist(Var(58))&&NumHelper(4444+ID)>0
+TriggerAll=RoundState=2
+TriggerAll=StateType !=A
+TriggerAll=Power>999&&Var(46)=0||Var(46)=[1,3]
+TriggerAll=PlayerID(Var(58)),StateType != L
+TriggerAll=PlayerID(Var(58)),MoveType != H
+TriggerAll=PlayerID(Var(58)),MoveType=A||PlayerID(Var(58)),Ctrl
+TriggerAll=Ctrl||(StateNo=[100,102])
+Trigger1 = Var(55)<6
+Trigger1 = Random<=Var(55)*40
+Trigger2 = Var(55)=[5,9]
+Trigger2 = Random<=(10-Var(55))*40
+;----------------------------------------------------
+[State -3,地上投げ]
+Type=ChangeState
+Value=800
+TriggerAll=Var(55)>0
+TriggerAll=Random<=Var(55)*40
+TriggerAll=RoundState=2
+
+TriggerAll=PlayerIDExist(Var(58))
+TriggerAll=StateType!=A
+TriggerAll=!IsHelper
+TriggerAll=!InGuardDist
+TriggerAll=PlayerID(Var(58)),Alive
+TriggerAll=PlayerID(Var(58)),StateType!=L
+TriggerAll=PlayerID(Var(58)),MoveType!=H
+TriggerAll=PlayerID(Var(58)),StateType!=A
+TriggerAll=PlayerID(Var(58)),StateNo!=5200&&PlayerID(Var(58)),StateNo!=5201&&PlayerID(Var(58)),StateNo!=5210||PlayerID(Var(58)),StateNo!=[150,160]
+TriggerAll=PlayerID(Var(58)),PrevStateNo!=5120
+TriggerAll=NumHelper(4444+ID)
+TriggerAll=Helper(4444+ID),Var(49)=0
+Trigger1=Ctrl||(StateNo=[100,102])
+Trigger1=Fvar(4)-Vel X-PlayerID(Var(58)),Vel X=[-14,20]
+;----------------------------------------------------
+[State -3, 2A(投げ対策)]
+Type=ChangeState
+value=400
+TriggerAll=(Var(55)>0)*PlayerIDExist(Var(58))*NumHelper(4444+ID)
+TriggerAll=RoundState=2
+TriggerAll=StateType!=A
+TriggerAll=Helper(4444+ID),Var(48)!=2
+TriggerAll=Helper(4444+ID),Var(49)=0
+TriggerAll=PlayerID(Var(58)),StateType!=L
+TriggerAll=PlayerID(Var(58)),MoveType!=H
+TriggerAll=PlayerID(Var(58)),Ctrl||PlayerID(Var(58)),MoveType=A&&PlayerID(Var(58)),HitdefAttr=SAC,AT
+TriggerAll=!InGuardDist
+TriggerAll=Fvar(4)=[-5,60]
+TriggerAll=!(Fvar(5))
+TriggerAll=PlayerID(Var(58)),StateType!=A
+TriggerAll=Ctrl||(StateNo=[100,102])
+Trigger1=Random<=Var(55)*5
+
+[State -3,2A(技振り)]
+Type=ChangeState
+Value=400
+TriggerAll=Var(55)>0
+TriggerAll=Random<=Var(55)*20
+TriggerAll=RoundState=2
+
+TriggerAll=PlayerIDExist(Var(58))
+TriggerAll=StateType!=A
+TriggerAll=!IsHelper
+TriggerAll=PlayerID(Var(58)),Alive
+TriggerAll=PlayerID(Var(58)),StateType!=L
+TriggerAll=PlayerID(Var(58)),StateType!=A
+TriggerAll=NumHelper(4444+ID)
+TriggerAll=Helper(4444+ID),Var(48)!=2
+TriggerAll=Helper(4444+ID),Var(49)=0
+TriggerAll=!(Var(13)/10%10%2)
+TriggerAll=P2Dist X>=0||Facing=Helper(4444+ID),Facing
+TriggerAll=Fvar(4)-IfElse(Vel X>0,IfElse(5<(Vel X/0.82),(Vel X*5-(0.82*(5**2)/2.0)),(Vel X**2)/(0.82*2)),0)-(PlayerID(Var(58)),Vel X*2+(Helper(4444+ID),fvar(4)*(2**2)/2.0))=[-44,44]
+TriggerAll=Ctrl||(StateNo=[100,102])||StateNo=[120,131]
+Trigger1=PlayerID(Var(58)),MoveType!=A
+Trigger1=!InGuardDist
+;隙付き
+Trigger2=PlayerID(Var(58)),MoveType=A
+Trigger2=! PlayerID(Var(58)),Ctrl
+Trigger2=PlayerID(Var(58)),AnimTime=[-7,-1]
+;----------------------------------------------------
+[State -3,2B(技振り)]
+Type=ChangeState
+Value=410
+TriggerAll=Var(55)>0
+TriggerAll=Random<=Var(55)*20
+TriggerAll=RoundState=2
+
+TriggerAll=PlayerIDExist(Var(58))
+TriggerAll=StateType!=A
+TriggerAll=!IsHelper
+TriggerAll=PlayerID(Var(58)),Alive
+TriggerAll=PlayerID(Var(58)),StateType!=L
+TriggerAll=PlayerID(Var(58)),StateType!=A
+TriggerAll=NumHelper(4444+ID)
+TriggerAll=Helper(4444+ID),Var(48)!=2
+TriggerAll=Helper(4444+ID),Var(49)=0
+TriggerAll=(Var(13)/10%10%4<2)
+TriggerAll=P2Dist X>=0||Facing=Helper(4444+ID),Facing
+TriggerAll=Fvar(4)-Vel X*4-Helper(4444+ID),Fvar(5)*4=[-5,90]
+TriggerAll=Ctrl||(StateNo=[100,102])||StateNo=[120,131]
+Trigger1=PlayerID(Var(58)),MoveType!=A
+Trigger1=!InGuardDist
+;隙付き
+Trigger2=PlayerID(Var(58)),MoveType=A
+Trigger2=! PlayerID(Var(58)),Ctrl
+Trigger2=Facing=PlayerID(Var(58)),Facing||PlayerID(Var(58)),AnimTime=[-10,-4]
+;----------------------------------------------------
+[State -3,2C(受身狩り？)]
+Type=ChangeState
+Value=420
+TriggerAll=Var(55)>0
+TriggerAll=Random<=Var(55)*50
+TriggerAll=RoundState=2
+
+TriggerAll=PlayerIDExist(Var(58))
+TriggerAll=StateType!=A
+TriggerAll=!IsHelper
+TriggerAll=!InGuardDist
+TriggerAll=NumHelper(4444+ID)
+TriggerAll=PlayerID(Var(58)),Alive
+TriggerAll=PlayerID(Var(58)),StateType!=L
+TriggerAll=PlayerID(Var(58)),StateType=A
+TriggerAll=(PlayerID(Var(58)),StateNo=[5200,5201])||(PlayerID(Var(58)),StateNo=5210)
+TriggerAll=P2Dist X>=0
+TriggerAll=Ctrl||(StateNo=[100,102])
+Trigger1=Fvar(4)-IfElse(Vel X>0, IfElse(11<(Vel X/0.82),(Vel X*11-(0.82*(11**2)/2.0)),(Vel X**2)/(0.82*2)), 0)-(PlayerID(Var(58)),Vel X*5+(Helper(4444+ID),fvar(4)*(5**2)/2.0))=[-50,80]
+Trigger1=Fvar(5)+(Helper(4444+ID),Fvar(15)*5+(Helper(4444+ID),fvar(14)*(5**2)/2.0))>=14
+Trigger2=Fvar(4)-IfElse(Vel X>0, IfElse(12<(Vel X/0.82),(Vel X*12-(0.82*(12**2)/2.0)),(Vel X**2)/(0.82*2)), 0)-(PlayerID(Var(58)),Vel X*5+(Helper(4444+ID),fvar(4)*(5**2)/2.0))=[-50,80]
+Trigger2=Fvar(5)+(Helper(4444+ID),Fvar(15)*6+(Helper(4444+ID),fvar(14)*(6**2)/2.0))>=14
+
+[State -3,2C(技振り)]
+Type = ChangeState
+value = 420
+TriggerAll=Var(55)>0
+TriggerAll=Random<=Var(55)*15
+TriggerAll=RoundState=2
+
+TriggerAll=PlayerIDExist(Var(58))*NumHelper(4444+ID)
+TriggerAll=StateType!=A
+TriggerAll=PlayerID(Var(58)),StateType!=L
+TriggerAll=PlayerID(Var(58)),MoveType=I
+TriggerAll=Helper(4444+ID),Var(48)!=2
+TriggerAll=Helper(4444+ID),Var(49)=0
+TriggerAll=!InGuardDist
+TriggerAll=PlayerID(Var(58)),StateType=S
+TriggerAll=Ctrl||(StateNo=[100,102])
+Trigger1=Fvar(4)-(Vel X*11)-(Helper(4444+ID),Fvar(5)*11)=[20,80]
+;----------------------------------------------------
+[State -3,5A(対空)]
+Type=ChangeState
+Value=200
+TriggerAll=Var(55)>0
+TriggerAll=Random<=Var(55)*50
+TriggerAll=RoundState=2
+
+TriggerAll=PlayerIDExist(Var(58))
+TriggerAll=StateType!=A
+TriggerAll=!IsHelper
+TriggerAll=!InGuardDist
+TriggerAll=PlayerID(Var(58)),Alive
+TriggerAll=PlayerID(Var(58)),StateType!=L
+TriggerAll=PlayerID(Var(58)),MoveType=I||(PlayerID(Var(58)),MoveType=A&&PlayerID(Var(58)),HitDefAttr=SCA,NA)||NumEnemy>1
+TriggerAll=PlayerID(Var(58)),StateType=A
+TriggerAll=NumHelper(4444+ID)
+TriggerAll=Helper(4444+ID),Var(48)!=2
+TriggerAll=Helper(4444+ID),Var(49)=0
+TriggerAll=!(Var(13)%2)
+TriggerAll=PlayerID(Var(58)),StateNo!=5200&&PlayerID(Var(58)),StateNo!=5201&&PlayerID(Var(58)),StateNo!=5210
+TriggerAll=P2Dist X>=0
+TriggerAll=Ctrl||(StateNo=[100,102])
+Trigger1=Fvar(4)-IfElse(Vel X>0,IfElse(5<(Vel X/0.85),(Vel X*5-(0.85*(5**2)/2.0)),(Vel X**2)/(0.85*2)),0)-(PlayerID(Var(58)),Vel X*2+(Helper(4444+ID),fvar(4)*(2**2)/2.0))=[-20,40]
+Trigger1=Fvar(5)+(Helper(4444+ID),Fvar(15)*2+(Helper(4444+ID),fvar(14)*(2**2)/2.0))=[-50,0]
+Trigger2=Fvar(4)-IfElse(Vel X>0,IfElse(6<(Vel X/0.85),(Vel X*6-(0.85*(6**2)/2.0)),(Vel X**2)/(0.85*2)),0)-(PlayerID(Var(58)),Vel X*3+(Helper(4444+ID),fvar(4)*(3**2)/2.0))=[-20,40]
+Trigger2=Fvar(5)+(Helper(4444+ID),Fvar(15)*3+(Helper(4444+ID),fvar(14)*(3**2)/2.0))=[-50,0]
+;----------------------------------------------------
+[State -3,A八点(対空)]
+Type=ChangeState
+Value=25000
+TriggerAll=Var(55)>0
+TriggerAll=Random<=Var(55)*50
+TriggerAll=RoundState=2
+TriggerAll=PlayerIDExist(Var(58))
+TriggerAll=StateType!=A
+TriggerAll=!IsHelper
+TriggerAll=!InGuardDist
+TriggerAll=PlayerID(Var(58)),Alive
+TriggerAll=PlayerID(Var(58)),StateType!=L
+TriggerAll=PlayerID(Var(58)),MoveType=I||(PlayerID(Var(58)),MoveType=A&&PlayerID(Var(58)),HitDefAttr=SCA,NA)||NumEnemy>1
+TriggerAll=PlayerID(Var(58)),StateType=A
+TriggerAll=NumHelper(4444+ID)
+TriggerAll=Helper(4444+ID),Var(48)!=2
+TriggerAll=Helper(4444+ID),Var(49)=0
+TriggerAll=Helper(4444+ID),Fvar(15)>=-1
+TriggerAll=P2Dist X>=0
+TriggerAll=Ctrl||(StateNo=[100,102])
+Trigger1=Fvar(4)-IfElse(Vel X>0,IfElse(11<(Vel X/0.85),(Vel X*11-(0.85*(11**2)/2.0)),(Vel X**2)/(0.85*2)),0)-(PlayerID(Var(58)),Vel X*5+(Helper(4444+ID),fvar(4)*(5**2)/2.0))=[10,80]
+Trigger1=Fvar(5)+(Helper(4444+ID),Fvar(15)*5+(Helper(4444+ID),fvar(14)*(5**2)/2.0))=[-100,-60]
+Trigger2=Fvar(4)-IfElse(Vel X>0,IfElse(12<(Vel X/0.85),(Vel X*12-(0.85*(12**2)/2.0)),(Vel X**2)/(0.85*2)),0)-(PlayerID(Var(58)),Vel X*6+(Helper(4444+ID),fvar(4)*(6**2)/2.0))=[10,80]
+Trigger2=Fvar(5)+(Helper(4444+ID),Fvar(15)*6+(Helper(4444+ID),fvar(14)*(6**2)/2.0))=[-100,-60]
+;----------------------------------------------------
+[State -3,B六鴉(対空)]
+Type=ChangeState
+Value=21210
+TriggerAll=Var(55)>0
+TriggerAll=Random<=Var(55)*40
+TriggerAll=RoundState=2
+
+TriggerAll=PlayerIDExist(Var(58))
+TriggerAll=StateType!=A
+TriggerAll=!IsHelper
+TriggerAll=!InGuardDist
+TriggerAll=PlayerID(Var(58)),Alive
+TriggerAll=PlayerID(Var(58)),StateType!=L
+TriggerAll=PlayerID(Var(58)),MoveType=I||(PlayerID(Var(58)),MoveType=A&&PlayerID(Var(58)),HitDefAttr=SCA,NA)||NumEnemy>1
+TriggerAll=PlayerID(Var(58)),StateType=A
+TriggerAll=Var(57)=0
+TriggerAll=NumHelper(4444+ID)
+TriggerAll=Helper(4444+ID),Var(48)!=2
+TriggerAll=Helper(4444+ID),Var(49)=0
+TriggerAll=Helper(4444+ID),Fvar(15)>=-1
+TriggerAll=P2Dist X>=0
+TriggerAll=Ctrl||(StateNo=[100,102])
+Trigger1=(Fvar(4)-Ceil(Vel X*9)-Ceil(Helper(4444+ID),Fvar(5)*9))=[-9,21]
+Trigger1=(Fvar(5)+(Helper(4444+ID),Fvar(15)*9+(Helper(4444+ID),Fvar(16))*45)*(Helper(4444+ID),Fvar(15)!=0))=[-64,0]
+Trigger2=(Fvar(4)-Ceil(Vel X*9)-Ceil(Helper(4444+ID),Fvar(5)*9))=[8,54]
+Trigger2=(Fvar(5)+(Helper(4444+ID),Fvar(15)*13+(Helper(4444+ID),Fvar(16))*91)*(Helper(4444+ID),Fvar(15)!=0))=[-81,1]
+Trigger3=(Fvar(4)-Ceil(Vel X*24)-Ceil(Helper(4444+ID),Fvar(5)*24))=[6,60]
+Trigger3=(Fvar(5)+(Helper(4444+ID),Fvar(15)*24+(Helper(4444+ID),Fvar(16))*300)*(Helper(4444+ID),Fvar(15)!=0))=[-106,-56]
+Trigger4=Fvar(4)-IfElse(Vel X>0,IfElse(10<(Vel X/0.85),(Vel X*10-(0.85*(10**2)/2.0)),(Vel X**2)/(0.85*2)),0)-(PlayerID(Var(58)),Vel X*5+(Helper(4444+ID),fvar(4)*(5**2)/2.0))=[0,60]
+Trigger4=Fvar(5)+(Helper(4444+ID),Fvar(15)*5+(Helper(4444+ID),fvar(14)*(5**2)/2.0))=[-100,-60]
+Trigger5=Fvar(4)-IfElse(Vel X>0,IfElse(11<(Vel X/0.85),(Vel X*11-(0.85*(11**2)/2.0)),(Vel X**2)/(0.85*2)),0)-(PlayerID(Var(58)),Vel X*6+(Helper(4444+ID),fvar(4)*(6**2)/2.0))=[0,60]
+Trigger5=Fvar(5)+(Helper(4444+ID),Fvar(15)*6+(Helper(4444+ID),fvar(14)*(6**2)/2.0))=[-100,-60]
+;----------------------------------------------------
+[State -3,A水月]
+Type=ChangeState
+value=21300
+TriggerAll=Var(55)>0
+TriggerAll=PlayerIDExist(Var(58))*NumHelper(4444+ID)
+TriggerAll=RoundState=2
+TriggerAll=StateType!=A
+TriggerAll=PlayerID(Var(58)),StateType=A
+TriggerAll=Helper(4444+ID),Var(48)!=2
+TriggerAll=Helper(4444+ID),Var(49)=0
+TriggerAll=Helper(4444+ID),Fvar(5)>0
+TriggerAll=Helper(4444+ID),Fvar(15)!=0
+TriggerAll=Facing!=PlayerID(Var(58)),Facing
+TriggerAll=!InGuardDist
+TriggerAll=Fvar(4)-(Vel X*5)-(Helper(4444+ID),Fvar(5)*5)=[-5,90]
+TriggerAll=Fvar(5)+(Helper(4444+ID),Fvar(15)*5+Helper(4444+ID),Fvar(16)*15)=[-170,-20]
+TriggerAll=Ctrl
+Trigger1=Random<=Var(55)*20
+;----------------------------------------------------
+[State -3,閃鎖・八穿]
+Type=ChangeState
+value=21100
+TriggerAll=(Var(55)>0)*PlayerIDExist(Var(58))
+TriggerAll=Var(55)<8
+TriggerAll=(RoundState=2)*(NumHelper(4444+ID)>0)
+TriggerAll=(StateType!=A)*(Helper(4444+ID),Var(48)!=2)*(Helper(4444+ID),Var(49)=0)
+TriggerAll=PlayerID(Var(58)),StateType!=L
+TriggerAll=(PlayerID(Var(58)),MoveType=I)*(PlayerID(Var(58)),Ctrl=0)
+TriggerAll=!InGuardDist
+TriggerAll=Fvar(4)=[100,180]
+TriggerAll=Fvar(5)=[-140,0]
+TriggerAll=(PlayerID(Var(58)),StateNo!=[120,159])
+TriggerAll=Ctrl
+Trigger1=Random<=Var(55)*6
+;----------------------------------------------------
+[State -3,閃鎖・七夜]
+Type=ChangeState
+value=21150
+TriggerAll=(Var(55)>0)*PlayerIDExist(Var(58))
+TriggerAll=RoundState=2
+TriggerAll=NumHelper(4444+ID)
+TriggerAll=StateType!=A
+TriggerAll=Helper(4444+ID),Var(48)!=2
+TriggerAll=Helper(4444+ID),Var(49)=0
+TriggerAll=PlayerID(Var(58)),StateType=A
+TriggerAll=(PlayerID(Var(58)),MoveType=I)*(PlayerID(Var(58)),Ctrl=0)
+TriggerAll=!(PlayerID(Var(58)),StateNo=[5200,5220])
+TriggerAll=!InGuardDist
+TriggerAll=(PlayerID(Var(58)),StateNo!=[120,159])
+TriggerAll=Ctrl||(StateNo=[100,102])
+TriggerAll=Random<=Var(55)*18
+Trigger1=Fvar(4)-Ceil(Vel X*9)-Ceil(Helper(4444+ID),Fvar(5)*9)=[60,180]
+Trigger1=Fvar(5)+Ceil(Helper(4444+ID),Fvar(15)*8)=[-70,0]
+;----------------------------------------------------
+[State -3,閃鎖・一風]
+Type=ChangeState
+value=21180
+TriggerAll=(Var(55)>0)*PlayerIDExist(Var(58))
+TriggerAll=Var(55)<8
+TriggerAll=(RoundState=2)*(NumHelper(4444+ID)>0)
+TriggerAll=(StateType!=A)*(Helper(4444+ID),Var(48)!=2)*(Helper(4444+ID),Var(49)=0)
+TriggerAll=PlayerID(Var(58)),StateType!=L
+TriggerAll=(PlayerID(Var(58)),MoveType=I)*(PlayerID(Var(58)),Ctrl=0)
+TriggerAll=!InGuardDist
+TriggerAll=Fvar(4)=[120,180]
+TriggerAll=!(Fvar(5))
+TriggerAll=(PlayerID(Var(58)),StateNo!=[120,159])
+TriggerAll=Ctrl
+Trigger1=Random<=Var(55)*6
+;===================================================================
+;			[空中立ち回り]
+;===================================================================
+;━━━━━━━━━━━━━━━━━━━━━━━
+;		     [移動]
+;━━━━━━━━━━━━━━━━━━━━━━━
+[State -3,立ち回り用　空中ｼﾞｬﾝﾌﾟ]
+Type=ChangeState
+Value=45
+TriggerAll=Var(55)>0
+TriggerAll=RoundState=2
+
+TriggerAll=PlayerIDExist(Var(58))
+TriggerAll=StateType=A
+TriggerAll=PlayerID(Var(58)),StateType!=L
+TriggerAll=PlayerID(Var(58)),MoveType!=H
+TriggerAll=StateNo!=730
+TriggerAll=StateNo!=5210
+TriggerAll=PrevStateNo!=5210
+TriggerAll=Numproj=0;PlayerID(Var(58)),MoveType!=A
+TriggerAll=Var(9)=0
+TriggerAll=Var(10)<=0
+TriggerAll=Ctrl
+Trigger1=vel Y>0
+Trigger1=Random<=Var(55)*8
+;----------------------------------------------------
+[State -3,立ち回り用　空中ダッシュ]
+Type=ChangeState
+Value=110
+TriggerAll=Var(55)>0
+TriggerAll=RoundState=2
+
+TriggerAll=PlayerIDExist(Var(58))
+TriggerAll=StateType=A
+TriggerAll=PlayerID(Var(58)),StateType!=L
+TriggerAll=PlayerID(Var(58)),MoveType=I
+TriggerAll=!inguarddist
+TriggerAll=Var(11)=0
+TriggerAll=Fvar(4)>150
+TriggerAll=Ctrl
+Trigger1=Random<=Var(55)*5
+
+;----------------------------------------------------
+[State -3,立ち回り用　空中バックダッシュ]
+Type=ChangeState
+Value=115
+TriggerAll=Var(55)>0
+TriggerAll=RoundState=2
+
+TriggerAll=PlayerIDExist(Var(58))
+TriggerAll=StateType=A
+TriggerAll=PlayerID(Var(58)),StateType!=L
+TriggerAll=PlayerID(Var(58)),MoveType=I
+TriggerAll=!inguarddist
+TriggerAll=Var(11)=0
+TriggerAll=backedgebodydist>=62
+TriggerAll=Ctrl
+Trigger1=Fvar(4)=[30,90]
+Trigger1=Random<=Var(55)*7
+;━━━━━━━━━━━━━━━━━━━━━━━
+;		　　[技振り]
+;━━━━━━━━━━━━━━━━━━━━━━━
+[State -3,空投げ1]
+Type=ChangeState
+Value=621
+TriggerAll=Var(55)>0
+TriggerAll=Random<=Var(55)*100
+TriggerAll=RoundState=2
+
+TriggerAll=PlayerIDExist(Var(58))
+TriggerAll=StateType=A
+TriggerAll=!IsHelper
+TriggerAll=PlayerID(Var(58)),Alive
+TriggerAll=PlayerID(Var(58)),StateType!=L
+TriggerAll=PlayerID(Var(58)),StateType=A
+TriggerAll=PlayerID(Var(58)),MoveType!=H
+TriggerAll=PlayerID(Var(58)),StateNo!=5200
+TriggerAll=PlayerID(Var(58)),StateNo!=5201
+TriggerAll=PlayerID(Var(58)),StateNo!=5210
+TriggerAll=Fvar(4)-Vel X-PlayerID(Var(58)),Vel X=[-10,24]
+TriggerAll=Fvar(5)-Vel Y+Helper(4444+ID),Fvar(15)=[-70,Abs(PlayerID(Var(58)),Const(size.head.pos.y))-55]
+TriggerAll=Ctrl||(StateNo=[110,115])||(StateNo=21052)||(PrevStateNo=41)
+Trigger1=!InGuardDist
+Trigger2=PrevStateNo=[150,159]
+Trigger2=! PlayerID(Var(58)),Ctrl
+Trigger2=PlayerID(Var(58)),Animtime<=-2
+;----------------------------------------------------
+[State -3,空投げ2]
+Type=ChangeState
+Value=621
+TriggerAll=Var(55)>0
+TriggerAll=Random<=Var(55)*100
+TriggerAll=RoundState=2
+
+TriggerAll=PlayerIDExist(Var(58))
+TriggerAll=StateType=A
+TriggerAll=!IsHelper
+TriggerAll=PlayerID(Var(58)),Alive
+TriggerAll=PlayerID(Var(58)),StateType!=L
+TriggerAll=PlayerID(Var(58)),StateType=A
+TriggerAll=PlayerID(Var(58)),MoveType!=H
+TriggerAll=PlayerID(Var(58)),StateNo!=[150,160]
+TriggerAll=Fvar(4)-Vel X-PlayerID(Var(58)),Vel X=[-10,24]
+TriggerAll=Fvar(5)-Vel Y+Helper(4444+ID),Fvar(15)=[-70,Abs(PlayerID(Var(58)),Const(size.head.pos.y))-55]
+TriggerAll=Ctrl||(StateNo=[110,115])||(StateNo=21052)||(PrevStateNo=41)
+Trigger1=!InGuardDist
+Trigger2=PrevStateNo=[150,159]
+Trigger2=! PlayerID(Var(58)),Ctrl
+Trigger2=PlayerID(Var(58)),Animtime<=-2
+;----------------------------------------------------
+[State -3,JA(相手地上)]
+Type=ChangeState
+Value=600
+TriggerAll=Var(55)>0
+TriggerAll=Random<=Var(55)*15
+TriggerAll=RoundState=2
+
+TriggerAll=PlayerIDExist(Var(58))
+TriggerAll=StateType=A
+TriggerAll=!IsHelper
+TriggerAll=PlayerID(Var(58)),Alive
+TriggerAll=PlayerID(Var(58)),StateType!=L
+TriggerAll=P2Dist X>=0||PlayerID(Var(58)),BackEdgeBodyDist<=20
+TriggerAll=PlayerID(Var(58)),StateType!=A
+TriggerAll=NumHelper(4444+ID)
+TriggerAll=!(Var(13)%2)
+TriggerAll=Ctrl&&Vel Y>0||StateNo=21052||PrevStateNo=41
+TriggerAll=(Fvar(4)-(Vel X*7)-(Helper(4444+ID),Fvar(5)*7))=[-5,50]
+TriggerAll=Fvar(5)-(Vel Y*7-Const(Movement.YAccel)*28)=[10,60]
+Trigger1=PlayerID(Var(58)),MoveType!=H
+Trigger2=PlayerID(Var(58)),MoveType=H
+Trigger2=PlayerID(Var(58)),StateNo=[120,159]
+Trigger3=NumEnemy>1
+;----------------------------------------------------
+[State -3,JA(相手空中)]
+Type=ChangeState
+Value=600
+TriggerAll=Var(55)>0
+TriggerAll=Random<=Var(55)*20
+TriggerAll=RoundState=2
+
+TriggerAll=PlayerIDExist(Var(58))
+TriggerAll=StateType=A
+TriggerAll=!IsHelper
+TriggerAll=!InGuardDist
+TriggerAll=PlayerID(Var(58)),Alive
+TriggerAll=PlayerID(Var(58)),StateType!=L
+TriggerAll=P2Dist X>=0||PlayerID(Var(58)),BackEdgeBodyDist<=20
+TriggerAll=PlayerID(Var(58)),StateType=A
+TriggerAll=NumHelper(4444+ID)
+TriggerAll=!(Var(13)%2)
+TriggerAll=Ctrl||StateNo=21052||PrevStateNo=41
+TriggerAll=(Fvar(4)-Ceil(Vel X*7)-Ceil(Helper(4444+ID),Fvar(5)*7))=[-5,50]
+TriggerAll=Fvar(5)-(Vel Y*7-Const(Movement.YAccel)*28)+(Helper(4444+ID),Fvar(15)*7+Helper(4444+ID),Fvar(16)*28)=[-50,60]
+Trigger1=PlayerID(Var(58)),MoveType!=H
+Trigger2=PlayerID(Var(58)),MoveType=H
+Trigger2=PlayerID(Var(58)),StateNo=[120,159]
+Trigger3=NumEnemy>1
+;----------------------------------------------------
+[State -3,JB(相手地上)]
+Type=ChangeState
+Value=610
+TriggerAll=Var(55)>0
+TriggerAll=Random<=Var(55)*20
+TriggerAll=RoundState=2
+
+TriggerAll=PlayerIDExist(Var(58))
+TriggerAll=StateType=A
+TriggerAll=!IsHelper
+TriggerAll=PlayerID(Var(58)),Alive
+TriggerAll=PlayerID(Var(58)),StateType!=L
+TriggerAll=P2Dist X>=0||PlayerID(Var(58)),BackEdgeBodyDist<=20
+TriggerAll=PlayerID(Var(58)),StateType!=A
+TriggerAll=NumHelper(4444+ID)
+TriggerAll=(Var(13)%10%4<2)
+TriggerAll=Ctrl&&Vel Y>0||StateNo=21052||PrevStateNo=41
+TriggerAll=(Fvar(4)-Ceil(Vel X*5)-Ceil(Helper(4444+ID),Fvar(5)*5))=[-35,40]
+TriggerAll=Fvar(5)-(Vel Y*5-Const(Movement.YAccel)*15)=[10,80]
+Trigger1=PlayerID(Var(58)),MoveType!=H
+Trigger2=PlayerID(Var(58)),MoveType=H
+Trigger2=PlayerID(Var(58)),StateNo=[120,159]
+Trigger3=NumEnemy>1
+;----------------------------------------------------
+[State -3,JB(相手空中)]
+Type=ChangeState
+Value=610
+TriggerAll=Var(55)>0&&Random<=Var(55)*18||Helper(4444+ID),Var(6)
+TriggerAll=RoundState=2
+
+TriggerAll=PlayerIDExist(Var(58))
+TriggerAll=StateType=A
+TriggerAll=!IsHelper
+TriggerAll=!InGuardDist
+TriggerAll=PlayerID(Var(58)),Alive
+TriggerAll=PlayerID(Var(58)),StateType!=L
+TriggerAll=P2Dist X>=0||PlayerID(Var(58)),BackEdgeBodyDist<=20
+TriggerAll=PlayerID(Var(58)),StateType=A&&Helper(4444+ID),Fvar(15)!=0
+TriggerAll=NumHelper(4444+ID)
+TriggerAll=(Var(13)%10%4<2)
+TriggerAll=Ctrl||StateNo=21052||PrevStateNo=41
+TriggerAll=(Fvar(4)-(Vel X*5)-(Helper(4444+ID),Fvar(5)*5))=[-35,40]
+TriggerAll=Fvar(5)-(Vel Y*5-Const(Movement.YAccel)*15)+(Helper(4444+ID),Fvar(15)*5+Helper(4444+ID),Fvar(16)*15)=[-50,80]
+Trigger1=PlayerID(Var(58)),MoveType!=H
+Trigger2=PlayerID(Var(58)),MoveType=H
+Trigger2=PlayerID(Var(58)),StateNo=[120,159]
+Trigger3=NumEnemy>1
+;----------------------------------------------------
+[State -3,JC(相手地上)]
+Type=ChangeState
+Value=620
+TriggerAll=Var(55)>0
+TriggerAll=Random<=Var(55)*20
+TriggerAll=RoundState=2
+
+TriggerAll=PlayerIDExist(Var(58))
+TriggerAll=StateType=A
+TriggerAll=!IsHelper
+TriggerAll=PlayerID(Var(58)),Alive
+TriggerAll=PlayerID(Var(58)),StateType!=L
+TriggerAll=PlayerID(Var(58)),MoveType!=H||PlayerID(Var(58)),MoveType=H&&(PlayerID(Var(58)),StateNo=[120,159])||NumEnemy>1
+TriggerAll=P2Dist X>=0||PlayerID(Var(58)),BackEdgeBodyDist<=20
+TriggerAll=PlayerID(Var(58)),StateType!=A
+TriggerAll=NumHelper(4444+ID)
+TriggerAll=Ctrl&&Vel Y>0||StateNo=21052||PrevStateNo=41
+Trigger1=Fvar(4)-Ceil(Vel X*7)-Ceil(Helper(4444+ID),Fvar(5)*7)=[30,70]
+Trigger1=Fvar(5)-(Vel Y*7-Const(Movement.YAccel)*28)=[1,110]
+Trigger2=Fvar(4)-Ceil(Vel X*7)-Ceil(Helper(4444+ID),Fvar(5)*7)=[-5-25*(PlayerID(var(58)),BackEdgeBodyDist<10),45]
+Trigger2=Fvar(5)-(Vel Y*7-Const(Movement.YAccel)*28)=[1,100]
+;----------------------------------------------------
+[State -3,JC(相手空中)]
+Type=ChangeState
+Value=625
+TriggerAll=Var(55)>0
+TriggerAll=Random<=Var(55)*20
+TriggerAll=RoundState=2
+
+TriggerAll=PlayerIDExist(Var(58))
+TriggerAll=StateType=A
+TriggerAll=!IsHelper
+TriggerAll=!InGuardDist
+TriggerAll=PlayerID(Var(58)),Alive
+TriggerAll=PlayerID(Var(58)),StateType!=L
+TriggerAll=PlayerID(Var(58)),MoveType!=H||PlayerID(Var(58)),MoveType=H&&(PlayerID(Var(58)),StateNo=[120,159])||NumEnemy>1
+TriggerAll=P2Dist X>=0||PlayerID(Var(58)),BackEdgeBodyDist<=20
+TriggerAll=PlayerID(Var(58)),StateType=A
+TriggerAll=NumHelper(4444+ID)
+TriggerAll=(Var(13)%10<4)
+TriggerAll=Ctrl||(StateNo=21052)||(PrevStateNo=41)
+Trigger1=Fvar(4)-Ceil(Vel X*7)-Ceil(Helper(4444+ID),Fvar(5)*7)=[30,70]
+Trigger1=Fvar(5)-(Vel Y*7-Const(Movement.YAccel)*28)+(Helper(4444+ID),Fvar(15)*7+Helper(4444+ID),Fvar(16)*28)=[-50,60]
+Trigger2=Fvar(4)-Ceil(Vel X*7)-Ceil(Helper(4444+ID),Fvar(5)*7)=[-5,45]
+Trigger2=Fvar(5)-(Vel Y*7-Const(Movement.YAccel)*28)+(Helper(4444+ID),Fvar(15)*7+Helper(4444+ID),Fvar(16)*28)=[-30,90]
+;----------------------------------------------------
+[State -3, 閃走・降臨]
+Type=ChangeState
+Value=27001
+TriggerAll=Var(55)>0
+TriggerAll=Random<=Var(55)*13
+TriggerAll=RoundState=2
+
+TriggerAll=PlayerIDExist(Var(58))
+TriggerAll=StateType=A
+TriggerAll=!IsHelper
+TriggerAll=!InGuardDist
+TriggerAll=PlayerID(Var(58)),Alive
+TriggerAll=PlayerID(Var(58)),StateType!=L
+TriggerAll=PlayerID(Var(58)),MoveType=I||PlayerID(Var(58)),MoveType=A&&PlayerID(Var(58)),HitDefAttr=SCA,NA&&Var(57)=1||NumEnemy>1
+TriggerAll=NumHelper(4444+ID)
+TriggerAll=Helper(4444+ID),Var(48)!=2
+TriggerAll=Helper(4444+ID),Var(49)=0
+TriggerAll=P2Dist X>=0
+TriggerAll=Ctrl
+TriggerAll=!Var(57)
+Trigger1=Fvar(4)-Vel X-PlayerID(Var(58)),Vel X=[40,70]
+Trigger1=Fvar(5)-(Vel Y-const(Movement.yaccel))+(Helper(4444+ID),Fvar(15)+Helper(4444+ID),Fvar(16))=[100,170]
+Trigger1=Var(2):=2||1
+Trigger2=Fvar(4)-Vel X-PlayerID(Var(58)),Vel X=[0,40]
+Trigger2=Fvar(5)-(Vel Y-const(Movement.yaccel))+(Helper(4444+ID),Fvar(15)+Helper(4444+ID),Fvar(16))=[60,90]
+Trigger2=Var(2):=2||1
+Trigger3=Fvar(4)-Vel X-PlayerID(Var(58)),Vel X=[70,100]
+Trigger3=Fvar(5)-(Vel Y-const(Movement.yaccel))+(Helper(4444+ID),Fvar(15)+Helper(4444+ID),Fvar(16))=[120,180]
+Trigger3=Var(2):=2||1
+Trigger4=Fvar(4)-Vel X-PlayerID(Var(58)),Vel X=[0,40]
+Trigger4=PlayerID(Var(58)),BackEdgeBodyDist<=20
+Trigger4=Fvar(5)-(Vel Y-const(Movement.yaccel))+(Helper(4444+ID),Fvar(15)+Helper(4444+ID),Fvar(16))>30
+Trigger4=Var(2):=2||1

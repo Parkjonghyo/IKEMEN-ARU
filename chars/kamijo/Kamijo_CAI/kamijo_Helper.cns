@@ -1,0 +1,1309 @@
+
+;===========================================================================
+; 幻想殺し判定ヘルパー
+;===========================================================================
+[Statedef 8000]
+type = A
+movetype = I
+physics = N
+
+[State 8000, 0]; 不具合対策
+type = ChangeState
+trigger1 = !IsHelper
+value = 0
+ctrl = 1
+
+[State 8000, 0]; 飛び道具以外無敵
+type = NotHitBy
+trigger1 = Parent,StateNo = 3305
+value = ,AP
+time = 2
+
+[State 8000, 0]; 飛び道具以外無敵
+type = NotHitBy
+trigger1 = Time >= 1
+value = ,AA,AT
+time = 2
+
+[State 8000, 0]; 透明＋影消し
+type = AssertSpecial
+trigger1 = 1
+flag = Invisible
+flag2 = NoShadow
+
+[State 8000, 0]; 本体に追従
+type = BindToParent
+trigger1 = 1
+time = 1
+facing = 1
+pos = 0,0
+
+[State 8000, 0]; 判定を揃える
+type = ChangeAnim
+trigger1 = SelfAnimExist(Parent,Anim)
+value = Parent,Anim
+elem = Parent,AnimElemNo(0)
+
+[State 8000, 0]; 飛び道具を受けたらステートを繰り返す
+ type = HitOverRide
+trigger1 = IsHelper(8000)
+attr = SCA,AP
+stateno = 8001
+
+[State 8000, 0]; 本体が幻想殺しパートを過ぎたら消滅
+type = DestroySelf
+triggerall = (Parent,Var(3)  != [6,7]) ||  Parent,alive = 0
+trigger1 = Parent,StateNo !=  230 
+trigger1 = Parent,StateNo != 1000 
+trigger1 = Parent,StateNo != 1050 ;連続そげぶ上段派生1
+trigger1 = Parent,StateNo != 1100 ;連続そげぶ下段派生1
+trigger1 = Parent,StateNo != 1125 ;連続そげぶ上段派生2
+trigger1 = Parent,StateNo != 1150 ;連続そげぶ中段派生2
+trigger1 = Parent,StateNo != 1200 ;連続そげぶ下段派生2
+trigger1 = Parent,StateNo != 1250 ;強連続そげぶ1
+trigger1 = Parent,StateNo != 1251 ;強連続そげぶ2
+trigger1 = Parent,StateNo != 1252 ;強連続そげぶ3
+trigger1 = Parent,StateNo != 1500 ;昇竜そげぶ弱
+trigger1 = Parent,StateNo != 1550 ;昇竜そげぶ強
+trigger1 = Parent,StateNo != 1600 ;突撃そげぶ弱
+trigger1 = Parent,StateNo != 1650 ;突撃そげぶ強
+trigger1 = Parent,StateNo != 2000 ;昇竜そげぶEX
+trigger1 = Parent,StateNo != 2101 ;不幸だ☆そげぶEX着地
+trigger1 = Parent,StateNo != 2200 ;そげぶラッシュ
+trigger1 = Parent,StateNo != 2300 ;FIRST…COMES…ROCK…
+trigger1 = Parent,StateNo != 2500 ;バスターそげぶ
+trigger1 = Parent,StateNo != 3000 ;その幻想をぶち殺す!!
+trigger1 = Parent,StateNo != 3200 ;最弱
+trigger1 = Parent,StateNo != 6430 ;
+trigger1 = Parent,StateNo != 6450 ;
+trigger1 = Parent,StateNo != 6662 ;
+trigger1 = Parent,StateNo != 6666 ;
+;通常技
+trigger2 = Parent,StateNo =  230 && Parent,AnimElemTime(6)>0
+;必殺技
+trigger3 = Parent,StateNo = 1000 && Parent,AnimElemTime(6)>0
+trigger4 = Parent,StateNo = 1050 && Parent,AnimElemTime(5)>0 ;連続そげぶ上段派生1
+trigger5 = Parent,StateNo = 1100 && Parent,AnimElemTime(7)>0 ;連続そげぶ下段派生1
+trigger6 = Parent,StateNo = 1125 && Parent,AnimElemTime(8)>0 ;連続そげぶ上段派生2
+trigger7 = Parent,StateNo = 1150 && Parent,AnimElemTime(7)>0 ;連続そげぶ中段派生2
+trigger8 = Parent,StateNo = 1200 && Parent,AnimElemTime(5)>0 ;連続そげぶ下段派生2
+trigger9 = Parent,StateNo = 1250 && Parent,AnimElemTime(9)>0 ;強連続そげぶ1
+trigger10= Parent,StateNo = 1251 && Parent,AnimElemTime(8)>0 ;強連続そげぶ2
+trigger11= Parent,StateNo = 1252 && Parent,AnimElemTime(9)>0 ;強連続そげぶ3
+trigger12= Parent,StateNo = 1500 && Parent,AnimElemTime(10)>0;昇竜そげぶ弱
+trigger13= Parent,StateNo = 1550 && Parent,AnimElemTime(12)>0;昇竜そげぶ強
+trigger14= Parent,StateNo = 1600 && Parent,AnimElemTime(9)>0 ;突撃そげぶ弱
+trigger15= Parent,StateNo = 1650 && Parent,AnimElemTime(9)>0 ;突撃そげぶ強
+;超必殺技
+trigger16= Parent,StateNo = 2000 && Parent,AnimElemTime(13)>0;昇竜そげぶEX
+trigger17= Parent,StateNo = 2101 && Parent,AnimElemTime(7)>0 ;不幸だ☆そげぶEX着地
+trigger18= Parent,StateNo = 2200 && Parent,AnimElemTime(6)>0 ;そげぶラッシュ
+trigger19= Parent,StateNo = 2300 && Parent,AnimElemTime(12)>0;FIRST…COMES…ROCK…
+trigger20= Parent,StateNo = 2500 && Parent,AnimElemTime(14)>0;バスターそげぶ
+trigger21= Parent,StateNo = 3000 && Parent,AnimElemTime(25)>0;その幻想をぶち殺す!!
+trigger22= Parent,StateNo = 3200 && Parent,Anim!=3205;最弱
+;特殊技
+trigger23= Parent,StateNo = 6430 && Parent,AnimElemTime(6)>0
+trigger24= Parent,StateNo = 6450 && Parent,AnimElemTime(5)>0
+trigger25= Parent,StateNo = 6662 && Parent,Anim = 6663 && Parent,AnimElemTime(1)>1
+
+;------------------------------------------------------
+[Statedef 8001]; エフェクト処理
+type = A
+movetype = I
+physics = N
+
+[State 8001]
+type = ParentVarAdd
+trigger1= 1
+var(5) = 6
+persistent = 0
+ignorehitpause = 1
+
+[State 8001]
+type = PowerAdd
+trigger1 = 1
+value = 100
+
+[State -1];そげぶ音
+Type=PlaySnd
+trigger1= 1
+value=0,10
+volume=255
+channel=-1
+persistent=0
+
+[State -1];打ち消しエフェクト
+type = Explod
+trigger1= 1
+anim = 7002
+ID = 7002
+pos = 15, -65
+random = 50,35
+postype = p1
+bindtime = 1
+supermovetime = 9999
+pausemovetime = 9999
+scale = 1, 1
+sprpriority = 3
+ontop = 1
+ownpal = 1
+removeongethit = 1
+persistent=0
+
+[State 8000]
+Type=ChangeState
+Trigger1=1
+value=8000
+
+;===========================================================================
+; アーマー判定ヘルパー
+;===========================================================================
+[Statedef 9000]
+type = A
+movetype = I
+physics = N
+
+[State 9000, 0]; 不具合対策
+type = ChangeState
+trigger1 = !IsHelper
+value = 0
+ctrl = 1
+
+[State 9000, 0]; アーマー化した瞬間に重複被弾しないための無敵
+type = NotHitBy
+trigger1 = Time = 0
+value = SCA
+time = 1
+
+[State 9000, 0]; 投げ無敵
+type = NotHitBy
+triggerAll = Parent,var(3) != 6
+trigger1 = Time >= 1
+value = ,AT
+time = 2
+
+[State 9000, 0]; 投げ無敵
+type = NotHitBy
+triggerAll = Parent,var(3) = 6
+trigger1 = Time >= 1
+value = ,AT,AP
+time = 2
+
+[State 9000, 0]; 透明＋影消し
+type = AssertSpecial
+trigger1 = 1
+flag = Invisible
+flag2 = NoShadow
+
+[State 9000, 0]; 本体に追従
+type = BindToParent
+trigger1 = 1
+time = 1
+facing = 1
+pos = 0,0
+
+[State 9000, 0]; 判定を揃える
+type = ChangeAnim
+trigger1 = SelfAnimExist(Parent,Anim)
+value = Parent,Anim
+elem = Parent,AnimElemNo(0)
+
+[State 9000, 0]; 打撃／飛び道具を受けたらステートを繰り返す
+type = HitOverRide
+trigger1 = Parent,var(13) = 1
+trigger1 = IsHelper(9000)
+attr = SCA,AA,AP
+stateno = 9000
+
+[State 9000, 0]; 打撃／飛び道具を受けたらステートを繰り返す
+type = HitOverRide
+trigger1 = Parent,var(13) != 1
+trigger1 = IsHelper(9000)
+attr = SCA,AA,AP
+stateno = 9001
+
+[State 9000, 0]
+type = DestroySelf
+triggerAll = Parent,var(13) != 1
+trigger1 = Parent,StateNo != 2300; 本体がアーマーパートを過ぎたら消滅
+trigger2 = Parent,var(8) = 2; 二回ヒットしたら消滅
+
+;------------------------------------------------------
+[Statedef 9001]; ヒット数処理
+type = A
+movetype = I
+physics = N
+
+[State 9001]
+type = ParentVarAdd
+trigger1= 1
+var(8) = 1
+persistent = 0
+ignorehitpause = 1
+
+[State 9000]
+Type=ChangeState
+Trigger1=1
+value=9000
+
+;===========================================================================
+;ゲージ表示ヘルパー
+;===========================================================================
+[Statedef 30000]
+anim = 29999;アニメなし
+
+[State 30000];不文字消し
+type = RemoveExplod
+triggerAll = numexplod(30000)
+trigger1 = Parent,var(3) > 4
+ID = 30000
+
+[State 30000];強文字消し
+type = RemoveExplod
+triggerAll = numexplod(30001)
+trigger1 = Parent,var(3) != 5
+ID = 30001
+
+[State 30000];凶文字消し
+type = RemoveExplod
+triggerAll = numexplod(30002)
+trigger1 = Parent,var(3) != 6
+ID = 30002
+
+[State 30000];天文字消し
+type = RemoveExplod
+triggerAll = numexplod(30003)
+trigger1 = Parent,var(3) != 7
+ID = 30003
+
+[State 30000];BadLuck消し
+type = RemoveExplod
+triggerAll = numexplod(30004)
+trigger1 = Parent,var(3) != 0
+ID = 30004
+
+[State 30000];UnLucky消し
+type = RemoveExplod
+triggerAll = numexplod(30005)
+trigger1 = Parent,var(3) != 1
+ID = 30005
+
+[State 30000];HardLuck(白)消し
+type = RemoveExplod
+triggerAll = numexplod(30006)
+trigger1 = Parent,var(3) != 2
+
+ID = 30006
+
+[State 30000];HardLuck(赤)消し
+type = RemoveExplod
+triggerAll = numexplod(30007)
+trigger1 = Parent,var(3) != 3
+ID = 30007
+
+[State 30000];HardLuck(黒)消し
+type = RemoveExplod
+triggerAll = numexplod(30008)
+trigger1 = Parent,var(3) != 4
+ID = 30008
+
+[State 30000];HardLuck(強)消し
+type = RemoveExplod
+triggerAll = numexplod(30009)
+trigger1 = Parent,var(3) != 5
+trigger2 = Parent,var(12) = 2
+ID = 30009
+
+[State 30000];Calamity(凶)消し
+type = RemoveExplod
+triggerAll = numexplod(30010)
+trigger1 = Parent,var(3) != 6
+ID = 30010
+
+[State 30000];Goodluck(幸)消し
+type = RemoveExplod
+triggerAll = numexplod(30011)
+trigger1 = Parent,var(12) != 2
+ID = 30011
+
+[State 30000];SYSTEM(天)消し
+type = RemoveExplod
+triggerAll = numexplod(30012)
+trigger1 = Parent,var(3) != 7
+ID = 30012
+
+[State 30000];
+type = ScreenBound
+trigger1 = 1
+value = 0
+;movecamera = 1,0
+
+[State 30000];不文字
+type = Explod
+triggerAll = numexplod(30000) = 0
+trigger1 = Parent,var(3) <= 4
+anim = 30000
+ID = 30000
+pos = ifelse(teamside=1,12-Parent,Var(32),210+Parent,Var(32)), 216+Parent,Var(31)
+postype = left
+bindtime = -1
+removetime = -1
+supermovetime = 9999
+pausemovetime = 9999
+sprpriority = 9999
+scale = .25,.25
+ontop = 1
+ownpal = 1
+ignorehitpause = 1
+
+[State 30000];強文字
+type = Explod
+triggerAll = numexplod(30001) = 0
+trigger1 = Parent,var(3) = 5
+anim = 30001
+ID = 30001
+pos = ifelse(teamside=1,12-Parent,Var(32),210+Parent,Var(32)), 216+Parent,Var(31)
+postype = left
+bindtime = -1
+removetime = -1
+supermovetime = 9999
+pausemovetime = 9999
+sprpriority = 9999
+scale = .25,.25
+ontop = 1
+ownpal = 1
+ignorehitpause = 1
+
+[State 30000];凶文字
+type = Explod
+triggerAll = numexplod(30002) = 0
+trigger1 = Parent,var(3) = 6
+anim = 30002
+ID = 30002
+pos = ifelse(teamside=1,12-Parent,Var(32),210+Parent,Var(32)), 216+Parent,Var(31)
+postype = left
+bindtime = -1
+removetime = -1
+supermovetime = 9999
+pausemovetime = 9999
+sprpriority = 9999
+scale = .25,.25
+ontop = 1
+ownpal = 1
+ignorehitpause = 1
+
+[State 30000];天文字
+type = Explod
+triggerAll = numexplod(30003) = 0
+trigger1 = Parent,var(3) = 7
+anim = 30003
+ID = 30003
+pos = ifelse(teamside=1,12-Parent,Var(32),210+Parent,Var(32)), 216+Parent,Var(31)
+postype = left
+bindtime = -1
+removetime = -1
+supermovetime = 9999
+pausemovetime = 9999
+sprpriority = 9999
+scale = .25,.25
+ontop = 1
+ownpal = 1
+ignorehitpause = 1
+
+[State 30000];Badluck
+type = Explod
+trigger1 = numexplod(30004) = 0
+trigger1 = Parent,var(3) = 0
+anim = 30004
+ID = 30004
+pos = ifelse(teamside=1,32-Parent,Var(32),230+Parent,Var(32)), 220+ Parent,Var(31)
+postype = left
+bindtime = -1
+removetime = -1
+supermovetime = 9999
+pausemovetime = 9999
+sprpriority = 9999
+scale = .5,.5
+ontop = 1
+ownpal = 1
+ignorehitpause = 1
+
+[State 30000];Unlucky
+type = Explod
+trigger1 = numexplod(30005) = 0
+trigger1 = Parent,var(3) =1
+anim = 30005
+ID = 30005
+pos = ifelse(teamside=1,32-Parent,Var(32),230+Parent,Var(32)), 220+ Parent,Var(31)
+postype = left
+bindtime = -1
+removetime = -1
+supermovetime = 9999
+pausemovetime = 9999
+sprpriority = 9999
+scale = .5,.5
+ontop = 1
+ownpal = 1
+ignorehitpause = 1
+
+[State 30000];HardLuck（白）
+type = Explod
+trigger1 = numexplod(30006) = 0
+trigger1 = Parent,var(3) =2
+anim = 30006
+ID = 30006
+pos = ifelse(teamside=1,32-Parent,Var(32),230+Parent,Var(32)), 220+ Parent,Var(31)
+postype = left
+bindtime = -1
+removetime = -1
+supermovetime = 9999
+pausemovetime = 9999
+sprpriority = 9999
+scale = .5,.5
+ontop = 1
+ownpal = 1
+ignorehitpause = 1
+
+[State 30000];HardLuck（赤）
+type = Explod
+trigger1 = numexplod(30007) = 0
+trigger1 = Parent,var(3) =3
+anim = 30007
+ID = 30007
+pos = ifelse(teamside=1,32-Parent,Var(32),230+Parent,Var(32)), 220+ Parent,Var(31)
+postype = left
+bindtime = -1
+removetime = -1
+supermovetime = 9999
+pausemovetime = 9999
+sprpriority = 9999
+scale = .5,.5
+ontop = 1
+ownpal = 1
+ignorehitpause = 1
+
+[State 30000];HardLuck（黒）
+type = Explod
+trigger1 = numexplod(30008) = 0
+trigger1 = Parent,var(3) =4
+anim = 30008
+ID = 30008
+pos = ifelse(teamside=1,32-Parent,Var(32),230+Parent,Var(32)), 220+ Parent,Var(31)
+postype = left
+bindtime = -1
+removetime = -1
+supermovetime = 9999
+pausemovetime = 9999
+sprpriority = 9999
+scale = .5,.5
+ontop = 1
+ownpal = 1
+ignorehitpause = 1
+
+[State 30000];HardLuck（強運）
+type = Explod
+trigger1 = numexplod(30009) = 0
+trigger1 = Parent,var(3) = 5
+trigger1 = Parent,var(12) != 2
+anim = 30009
+ID = 30009
+pos = ifelse(teamside=1,32-Parent,Var(32),230+Parent,Var(32)), 220+ Parent,Var(31)
+postype = left
+bindtime = -1
+removetime = -1
+supermovetime = 9999
+pausemovetime = 9999
+sprpriority = 9999
+scale = .5,.5
+ontop = 1
+ownpal = 1
+ignorehitpause = 1
+
+[State 30000];Goodluck（幸運）
+type = Explod
+triggerAll = numexplod(30011) = 0
+trigger1 = Parent,var(3) = 5
+trigger1 = Parent,var(12) = 2
+anim = 30011
+ID = 30011
+pos = ifelse(teamside=1,32-Parent,Var(32),230+Parent,Var(32)), 220+ Parent,Var(31)
+postype = left
+bindtime = -1
+removetime = -1
+supermovetime = 9999
+pausemovetime = 9999
+sprpriority = 9999
+scale = .5,.5
+ontop = 1
+ownpal = 1
+ignorehitpause = 1
+
+[State 30000];Calamity
+type = Explod
+trigger1 = numexplod(30010) = 0
+trigger1 = Parent,var(3) = 6
+anim = 30010
+ID = 30010
+pos = ifelse(teamside=1,32-Parent,Var(32),230+Parent,Var(32)), 220+ Parent,Var(31)
+postype = left
+bindtime = -1
+removetime = -1
+supermovetime = 9999
+pausemovetime = 9999
+sprpriority = 9999
+scale = .5,.5
+ontop = 1
+ownpal = 1
+ignorehitpause = 1
+
+[State 30000];system
+type = Explod
+trigger1 = numexplod(30012) = 0
+trigger1 = Parent,var(3) = 7
+anim = 30012
+ID = 30012
+pos = ifelse(teamside=1,32-Parent,Var(32),230+Parent,Var(32)), 220+ Parent,Var(31)
+postype = left
+bindtime = -1
+removetime = -1
+supermovetime = 9999
+pausemovetime = 9999
+sprpriority = 9999
+scale = .5,.5
+ontop = 1
+ownpal = 1
+ignorehitpause = 1
+
+;--------------------------------------------------------
+[State 30000];ゲージ枠
+type = RemoveExplod
+triggerAll = numexplod(11600)
+trigger1 = Parent,var(12) = 0
+ID = 11600
+
+[State 30000];ゲージ下地
+type = RemoveExplod
+triggerAll = numexplod(11103)
+trigger1 = Parent,var(12) = 0
+ID = 11103
+
+[State 30000];ゲージ量青
+type = RemoveExplod
+triggerAll = numexplod(11100)
+trigger1 = Parent,var(12) != 1
+ID = 11100
+
+[State 30000];ゲージ量黄色
+type = RemoveExplod
+triggerAll = numexplod(11101)
+trigger1 = Parent,var(12) != 2
+ID = 11101
+
+[State 30000];ゲージ光沢
+type = RemoveExplod
+triggerAll = numexplod(11200)
+trigger1 = Parent,var(12) = 0
+ID = 11200
+
+[State 30000];ゲージ枠
+type = Explod
+triggerAll = numexplod(11600) = 0
+trigger1 = Parent,var(12) != 0
+anim = 11600
+ID = 11600
+pos = ifelse(teamside=1,8-Parent,Var(32),205+Parent,Var(32)), 197+Parent,Var(31)
+postype = left
+bindtime = -1
+removetime = -1
+supermovetime = 9999
+pausemovetime = 9999
+sprpriority = 5
+scale = .5,.5
+ownpal = 1
+ignorehitpause = 1
+
+[State 30000];ゲージ下地
+type = Explod
+triggerAll = numexplod(11103) = 0
+trigger1 = Parent,var(12) != 0
+anim = 11103
+ID = 11103
+pos = ifelse(teamside=1,16-Parent,Var(32),213+Parent,Var(32)), 208+Parent,Var(31)
+postype = left
+bindtime = -1
+removetime = -1
+supermovetime = 9999
+pausemovetime = 9999
+sprpriority = 9999
+scale = .5,.5
+;ontop = 1
+ownpal = 1
+ignorehitpause = 1
+
+[State 30000];ゲージ量1青
+type = Explod
+triggerAll = numexplod(11103)
+trigger1 = numexplod(11100) = 0
+trigger1 = Parent,var(12) = 1
+trigger1 = teamside=1
+anim = 11100
+ID = 11100
+pos = 16-Parent,Var(32), 208+Parent,Var(31)
+postype = left
+bindtime = -1
+removetime = -1
+supermovetime = 9999
+pausemovetime = 9999
+sprpriority = 9999
+scale = .5,.5
+ontop = 1
+ownpal = 1
+ignorehitpause = 1
+
+[State 30000];ゲージ量2p青
+type = Explod
+triggerAll = numexplod(11103)
+trigger1 = numexplod(11100) = 0
+trigger1 = Parent,var(12) = 1
+trigger1 = teamside=2
+anim = 11100
+ID = 11100
+pos = 305+Parent,Var(32), 208+Parent,Var(31)
+postype = left
+bindtime = -1
+removetime = -1
+facing = -1
+supermovetime = 9999
+pausemovetime = 9999
+sprpriority = 9999
+scale = .5,.5
+ontop = 1
+ownpal = 1
+ignorehitpause = 1
+
+[State 30000];ゲージ量1p黄
+type = Explod
+triggerAll = numexplod(11103)
+trigger1 = numexplod(11101) = 0
+trigger1 = Parent,var(12) = 2
+trigger1 = teamside=1
+anim = 11101
+ID = 11101
+pos = 16-Parent,Var(32), 208+Parent,Var(31)
+postype = left
+bindtime = -1
+removetime = -1
+supermovetime = 9999
+pausemovetime = 9999
+sprpriority = 9999
+scale = .5,.5
+ontop = 1
+ownpal = 1
+ignorehitpause = 1
+
+[State 30000];ゲージ量2p黄
+type = Explod
+triggerAll = numexplod(11103)
+trigger1 = numexplod(11101) = 0
+trigger1 = Parent,var(12) = 2
+trigger1 = teamside=2
+anim = 11101
+ID = 11101
+pos = 305+Parent,Var(32), 208+Parent,Var(31)
+postype = left
+bindtime = -1
+removetime = -1
+facing = -1
+supermovetime = 9999
+pausemovetime = 9999
+sprpriority = 9999
+scale = .5,.5
+ontop = 1
+ownpal = 1
+ignorehitpause = 1
+
+[State 30000]
+type = ModifyExplod
+trigger1 = numexplod(11100) = 1
+scale = Parent,var(21)/3000.0,.5
+ID = 11100
+
+[State 30000]
+type = ModifyExplod
+trigger1 = numexplod(11101) = 1
+scale = Parent,var(21)/3000.0,.5
+ID = 11101
+
+[State 30000];ゲージ光沢
+type = Explod
+triggerAll = numexplod(11200) = 0
+triggerAll = teamside=1
+trigger1 = Parent,var(12) != 0
+anim = 11200
+ID = 11200
+pos = 16-Parent,Var(32), 208+Parent,Var(31)
+postype = left
+bindtime = -1
+removetime = -1
+supermovetime = 9999
+pausemovetime = 9999
+sprpriority = 9999
+scale = .5,.5
+ontop = 1
+ownpal = 1
+ignorehitpause = 1
+
+[State 30000];ゲージ光沢2p
+type = Explod
+triggerAll = numexplod(11200) = 0
+triggerAll = teamside=2
+trigger1 = Parent,var(12) != 0
+anim = 11200
+ID = 11200
+pos = 305+Parent,Var(32), 208+Parent,Var(31)
+postype = left
+bindtime = -1
+removetime = -1
+facing = -1
+supermovetime = 9999
+pausemovetime = 9999
+sprpriority = 9999
+scale = .5,.5
+ontop = 1
+ownpal = 1
+ignorehitpause = 1
+
+[State 30000]
+type = ModifyExplod
+trigger1 = numexplod(11200) = 1
+scale = Parent,var(21)/3000.0,.5
+ID = 11200
+
+;--------------------------------------------------------
+[State 30000];ゲージ枠
+type = RemoveExplod
+triggerAll = numexplod(11610)
+trigger1 = Parent,var(13) = 0
+ID = 11610
+
+[State 30000];ゲージ下地
+type = RemoveExplod
+triggerAll = numexplod(11113)
+trigger1 = Parent,var(13) = 0
+ID = 11113
+
+[State 30000];ゲージ量
+type = RemoveExplod
+triggerAll = numexplod(11110)
+trigger1 = Parent,var(13) = 0
+ID = 11110
+
+[State 30000];ゲージ光沢
+type = RemoveExplod
+triggerAll = numexplod(11210)
+trigger1 = Parent,var(13) = 0
+ID = 11210
+
+[State 30000];ゲージ枠
+type = Explod
+triggerAll = numexplod(11610) = 0
+trigger1 = Parent,var(13) != 0
+anim = 11600
+ID = 11610
+pos = ifelse(teamside=1,8-Parent,Var(32),205+Parent,Var(32)), 197+Parent,Var(31)
+postype = left
+bindtime = -1
+removetime = -1
+supermovetime = 9999
+pausemovetime = 9999
+sprpriority = 5
+scale = .5,.5
+ownpal = 1
+ignorehitpause = 1
+
+[State 30000];ゲージ下地
+type = Explod
+triggerAll = numexplod(11103) = 0
+trigger1 = Parent,var(13) != 0
+anim = 11103
+ID = 11103
+pos = ifelse(teamside=1,16-Parent,Var(32),213+Parent,Var(32)), 208+Parent,Var(31)
+postype = left
+bindtime = -1
+removetime = -1
+supermovetime = 9999
+pausemovetime = 9999
+sprpriority = 9999
+scale = .5,.5
+ontop = 1
+ownpal = 1
+ignorehitpause = 1
+
+[State 30000];ゲージ量1p赤
+type = Explod
+trigger1 = numexplod(11110) = 0
+trigger1 = Parent,var(13) != 0
+trigger1 = teamside=1
+anim = 11102
+ID = 11110
+pos = 16-Parent,Var(32), 208+Parent,Var(31)
+postype = left
+bindtime = -1
+removetime = -1
+supermovetime = 9999
+pausemovetime = 9999
+sprpriority = 9999
+scale = .5,.5
+ontop = 1
+ownpal = 1
+ignorehitpause = 1
+
+[State 30000];ゲージ量2p赤
+type = Explod
+trigger1 = numexplod(11110) = 0
+trigger1 = Parent,var(13) != 0
+trigger1 = teamside=2
+anim = 11102
+ID = 11110
+pos = 305+Parent,Var(32), 208+Parent,Var(31)
+postype = left
+bindtime = -1
+removetime = -1
+facing = -1
+supermovetime = 9999
+pausemovetime = 9999
+sprpriority = 9999
+scale = .5,.5
+ontop = 1
+ownpal = 1
+ignorehitpause = 1
+
+[State 30000]
+type = ModifyExplod
+trigger1 = numexplod(11110) = 1
+scale = Parent,var(21)/3000.0,.5
+ID = 11110
+
+[State 30000];ゲージ光沢
+type = Explod
+triggerAll = numexplod(11210) = 0
+triggerAll = teamside=1
+trigger1 = Parent,var(13) != 0
+anim = 11200
+ID = 11210
+pos = 16-Parent,Var(32), 208+Parent,Var(31)
+postype = left
+bindtime = -1
+removetime = -1
+supermovetime = 9999
+pausemovetime = 9999
+sprpriority = 9999
+scale = .5,.5
+ontop = 1
+ownpal = 1
+ignorehitpause = 1
+
+[State 30000];ゲージ光沢2p
+type = Explod
+triggerAll = numexplod(11210) = 0
+triggerAll = teamside=2
+trigger1 = Parent,var(13) != 0
+anim = 11200
+ID = 11210
+pos = 305+Parent,Var(32), 208+Parent,Var(31)
+postype = left
+bindtime = -1
+removetime = -1
+facing = -1
+supermovetime = 9999
+pausemovetime = 9999
+sprpriority = 9999
+scale = .5,.5
+ontop = 1
+ownpal = 1
+ignorehitpause = 1
+
+[State 30000]
+type = ModifyExplod
+trigger1 = numexplod(11210) = 1
+scale = Parent,var(21)/3000.0,.5
+ID = 11210
+
+[State 30000];バースト枠
+type = RemoveExplod
+triggerAll = numexplod(11150)
+trigger1 = Parent,stateno = 3210
+trigger2 = Parent,stateno = 3230
+trigger3 = Parent,stateno = 3310
+trigger4 = Parent,stateno = 3400
+
+[State 30000];バースト枠
+type = RemoveExplod
+triggerAll = numexplod(11158)
+trigger1 = Parent,stateno = 3210
+trigger2 = Parent,stateno = 3230
+trigger3 = Parent,stateno = 3310
+trigger4 = Parent,stateno = 3400
+trigger5 = Parent,var(14) = 1
+
+[State 30000];バースト文字
+type = RemoveExplod
+triggerAll = numexplod(11151)
+trigger1 = Parent,var(14) = 1
+trigger2 = Parent,stateno = 3210
+trigger3 = Parent,stateno = 3230
+trigger4 = Parent,stateno = 3310
+trigger5 = Parent,stateno = 3400
+ID = 11151
+
+[State 30000];バースト量1
+type = RemoveExplod
+triggerAll = numexplod(11152)
+trigger1 = numexplod(11153)=1
+trigger2 = Parent,stateno = 3210
+trigger3 = Parent,stateno = 3230
+trigger4 = Parent,stateno = 3310
+trigger5 = Parent,stateno = 3400
+trigger6 = Parent,fvar(21) = 0
+ID = 11152
+
+[State 30000];バースト量2
+type = RemoveExplod
+triggerAll = numexplod(11153)
+trigger1 = numexplod(11154)=1
+trigger2 = Parent,stateno = 3210
+trigger3 = Parent,stateno = 3230
+trigger4 = Parent,stateno = 3310
+trigger5 = Parent,stateno = 3400
+trigger6 = Parent,fvar(21) = 0
+ID = 11153
+
+[State 30000];バースト量3
+type = RemoveExplod
+triggerAll = numexplod(11154)
+trigger1 = numexplod(11155)=1
+trigger2 = Parent,stateno = 3210
+trigger3 = Parent,stateno = 3230
+trigger4 = Parent,stateno = 3310
+trigger5 = Parent,stateno = 3400
+trigger6 = Parent,fvar(21) = 0
+ID = 11154
+
+[State 30000];バースト量4
+type = RemoveExplod
+triggerAll = numexplod(11155)
+trigger1 = numexplod(11156)=1
+trigger2 = Parent,stateno = 3210
+trigger3 = Parent,stateno = 3230
+trigger4 = Parent,stateno = 3310
+trigger5 = Parent,stateno = 3400
+trigger6 = Parent,fvar(21) = 0
+ID = 11155
+
+[State 30000];バースト量4
+type = RemoveExplod
+triggerAll = numexplod(11155)
+trigger1 = numexplod(11156)=1
+trigger2 = Parent,stateno = 3210
+trigger3 = Parent,stateno = 3230
+trigger4 = Parent,stateno = 3310
+trigger5 = Parent,stateno = 3400
+trigger6 = Parent,fvar(21) = 0
+ID = 11155
+
+[State 30000];バースト量5
+type = RemoveExplod
+triggerAll = numexplod(11156)
+trigger1 = Parent,fvar(21) = 0
+trigger2 = Parent,stateno = 3210
+trigger3 = Parent,stateno = 3230
+trigger4 = Parent,stateno = 3310
+trigger5 = Parent,stateno = 3400
+ID = 11156
+
+[State 30000];バッテン
+type = RemoveExplod
+triggerAll = numexplod(11157)
+trigger1 = Parent,var(49) = Gametime
+ID = 11157
+
+[State 30000];バースト枠
+type = Explod
+triggerAll = Parent,stateno != 3210
+triggerAll = Parent,stateno != 3230
+triggerAll = Parent,stateno != 3310
+triggerAll = Parent,stateno != 3400
+trigger1 = numexplod(11150) = 0
+anim = 11150
+ID = 11150
+pos = ifelse(teamside=1,40-Parent,Var(34),230+Parent,Var(34)), 30+Parent,Var(33)
+postype = left
+bindtime = -1
+removetime = -1
+supermovetime = 9999
+pausemovetime = 9999
+sprpriority = 5
+scale = .5,.5
+ownpal = 1
+;ontop = 1
+ignorehitpause = 1
+
+[State 30000];バースト枠2
+type = Explod
+triggerAll = Parent,stateno != 3210
+triggerAll = Parent,stateno != 3230
+triggerAll = Parent,stateno != 3310
+triggerAll = Parent,stateno != 3400
+triggerAll = Parent,var(14) = 0
+trigger1 = numexplod(11158) = 0
+anim = 11158
+ID = 11158
+pos = ifelse(teamside=1,40-Parent,Var(34),230+Parent,Var(34)), 30+Parent,Var(33)
+postype = left
+bindtime = -1
+removetime = -1
+supermovetime = 9999
+pausemovetime = 9999
+sprpriority = 5
+scale = .5,.5
+ownpal = 1
+;ontop = 1
+ignorehitpause = 1
+
+[State 30000];バースト文字
+type = Explod
+triggerAll = Parent,stateno != 3210
+triggerAll = Parent,stateno != 3230
+triggerAll = Parent,stateno != 3310
+triggerAll = Parent,stateno != 3400
+triggerAll = numexplod(11151) = 0
+trigger1 = Parent,var(14) = 0
+anim = 11151
+ID = 11151
+pos = ifelse(teamside=1,40-Parent,Var(34),230+Parent,Var(34)), 30+Parent,Var(33)
+postype = left
+bindtime = -1
+removetime = -1
+supermovetime = 9999
+pausemovetime = 9999
+sprpriority = 9999
+scale = .5,.5
+;ontop = 1
+ownpal = 1
+ignorehitpause = 1
+
+[State 30000];バッテン
+type = Explod
+trigger1 = numexplod(11157) = 0
+trigger1 = Parent,var(49) = -1
+anim = 11157
+ID = 11157
+pos = ifelse(teamside=1,40-Var(34),230+Var(34)), 30+Var(33)
+postype = left
+bindtime = -1
+removetime = -1
+supermovetime = 9999
+pausemovetime = 9999
+sprpriority = 9999
+scale = .5,.5
+ontop = 1
+ownpal = 1
+ignorehitpause = 1
+
+[State 30000];バースト量1
+type = Explod
+triggerAll = Parent,stateno != 3210
+triggerAll = Parent,stateno != 3230
+triggerAll = Parent,stateno != 3310
+triggerAll = Parent,stateno != 3400
+trigger1 = numexplod(11152) = 0
+trigger1 = Parent,var(14) = 1
+trigger1 = Parent,fvar(21) > 0.5/7*2
+anim = 11152
+ID = 11152
+pos = ifelse(teamside=1,40-Parent,Var(34),230+Parent,Var(34)), 30+Parent,Var(33)
+postype = left
+bindtime = -1
+removetime = -1
+supermovetime = 9999
+pausemovetime = 9999
+sprpriority = 5
+scale = .5,.5
+ownpal = 1
+ignorehitpause = 1
+
+[State 30000];バースト量2
+type = Explod
+triggerAll = Parent,stateno != 3210
+triggerAll = Parent,stateno != 3230
+triggerAll = Parent,stateno != 3310
+triggerAll = Parent,stateno != 3400
+trigger1 = numexplod(11153) = 0
+trigger1 = Parent,var(14) = 1
+trigger1 = Parent,fvar(21) > 0.5/7*3
+anim = 11153
+ID = 11153
+pos = ifelse(teamside=1,40-Parent,Var(34),230+Parent,Var(34)), 30+Parent,Var(33)
+postype = left
+bindtime = -1
+removetime = -1
+supermovetime = 9999
+pausemovetime = 9999
+sprpriority = 5
+scale = .5,.5
+ownpal = 1
+ignorehitpause = 1
+
+[State 30000];バースト量3
+type = Explod
+triggerAll = Parent,stateno != 3210
+triggerAll = Parent,stateno != 3230
+triggerAll = Parent,stateno != 3310
+triggerAll = Parent,stateno != 3400
+trigger1 = numexplod(11154) = 0
+trigger1 = Parent,var(14) = 1
+trigger1 = Parent,fvar(21) > 0.5/7*4
+anim = 11154
+ID = 11154
+pos = ifelse(teamside=1,40-Parent,Var(34),230+Parent,Var(34)), 30+Parent,Var(33)
+postype = left
+bindtime = -1
+removetime = -1
+supermovetime = 9999
+pausemovetime = 9999
+sprpriority = 5
+scale = .5,.5
+ownpal = 1
+ignorehitpause = 1
+
+[State 30000];バースト量4
+type = Explod
+triggerAll = Parent,stateno != 3210
+triggerAll = Parent,stateno != 3230
+triggerAll = Parent,stateno != 3310
+triggerAll = Parent,stateno != 3400
+trigger1 = numexplod(11155) = 0
+trigger1 = Parent,var(14) = 1
+trigger1 = Parent,fvar(21) > 0.5/7*5
+anim = 11155
+ID = 11155
+pos = ifelse(teamside=1,40-Parent,Var(34),230+Parent,Var(34)), 30+Parent,Var(33)
+postype = left
+bindtime = -1
+removetime = -1
+supermovetime = 9999
+pausemovetime = 9999
+sprpriority = 5
+scale = .5,.5
+ownpal = 1
+ignorehitpause = 1
+
+[State 30000];バースト量5
+type = Explod
+triggerAll = Parent,stateno != 3210
+triggerAll = Parent,stateno != 3230
+triggerAll = Parent,stateno != 3310
+triggerAll = Parent,stateno != 3400
+trigger1 = numexplod(11156) = 0
+trigger1 = Parent,var(14) = 1
+trigger1 = Parent,fvar(21) > 0.5/7*6
+anim = 11156
+ID = 11156
+pos = ifelse(teamside=1,40-Parent,Var(34),230+Parent,Var(34)), 30+Parent,Var(33)
+postype = left
+bindtime = -1
+removetime = -1
+supermovetime = 9999
+pausemovetime = 9999
+sprpriority = 5
+scale = .5,.5
+ownpal = 1
+ignorehitpause = 1
+
+;===========================================================================
+;タイマーヘルパー
+;===========================================================================
+[Statedef 30001]
+anim = 29999;アニメなし
+
+[State 30001];
+type = ScreenBound
+trigger1 = 1
+value = 0
+;movecamera = 1,0
+
+[State 30001,ゲジマシ];Calamity
+	type = PowerAdd
+	triggerAll = Parent,var(13) != 1
+	trigger1 = Parent,Var(3)  = 6
+	value = 2
+
+[State 30001,タイマー1]
+ 	type = ParentVaradd
+	trigger1 = Parent,var(12) != 0
+	trigger1 = (GameTime%5)=0
+	trigger1 = !((root,stateno=[2000,3000])&&root,var(21)<15) 
+	var(21) = -6
+;	ignorehitpause = 1
+
+[State 30001,タイマー1]
+ 	type = ParentVaradd
+ 	trigger1 = Parent,movetype = H
+	trigger1 = Parent,var(12) != 0
+	trigger1 = (GameTime%5)=0
+	var(21) = -9
+	ignorehitpause = 1
+
+[State 30001,タイマー2]
+ 	type = ParentVaradd
+	trigger1 = Parent,var(13) != 0
+	trigger1 = (GameTime%5)=0
+	var(21) = -14
+;	ignorehitpause = 1
+
+[State 30001,タイマー3]
+ 	type = ParentVaradd
+ 	triggerAll = Parent,stateno != 3230
+ 	triggerAll = RoundState = 2
+	trigger1 = Parent,var(14) = 1
+	fvar(21) = 0.000185
+	ignorehitpause = 1
+
+[State 30001,タイマー4]
+ 	type = ParentVaradd
+ 	triggerAll = Parent,stateno != 3230
+ 	triggerAll = RoundState = 2
+	trigger1 = Parent,var(14) = 1
+	trigger1 = Parent,var(3) = 7
+	fvar(21) = 0.000125
+	ignorehitpause = 1
+
+[state 30001 , タイマー最低値]
+type = ParentVarSet
+trigger1 = Parent,var(21) < 1
+var(21) = 0
+
+[state 30001 , GoodLuck初期化]
+type = ParentVarSet
+trigger1 = Parent,var(12) != 0
+trigger1 = Parent,var(21) = 0
+var(12) = 0
+
+[state 30001 , アーマー初期化]
+type = ParentVarSet
+trigger1 = Parent,var(13) != 0
+trigger1 = Parent,var(21) = 0
+var(13) = 0
+
+[state 30001 , バースト使用可能]
+type = ParentVarSet
+trigger1 = Parent,var(14) != 0
+trigger1 = Parent,fvar(21) > 0.5
+var(14) = 0
+
+[state 30001 , バーストゲージ初期化]
+type = ParentVarSet
+trigger1 = Parent,var(14) = 0
+trigger1 = Parent,fvar(21) != 0
+fvar(21) = 0

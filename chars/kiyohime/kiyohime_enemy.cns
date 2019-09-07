@@ -1,0 +1,897 @@
+
+;壁まで吹っ飛んであたる・受身できる
+
+[Statedef 6000]
+type    = A
+movetype= H
+physics = N
+velset = 0,0
+
+[State 6000, 相手のアニメ変更]
+type = ChangeAnim2
+trigger1 = 1
+value = 6000
+
+[State 6000, ステート変更]
+type = ChangeState
+trigger1 = HitShakeOver = 1 ;ヒット硬直が解けたら
+value = 6001
+
+
+;相手側２（吹っ飛び）
+[Statedef 6001]
+type    = A
+movetype= H
+physics = N
+
+[State 6001, 食らい中の速度]
+type = HitVelSet
+trigger1 = Time = 0
+x = 1
+y = 1
+
+[State 6001, 速度加算];重力
+type = VelAdd
+trigger1 = 1
+y = .45
+
+[State 6001, スクロール]
+type = ScreenBound
+triggerall = Pos y < -15
+trigger1 = BackEdgeBodyDist < 65
+trigger2 = FrontEdgeBodyDist < 65
+value = 1         ;画面スクロールの影響を受けるか否か。0=受けない・1=受ける
+movecamera = 0,1  ;カメラの動きをキャラに依存させるか否か。0=させない・1=させる（Ｘ軸,Ｙ軸）
+
+[State 6001, ステート変更];壁に激突するステートへ
+type = ChangeState
+triggerall = Pos y < -15
+trigger1 = BackEdgeBodyDist <= 20
+trigger2 = FrontEdgeBodyDist <= 20
+value = 6002
+
+[State 6001, 相手ステートに戻す]
+type = SelfState
+trigger1 = (Vel y > 0) && (Pos y >= 0)
+value = 5100
+
+;相手側３（壁に激突）
+[Statedef 6002]
+type    = A
+movetype= H
+physics = N
+
+[State 6002, 振り返る]
+type = Turn
+trigger1 = (Time = 0) && (FrontEdgeBodyDist <= 30)
+
+[State 6002, 軸位置移動]
+type = PosAdd
+trigger1 = Time = 0
+x = 15 - BackEdgeBodyDist
+
+[State 6002, 位置固定]
+type = PosFreeze
+trigger1 = 1
+x = 1
+y = 1
+
+[State 6002, スクロール]
+type = ScreenBound
+trigger1 = 1
+value = 1
+movecamera = 0,1
+
+[State 6002, エフェクト]
+type = Explod
+trigger1 = Time = 0
+anim = F72
+pos = 0, floor(screenpos y) - 50 ;（※５）
+postype = back
+sprpriority = 3
+
+[State 6002, 相手のアニメ変更]
+type = ChangeAnim2
+trigger1 = Time = 0
+value = 6002
+
+[State 6002, 音を鳴らす]
+type = PlaySnd
+trigger1 = Time = 0
+value = F7,0
+
+[State 6002, ステート変更]
+type = ChangeState
+trigger1 = AnimTime = 0
+value = 6003
+
+
+;相手側４（壁からのバウンド）
+[Statedef 6003]
+type    = A
+movetype= H
+physics = N
+
+[State 6003, 相手の特定の攻撃属性無効];（※６）
+type = NotHitBy
+trigger1 = 1
+value = , AT
+
+[State 6003, 移動速度]
+type = VelSet
+trigger1 = Time = 0
+y = -8
+
+[State 6003, 移動速度]
+type = VelSet
+trigger1 = Time = 0
+x = 1.6
+
+[State 6003, 振り返る]
+type = Turn
+trigger1 = (Time = 0) && (BackEdgeDist < 30)
+
+[State 6003, 速度加算];重力
+type = VelAdd
+trigger1 = 1
+y = .45
+
+[State 6003, まわす]
+type = AngleAdd
+trigger1 = 1
+value = 25
+
+[State 6003, まわす]
+type = AngleDraw
+trigger1 = 1
+
+[State 6003, 落下状態に]
+type = HitFallSet
+trigger1 = 1
+value = 1
+
+[State 6003, ステート変更]
+type = SelfState
+trigger1 = command = "recovery"
+trigger1 = Time > 20
+value = 5210
+
+[State 6003, アニメ変更]
+type = ChangeAnim2
+trigger1 = Time = 0
+value = 6003
+
+[State 6003, 相手ステートに戻す]
+type = SelfState
+trigger1 = (Vel y > 0) && (Pos y >= -10)
+value = 5100
+
+
+;たたきつけ
+[Statedef 6005]
+type    = A
+movetype= H
+physics = N
+
+[State 6005, 相手の特定の攻撃属性無効];（※６）
+type = NotHitBy
+trigger1 = 1
+value = , AT
+
+[State 6005, 食らい中の速度]
+type = HitVelSet
+trigger1 = Time = 0
+x = 1
+y = 1
+
+[State 6005, 速度加算];重力
+type = VelAdd
+trigger1 = 1
+y = 0.35
+
+[State 6005, まわす]
+type = AngleAdd
+trigger1 = 1
+value = 25
+
+[State 6005, まわす]
+type = AngleDraw
+trigger1 = 1
+
+[State 6005, ステート変更]
+type = SelfState
+trigger1 = command = "recovery"
+trigger1 = Time > 40
+value = 5210
+
+[State 6005, アニメ変更]
+type = ChangeAnim2
+trigger1 = Time = 0
+value = 6003
+
+[State 6005, 相手ステートに戻す]
+type = SelfState
+trigger1 = (Vel y > 0) && (Pos y >= -10)
+value = 5100
+
+
+[Statedef 6006];突き落とされたとき
+type    = A
+movetype= H
+physics = N
+
+[State 6006, 相手の特定の攻撃属性無効];（※６）
+type = NotHitBy
+trigger1 = 1
+value = , AT
+
+[State 6006, 移動速度]
+type = VelSet
+trigger1 = Time = 0
+y = 8
+
+[State 6006, 移動速度]
+type = VelSet
+trigger1 = Time = 0
+x = -1
+
+[State 6006, 速度加算];重力
+type = VelAdd
+trigger1 = 1
+y = .35
+
+[State 6006, アニメ変更]
+type = null;ChangeAnim2
+trigger1 = Time = 0
+value = 6006
+
+[State 6006, 床に激突]
+type = Changestate
+trigger1 = (Vel y > 0) && (Pos y >= 0)
+value = 6005
+
+
+
+
+;壁まで吹っ飛んであたる・受身不可能
+
+[Statedef 6010]
+type    = A
+movetype= H
+physics = N
+velset = 0,0
+
+[State 6010, 相手のアニメ変更]
+type = ChangeAnim2
+trigger1 = 1
+value = 6000
+
+[State 6010, ステート変更]
+type = ChangeState
+trigger1 = HitShakeOver = 1 ;ヒット硬直が解けたら
+value = 6011
+
+
+;相手側２（吹っ飛び）
+[Statedef 6011]
+type    = A
+movetype= H
+physics = N
+
+[State 6011, 食らい中の速度]
+type = HitVelSet
+trigger1 = Time = 0
+x = 1
+y = 1
+
+[State 6011, 速度加算];重力
+type = VelAdd
+trigger1 = 1
+y = .45
+
+[State 6011, スクロール]
+type = ScreenBound
+triggerall = Pos y < -15
+trigger1 = BackEdgeBodyDist < 65
+trigger2 = FrontEdgeBodyDist < 65
+value = 1         ;画面スクロールの影響を受けるか否か。0=受けない・1=受ける
+movecamera = 0,1  ;カメラの動きをキャラに依存させるか否か。0=させない・1=させる（Ｘ軸,Ｙ軸）
+
+[State 6011, ステート変更];壁に激突するステートへ
+type = ChangeState
+triggerall = Pos y < -15
+trigger1 = BackEdgeBodyDist <= 20
+trigger2 = FrontEdgeBodyDist <= 20
+value = 6012
+
+[State 6011, 相手ステートに戻す]
+type = SelfState
+trigger1 = (Vel y > 0) && (Pos y >= 0)
+value = 5100
+
+;相手側３（壁に激突）
+[Statedef 6012]
+type    = A
+movetype= H
+physics = N
+
+[State 6012, 振り返る]
+type = Turn
+trigger1 = (Time = 0) && (FrontEdgeBodyDist <= 30)
+
+[State 6012, 軸位置移動]
+type = PosAdd
+trigger1 = Time = 0
+x = 15 - BackEdgeBodyDist
+
+[State 6012, 位置固定]
+type = PosFreeze
+trigger1 = 1
+x = 1
+y = 1
+
+[State 6012, スクロール]
+type = ScreenBound
+trigger1 = 1
+value = 1
+movecamera = 0,1
+
+[State 6012, エフェクト]
+type = Explod
+trigger1 = Time = 0
+anim = F72
+pos = 0, floor(screenpos y) - 50 ;（※５）
+postype = back
+sprpriority = 3
+
+[State 6012, 相手のアニメ変更]
+type = ChangeAnim2
+trigger1 = Time = 0
+value = 6002
+
+[State 6012, 音を鳴らす]
+type = PlaySnd
+trigger1 = Time = 0
+value = F7,0
+
+[State 6012, ステート変更]
+type = ChangeState
+trigger1 = AnimTime = 0
+value = 6013
+
+
+
+;相手側４（壁からのバウンド）
+[Statedef 6013]
+type    = A
+movetype= H
+physics = N
+
+[State 6013, 相手の特定の攻撃属性無効]
+type = NotHitBy
+trigger1 = 1
+value = , AT
+
+[State 6013, 移動速度]
+type = VelSet
+trigger1 = Time = 0
+y = -8
+
+[State 6013, 移動速度]
+type = VelSet
+trigger1 = Time = 0
+x = 1.6
+
+[State 6013, 振り返る]
+type = Turn
+trigger1 = (Time = 0) && (BackEdgeDist < 30)
+
+[State 6013, 速度加算];重力
+type = VelAdd
+trigger1 = 1
+y = .45
+
+[State 6013, まわす]
+type = AngleAdd
+trigger1 = 1
+value = 25
+
+[State 6013, まわす]
+type = AngleDraw
+trigger1 = 1
+
+
+[State 6013, アニメ変更]
+type = ChangeAnim2
+trigger1 = Time = 0
+value = 6003
+
+[State 6013, 相手ステートに戻す]
+type = SelfState
+trigger1 = (Vel y > 0) && (Pos y >= -10)
+value = 5100
+
+
+
+;たたきつけ・受身無理
+[Statedef 6015]
+type    = A
+movetype= H
+physics = N
+
+[State 6015, 相手の特定の攻撃属性無効]
+type = NotHitBy
+trigger1 = 1
+value = , AT
+
+[State 6005, 食らい中の速度]
+type = HitVelSet
+trigger1 = Time = 0
+x = 1
+y = 1
+
+[State 6005, 床から跳ね返ったとき]
+type = VelSet
+trigger1 = prevstateno = 6016
+trigger1 = Time = 0
+x = -1.6
+y = -9.6
+
+[State 6005, 床から跳ね返ったとき]
+type = VelSet
+triggerall = Time = 0
+trigger1 = prevstateno = 822
+trigger2 = prevstateno = 832
+y = -0.84*(Vel Y)
+
+[State 6016, 激突音]
+type = PlaySnd
+triggerall = Time = 0
+trigger1 = prevstateno = 822
+trigger2 = prevstateno = 832
+trigger3 = prevstateno = 6016
+value = F7,1
+persistent = 0
+
+[State 6015, 攻撃無効]
+type = null;NotHitBy
+trigger1 = prevstateno = 6016
+trigger1 = Time >= 32
+value = SCA
+
+[State 6015, 速度加算];重力
+type = VelAdd
+trigger1 = 1
+y = .35
+
+[State 6015, まわす]
+type = AngleAdd
+trigger1 = 1
+value = 25
+
+[State 6015, まわす]
+type = AngleDraw
+trigger1 = 1
+
+[State 6015, アニメ変更]
+type = ChangeAnim2
+trigger1 = Time = 0
+value = 6003
+
+[State 6015, 相手ステートに戻す]
+type = SelfState
+trigger1 = (Vel y > 0) && (Pos y >= -10)
+value = 5100
+
+
+[Statedef 6016]
+type    = A
+movetype= H
+physics = N
+
+[State 6016, 相手の特定の攻撃属性無効];（※６）
+type = NotHitBy
+trigger1 = 1
+value = , AT
+
+[State 6016, 移動速度]
+type = HitVelSet
+trigger1 = Time = 0
+y = 1
+
+[State 6016, 移動速度]
+type = HitVelSet
+trigger1 = Time = 0
+x = 1
+
+[State 6016, 速度加算];重力
+type = VelAdd
+trigger1 = 1
+y = .35
+
+[State 6016, アニメ変更]
+type = ChangeAnim2
+trigger1 = Time = 0
+value = 6006
+
+[State 6016, 床に激突]
+type = Changestate
+trigger1 = (Vel y > 0) && (Pos y >= 0)
+value = 6015
+
+
+
+;
+[Statedef 6020]
+type    = A
+movetype= H
+physics = N
+
+[State 6020, 押されない]
+type = PlayerPush
+trigger1 = 1
+value = 0
+
+[State 6020, スクロール]
+type = ScreenBound
+trigger1 = 1
+value = 0
+movecamera = 1,0
+
+[State 6015, 相手の特定の攻撃属性無効]
+type = NotHitBy
+trigger1 = 1
+value = SCA
+
+[State 6015, 位置]
+type = null;Posadd
+trigger1 = Time = 0
+trigger1 = Pos Y <= -30
+y = 20
+
+[State 6015, 位置]
+type = null;Posset
+trigger1 = Time = 0
+trigger1 = Pos Y > -10
+trigger1 = Pos Y <= -20
+y = -10
+
+[State 6015, 移動速度]
+type = VelSet
+trigger1 = Time = 0
+x = 0
+y = -18
+
+[State 6015, 移動速度]
+type = VelSet
+trigger1 = Time = 90
+y = 0
+
+[State 6015, 位置]
+type = PosFreeze
+trigger1 = Time = [90,270]
+;y = -10
+
+[State 6015, 移動速度]
+type = VelSet
+trigger1 = Time = 270
+x = 0
+y = -4
+
+
+[State 6015, 速度加算];重力
+type = VelAdd
+trigger1 = Time <= 90
+y = .38
+
+[State 6015, まわす]
+type = AngleAdd
+trigger1 = Time < 90
+value = 25
+
+[State 6015, まわす]
+type = AngleSet
+trigger1 = Time = 90
+value = 0
+
+[State 6015, まわす]
+type = AngleDraw
+trigger1 = 1
+
+[State 6015, アニメ変更]
+type = ChangeAnim2
+trigger1 = Time = 0
+value = 6003
+
+[State 6015, 相手ステートに戻す]
+type = null;SelfState
+trigger1 = Time = 280
+value = 5035
+
+[State 6015, アニメ変更]
+type = ChangeAnim2
+trigger1 = Time = 271
+value = 6020
+
+[State 6015, 速度加算];重力
+type = VelAdd
+trigger1 = Time >= 270
+y = .2
+
+[State 6015, 相手ステートに戻す]
+type = SelfState
+trigger1 = (Vel y > 0) && (Pos y >= -10)
+value = 5100;  035;50
+
+
+
+
+[Statedef 6030];上かっとばし（カメラ追尾なし、シールドヒート用
+type    = A
+movetype= H
+physics = N
+velset = 0,0
+
+[State 6015, 相手の特定の攻撃属性無効];（※６）
+type = NotHitBy
+trigger1 = 1
+value = SCA
+
+[State 6015, 相手の特定の攻撃属性無効];（※６）
+type = null;NotHitBy
+trigger1 = vel y <= 0
+value = SCA
+
+[State 6020, スクロール]
+type = ScreenBound
+trigger1 = 1
+value = 0
+movecamera = 1,0
+
+[State 6005, 食らい中の速度]
+type = HitVelSet
+trigger1 = Time = 0
+y = 1
+
+[State 6015, 速度]
+type = VelSet
+trigger1 = Time = 0
+x = 0
+
+[State 6015, 速度加算];重力
+type = VelAdd
+trigger1 = 1
+y = .3
+
+[State 6015, まわす]
+type = AngleAdd
+trigger1 = 1
+value = 25
+
+[State 6015, まわす]
+type = AngleDraw
+trigger1 = 1
+
+[State 6015, アニメ変更]
+type = ChangeAnim2
+trigger1 = Time = 0
+value = 6003
+
+[State 6015, 相手ステートに戻す]
+type = SelfState
+trigger1 = (Vel y > 0) && (Pos y >= -10)
+value = 5100
+
+
+[Statedef 6040];ファンタスティカ敵制御
+type    = A
+movetype= H
+physics = N
+velset = 0,0
+anim = 5110
+
+[State 6015, 相手の特定の攻撃属性無効];（※６）
+type = NotHitBy
+trigger1 = Time = [0,380]
+value = SCA
+
+[State 00]
+type = null;AssertSpecial
+trigger1 = Time >= 40
+flag = invisible
+
+[State 00]
+type = null;PalFX
+trigger1 = Time = [20,40]
+time = 1
+add = 0,0,0
+mul = 256-floor((Time-20)*12.8),256-floor((Time-20)*12.8),256-floor((Time-20)*12.8)
+invertall = 0
+color = 256
+
+[State 00]
+type = PosSet
+trigger1 = Time = 0
+y = 0
+
+[State 6020, スクロール]
+type = ScreenBound
+trigger1 = 1
+value = 0
+movecamera = 1,1
+
+
+[State 6015, アニメ変更]
+type = null;ChangeAnim2
+trigger1 = Time = 0
+value = 6003
+
+[State 6015, 相手ステートに戻す]
+type = SelfState
+trigger1 = Time = 600;(Vel y > 0) && (Pos y >= -10)
+value = 5100
+
+
+;床バウンド
+[Statedef 6050]
+type    = A
+movetype= H
+physics = N
+velset = 0,0
+
+[State 6050, 相手のアニメ変更]
+type = ChangeAnim2
+trigger1 = 1
+value = 6000
+
+[State 6050, ステート変更]
+type = ChangeState
+trigger1 = HitShakeOver = 1 ;ヒット硬直が解けたら
+value = 6051
+
+;相手側２（吹っ飛び）
+[Statedef 6051]
+type    = A
+movetype= H
+physics = N
+
+[State 6051, 食らい中の速度]
+type = HitVelSet
+trigger1 = Time = 0
+x = 1
+y = 1
+
+[State 6051, 速度加算];重力
+type = VelAdd
+trigger1 = 1
+y = .45
+
+[State 6051, スクロール]
+type = ScreenBound
+triggerall = Pos y < -15
+trigger1 = BackEdgeBodyDist < 65
+trigger2 = FrontEdgeBodyDist < 65
+value = 1         ;画面スクロールの影響を受けるか否か。0=受けない・1=受ける
+movecamera = 0,1  ;カメラの動きをキャラに依存させるか否か。0=させない・1=させる（Ｘ軸,Ｙ軸）
+
+[State 6051, ステート変更];壁に激突するステートへ
+type = ChangeState
+triggerall = Pos y >= -5
+trigger1 = BackEdgeBodyDist >= 20
+trigger2 = FrontEdgeBodyDist >= 20
+value = 6052
+
+[State 6051, 相手ステートに戻す]
+type = SelfState
+trigger1 = (Vel y < 0) && (Pos y <= 0)
+value = 5100
+
+;相手側３（壁に激突）
+[Statedef 6052]
+type    = A
+movetype= H
+physics = N
+
+[State 6052, 振り返る]
+type = Turn
+trigger1 = (Time = 0) && (FrontEdgeBodyDist <= 30)
+
+[State 6052, 軸位置移動]
+type = Posset
+trigger1 = Time = 0
+y = 0
+
+[State 6052, 位置固定]
+type = PosFreeze
+trigger1 = 1
+x = 1
+y = 1
+
+[State 6052, スクロール]
+type = ScreenBound
+trigger1 = 1
+value = 1
+movecamera = 0,1
+
+[State 6052, エフェクト]
+type = Explod
+trigger1 = Time = 0
+anim = F72
+pos = 0, floor(screenpos y)+10 ;（※５）
+postype = P2
+sprpriority = 3
+
+[State 6052, 相手のアニメ変更]
+type = ChangeAnim2
+trigger1 = Time = 0
+value = 6002
+
+[State 6052, 音を鳴らす]
+type = PlaySnd
+trigger1 = Time = 0
+value = F7,0
+
+[State 6052, ステート変更]
+type = ChangeState
+trigger1 = AnimTime = 0
+value = 6053
+
+;相手側４（壁からのバウンド）
+[Statedef 6053]
+type    = A
+movetype= H
+physics = N
+
+[State 6053, 相手の特定の攻撃属性無効];（※６）
+type = NotHitBy
+trigger1 = 1
+value = , AT
+
+[State 6053, 移動速度]
+type = VelSet
+trigger1 = Time = 0
+y = -0.96*Abs(Vel y)
+
+[State 6053, 移動速度]
+type = VelSet
+trigger1 = Time = 0
+X = 0.25*(Vel X)
+
+[State 6053, 振り返る]
+type = Turn
+trigger1 = (Time = 0) && (BackEdgeDist < 30)
+
+[State 6053, 速度加算];重力
+type = VelAdd
+trigger1 = 1
+y = .45
+
+[State 6053, まわす]
+type = AngleAdd
+trigger1 = 1
+value = 25
+
+[State 6053, まわす]
+type = AngleDraw
+trigger1 = 1
+
+[State 6053, 落下状態に]
+type = HitFallSet
+trigger1 = 1
+value = 1
+
+[State 6053, ステート変更]
+type = SelfState
+trigger1 = command = "recovery"
+trigger1 = Time > 20
+value = 5210
+
+[State 6053, アニメ変更]
+type = ChangeAnim2
+trigger1 = Time = 0
+value = 6003
+
+[State 6053, 相手ステートに戻す]
+type = SelfState
+trigger1 = (Vel y > 0) && (Pos y >= -10)
+value = 5100

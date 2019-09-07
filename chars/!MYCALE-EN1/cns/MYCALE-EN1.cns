@@ -1,0 +1,708 @@
+; キャラク??『?ュカレ』のコンス?ンツとステ?トのフ?イルです。
+;===========================================================================
+; コンス?ンツ（定数）
+;===========================================================================
+;---------------------------------------------------------------------------
+; ここがキャラの心臓部とも言うべき場所。
+; １キャラ単位のライフや大きさなど、標?のステ??スを?め決めておく部分。
+; このコ?ナ?自体省略出来ません。
+;---------------------------------------------------------------------------
+; 基?デ??
+;---------------------------------------------------------------------------
+[Data]
+life              = 1000   ;ライフ（体力ゲ?ジ）最大値
+power             = 3000   ;パワ?ゲ?ジ最大値（オプション・デフォルトは3000=Lv.3）
+attack            = 100    ;攻撃力（デフォルトは１００％）
+defence           = 90    ;防御力（デフォルトは１００％）
+fall.defence_up   = 50     ;横に?れている時に一時的に加える防御力（％）
+liedown.time      = 60     ;横に?れている時間（フレ??）
+airjuggle         = 15     ;ジャグル?イント限界値（「小ネ?.txt」参照）
+sparkno           = 2      ;デフォルトのヒットスパ?ク（fightfxから）
+guard.sparkno     = 40     ;デフォルトのガ?ドスパ?ク（fightfxから）
+KO.echo           = 0      ;ＫＯ時の音声（11,0）にエコ?を?けるか否か（0=?けない,1=?ける）
+volume            = 0      ;キャラの標?の音量（最小-255・最大255）
+IntPersistIndex   = 50     ;次のラウンドへ持ち越せる「Var」のアドレスの範囲を決める（※１）
+FloatPersistIndex = 40     ;次のラウンドへ持ち越せる「FVar」のアドレスの範囲を決める（※１）
+;---------------------------------------------------------------------------
+; サイズ
+;---------------------------------------------------------------------------
+[Size]
+xscale           = 0.5     ;キャラの横の大きさ（絶対値・float）
+yscale           = 0.5     ;キャラの縦の大きさ（絶対値・float）
+ground.back      = 28      ;地上にいる時の「後方の物理的な幅」
+ground.front     = 28      ;地上にいる時の「前方の物理的な幅」
+air.back         = 18      ;空中にいる時の「後方の物理的な幅」
+air.front        = 18      ;空中にいる時の「前方の物理的な幅」
+height           = 60      ;キャラの物理的な高さ（高いほど相手は飛び越しにくくなる）
+attack.dist      = 160     ;相手がガ?ド態勢に入る最低の距離
+proj.attack.dist = 90      ;自分の「Projectile」に対して相手がガ?ド態勢に入る最低の距離
+proj.doscale     = 1       ;xscaleとyscaleを「Projectile」にも影響させるか否か（0=させない・1=させる）
+head.pos         = -24,-86 ;キャラの標?の頭の座標（Bind系で適用される）
+mid.pos          = -15,-64 ;キャラの標?の体中心の座標（Bind系で適用される）
+shadowoffset     = 0       ;影のＹ軸方向の位置座標
+draw.offset      = 0,0     ;キャラの?示座標（Ｘ軸,Ｙ軸）
+
+;---------------------------------------------------------------------------
+; 移動速度
+;---------------------------------------------------------------------------
+[Velocity]
+walk.fwd     = 1.5         ;前進速度（Ｘ軸・[Statedef 20]に適用される）
+walk.back    = -1.4        ;後退速度（Ｘ軸・[Statedef 20]に適用される）
+run.fwd      = 5.75,0      ;前方に走る速度（Ｘ軸,Ｙ軸・[Statedef 100]に適用される）
+run.back     = -4.5,0      ;後方に走る速度（Ｘ軸,Ｙ軸・[Statedef 105]に適用される）
+jump.neu     = 0,-11.5     ;垂直ジャンプの速度（Ｘ軸,Ｙ軸・[Statedef 40]に適用される）
+jump.back    = -2.6        ;後方ジャンプの速度（Ｘ軸・[Statedef 40]に適用される）
+jump.fwd     = 2.6         ;前方ジャンプの速度（Ｘ軸・[Statedef 40]に適用される）
+runjump.back = -2.55,-8.1  ;後方に走ってからのジャンプ速度（Ｘ軸,Ｙ軸・[Statedef 40]に適用される）
+runjump.fwd  = 4,-8.1      ;前方に走ってからのジャンプ速度（Ｘ軸,Ｙ軸・[Statedef 40]に適用される）
+airjump.neu  = 0,-10       ;空中垂直ジャンプ速度（Ｘ軸,Ｙ軸・[Statedef 45]に適用される）
+airjump.back = -2.4        ;空中後方ジャンプ速度（Ｘ軸・[Statedef 45]に適用される）
+airjump.fwd  = 2.4         ;空中前方ジャンプ速度（Ｘ軸・[Statedef 45]に適用される）
+
+;---------------------------------------------------------------------------
+; ?動関係
+;---------------------------------------------------------------------------
+[Movement]
+airjump.num     = 1        ;空中ジャンプが出来る回数
+airjump.height  = 15       ;空中ジャンプが出来る最低の高度（Ｙ軸）
+yaccel          = .68      ;Ｙ軸加速度（重力）
+stand.friction  = .85      ;立っている時の?擦係数（ステ?トのPhysicsが「S」の時）
+crouch.friction = .82      ;しゃがんでいる時の?擦係数（ステ?トのPhysicsが「C」の時）
+
+;===========================================================================
+; ステ?ト
+;===========================================================================
+;---------------------------------------------------------------------------
+; ここからはキャラのそれぞれの行動（ステ?ト）を設定する。
+; 番号（ステ?トナンバ?）に気を付ければ良いだけで、
+; 行動の決め方もステ?トの数も作りたいキャラによって自由。
+;
+; ?来ステ?トは別のフ?イルとして扱っているものだけど、
+; このようにコンス?ンツフ?イルと一緒にまとめる事も可?。
+;
+; ステ?トの基?的な設定はおまけフォル?の「テンプレ?ト.txt」を参照。
+;===========================================================================
+; 上書き行動
+;===========================================================================
+;---------------------------------------------------------------------------
+;━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+;	前進・後退
+;━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[Statedef 20]
+type    = S
+physics = S
+sprpriority = 0
+
+[State 20, 移動速度] ;前進する速度
+type = VelSet
+trigger1 = command = "holdfwd"
+x = const(velocity.walk.fwd.x) ;定数で設定した速度
+
+[State 20, 移動速度] ;後退する速度
+type = VelSet
+trigger1 = command = "holdback"
+x = const(velocity.walk.back.x) ;定数で設定した速度
+
+[State 20, アニメ変更] ;前進するアニメに変更
+type = ChangeAnim
+triggerAll = vel x > 0
+trigger1 = Anim != 20 && Anim != 5
+trigger2 = Anim = 5 && AnimTime = 0
+value = 20
+
+[State 20, アニメ変更] ;後退するアニメに変更
+type = ChangeAnim
+triggerAll = vel x < 0
+trigger1 = Anim != 21 && Anim != 5
+trigger2 = Anim = 5 && AnimTime = 0
+value = 21
+
+;++++++++++++++++++++++++++++++++++++++++++++++++++++
+;    追加部分
+;++++++++++++++++++++++++++++++++++++++++++++++++++++
+;----演出-------------------------
+[State 20, Snd]
+type = PlaySnd
+trigger1 = Animelem = 4
+trigger2 = Animelem = 8
+value = 10, 0
+
+;++++追加部分ここまで++++++++++++++++++++++++++++++++
+
+;━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+;	空中ジャンプ開始
+;	・基?的に地上でのジャンプとほぼ同じです。
+;━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[Statedef 45]
+type    = A
+physics = A
+ctrl = 1
+velset = 0,0
+
+;++++++++++++++++++++++++++++++++++++++++++++++++++++
+;    追加部分
+;++++++++++++++++++++++++++++++++++++++++++++++++++++
+;----ガ?ド不可-------------------
+[State 45, AssertSpecial]
+type = AssertSpecial
+trigger1 = 1
+flag = noairguard
+IgnoreHitPause = 1
+
+;----演出-------------------------
+[State 45, Explod]
+type = Explod
+trigger1 = Time = 0
+anim = 10040
+;ID = 0
+pos = 0, 0
+postype = p1
+facing = 1
+vfacing = 1
+bindtime = 1
+vel = 0, 0
+accel = 0, 0
+random = 0, 0
+removetime = -2
+supermovetime = 999999
+pausemovetime = 999999
+scale = 0.5, 0.5
+sprpriority = 5
+ontop = 0
+ownpal = 0
+removeongethit = 0
+
+[State 45, Snd]
+type = PlaySnd
+trigger1 = Time = 0
+value = 3, 4
+
+;++++追加部分ここまで++++++++++++++++++++++++++++++++
+
+[State 45, 変数を設定]
+type = VarSet
+trigger1 = Time = 0
+sysvar(1) = 0
+
+[State 45, 変数を設定]
+type = VarSet
+trigger1 = command = "holdfwd"
+sysvar(1) = 1
+
+[State 45, 変数を設定]
+type = VarSet
+trigger1 = command = "holdback"
+sysvar(1) = -1
+
+;++++++++++++++++++++++++++++++++++++++++++++++++++++
+;    改変部分
+;++++++++++++++++++++++++++++++++++++++++++++++++++++
+[State 45, 移動速度]
+type = VelSet
+trigger1 = Time = 2
+x = ifelse(sysvar(1)=0, const(velocity.airjump.neu.x), ifelse(sysvar(1)=1, const(velocity.airjump.fwd.x), const(velocity.airjump.back.x)))
+y = const(velocity.airjump.y) + (var(3) * 0.2)
+;++++改変部分ここまで++++++++++++++++++++++++++++++++
+
+[State 45, アニメ変更]
+type = ChangeAnim
+trigger1 = Time = 2
+value = ifelse((vel x)=0, 51, ifelse((vel x)>0, 52, 53))
+
+;━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+;	ジャンプ中
+;	・ジャンプ開始が終了すると同時にこのステ?トに飛びます。
+;━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[Statedef 50]
+type    = A
+physics = A
+ctrl = 1
+
+[State 50, アニメ変更] ;?示アニメの決定
+type = ChangeAnim
+trigger1 = Time = 0
+value = ifelse((vel x)=0, 41, ifelse((vel x)>0, 42, 43))
+;X軸の移動速度が0ならば41へ、?イナスならば42へ、それ以外なら43へ
+
+[State 50, アニメ変更]
+type = ChangeAnim
+trigger1 = Vel y > -2
+trigger1 = SelfAnimExist(anim + 3)
+persistent = 0
+value = Anim + 3
+
+;++++++++++++++++++++++++++++++++++++++++++++++++++++
+;    追加部分
+;++++++++++++++++++++++++++++++++++++++++++++++++++++
+;----ガ?ド不可-------------------
+[State 50, AssertSpecial]
+type = AssertSpecial
+trigger1 = time <= 5
+flag = noairguard
+IgnoreHitPause = 1
+
+;----演出-------------------------
+[State 50, Snd]
+type = PlaySnd
+trigger1 = Time = 1
+value = 10, 0
+
+;----時間計測---------------------
+[State 50, time]
+type = VarSet
+trigger1 = 1
+var(3) = time
+
+;++++追加部分ここまで++++++++++++++++++++++++++++++++
+
+;---------------------------------------------------------------------------
+
+;━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+;	着地
+;━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[Statedef 52]
+type    = S
+physics = S
+ctrl = 0
+anim = 47
+facep2 = 1
+
+;--------------------↓ここから先はオプション用の記述
+
+[State 52, アニメ変更]
+type = ChangeAnim
+triggerAll = Time = 0
+trigger1 = sysvar(1) = 0
+value = 47
+
+[State 52, アニメ変更]
+type = ChangeAnim
+triggerAll = SelfAnimExist(48)
+triggerAll = Time = 0
+trigger1 = sysvar(1) = 1
+value = 48
+
+[State 52, アニメ変更]
+type = ChangeAnim
+triggerAll = SelfAnimExist(49)
+triggerAll = Time = 0
+triggerAll = PrevstateNo != [600,630]
+trigger1 = sysvar(1) = -1
+value = 49
+
+[State 52, アニメ変更]
+type = ChangeAnim
+triggerAll = Time = 0
+triggerAll = PrevStateNo = [600,630]
+trigger1 = sysvar(1) = -1
+value = 47
+
+;--------------------↑ここまでオプション用の記述
+
+[State 52, 移動速度] ;Y方向の速度を0に
+type = VelSet
+trigger1 = Time = 0
+y = 0
+
+[State 52, 軸位置] ;地上に戻す
+type = PosSet
+trigger1 = Time = 0
+y = 0
+
+;++++++++++++++++++++++++++++++++++++++++++++++++++++
+;    追加部分
+;++++++++++++++++++++++++++++++++++++++++++++++++++++
+;----演出-------------------------
+[State 52, Snd]
+type = PlaySnd
+trigger1 = Time = 0
+value = 10, 0
+
+[State 52, Explod]
+type = Explod
+trigger1 = Time = 0
+anim = 10040
+;ID = 0
+pos = 0, 0
+postype = p1
+facing = 1
+vfacing = 1
+bindtime = 1
+vel = 0, 0
+accel = 0, 0
+random = 0, 0
+removetime = -2
+supermovetime = 999999
+pausemovetime = 999999
+scale = 0.5, 0.5
+sprpriority = 5
+ontop = 0
+ownpal = 0
+removeongethit = 0
+
+;----特殊動作(ガ?ド移行)---------
+[State 52, Guard]
+type = ChangeState
+trigger1 = inguarddist
+trigger1 = command = "holdback"
+value = 120
+ctrl = 1
+
+;++++追加部分ここまで++++++++++++++++++++++++++++++++
+
+[State 52, 変数を設定]
+type = VarSet
+trigger1 = AnimTime = 0
+sysvar(1) = 0
+
+[State 52, ステ?ト変更]
+type = ChangeState
+trigger1 = AnimTime = 0
+value = 0
+ctrl = 1
+
+
+;===========================================================================
+; 基?行動
+;===========================================================================
+;---------------------------------------------------------------------------
+;フロントステップ
+[Statedef 100]
+type     = S
+movetype = I
+physics  = N
+anim     = 100
+poweradd = 0
+ctrl     = 0
+
+;++++++++++++++++++++++++++++++++++++++++++++++++++++
+;    基?処理
+;++++++++++++++++++++++++++++++++++++++++++++++++++++
+;----初期設定---------------------
+[State B, AttackPower]
+type = VarSet
+trigger1 = Time = 0
+var(3) = 0
+
+[State B, Cancel OFF]
+type = VarSet
+trigger1 = Time = 0
+var(11) = 0
+
+;++++基?処理ここまで++++++++++++++++++++++++++++++++
+
+;----演出-------------------------
+[State 100, Snd]
+type = PlaySnd
+trigger1 = Animelem = 2
+value = 3, 4
+
+[State 100, Explod]
+type = Explod
+trigger1 = Animelem = 2
+anim = 10033
+;ID = 0
+pos = 0, 0
+postype = p1
+facing = 1
+vfacing = 1
+bindtime = 1
+vel = 0, 0
+accel = 0, 0
+random = 0, 0
+removetime = -2
+supermovetime = 999999
+pausemovetime = 999999
+scale = 0.75, 0.75
+sprpriority = 5
+ontop = 0
+ownpal = 0
+removeongethit = 0
+
+;----動作処理---------------------
+[State 100, Playerpush]
+type = Playerpush
+trigger1 = Animelem = 2,>= 0
+trigger1 = Animelem = 6,< 0
+value = 0
+
+[State 100, Width]
+type = Width
+trigger1 = Animelem = 2,>= 0
+trigger1 = Animelem = 7,< 0
+edge = -5, 0
+
+[State 100, VelSet]
+type = VelSet
+trigger1 = Animelem = 2
+x = const(velocity.run.fwd.x)
+y = const(velocity.run.fwd.y)
+
+[State 100, Stop]
+type = Velmul
+trigger1 = Animelem = 7,>= 0
+x = 0.8
+
+;----ステ?ト終了-----------------
+[State 100, EndState]
+type = Changestate
+trigger1 = Animtime = 0
+value = 0
+ctrl = 1
+
+
+
+;---------------------------------------------------------------------------
+;バックステップ
+[Statedef 105]
+type     = S
+movetype = I
+physics  = N
+anim     = 105
+poweradd = 0
+ctrl     = 0
+
+;++++++++++++++++++++++++++++++++++++++++++++++++++++
+;    基?処理
+;++++++++++++++++++++++++++++++++++++++++++++++++++++
+;----初期設定---------------------
+[State B, AttackPower]
+type = VarSet
+trigger1 = Time = 0
+var(3) = 0
+
+[State B, Cancel OFF]
+type = VarSet
+trigger1 = Time = 0
+var(11) = 0
+
+;++++基?処理ここまで++++++++++++++++++++++++++++++++
+
+;----無敵-------------------------
+[State 105, NotHitBy]
+type = NotHitBy
+Trigger1 = Time = 0
+value = SCA,AA,AT,AP
+Time = 6
+ignorehitpause = 1
+
+;----演出-------------------------
+[State 105, Snd]
+type = PlaySnd
+trigger1 = Animelem = 2
+value = 3, 4
+
+[State 105, Explod]
+type = Explod
+trigger1 = Animelem = 2
+anim = 10032
+;ID = 0
+pos = 0, 0
+postype = p1
+facing = -1
+vfacing = 1
+bindtime = 1
+vel = 0, 0
+accel = 0, 0
+random = 0, 0
+removetime = -2
+supermovetime = 999999
+pausemovetime = 999999
+scale = 0.75, 0.75
+sprpriority = 5
+ontop = 0
+ownpal = 0
+removeongethit = 0
+
+;----動作処理---------------------
+[State 105, VelSet]
+type = VelSet
+trigger1 = Animelem = 2
+x = const(velocity.run.back.x)
+y = const(velocity.run.back.y)
+
+[State 105, Stop]
+type = VelSet
+trigger1 = Animelem = 7
+x = 0
+
+;----ステ?ト終了-----------------
+[State 105, EndState]
+type = Changestate
+trigger1 = Animtime = 0
+value = 0
+ctrl = 1
+
+
+;---------------------------------------------------------------------------
+;?イ?オ?バ?（負けた時）
+[Statedef 170]
+type = S
+ctrl = 0
+anim = 170
+velset = 0,0
+
+;----演出-------------------------
+[state 170, Voice]
+type = PlaySnd
+trigger1 = time = 0
+value = 5000, 2
+channel = 0
+
+
+;---------------------------------------------------------------------------
+;勝利??ズ分岐
+[Statedef 180]
+type = S
+
+;----特殊演出---------------------
+
+;----試合勝利---------------------
+[State 180, ChangeState]
+type = ChangeState
+triggerAll = Time = 0
+trigger1 = MatchOver = 1
+value = 182
+
+;----ラウンド奪取-----------------
+[State 180, ChangeState]
+type = ChangeState
+triggerAll = Time = 0
+trigger1 = MatchOver = 0
+value = 181
+
+;---------------------------------------------------------------------------
+;ラウンド奪取
+[Statedef 181]
+type     = S
+movetype = I
+physics  = N
+anim     = 181
+poweradd = 0
+ctrl     = 0
+
+;----画面切り替え制御-------------
+[State 181, AssertSpecial]
+type = AssertSpecial
+trigger1 = Time < 100
+flag = roundnotover
+
+;----演出-------------------------
+[State 181, Voice]
+type = PlaySnd
+trigger1 = time = 0
+value = 181, 0 + Random%2
+channel = 0
+
+;----勝利数+1---------------------
+[State 181, VarAdd]
+type = VarAdd
+trigger1 = Time = 0
+var(51) = 1
+
+;---------------------------------------------------------------------------
+;勝利??ズ1
+[Statedef 182]
+type     = S
+movetype = I
+physics  = N
+anim     = 182
+poweradd = 0
+ctrl     = 0
+
+;----画面切り替え制御-------------
+[State 182, AssertSpecial]
+type = AssertSpecial
+trigger1 = Time < 180
+flag = roundnotover
+
+;----演出-------------------------
+[State 182, Voice]
+type = PlaySnd
+trigger1 = time = 0
+value = 182, 0 + random%2
+channel = 0
+
+
+;---------------------------------------------------------------------------
+;イントロ分岐
+[Statedef 190]
+type = S
+ctrl = 0
+
+;----特殊演出---------------------
+
+;----汎用イントロ-----------------
+[State 190, ChangeState]
+type = ChangeState
+Trigger1 = Time = 1
+Trigger1 = stateno != 5900
+Trigger1 = TeamMode = Single
+value = 191
+
+;---------------------------------------------------------------------------
+;イントロ
+[Statedef 191]
+type     = S
+movetype = I
+physics  = N
+anim     = 191
+poweradd = 0
+ctrl     = 0
+
+;----初期設定---------------------
+[State 191, ChangeAnim]
+type = ChangeAnim
+trigger1 = RoundState = 0
+value = 191
+
+[State 191, AssertSpecial]
+type = AssertSpecial
+trigger1 = 1
+flag = Intro
+
+;----演出-------------------------
+[State 191, VarSet]
+type = VarSet
+trigger1 = Time = 0
+trigger1 = Random <= 500
+var(1) = 1
+
+[State 191, Voice]
+type = PlaySnd
+trigger1 = Time = 0
+value = 191, var(1)
+channel = 0
+
+;----イントロ終了-----------------
+[State 191, EndState]
+type = ChangeState
+trigger1 = AnimTime = 0
+value = 0
+
+;---------------------------------------------------------------------------
+;挑発
+[Statedef 195]
+type = S
+ctrl = 0
+anim = 195
+velset = 0,0
+
+;----演出-------------------------
+[State 195, Voice]
+type = PlaySnd
+trigger1 = AnimElem = 2
+value = 181, 0 + random%2
+channel = 0
+
+;----ステ?ト終了-----------------
+[State 195, EndState]
+type = Changestate
+trigger1 = Animtime = 0
+value = 0
+ctrl = 1
+

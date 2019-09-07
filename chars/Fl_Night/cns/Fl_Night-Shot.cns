@@ -1,0 +1,368 @@
+;射撃系ヘルパーステートファイル　主にState300,3000代の記述
+
+
+;---------------------------------------------------------------------------
+;コンボボーナスアタック
+[Statedef 25000]
+type     = S
+movetype = A
+physics  = S
+juggle   = 1
+velset   = 0,0
+ctrl     = 0
+anim     = 15048
+poweradd = 0
+sprpriority = 3	
+
+[State , エフェクト表示]
+type = Explod
+trigger1 =time=0
+anim = 7014
+facing = 1
+bindtime = 100
+pos = 0,-50
+postype = p2
+scale = 2,2
+removeongethit = 0
+ supermovetime = 300
+ pausemovetime = 300
+ownpal = 1
+ignorehitpause = 1
+
+[State ,　エフェクト];衝撃エフェクト
+type = Explod
+trigger1 = time=0
+anim = 7038
+bindtime = 9999
+pos = -25,-10
+postype =left
+scale = 1,1
+removeongethit = 0
+supermovetime = 999999
+pausemovetime = 999999
+ignorehitpause = 1
+persistent = 0 
+sprpriority = 7
+
+[state ]
+type = SuperPause
+trigger1 = movehit=1
+time = 38
+pos = 0,-50
+movetime = 0
+darken = 0
+p2defmul = 1
+unhittable = 1
+
+[State 200, 攻撃設定]
+type = HitDef
+trigger1 = AnimElem = 1
+attr = S, NA
+damage = ifelse(root,var(16)=0,ifelse(root,var(14)>120,120,root,var(14)),root,var(14)), root,var(14)
+animtype = Light
+guardflag = MA
+hitflag = MAF
+priority = 3, Hit
+pausetime = 0, 0
+sparkxy = -10, -50
+sparkno = S8034
+hitsound = S200, 9
+guardsound = S300, 0
+guard.sparkno = S9000 ;ガードエフェクト
+guard.hittime = 12
+guard.ctrltime = 12
+ground.type = High
+ground.slidetime = 5
+ground.hittime  = 19
+ground.velocity = enemynear,vel x,enemynear,vel y
+air.type = High
+air.velocity = enemynear,vel x,enemynear,vel y
+air.hittime = 15
+
+air.hittime = 999
+fall = 1
+fall.recover = 0 ;リカバリーは受身可能かどうか。
+envshake.time = 30;ヒット時画面振動時間 (int)
+envshake.freq = 120;振動数 (float)
+envshake.ampl = -12;振幅 (int)
+envshake.phase = 0;位相 (float)
+
+ID=25000
+;**************************************************
+[State 620, 相手ステート変更]
+Type = TargetState
+Trigger1 = NumTarget
+Trigger1 = MoveHit = 1
+Value = 10002
+ID = 25000
+IgnoreHitPause = 1
+Persistent = 10
+
+[State , エフェクト表示];集まる力
+type = Explod
+trigger1 = animelem = 1
+anim = 7024
+facing = 1
+vfacing = 1
+bindtime = 9999
+pos = 0,-50
+postype = p2
+scale = 1.2,1.2
+removeongethit = 0
+removetime = -2
+ownpal = 1
+supermovetime = 9999999999999
+pausemovetime = 9999999999999
+ignorehitpause = 1
+SprPriority = 3
+[State , エフェクト表示];集まる力
+type = Explod
+trigger1 = animelem = 1
+anim = 7048
+facing = 1
+vfacing = 1
+bindtime = 9999
+pos = 0,-50
+postype = p2
+scale = 0.7,0.7
+removeongethit = 0
+removetime = -2
+ownpal = 1
+supermovetime = 9999999999999
+pausemovetime = 9999999999999
+ignorehitpause = 1
+SprPriority = 3
+
+[state ]
+type = parentvarSet
+trigger1 = movehit = 1
+var(11)=1
+
+[State 200, チェンジ]
+type = destroySelf
+trigger1 = Animelem=2
+
+;---------------------------------------------------------------------------
+;リミットゲージ中身
+[Statedef 20000];ヘルパーのステート 伸びるゲージの中身
+anim = 15049
+
+[State ];ゲージの表示
+type = Explod
+trigger1 = numexplod(10000) = 0
+anim = 4962
+ID = 10000
+pos = ifelse(teamside=1,35,285),55
+postype = left
+facing = ifelse(teamside=1,1,-1)
+bindtime = -1
+removetime = -1
+scale = 1,1
+sprpriority = -2
+supermovetime = 300
+pausemovetime = 300
+
+[State 10000]
+type = ModifyExplod
+trigger1 = numexplod(10000) = 1
+scale = root,var(58)/1000.0*0.5,1*0.7
+supermovetime = 300
+pausemovetime = 300
+ID = 10000
+
+[State ];ゲージの表示
+type = Explod
+trigger1 = numexplod(4965) = 0
+anim = 4965
+ID = 4965
+pos = ifelse(teamside=1,35,285),55
+postype = left
+facing = ifelse(teamside=1,1,-1)
+bindtime = -1
+removetime = -1
+scale = 1,1
+sprpriority = 0
+supermovetime = 300
+pausemovetime = 300
+
+[State ];ゲージの表示
+type = Explod
+trigger1 = root,var(50)
+trigger1 = numexplod(4966) = 0
+anim = 4966
+ID = 4966
+pos = ifelse(teamside=1,35,285),55
+postype = left
+facing = ifelse(teamside=1,1,-1)
+bindtime = -1
+removetime = -1
+scale = 0.5,0.7
+sprpriority = 0
+supermovetime = 300
+pausemovetime = 300
+
+[State 10000]
+type = ModifyExplod
+trigger1 = numexplod(4965) = 1
+scale = root,var(50)/1400.0*0.5,1*0.7
+supermovetime = 300
+pausemovetime = 300
+ID = 4965
+
+[State 0, RemoveExplod]
+type = RemoveExplod
+trigger1 = !root,var(50)
+id = 4966
+
+[State 0, BindToRoot]
+type = BindToRoot
+trigger1 = 1
+time = 9999
+pos = 0,0
+ignorehitpause = 1
+
+;想神無限撃
+[State -2, Explod]
+type = Explod
+trigger1 = root,var(50)
+trigger1 = root,statetype!=A && root,pos y < 0
+trigger1 = gametime%10=0
+anim = 7061
+ID = 7061
+pos = 0, 0
+supermovetime = 3983
+pausemovetime = 3983
+postype = p1
+bindtime = 1
+removetime = -2
+scale = 0.55,0.55
+sprpriority = -5
+[State -2, Explod]
+type = Explod
+trigger1 = root,var(50)
+trigger1 = root,statetype!=A && root,pos y < 0
+trigger1 = gametime%20=0
+anim = 7017
+ID = 7061
+pos = 0, 0
+supermovetime = 3983
+pausemovetime = 3983
+postype = p1
+bindtime = 1
+removetime = -2
+scale = 1,1
+sprpriority = -5
+[State -2, Explod]
+type = Explod
+trigger1 = root,var(50)
+trigger1 = root,statetype!=A && root,pos y < 0
+trigger1 = !numexplod(7062)
+anim = 6996
+ID = 7062
+pos = 0, 0
+supermovetime = 3983
+pausemovetime = 3983
+postype = p1
+bindtime = 99999
+removetime = 9999999999
+scale = 0.15,0.03
+sprpriority = -5
+
+[State 0, RemoveExplod]
+type = RemoveExplod
+trigger1 = root,statetype=A && root,pos y < 0
+id = 7062
+
+;---------------------------------------------------------------------------
+;リミットゲージ中身
+[Statedef 20001];ヘルパーのステート 伸びるゲージの中身
+anim = 15049
+
+[State ];ゲージの表示
+type = Explod
+trigger1 = numexplod(10001) = 0
+anim = 4963
+ID = 10001
+pos = ifelse(teamside=1,35,285),55
+postype = left
+facing = ifelse(teamside=1,1,-1)
+bindtime = -1
+removetime = -1
+scale = 1,1
+sprpriority = -1
+supermovetime = 300
+pausemovetime = 300
+
+[State 10000]
+type = ModifyExplod
+trigger1 = numexplod(10001) = 1
+scale = root,var(57)/1000.0*0.5,1*0.7
+supermovetime = 300
+pausemovetime = 300
+ID = 10001
+
+;---------------------------------------------------------------------------
+;リミットゲージ描写
+[Statedef 20002];ヘルパーのステート　現状使わない
+anim = 15049
+
+[State ];ゲージの表示
+type = Explod
+trigger1 = numexplod(10002) = 0
+anim = 4964
+ID = 10002
+pos = ifelse(teamside=1,35,285),55
+postype = left
+facing = ifelse(teamside=1,1,-1)
+bindtime = -1
+removetime = -1
+scale = 0.5,0.7
+sprpriority = -3
+supermovetime = 300
+pausemovetime = 300
+
+;---------------------------------------------------------------------------
+;リミットゲージ描写
+[Statedef 20005];ヘルパーのステート
+anim = 15049
+
+[State ];ゲージの表示
+type = Explod
+trigger1 = numexplod(10000) = 0
+anim = 4960
+ID = 10000
+pos = ifelse(teamside=1,35,285),55
+postype = left
+facing = ifelse(teamside=1,1,-1)
+bindtime = -1
+removetime = -1
+scale = 0.5,0.7
+sprpriority = -3
+supermovetime = 300
+pausemovetime = 300
+
+;---------------------------------------------------------------------------
+;リミットゲージ描写
+[Statedef 20006];ヘルパーのステート
+anim = 15049;この空のアニメを用意しておかないと分身が出るよ！
+
+[State ];ゲージの表示
+type = Explod
+trigger1 = numexplod(10000) = 0
+anim = 4961
+ID = 10000
+pos = ifelse(teamside=1,35,285),55
+postype = left
+facing = ifelse(teamside=1,1,-1)
+bindtime = -1
+removetime = -1
+scale = 0.5,0.7
+sprpriority = -3
+supermovetime = 300
+pausemovetime = 300
+;この下、一行以上空ける事。
+
+
+;---------------------------------------------------------------------------
+
+;この下、一行以上空ける事。

@@ -1,0 +1,3176 @@
+;=====================================================================
+;　　　闇払い
+;---------------------------------------------------------------------
+[Statedef 1000]
+type    = S
+movetype= A
+physics = S
+juggle  = 1
+ctrl = 0
+anim = 1000
+sprpriority = 2
+
+[State 00,ボイス乱数]
+type = varrandom
+trigger1 = Time = 0
+v = 5
+range = 0,1
+
+[State 00,ボイス]
+type = Playsnd
+trigger1 = Var(5) = 0
+trigger1 = Var(2) != 0
+trigger1 = AnimElem = 5
+value = 200,0
+channel = 0
+
+[State 00,ボイス制御]
+type = varset
+trigger1 = Var(5) = 0
+trigger1 = AnimElemTime(5) >= 0
+var(2) = 0
+
+[State 00]
+type = PlaySnd
+trigger1 = AnimElem = 6
+value = s0, 6
+
+[State 00]
+type = PlaySnd
+trigger1 = AnimElem = 6
+value = s3, 16
+
+[State 195, 火花]
+Type = Explod
+trigger1 = AnimElem = 5
+Anim = 6102
+Pos = 0,0
+PosType = P1
+Scale = 0.8,0.8
+Ownpal = 1
+SprPriority = 4
+IgnoreHitPause = 1
+Persistent = 0
+removeongethit = 1
+
+[State 195, 火花]
+Type = Explod
+trigger1 = AnimElem = 5
+Anim = 6103
+Pos = 0,0
+PosType = P3
+Scale = 0.8,0.8
+Ownpal = 1
+SprPriority = 3
+IgnoreHitPause = 1
+Persistent = 0
+removeongethit = 1
+
+[State 195, 火花]
+Type = Explod
+trigger1 = AnimElem = 6
+Anim = 10302
+Pos = 10,-10
+PosType = P1
+Scale = 0.9,0.9
+Ownpal = 1
+SprPriority = 6
+IgnoreHitPause = 1
+Persistent = 1
+
+[State 00]
+Type = Helper
+trigger1 = AnimElem = 6
+StateNo = 11000
+ID = 11000
+Name = "Zero"
+Pos = 10,0
+PosType = P1
+Ownpal = 1
+persistent = 0
+
+[State 1000, ステート変更]
+type = ChangeState
+trigger1 = AnimTime = 0
+value = 0
+ctrl = 1
+
+
+;--------------ここから弾幕--------------------
+
+[Statedef 11000];炎
+type = A
+movetype = A
+ctrl = 0
+anim = 11000
+SprPriority = 1
+
+[State 11020,00]
+type = AssertSpecial
+trigger1 = 1
+flag = noshadow
+
+[State -1]
+Type     = AngleDraw
+Trigger1 = 1
+
+[State 11020,00]
+type = Trans
+trigger1 = 1
+Trans = AddAlpha
+Alpha = 256,256
+time = 1
+
+[State 11020, 7]
+type = SprPriority
+trigger1 = 1
+value = 5
+
+[State 195, 火花]
+Type = Explod
+trigger1 = time > 9
+Anim = 11001
+Pos = -5,-5
+PosType = P1
+Scale = 0.8,0.8
+Ownpal = 1
+SprPriority = 5
+IgnoreHitPause = 1
+Persistent = 5
+
+[State 195, 火花]
+Type = Explod
+trigger1 = time > 9
+Anim = 11001
+Pos = -45,5
+PosType = P1
+Scale = 0.8,0.8
+Ownpal = 1
+SprPriority = 5
+IgnoreHitPause = 1
+Persistent = 5
+
+[State 10300,00]
+type = AngleDraw
+trigger1 = time < 10
+scale = 0.45+Time*0.1, Time*0.085
+
+[State 10300,00]
+type = AngleDraw
+trigger1 = time > 9
+scale = 1.45, 0.85
+
+[State 00]
+type = VelSet
+trigger1 = IsHelper(11000)
+trigger1 = Time = 0
+x = 9.6
+
+[State 00]
+type = VelSet
+trigger1 = IsHelper(11010)
+trigger1 = Time = 0
+x = 5.6
+
+[State 11000, ヒット定義]
+type = HitDef
+trigger1 = Time%9 = 0
+attr = A, SP
+damage = ceil(root,fvar(1)*12), 0
+animtype = Medium
+guardflag = MA
+hitflag = MAFD
+priority = 3, Hit
+pausetime = 0, 9
+sparkno = s20230
+sparkxy = 0, 0
+hitsound = s1, 2
+guardsound = s4, 2
+ground.type = High
+ground.hittime  = 24
+air.hittime  = 24
+ground.slidetime = 18
+air.slidetime = 18
+ground.velocity = -4,-3
+air.velocity =  -5,-4
+air.type = High
+Fall = 1
+fall.recover = 0
+guard.kill = 0;この技による削りKOを不可に
+getpower = 10,5
+palfx.time = 44
+palfx.mul = 240,200,100
+palfx.sinadd = 63,65,68,18
+palfx.add = 230,180,124
+
+[State 00]
+Type = Helper
+trigger1 = Movehit
+StateNo = 10610
+ID = 10610
+name = "hit"
+Pos = 0,0
+PosType = P2
+Ownpal = 1
+IgnoreHitPause = 1
+Persistent = 0
+
+[State 11000, 補正]
+Type = ParentVarSet
+Trigger1 = MoveHit
+fvar(1) = root,fvar(1) * 0.98
+Persistent = 0
+IgnoreHitPause = 1
+
+[State 11000, NotHitby];飛び道具だけあたる
+type = NotHitBy
+trigger1 = 1
+value = SCA
+
+[State 11000, Override]
+type = HitOverride
+trigger1 = 1
+attr = SCA,AP,AA,AT
+stateno = 10605 ;飛び道具が当った場合、10610ステートへ飛ぶ
+IgnoreHitPause = 1
+time = -1
+
+[State 攻撃無効]
+Type = StateTypeSet
+TriggerAll = NumEnemy > 0
+Trigger1 = (EnemyNear,StateNo) = [100,119]
+Trigger2 = (((EnemyNear,StateNo) = [5210,5219]) && ((EnemyNear,Time) < 10))
+movetype = I
+
+[State 攻撃有効]
+Type = StateTypeSet
+TriggerAll = NumEnemy > 0
+Trigger1 = (EnemyNear,StateNo) != [100,119]
+Trigger2 = (((EnemyNear,StateNo) = [5210,5219]) && ((EnemyNear,Time) >= 10))
+movetype = A
+
+[State エフェクト]
+Type = Explod
+TriggerAll = NumEnemy > 0
+TriggerAll = movetype = I
+Trigger1 = P2Dist X = [-13-(EnemyNear,Const(Size.Ground.Front)), 13+(EnemyNear,Const(Size.Ground.Back))]
+Trigger1 = P2Dist Y = [-13, 13-(EnemyNear,Const(Size.Head.Pos.Y))]
+Anim = 20095
+ID = 20095
+Pos = 0,0
+PosType = P1
+Scale = 0.5,0.5
+Ownpal = 1
+SprPriority = 3
+IgnoreHitPause = 1
+
+[State グレイズ音]
+Type = PlaySnd
+TriggerAll = NumEnemy > 0
+TriggerAll = movetype = I
+Trigger1 = P2Dist X = [-13-(EnemyNear,Const(Size.Ground.Front)), 13+(EnemyNear,Const(Size.Ground.Back))]
+Trigger1 = P2Dist Y = [-13, 13-(EnemyNear,Const(Size.Head.Pos.Y))]
+Value = 0, 8
+
+[State グレイズ]
+Type = null;ChangeState
+TriggerAll = NumEnemy > 0
+TriggerAll = movetype = I
+Trigger1 = P2Dist X = [-13-(EnemyNear,Const(Size.Ground.Front)), 13+(EnemyNear,Const(Size.Ground.Back))]
+Trigger1 = P2Dist Y = [-13, 13-(EnemyNear,Const(Size.Head.Pos.Y))]
+Value = 10600
+
+[State 11000, 消滅]
+type = DestroySelf
+trigger1 = Pos Y > 120
+trigger2 = ScreenPos Y < -360
+trigger3 = abs(Pos X) > 360
+
+
+;=====================================================================
+;　　　闇払い（遅）
+;--------------------------------------------------------------------
+[Statedef 1010]
+type    = S
+movetype= A
+physics = S
+juggle  = 1
+ctrl = 0
+anim = 1010
+sprpriority = 2
+
+[State 00,ボイス乱数]
+type = varrandom
+trigger1 = Time = 0
+v = 5
+range = 0,1
+
+[State 00,ボイス]
+type = Playsnd
+trigger1 = Var(5) = 0
+trigger1 = Var(2) != 0
+trigger1 = AnimElem = 5
+value = 200,0
+channel = 0
+
+[State 00,ボイス制御]
+type = varset
+trigger1 = Var(5) = 0
+trigger1 = AnimElemTime(5) >= 0
+var(2) = 0
+
+[State 00]
+type = PlaySnd
+trigger1 = AnimElem = 6
+value = s0, 6
+
+[State 00]
+type = PlaySnd
+trigger1 = AnimElem = 6
+value = s3, 16
+
+[State 195, 火花]
+Type = Explod
+trigger1 = AnimElem = 5
+Anim = 6102
+Pos = 0,0
+PosType = P1
+Scale = 0.8,0.8
+Ownpal = 1
+SprPriority = 4
+IgnoreHitPause = 1
+Persistent = 0
+removeongethit = 1
+
+[State 195, 火花]
+Type = Explod
+trigger1 = AnimElem = 5
+Anim = 6103
+Pos = 0,0
+PosType = P3
+Scale = 0.8,0.8
+Ownpal = 1
+SprPriority = 3
+IgnoreHitPause = 1
+Persistent = 0
+removeongethit = 1
+
+[State 195, 火花]
+Type = Explod
+trigger1 = AnimElem = 6
+Anim = 10302
+Pos = 10,-10
+PosType = P1
+Scale = 0.9,0.9
+Ownpal = 1
+SprPriority = 6
+IgnoreHitPause = 1
+Persistent = 1
+
+[State 00]
+Type = Helper
+trigger1 = AnimElem = 6
+StateNo = 11000
+ID = 11010
+Name = "fire"
+Pos = 10,0
+PosType = P1
+Ownpal = 1
+persistent = 0
+
+[State 1010, ステート変更]
+type = ChangeState
+trigger1 = AnimTime = 0
+value = 0
+ctrl = 1
+
+
+
+
+
+;=====================================================================
+;　　　バルザイの偃月刀(下）
+;--------------------------------------------------------------------
+[Statedef 1050]
+type    = S
+movetype= A
+physics = S
+juggle  = 4
+velset = 0,0
+ctrl = 0
+anim = 1060
+sprpriority = 2
+
+[State 00,ボイス乱数]
+type = varrandom
+trigger1 = Time = 0
+v = 5
+range = 0,1
+
+[State 00,ボイス]
+type = Playsnd
+trigger1 = Var(5) = 0
+trigger1 = Var(2) != 8
+trigger1 = AnimElem = 4
+value = 200,8
+channel = 0
+
+[State 00,ボイス制御]
+type = varset
+trigger1 = Var(5) = 0
+trigger1 = AnimElemTime(4) >= 0
+var(2) = 8
+
+[State 00]
+type = PlaySnd
+trigger1 = AnimElem = 5
+value = s0, 5
+
+[State 195, 火花]
+Type = Explod
+trigger1 = AnimElem = 4
+Anim = 6102
+Pos = 0,0
+PosType = P1
+Scale = 0.8,0.8
+Ownpal = 1
+SprPriority = 4
+IgnoreHitPause = 1
+Persistent = 0
+removeongethit = 1
+
+[State 195, 火花]
+Type = Explod
+trigger1 = AnimElem = 4
+Anim = 6103
+Pos = 0,0
+PosType = P3
+Scale = 0.8,0.8
+Ownpal = 1
+SprPriority = 3
+IgnoreHitPause = 1
+Persistent = 0
+removeongethit = 1
+
+[State 00]
+Type = Helper
+trigger1 = AnimElem = 5
+StateNo = 11062
+ID = 11050
+Name = "12ren"
+Pos = 60,-25
+PosType = P1
+Ownpal = 1
+IgnoreHitPause = 1
+Persistent = 1
+
+[State 1060, ステート変更]
+type = ChangeState
+trigger1 = AnimTime = 0
+value = 0
+ctrl = 1
+
+
+;=====================================================================
+;　　　バルザイの偃月刀（上）
+;---------------------------------------------------------------------
+[Statedef 1060];B版
+type    = S
+movetype= A
+physics = S
+juggle  = 4
+velset = 0,0
+ctrl = 0
+anim = 1060
+sprpriority = 2
+
+[State 00,ボイス乱数]
+type = varrandom
+trigger1 = Time = 0
+v = 5
+range = 0,1
+
+[State 00,ボイス]
+type = Playsnd
+trigger1 = Var(5) = 0
+trigger1 = Var(2) != 3
+trigger1 = AnimElem = 4
+value = 200,3
+channel = 0
+
+[State 00,ボイス制御]
+type = varset
+trigger1 = Var(5) = 0
+trigger1 = AnimElemTime(4) >= 0
+var(2) = 3
+
+[State 00]
+type = PlaySnd
+trigger1 = AnimElem = 5
+value = s0, 5
+
+[State 195, 火花]
+Type = Explod
+trigger1 = AnimElem = 4
+Anim = 11050
+Pos = 0,20
+PosType = P1
+Scale = 0.6,0.35
+Ownpal = 1
+SprPriority = 5
+IgnoreHitPause = 1
+Persistent = 0
+removeongethit = 1
+
+[State 00]
+Type = Helper
+trigger1 = AnimElem = 5
+StateNo = 11060
+ID = 11051
+Name = "12ren"
+Pos = -10,-25
+PosType = P1
+Ownpal = 1
+IgnoreHitPause = 1
+Persistent = 1
+
+[State 1060, ステート変更]
+type = ChangeState
+trigger1 = AnimTime = 0
+value = 0
+ctrl = 1
+
+
+
+
+;---------------------------------------------------------------
+
+
+[Statedef 11060];弾を出すヘルパー
+type = A
+movetype = A
+physics = N
+ctrl = 0
+anim = 9999
+
+[State 00, 7]
+type = AssertSpecial
+trigger1 = 1
+flag = noshadow
+
+[State 00, 7]
+type = SprPriority
+trigger1 = 1
+value = 3
+
+[State 00]
+type = PlaySnd
+trigger1 = Time = 0
+value = s3, 2
+
+[State 00]
+type = PlaySnd
+trigger1 = Time = 0
+value = s3, 16
+
+[State 00, 7]
+type = Velset
+trigger1 = Time = 0
+x = 4
+y = -9.8
+
+[State 00, 7]
+type = Veladd
+trigger1 = 1
+y = 0.2
+
+[State 00, 7]
+type = Velmul
+trigger1 = 1
+x = 0.965
+y = 0.98
+
+[State 195, 火花]
+Type = Explod
+Trigger1 = Time = 0
+Anim = 10302
+Pos = 0,0
+PosType = P1
+Scale = 0.9,0.9
+Ownpal = 1
+SprPriority = 6
+IgnoreHitPause = 1
+Persistent = 1
+
+[State 00,人魂00]
+Type = Helper
+Trigger1 = Time = 0
+StateNo = 11061
+ID = 11060
+Name = "hollow"
+Pos = 0,0
+PosType = P1
+Ownpal = 1
+SprPriority = 4
+
+[State 11060, 人魂01]
+Type = Helper
+trigger1 = Time = 0
+StateNo = 11061
+ID = 11061
+Name = "hollow"
+Pos = 0,0
+PosType = P1
+Ownpal = 1
+SprPriority = 4
+
+[State 11060, 人魂02]
+Type = Helper
+trigger1 = Time = 0
+StateNo = 11061
+ID = 11062
+Name = "hollow"
+Pos = 0,0
+PosType = P1
+Ownpal = 1
+SprPriority = 4
+
+[State 11060, 人魂03]
+Type = Helper
+trigger1 = Time = 0
+StateNo = 11061
+ID = 11063
+Name = "hollow"
+Pos = 0,0
+PosType = P1
+Ownpal = 1
+SprPriority = 4
+
+[State 11060, 人魂04]
+Type = Helper
+trigger1 = Time = 0
+StateNo = 11061
+ID = 11064
+Name = "hollow"
+Pos = 0,0
+PosType = P1
+Ownpal = 1
+SprPriority = 4
+
+[State 11060, 人魂05]
+Type = Helper
+trigger1 = Time = 0
+StateNo = 11061
+ID = 11065
+Name = "hollow"
+Pos = 0,0
+PosType = P1
+Ownpal = 1
+SprPriority = 4
+
+[State 11060, 人魂06]
+Type = Helper
+trigger1 = Time = 0
+StateNo = 11061
+ID = 11066
+Name = "hollow"
+Pos = 0,0
+PosType = P1
+Ownpal = 1
+SprPriority = 4
+
+[State 11060, 人魂07]
+Type = Helper
+trigger1 = Time = 0
+StateNo = 11061
+ID = 11067
+Name = "hollow"
+Pos = 0,0
+PosType = P1
+Ownpal = 1
+SprPriority = 4
+
+[State 11060, 人魂08]
+Type = Helper
+trigger1 = Time = 0
+StateNo = 11061
+ID = 11068
+Name = "hollow"
+Pos = 0,0
+PosType = P1
+Ownpal = 1
+SprPriority = 4
+
+[State 11060, 薙刀？]
+Type = Helper
+trigger1 = Time = 0
+StateNo = 11063
+ID = 11069
+Name = "hollow"
+Pos = 0,0
+PosType = P1
+Ownpal = 1
+SprPriority = 4
+
+[State 11060, 消滅]
+type = DestroySelf
+trigger1 = Pos Y > 120
+trigger2 = ScreenPos Y < -360
+trigger3 = abs(Pos X) > 560
+trigger4 = Root,MoveType = H && Root,StateNo != [120,159]
+trigger5 = Time > 60
+
+
+[Statedef 11061];人魂
+type = A
+movetype = I
+physics = N
+ctrl = 0
+anim = 9999
+
+[State -1]
+Type     = AngleDraw
+Trigger1 = 1
+
+[State 11060, 2]
+Type = Explod
+trigger1 = 1
+Anim = 11061  ;炎エフェクト
+ID = 11061
+Pos = 0,0
+PosType = P1
+Scale = 0.7,0.7
+Ownpal = 1
+SprPriority = 4
+IgnoreHitPause = 1
+Persistent = 3
+vel = -Random%10*0.1,-1+(Random%20*0.1)
+
+[State 00, 7]
+type = SprPriority
+trigger1 = 1
+value = 4
+
+[State 00]
+type = AssertSpecial
+trigger1 = 1
+flag = noshadow
+
+[State 00]
+type = Trans
+trigger1 = 1
+Trans = AddAlpha
+Alpha = 256,256
+time = 1
+
+[State 00]
+type = Varadd
+trigger1 = 1
+fvar(0) = -9
+
+[State 00]
+type = Varadd
+trigger1 = Time = 0
+trigger1 = IsHelper(11060)
+fvar(0) = 0
+
+[State 00]
+type = Varadd
+trigger1 = Time = 0
+trigger1 = IsHelper(11061)
+fvar(0) = 40
+
+[State 00]
+type = Varadd
+trigger1 = Time = 0
+trigger1 = IsHelper(11062)
+fvar(0) = 80
+
+[State 00]
+type = Varadd
+trigger1 = Time = 0
+trigger1 = IsHelper(11063)
+fvar(0) = 120
+
+[State 00]
+type = Varadd
+trigger1 = Time = 0
+trigger1 = IsHelper(11064)
+fvar(0) = 160
+
+[State 00]
+type = Varadd
+trigger1 = Time = 0
+trigger1 = IsHelper(11065)
+fvar(0) = 200
+
+[State 00]
+type = Varadd
+trigger1 = Time = 0
+trigger1 = IsHelper(11066)
+fvar(0) = 240
+
+[State 00]
+type = Varadd
+trigger1 = Time = 0
+trigger1 = IsHelper(11067)
+fvar(0) = 280
+
+[State 00]
+type = Varadd
+trigger1 = Time = 0
+trigger1 = IsHelper(11068)
+fvar(0) = 320
+
+[State 00]
+type = BindToParent
+trigger1 = 1
+pos = floor(ifElse(Time<20, Time*2.5,50)*cos(fvar(0)*pi/180)),-floor(ifElse(Time<20, Time*2.5,50)*sin(fvar(0)*pi/180))
+
+[State 11060, 消滅]
+type = DestroySelf
+trigger1 = Pos Y > 120
+trigger2 = ScreenPos Y < -360
+trigger3 = abs(Pos X) > 560
+trigger4 = Root,MoveType = H && Root,StateNo != [120,159]
+trigger5 = Time > 60
+
+
+
+[Statedef 11062];弾を出すヘルパー2
+type = A
+movetype = A
+physics = N
+ctrl = 0
+anim = 9999
+
+[State 00, 7]
+type = AssertSpecial
+trigger1 = 1
+flag = noshadow
+
+[State 00, 7]
+type = SprPriority
+trigger1 = 1
+value = 3
+
+[State 00]
+type = PlaySnd
+trigger1 = Time = 40
+value = s3, 2
+
+[State 00]
+type = PlaySnd
+trigger1 = Time = 0
+value = s3, 16
+
+[State 00, 7]
+type = Velset
+trigger1 = Time = 0
+x = 6
+y = 3
+
+[State 00, 7]
+type = Veladd
+trigger1 = 1
+y = -0.2
+
+[State 00, 7]
+type = Velmul
+trigger1 = 1
+x = 0.965
+y = 0.98
+
+[State 00, 7]
+type = Velset
+trigger1 = Time > 40
+x = 0
+y = 0
+
+[State 11060, 2]
+Type = Explod
+Trigger1 = Time < 40
+Anim = 11061  ;炎エフェクト
+ID = 11061
+Pos = 0,0
+PosType = P1
+Scale = 0.7,0.7
+Ownpal = 1
+SprPriority = 4
+IgnoreHitPause = 1
+Persistent = 3
+vel = -Random%10*0.1,-1+(Random%20*0.1)
+
+[State 195, 火花]
+Type = Explod
+Trigger1 = Time = 40
+Anim = 10302
+Pos = 0,0
+PosType = P1
+Scale = 0.9,0.9
+Ownpal = 1
+SprPriority = 6
+IgnoreHitPause = 1
+Persistent = 1
+
+[State 00,人魂00]
+Type = Helper
+Trigger1 = Time = 40
+StateNo = 11061
+ID = 11060
+Name = "hollow"
+Pos = 0,0
+PosType = P1
+Ownpal = 1
+SprPriority = 4
+
+[State 11060, 人魂01]
+Type = Helper
+trigger1 = Time = 40
+StateNo = 11061
+ID = 11061
+Name = "hollow"
+Pos = 0,0
+PosType = P1
+Ownpal = 1
+SprPriority = 4
+
+[State 11060, 人魂02]
+Type = Helper
+trigger1 = Time = 40
+StateNo = 11061
+ID = 11062
+Name = "hollow"
+Pos = 0,0
+PosType = P1
+Ownpal = 1
+SprPriority = 4
+
+[State 11060, 人魂03]
+Type = Helper
+trigger1 = Time = 40
+StateNo = 11061
+ID = 11063
+Name = "hollow"
+Pos = 0,0
+PosType = P1
+Ownpal = 1
+SprPriority = 4
+
+[State 11060, 人魂04]
+Type = Helper
+trigger1 = Time = 40
+StateNo = 11061
+ID = 11064
+Name = "hollow"
+Pos = 0,0
+PosType = P1
+Ownpal = 1
+SprPriority = 4
+
+[State 11060, 人魂05]
+Type = Helper
+trigger1 = Time = 40
+StateNo = 11061
+ID = 11065
+Name = "hollow"
+Pos = 0,0
+PosType = P1
+Ownpal = 1
+SprPriority = 4
+
+[State 11060, 人魂06]
+Type = Helper
+trigger1 = Time = 40
+StateNo = 11061
+ID = 11066
+Name = "hollow"
+Pos = 0,0
+PosType = P1
+Ownpal = 1
+SprPriority = 4
+
+[State 11060, 人魂07]
+Type = Helper
+trigger1 = Time = 40
+StateNo = 11061
+ID = 11067
+Name = "hollow"
+Pos = 0,0
+PosType = P1
+Ownpal = 1
+SprPriority = 4
+
+[State 11060, 人魂08]
+Type = Helper
+trigger1 = Time = 40
+StateNo = 11061
+ID = 11068
+Name = "hollow"
+Pos = 0,0
+PosType = P1
+Ownpal = 1
+SprPriority = 4
+
+[State 11060, 薙刀？]
+Type = Helper
+trigger1 = Time = 40
+StateNo = 11063
+ID = 11069
+Name = "hollow"
+Pos = 0,0
+PosType = P1
+Ownpal = 1
+SprPriority = 4
+
+[State 11060, 消滅]
+type = DestroySelf
+trigger1 = Pos Y > 120
+trigger2 = ScreenPos Y < -360
+trigger3 = abs(Pos X) > 560
+trigger4 = Root,MoveType = H && Root,StateNo != [120,159]
+trigger5 = Time > 100
+
+
+[Statedef 11063];薙刀？
+type = A
+movetype = A
+physics = N
+juggle  = 4
+ctrl = 0
+anim = 11060
+
+[State -1]
+Type     = AngleDraw
+Trigger1 = 1
+
+[State 00, 7]
+type = SprPriority
+trigger1 = 1
+value = 4
+
+[State 00]
+type = AssertSpecial
+trigger1 = 1
+flag = noshadow
+
+[State 00]
+type = BindToParent
+trigger1 = 1
+pos = 0,0
+
+[State 10300,00]
+type = AngleDraw
+trigger1 = Time < 20
+scale = Time*0.1, Time*0.1
+
+[State 10300,00]
+type = AngleDraw
+trigger1 = Time >= 20
+scale = 2., 2.
+
+[State 11060, 2]
+type = HitDef
+trigger1 = time%9 = 0
+attr = A, SP
+animtype  = medium
+damage    = ceil(root,fvar(1)*9),0
+guardflag = MA
+hitflag = MAF
+sparkno = s202000
+pausetime = 0,9
+sparkxy = -15,0
+hitsound   = s1,5
+guardsound = s4,2
+ground.type = High
+ground.slidetime = 22
+ground.hittime  = 22
+guard.slidetime = 12
+guard.hittime = 12
+ground.velocity = -8,0
+air.animtype = Back
+airguard.velocity = -2,-6
+getpower = 0,0
+palfx.time = 22
+palfx.mul = 240,200,100
+palfx.sinadd = 63,65,68,18
+palfx.add = 230,180,124
+
+[State 00]
+Type = Helper
+trigger1 = Movehit
+StateNo = 10610
+ID = 10610
+name = "hit"
+Pos = 0,0
+PosType = P2
+Ownpal = 1
+;IgnoreHitPause = 1
+;Persistent = 0
+
+[State 00, 補正]
+Type = ParentVarSet
+Trigger1 = MoveHit
+fvar(1) = root,fvar(1) * 0.98
+Persistent = 1
+IgnoreHitPause = 1
+
+[State 00]
+Type = Helper
+trigger1 = movehit
+StateNo = 20090
+ID = 20090
+Name = "hiteffring"
+Pos = 0,0
+PosType = P2
+Ownpal = 1
+IgnoreHitPause = 1
+;Persistent = 0
+
+[State 00]
+Type = Helper
+trigger1 = movehit
+StateNo = 20095
+ID = 20095
+Name = "hiteff"
+Pos = 20,-10
+PosType = P2
+Ownpal = 1
+;IgnoreHitPause = 1
+supermovetime = 1000
+
+[State 11410, 00]
+type = MoveHitReset
+trigger1 = 1
+
+[State 00, 攻撃無効]
+Type = StateTypeSet
+TriggerAll = NumEnemy > 0
+Trigger1 = (EnemyNear,StateNo) = [100,119]
+Trigger2 = (((EnemyNear,StateNo) = [5210,5219]) && ((EnemyNear,Time) < 10))
+movetype = I
+
+[State 00, 攻撃有効]
+Type = StateTypeSet
+TriggerAll = NumEnemy > 0
+Trigger1 = (EnemyNear,StateNo) != [100,119]
+Trigger2 = (((EnemyNear,StateNo) = [5210,5219]) && ((EnemyNear,Time) >= 10))
+movetype = A
+
+[State 00, エフェクト]
+Type = Explod
+TriggerAll = NumEnemy > 0
+TriggerAll = movetype = I
+Trigger1 = P2Dist X = [-4-(EnemyNear,Const(Size.Ground.Front)), 3+(EnemyNear,Const(Size.Ground.Back))]
+Trigger1 = P2Dist Y = [-4, 3-(EnemyNear,Const(Size.Head.Pos.Y))]
+Anim = 20095
+ID = 20095
+Pos = 0,0
+PosType = P1
+Scale = 0.5,0.5
+Ownpal = 1
+SprPriority = 3
+IgnoreHitPause = 1
+
+[State 00, グレイズ音]
+Type = PlaySnd
+TriggerAll = NumEnemy > 0
+TriggerAll = movetype = I
+Trigger1 = P2Dist X = [-4-(EnemyNear,Const(Size.Ground.Front)), 3+(EnemyNear,Const(Size.Ground.Back))]
+Trigger1 = P2Dist Y = [-4, 3-(EnemyNear,Const(Size.Head.Pos.Y))]
+Value = 0, 8
+
+[State 11060, 消滅]
+type = DestroySelf
+trigger1 = Pos Y > 120
+trigger2 = ScreenPos Y < -360
+trigger3 = abs(Pos X) > 560
+trigger4 = Root,MoveType = H && Root,StateNo != [120,159]
+trigger5 = Time > 60
+
+
+
+
+;=====================================================================
+;　　　バルザイの偃月刀(空・下）
+;--------------------------------------------------------------------
+[Statedef 1055]
+type    = A
+movetype= A
+physics = A
+juggle  = 4
+ctrl = 0
+anim = 1065
+sprpriority = 2
+
+[State 00,ボイス乱数]
+type = varrandom
+trigger1 = Time = 0
+v = 5
+range = 0,1
+
+[State 00,ボイス]
+type = Playsnd
+trigger1 = Var(5) = 0
+trigger1 = Var(2) != 8
+trigger1 = AnimElem = 4
+value = 200,8
+channel = 0
+
+[State 00,ボイス制御]
+type = varset
+trigger1 = Var(5) = 0
+trigger1 = AnimElemTime(4) >= 0
+var(2) = 8
+
+[State 00]
+type = PlaySnd
+trigger1 = AnimElem = 5
+value = s0, 5
+
+[State 00]
+type = Veladd
+trigger1 = AnimElem = 4
+x = -3.5
+
+[State 00]
+type = Velset
+trigger1 = AnimElem = 4
+y = -6.5
+
+[State 195, 火花]
+Type = Explod
+trigger1 = AnimElem = 4
+Anim = 6102
+Pos = 0,0
+PosType = P1
+Scale = 0.8,0.8
+Ownpal = 1
+SprPriority = 4
+IgnoreHitPause = 1
+Persistent = 0
+removeongethit = 1
+
+[State 195, 火花]
+Type = Explod
+trigger1 = AnimElem = 4
+Anim = 6103
+Pos = 0,0
+PosType = P3
+Scale = 0.8,0.8
+Ownpal = 1
+SprPriority = 3
+IgnoreHitPause = 1
+Persistent = 0
+removeongethit = 1
+
+[State 00]
+Type = Helper
+trigger1 = AnimElem = 5
+StateNo = 11066
+ID = 11050
+Name = "12ren"
+Pos = 30,-25
+PosType = P1
+Ownpal = 1
+IgnoreHitPause = 1
+Persistent = 1
+
+[State 1060, ステート変更]
+type = CtrlSet
+trigger1 = time >= 46
+value = 1
+
+
+;=====================================================================
+;　　　バルザイの偃月刀（空・上）
+;---------------------------------------------------------------------
+[Statedef 1065];B版
+type    = A
+movetype= A
+physics = A
+juggle  = 4
+ctrl = 0
+anim = 1065
+sprpriority = 2
+
+[State 00,ボイス乱数]
+type = varrandom
+trigger1 = Time = 0
+v = 5
+range = 0,1
+
+[State 00,ボイス]
+type = Playsnd
+trigger1 = Var(5) = 0
+trigger1 = Var(2) != 3
+trigger1 = AnimElem = 4
+value = 200,3
+channel = 0
+
+[State 00,ボイス制御]
+type = varset
+trigger1 = Var(5) = 0
+trigger1 = AnimElemTime(4) >= 0
+var(2) = 3
+
+[State 00]
+type = PlaySnd
+trigger1 = AnimElem = 5
+value = s0, 5
+
+[State 00]
+type = Veladd
+trigger1 = AnimElem = 4
+x = -3.5
+
+[State 00]
+type = Velset
+trigger1 = AnimElem = 4
+y = -6.5
+
+[State 195, 火花]
+Type = Explod
+trigger1 = AnimElem = 4
+Anim = 11050
+Pos = 0,20
+PosType = P1
+Scale = 0.6,0.35
+Ownpal = 1
+SprPriority = 5
+IgnoreHitPause = 1
+Persistent = 0
+removeongethit = 1
+
+[State 00]
+Type = Helper
+trigger1 = AnimElem = 5
+StateNo = 11065
+ID = 11051
+Name = "12ren"
+Pos = -30,-25
+PosType = P1
+Ownpal = 1
+IgnoreHitPause = 1
+Persistent = 1
+
+[State 1065, ステート変更]
+type = CtrlSet
+trigger1 = time >= 51
+value = 1
+
+
+
+
+
+
+[Statedef 11065];弾を出すヘルパー
+type = A
+movetype = A
+physics = N
+ctrl = 0
+anim = 9999
+
+[State 00, 7]
+type = AssertSpecial
+trigger1 = 1
+flag = noshadow
+
+[State 00, 7]
+type = SprPriority
+trigger1 = 1
+value = 3
+
+[State 00]
+type = PlaySnd
+trigger1 = Time = 0
+value = s3, 2
+
+[State 00]
+type = PlaySnd
+trigger1 = Time = 0
+value = s3, 16
+
+[State 00, 7]
+type = Velset
+trigger1 = Time = 0
+x = 5
+y = 6.2
+
+[State 00, 7]
+type = Veladd
+trigger1 = 1
+y = -0.2
+
+[State 00, 7]
+type = Velmul
+trigger1 = 1
+x = 0.965
+y = 0.98
+
+[State 195, 火花]
+Type = Explod
+Trigger1 = Time = 0
+Anim = 10302
+Pos = 0,0
+PosType = P1
+Scale = 0.9,0.9
+Ownpal = 1
+SprPriority = 6
+IgnoreHitPause = 1
+Persistent = 1
+
+[State 00,人魂00]
+Type = Helper
+Trigger1 = Time = 0
+StateNo = 11061
+ID = 11060
+Name = "hollow"
+Pos = 0,0
+PosType = P1
+Ownpal = 1
+SprPriority = 4
+
+[State 11060, 人魂01]
+Type = Helper
+trigger1 = Time = 0
+StateNo = 11061
+ID = 11061
+Name = "hollow"
+Pos = 0,0
+PosType = P1
+Ownpal = 1
+SprPriority = 4
+
+[State 11060, 人魂02]
+Type = Helper
+trigger1 = Time = 0
+StateNo = 11061
+ID = 11062
+Name = "hollow"
+Pos = 0,0
+PosType = P1
+Ownpal = 1
+SprPriority = 4
+
+[State 11060, 人魂03]
+Type = Helper
+trigger1 = Time = 0
+StateNo = 11061
+ID = 11063
+Name = "hollow"
+Pos = 0,0
+PosType = P1
+Ownpal = 1
+SprPriority = 4
+
+[State 11060, 人魂04]
+Type = Helper
+trigger1 = Time = 0
+StateNo = 11061
+ID = 11064
+Name = "hollow"
+Pos = 0,0
+PosType = P1
+Ownpal = 1
+SprPriority = 4
+
+[State 11060, 人魂05]
+Type = Helper
+trigger1 = Time = 0
+StateNo = 11061
+ID = 11065
+Name = "hollow"
+Pos = 0,0
+PosType = P1
+Ownpal = 1
+SprPriority = 4
+
+[State 11060, 人魂06]
+Type = Helper
+trigger1 = Time = 0
+StateNo = 11061
+ID = 11066
+Name = "hollow"
+Pos = 0,0
+PosType = P1
+Ownpal = 1
+SprPriority = 4
+
+[State 11060, 人魂07]
+Type = Helper
+trigger1 = Time = 0
+StateNo = 11061
+ID = 11067
+Name = "hollow"
+Pos = 0,0
+PosType = P1
+Ownpal = 1
+SprPriority = 4
+
+[State 11060, 人魂08]
+Type = Helper
+trigger1 = Time = 0
+StateNo = 11061
+ID = 11068
+Name = "hollow"
+Pos = 0,0
+PosType = P1
+Ownpal = 1
+SprPriority = 4
+
+[State 11060, 薙刀？]
+Type = Helper
+trigger1 = Time = 0
+StateNo = 11063
+ID = 11069
+Name = "hollow"
+Pos = 0,0
+PosType = P1
+Ownpal = 1
+SprPriority = 4
+
+[State 11060, 消滅]
+type = DestroySelf
+trigger1 = Pos Y > 120
+trigger2 = ScreenPos Y < -360
+trigger3 = abs(Pos X) > 560
+trigger4 = Root,MoveType = H && Root,StateNo != [120,159]
+trigger5 = Time > 60
+
+
+
+
+[Statedef 11066];弾を出すヘルパー2
+type = A
+movetype = A
+physics = N
+ctrl = 0
+anim = 9999
+
+[State 00, 7]
+type = AssertSpecial
+trigger1 = 1
+flag = noshadow
+
+[State 00, 7]
+type = SprPriority
+trigger1 = 1
+value = 3
+
+[State 00]
+type = PlaySnd
+trigger1 = Time = 40
+value = s3, 2
+
+[State 00]
+type = PlaySnd
+trigger1 = Time = 0
+value = s3, 16
+
+[State 00, 7]
+type = Velset
+trigger1 = Time = 0
+x = 6
+y = 6
+
+[State 00, 7]
+type = Veladd
+trigger1 = 1
+y = -0.2
+
+[State 00, 7]
+type = Velmul
+trigger1 = 1
+x = 0.965
+y = 0.98
+
+[State 00, 7]
+type = Velset
+trigger1 = Time > 40
+x = 0
+y = 0
+
+[State 11060, 2]
+Type = Explod
+Trigger1 = Time < 40
+Anim = 11061  ;炎エフェクト
+ID = 11061
+Pos = 0,0
+PosType = P1
+Scale = 0.7,0.7
+Ownpal = 1
+SprPriority = 4
+IgnoreHitPause = 1
+Persistent = 3
+vel = -Random%10*0.1,-1+(Random%20*0.1)
+
+[State 195, 火花]
+Type = Explod
+Trigger1 = Time = 40
+Anim = 10302
+Pos = 0,0
+PosType = P1
+Scale = 0.9,0.9
+Ownpal = 1
+SprPriority = 6
+IgnoreHitPause = 1
+Persistent = 1
+
+[State 00,人魂00]
+Type = Helper
+Trigger1 = Time = 40
+StateNo = 11061
+ID = 11060
+Name = "hollow"
+Pos = 0,0
+PosType = P1
+Ownpal = 1
+SprPriority = 4
+
+[State 11060, 人魂01]
+Type = Helper
+trigger1 = Time = 40
+StateNo = 11061
+ID = 11061
+Name = "hollow"
+Pos = 0,0
+PosType = P1
+Ownpal = 1
+SprPriority = 4
+
+[State 11060, 人魂02]
+Type = Helper
+trigger1 = Time = 40
+StateNo = 11061
+ID = 11062
+Name = "hollow"
+Pos = 0,0
+PosType = P1
+Ownpal = 1
+SprPriority = 4
+
+[State 11060, 人魂03]
+Type = Helper
+trigger1 = Time = 40
+StateNo = 11061
+ID = 11063
+Name = "hollow"
+Pos = 0,0
+PosType = P1
+Ownpal = 1
+SprPriority = 4
+
+[State 11060, 人魂04]
+Type = Helper
+trigger1 = Time = 40
+StateNo = 11061
+ID = 11064
+Name = "hollow"
+Pos = 0,0
+PosType = P1
+Ownpal = 1
+SprPriority = 4
+
+[State 11060, 人魂05]
+Type = Helper
+trigger1 = Time = 40
+StateNo = 11061
+ID = 11065
+Name = "hollow"
+Pos = 0,0
+PosType = P1
+Ownpal = 1
+SprPriority = 4
+
+[State 11060, 人魂06]
+Type = Helper
+trigger1 = Time = 40
+StateNo = 11061
+ID = 11066
+Name = "hollow"
+Pos = 0,0
+PosType = P1
+Ownpal = 1
+SprPriority = 4
+
+[State 11060, 人魂07]
+Type = Helper
+trigger1 = Time = 40
+StateNo = 11061
+ID = 11067
+Name = "hollow"
+Pos = 0,0
+PosType = P1
+Ownpal = 1
+SprPriority = 4
+
+[State 11060, 人魂08]
+Type = Helper
+trigger1 = Time = 40
+StateNo = 11061
+ID = 11068
+Name = "hollow"
+Pos = 0,0
+PosType = P1
+Ownpal = 1
+SprPriority = 4
+
+[State 11060, 薙刀？]
+Type = Helper
+trigger1 = Time = 40
+StateNo = 11063
+ID = 11069
+Name = "hollow"
+Pos = 0,0
+PosType = P1
+Ownpal = 1
+SprPriority = 4
+
+[State 11060, 消滅]
+type = DestroySelf
+trigger1 = Pos Y > 120
+trigger2 = ScreenPos Y < -360
+trigger3 = abs(Pos X) > 560
+trigger4 = Root,MoveType = H && Root,StateNo != [120,159]
+trigger5 = Time > 100
+
+
+
+;=====================================================================
+;　　　火竜鞭
+;---------------------------------------------------------------------
+[Statedef 1100]
+type    = S
+movetype= A
+physics = S
+juggle  = 1
+ctrl = 0
+anim = 1100
+sprpriority = 2
+
+[State 00,ボイス乱数]
+type = varrandom
+trigger1 = Time = 0
+v = 5
+range = 0,1
+
+[State 00,ボイス]
+type = Playsnd
+trigger1 = Var(5) = 0
+trigger1 = Var(2) != 0
+trigger1 = AnimElem = 5
+value = 200,0
+channel = 0
+
+[State 00,ボイス制御]
+type = varset
+trigger1 = Var(5) = 0
+trigger1 = AnimElemTime(5) >= 0
+var(2) = 0
+
+[State 00]
+type = PlaySnd
+trigger1 = AnimElem = 6
+value = s0, 6
+
+[State 00]
+Type = Helper
+trigger1 = AnimElemTime(5) = 0
+StateNo = 11100
+ID = 11100
+Name = "hiteffring"
+Pos = -80,0
+PosType = P1
+Ownpal = 1
+IgnoreHitPause = 1
+Persistent = 0
+
+[State 00]
+Type = Helper
+trigger1 = AnimElemTime(5) = 10
+StateNo = 11100
+ID = 11101
+Name = "hiteffring"
+Pos = -30,0
+PosType = P1
+Ownpal = 1
+IgnoreHitPause = 1
+Persistent = 0
+
+[State 00]
+Type = Helper
+trigger1 = AnimElemTime(5) = 20
+StateNo = 11100
+ID = 11101
+Name = "hiteffring"
+Pos = 20,0
+PosType = P1
+Ownpal = 1
+IgnoreHitPause = 1
+Persistent = 0
+
+[State 00]
+Type = Helper
+trigger1 = AnimElemTime(5) = 30
+StateNo = 11100
+ID = 11102
+Name = "hiteffring"
+Pos = 70,0
+PosType = P1
+Ownpal = 1
+IgnoreHitPause = 1
+Persistent = 0
+
+[State 00]
+Type = Helper
+trigger1 = AnimElemTime(5) = 40
+StateNo = 11100
+ID = 11102
+Name = "hiteffring"
+Pos = 120,0
+PosType = P1
+Ownpal = 1
+IgnoreHitPause = 1
+Persistent = 0
+
+[State 1100, ステート変更]
+type = ChangeState
+trigger1 = AnimTime = 0
+value = 0
+ctrl = 1
+
+;-----------------------------
+
+[Statedef 1105];空版
+type    = A
+movetype= A
+physics = A
+juggle  = 1
+ctrl = 0
+anim = 1105
+sprpriority = 2
+
+[State 00,ボイス乱数]
+type = varrandom
+trigger1 = Time = 0
+v = 5
+range = 0,1
+
+[State 00,ボイス]
+type = Playsnd
+trigger1 = Var(5) = 0
+trigger1 = Var(2) != 1
+trigger1 = AnimElem = 3
+value = 200,1
+channel = 0
+
+[State 00,ボイス制御]
+type = varset
+trigger1 = Var(5) = 0
+trigger1 = AnimElemTime(3) >= 0
+var(2) = 1
+
+[State 00]
+type = PlaySnd
+trigger1 = AnimElem = 4
+value = s0, 2
+
+[State -3, 速度制御上]
+type = Velset
+triggerall = movetype != H
+triggerall = Vel Y  > 0.8
+trigger1 = AnimElemTime(3) = [0,75]
+Y = 0.6
+
+[State -3, 速度制御下]
+type = Velset
+triggerall = movetype != H
+triggerall = Vel Y  < -0.8
+trigger1 = AnimElemTime(3) = [0,75]
+Y = -0.6
+
+[State -3, 速度制御前]
+type = Velset
+triggerall = movetype != H
+triggerall = Vel X  > 1
+trigger1 = AnimElemTime(3) = [0,75]
+X = 0.8
+
+[State -3, 速度制御後]
+type = Velset
+triggerall = movetype != H
+triggerall = Vel X  < -1
+trigger1 = AnimElemTime(3) = [0,75]
+X = -0.8
+
+[State 00]
+type = PlaySnd
+trigger1 = AnimElem = 4
+value = s0, 6
+
+[State 00]
+Type = Helper
+trigger1 = AnimElemTime(4) = 0
+StateNo = 11100
+ID = 11100
+Name = "hiteffring"
+Pos = -80,0
+PosType = P1
+Ownpal = 1
+IgnoreHitPause = 1
+Persistent = 0
+
+[State 00]
+Type = Helper
+trigger1 = AnimElemTime(4) = 10
+StateNo = 11100
+ID = 11101
+Name = "hiteffring"
+Pos = -30,0
+PosType = P1
+Ownpal = 1
+IgnoreHitPause = 1
+Persistent = 0
+
+[State 00]
+Type = Helper
+trigger1 = AnimElemTime(4) = 20
+StateNo = 11100
+ID = 11101
+Name = "hiteffring"
+Pos = 20,0
+PosType = P1
+Ownpal = 1
+IgnoreHitPause = 1
+Persistent = 0
+
+[State 00]
+Type = Helper
+trigger1 = AnimElemTime(4) = 30
+StateNo = 11100
+ID = 11102
+Name = "hiteffring"
+Pos = 70,0
+PosType = P1
+Ownpal = 1
+IgnoreHitPause = 1
+Persistent = 0
+
+[State 00]
+Type = Helper
+trigger1 = AnimElemTime(4) = 40
+StateNo = 11100
+ID = 11102
+Name = "hiteffring"
+Pos = 120,0
+PosType = P1
+Ownpal = 1
+IgnoreHitPause = 1
+Persistent = 0
+
+[State 1105, 終わり]
+type = CtrlSet
+trigger1 = time >= 96
+value = 1
+
+;----------------------------------
+
+[Statedef 11100];槍
+type = A
+movetype = A
+physics = N
+ctrl = 0
+anim = 11100
+
+[State 00]
+type = PlaySnd
+trigger1 = Time = 0
+value = s3, 16
+
+[State -1]
+Type     = AngleDraw
+Trigger1 = 1
+
+[State 000]
+type = AssertSpecial
+trigger1 = 1
+flag = noshadow
+
+[State 000]
+type = Trans
+trigger1 = 1
+Trans = Addalpha
+Alpha = 256,256
+time = 1
+
+[State 00]
+type = AngleDraw
+trigger1 = Time < 10
+scale = 0.2+(time*0.1), 0.2+(time*0.1)
+
+[State 00]
+type = AngleDraw
+trigger1 = Time > 9
+scale = 1.2, 1.2
+
+[State 00]
+type = SprPriority
+trigger1 = 1
+value = 2+random%4
+
+[State 195, 火花]
+Type = Explod
+trigger1 = Time = 0
+Anim = 10301
+Pos = 0,0
+PosType = P1
+Scale = 0.6,0.6
+Ownpal = 1
+SprPriority = 6
+IgnoreHitPause = 1
+Persistent = 0
+
+[State 00, 残像]
+Type = AfterImage
+Trigger1 = Time = 0
+Trans = Add
+Length = 40
+TimeGap = 1
+FrameGap = 1
+PalBright = 0,0,0
+PalContrast = 256,256,256
+PalMul= 0.6,0.8,0.75
+
+[State 00, 残像]
+Type = AfterImageTime
+Trigger1 = Time >= 1
+Time = 2
+
+[State 11320, 7]
+type = Velset
+trigger1 = Time = 0
+x = -4+Random%9
+y = -12+Random%3
+
+[State 11320, 7]
+type = Veladd
+trigger1 = 1
+y = 0.28
+
+[State 11320, 7]
+type = Angleadd
+trigger1 = 1
+value = 23
+
+[State 10310, NotHitby];飛び道具だけあたる
+type = NotHitBy
+trigger1 = 1
+value = SCA
+
+[State 10310, Override]
+type = HitOverride
+trigger1 = 1
+attr = SCA,AP,AA,AT
+stateno = 10602 ;飛び道具が当った場合、10610ステートへ飛ぶ
+IgnoreHitPause = 1
+time = -1
+
+[State 000]
+type = HitDef
+trigger1 = time = 0
+attr = A, SP
+damage = ceil(root,fvar(1)*40), 0
+animtype = Light
+guardflag = MA
+hitflag = MA
+priority = 3, Hit
+pausetime = 0, 12
+sparkno = s20200
+hitsound = s1, 7
+guardsound = s4, 2
+sparkxy = 0, 0
+ground.type = High
+ground.slidetime = 22
+ground.hittime  = 24
+air.hittime  = 24
+ground.velocity		= -5,-5
+air.velocity		= -4,-4
+air.type = High
+Fall = 1
+fall.recovertime = 24
+palfx.time = 24
+palfx.mul = 200,140,240
+palfx.sinadd = 63,65,68,18
+palfx.add = 124,180,230
+
+[State 補正]
+Type = ParentVarSet
+Trigger1 = MoveHit
+fvar(1) = root,fvar(1) * 0.98
+Persistent = 0
+IgnoreHitPause = 1
+
+[State 攻撃無効]
+Type = StateTypeSet
+TriggerAll = NumEnemy > 0
+Trigger1 = (EnemyNear,StateNo) = [100,119]
+Trigger2 = (((EnemyNear,StateNo) = [5210,5219]) && ((EnemyNear,Time) < 10))
+movetype = I
+
+[State 攻撃有効]
+Type = StateTypeSet
+TriggerAll = NumEnemy > 0
+Trigger1 = (EnemyNear,StateNo) != [100,119]
+Trigger2 = (((EnemyNear,StateNo) = [5210,5219]) && ((EnemyNear,Time) >= 10))
+movetype = A
+
+[State エフェクト]
+Type = Explod
+TriggerAll = NumEnemy > 0
+TriggerAll = movetype = I
+Trigger1 = P2Dist X = [-13-(EnemyNear,Const(Size.Ground.Front)), 13+(EnemyNear,Const(Size.Ground.Back))]
+Trigger1 = P2Dist Y = [-13, 13-(EnemyNear,Const(Size.Head.Pos.Y))]
+Anim = 20095
+ID = 20095
+Pos = 0,0
+PosType = P1
+Scale = 0.5,0.5
+Ownpal = 1
+SprPriority = 3
+IgnoreHitPause = 1
+
+[State グレイズ音]
+Type = PlaySnd
+TriggerAll = NumEnemy > 0
+TriggerAll = movetype = I
+Trigger1 = P2Dist X = [-13-(EnemyNear,Const(Size.Ground.Front)), 13+(EnemyNear,Const(Size.Ground.Back))]
+Trigger1 = P2Dist Y = [-13, 13-(EnemyNear,Const(Size.Head.Pos.Y))]
+Value = 0, 8
+
+[State グレイズ]
+Type = ChangeState
+TriggerAll = NumEnemy > 0
+TriggerAll = movetype = I
+Trigger1 = P2Dist X = [-13-(EnemyNear,Const(Size.Ground.Front)), 13+(EnemyNear,Const(Size.Ground.Back))]
+Trigger1 = P2Dist Y = [-13, 13-(EnemyNear,Const(Size.Head.Pos.Y))]
+Value = 10600
+
+[State 11100, 消滅]
+type = DestroySelf
+trigger1 = Pos Y > 120
+trigger2 = ScreenPos Y < -360
+trigger3 = abs(Pos X) > 360
+trigger4 = Root,MoveType = H && Root,StateNo != [120,159]
+
+[State グレイズ]
+Type = ChangeState
+Trigger1 = Time = 30
+Value = 11101
+
+
+[Statedef 11101];槍2
+type = A
+movetype = A
+physics = N
+ctrl = 0
+anim = 11101
+
+[State 00]
+type = PlaySnd
+trigger1 = Time = 0
+value = s3, 23
+
+[State -1]
+Type     = AngleDraw
+Trigger1 = 1
+
+[State 000]
+type = AssertSpecial
+trigger1 = 1
+flag = noshadow
+
+[State 000]
+type = Trans
+trigger1 = 1
+Trans = Addalpha
+Alpha = 256,256
+time = 1
+
+[State 00]
+type = AngleDraw
+trigger1 = 1
+scale = 1.2, 1.2
+
+[State 00]
+type = SprPriority
+trigger1 = 1
+value = 2+random%4
+
+[State 00, 残像]
+Type = AfterImage
+Trigger1 = Time = 0
+Trans = Add
+Length = 40
+TimeGap = 1
+FrameGap = 1
+PalBright = 0,0,0
+PalContrast = 256,256,256
+PalMul= 0.6,0.8,0.75
+
+[State 00, 残像]
+Type = AfterImageTime
+Trigger1 = Time >= 1
+Time = 2
+
+[State 11320, 7]
+type = Velset
+trigger1 = Time = 0
+x = 18
+y = 18
+
+[State 11320, 7]
+type = AngleSet
+trigger1 = Vel x > 0
+value = (atan(-Vel y/Vel x))*180/pi
+
+[State 11320, 7]
+type = AngleSet
+trigger1 = Vel x < 0
+value = (atan(-Vel y/Vel x))*180/pi+180
+
+[State 11320, 7]
+type = AngleSet
+trigger1 = Vel x = 0
+trigger1 = Vel y < 0
+value = 90
+
+[State 11320, 7]
+type = AngleSet
+trigger1 = Vel x = 0
+trigger1 = Vel y > 0
+value = -90
+
+[State 10310, NotHitby];飛び道具だけあたる
+type = NotHitBy
+trigger1 = 1
+value = SCA
+
+[State 10310, Override]
+type = HitOverride
+trigger1 = 1
+attr = SCA,AP,AA,AT
+stateno = 10602 ;飛び道具が当った場合、10610ステートへ飛ぶ
+IgnoreHitPause = 1
+time = -1
+
+[State 000]
+type = HitDef
+trigger1 = time = 0
+attr = A, SP
+damage = ceil(root,fvar(1)*40), 0
+animtype = Light
+guardflag = MA
+hitflag = MAFD
+priority = 3, Hit
+pausetime = 0, 12
+sparkno = s20200
+hitsound = s1, 7
+guardsound = s4, 2
+sparkxy = 0, 0
+ground.type = High
+ground.slidetime = 22
+ground.hittime  = 24
+air.hittime  = 24
+ground.velocity		= -5,-5
+air.velocity		= -4,-4
+air.type = High
+Fall = 1
+fall.recovertime = 24
+palfx.time = 24
+palfx.mul = 200,140,240
+palfx.sinadd = 63,65,68,18
+palfx.add = 124,180,230
+
+[State 補正]
+Type = ParentVarSet
+Trigger1 = MoveHit
+fvar(1) = root,fvar(1) * 0.98
+Persistent = 0
+IgnoreHitPause = 1
+
+[State 00]
+Type = Helper
+trigger1 = movehit
+StateNo = 20095
+ID = 20095
+Name = "hiteffring"
+Pos = 0,-40
+PosType = P2
+Ownpal = 1
+IgnoreHitPause = 1
+Persistent = 0
+size.xscale = 1.2
+size.yscale = 1.2
+
+[State 攻撃無効]
+Type = StateTypeSet
+TriggerAll = NumEnemy > 0
+Trigger1 = (EnemyNear,StateNo) = [100,119]
+Trigger2 = (((EnemyNear,StateNo) = [5210,5219]) && ((EnemyNear,Time) < 10))
+movetype = I
+
+[State 攻撃有効]
+Type = StateTypeSet
+TriggerAll = NumEnemy > 0
+Trigger1 = (EnemyNear,StateNo) != [100,119]
+Trigger2 = (((EnemyNear,StateNo) = [5210,5219]) && ((EnemyNear,Time) >= 10))
+movetype = A
+
+[State エフェクト]
+Type = Explod
+TriggerAll = NumEnemy > 0
+TriggerAll = movetype = I
+Trigger1 = P2Dist X = [-13-(EnemyNear,Const(Size.Ground.Front)), 13+(EnemyNear,Const(Size.Ground.Back))]
+Trigger1 = P2Dist Y = [-13, 13-(EnemyNear,Const(Size.Head.Pos.Y))]
+Anim = 20095
+ID = 20095
+Pos = 0,0
+PosType = P1
+Scale = 0.5,0.5
+Ownpal = 1
+SprPriority = 3
+IgnoreHitPause = 1
+
+[State グレイズ音]
+Type = PlaySnd
+TriggerAll = NumEnemy > 0
+TriggerAll = movetype = I
+Trigger1 = P2Dist X = [-13-(EnemyNear,Const(Size.Ground.Front)), 13+(EnemyNear,Const(Size.Ground.Back))]
+Trigger1 = P2Dist Y = [-13, 13-(EnemyNear,Const(Size.Head.Pos.Y))]
+Value = 0, 8
+
+[State グレイズ]
+Type = ChangeState
+TriggerAll = NumEnemy > 0
+TriggerAll = movetype = I
+Trigger1 = P2Dist X = [-13-(EnemyNear,Const(Size.Ground.Front)), 13+(EnemyNear,Const(Size.Ground.Back))]
+Trigger1 = P2Dist Y = [-13, 13-(EnemyNear,Const(Size.Head.Pos.Y))]
+Value = 10600
+
+[State 11100, 消滅]
+type = DestroySelf
+trigger1 = Pos Y > 120
+trigger2 = ScreenPos Y < -360
+trigger3 = abs(Pos X) > 360
+trigger4 = Root,MoveType = H && Root,StateNo != [120,159]
+
+
+
+
+
+;=====================================================================
+;　　　晩鐘
+;--------------------------------------------------------------------
+[Statedef 1110]
+type    = S
+movetype= A
+physics = S
+juggle  = 1
+ctrl = 0
+anim = 1110
+sprpriority = 2
+
+[State 00,ボイス乱数]
+type = varrandom
+trigger1 = Time = 0
+v = 5
+range = 0,1
+
+[State 00,ボイス]
+type = Playsnd
+trigger1 = Var(5) = 0
+trigger1 = Var(2) != 1
+trigger1 = AnimElem = 2
+value = 200,1
+channel = 0
+
+[State 00,ボイス制御]
+type = varset
+trigger1 = Var(5) = 0
+trigger1 = AnimElemTime(2) >= 0
+var(2) = 1
+
+[State 00]
+type = PlaySnd
+trigger1 = AnimElem = 3
+value = s0, 2
+
+[State 00]
+Type = Helper
+trigger1 = AnimElem = 3
+StateNo = 11110
+ID = 11110
+Name = "bom"
+Pos = (P2dist X),(P2dist y)-360
+PosType = P1
+Ownpal = 1
+persistent = 0
+
+[State 1110, ステート変更]
+type = ChangeState
+trigger1 = AnimTime = 0
+value = 0
+ctrl = 1
+
+;-----------------------------
+
+[Statedef 1115];空版
+type    = A
+movetype= A
+physics = A
+juggle  = 1
+ctrl = 0
+anim = 1115
+sprpriority = 2
+
+[State 00,ボイス乱数]
+type = varrandom
+trigger1 = Time = 0
+v = 5
+range = 0,1
+
+[State 00,ボイス]
+type = Playsnd
+trigger1 = Var(5) = 0
+trigger1 = Var(2) != 1
+trigger1 = AnimElem = 2
+value = 200,1
+channel = 0
+
+[State 00,ボイス制御]
+type = varset
+trigger1 = Var(5) = 0
+trigger1 = AnimElemTime(2) >= 0
+var(2) = 1
+
+[State 00]
+type = PlaySnd
+trigger1 = AnimElem = 4
+value = s0, 2
+
+[State -3, 速度制御上]
+type = Velset
+triggerall = movetype != H
+triggerall = Vel Y  > 0.8
+trigger1 = AnimElemTime(3) = [0,24]
+Y = 0.6
+
+[State -3, 速度制御下]
+type = Velset
+triggerall = movetype != H
+triggerall = Vel Y  < -0.8
+trigger1 = AnimElemTime(3) = [0,24]
+Y = -0.6
+
+[State -3, 速度制御前]
+type = Velset
+triggerall = movetype != H
+triggerall = Vel X  > 1
+trigger1 = AnimElemTime(3) = [0,24]
+X = 0.8
+
+[State -3, 速度制御後]
+type = Velset
+triggerall = movetype != H
+triggerall = Vel X  < -1
+trigger1 = AnimElemTime(3) = [0,24]
+X = -0.8
+
+[State 00]
+Type = Helper
+trigger1 = AnimElem = 4
+StateNo = 11110
+ID = 11110
+Name = "bom"
+Pos = (P2dist X),(P2dist y)-360
+PosType = P1
+Ownpal = 1
+persistent = 0
+
+[State 1115, 終わり]
+type = CtrlSet
+trigger1 = time >= 60
+value = 1
+
+
+;--------------------------------------------------------------------
+
+[Statedef 11110];鐘
+type = A
+movetype = A
+ctrl = 0
+anim = 11110
+SprPriority = 3
+
+[State -1]
+Type     = AngleDraw
+Trigger1 = 1
+
+[State 00]
+type = PlaySnd
+trigger1 = Time = 0
+value = s5, 2
+
+[State 00]
+type = PlaySnd
+trigger1 = Time = 0
+value = s3, 16
+
+[State 10300,00]
+type = AssertSpecial
+trigger1 = 1
+flag = noshadow
+
+[State 10605, 7]
+type = AngleDraw
+trigger1 = 1
+scale = 2, 2
+
+[State 195, 火花]
+Type = Explod
+trigger1 = Time = 0
+Anim = 10302
+Pos = 0,0
+PosType = P1
+Scale = 0.9,0.9
+Ownpal = 1
+SprPriority = 6
+IgnoreHitPause = 1
+Persistent = 1
+
+[State 10300,00]
+Type     = Velset
+trigger1 = Time = 0
+y        = 4.6
+
+[State 10300,00]
+Type     = Veladd
+trigger1 = 1
+y        = 0.46
+
+[State 11110, ヒット定義]
+type = HitDef
+trigger1 = Time = 0
+attr = A, SP
+damage = ceil(root,fvar(1)*40), 0
+animtype = Light
+guardflag = MA
+hitflag = MAFD
+priority = 3, Hit
+pausetime = 3, 9
+sparkno = s20230
+sparkxy = 0, 0
+hitsound = s1, 2
+guardsound = s4, 2
+ground.type = High
+ground.hittime  = 9
+air.hittime  = 9
+ground.slidetime = 6
+air.slidetime = 6
+ground.velocity = -3
+airguard.velocity = 0,(Vel Y)
+air.type = High
+air.velocity = 0,(Vel Y)
+getpower = 15,5
+Fall = 1
+fall.recover = 0
+
+[State 10300, 補正]
+Type = ParentVarSet
+Trigger1 = MoveHit
+fvar(1) = root,fvar(1) * 0.98
+Persistent = 1
+IgnoreHitPause = 1
+
+[State 10300, NotHitby];飛び道具だけあたる
+type = NotHitBy
+trigger1 = 1
+value = ,AT
+
+[State 10300, Override]
+type = HitOverride
+trigger1 = 1
+attr = SCA,AP,AA,AT
+stateno = 10605 ;飛び道具が当った場合、10610ステートへ飛ぶ
+IgnoreHitPause = 1
+time = -1
+
+[State 攻撃無効]
+Type = StateTypeSet
+TriggerAll = NumEnemy > 0
+Trigger1 = (EnemyNear,StateNo) = [100,119]
+Trigger2 = (((EnemyNear,StateNo) = [5210,5219]) && ((EnemyNear,Time) < 10))
+movetype = I
+
+[State 攻撃有効]
+Type = StateTypeSet
+TriggerAll = NumEnemy > 0
+Trigger1 = (EnemyNear,StateNo) != [100,119]
+Trigger2 = (((EnemyNear,StateNo) = [5210,5219]) && ((EnemyNear,Time) >= 10))
+movetype = A
+
+[State エフェクト]
+Type = Explod
+TriggerAll = NumEnemy > 0
+TriggerAll = movetype = I
+Trigger1 = P2Dist X = [-13-(EnemyNear,Const(Size.Ground.Front)), 13+(EnemyNear,Const(Size.Ground.Back))]
+Trigger1 = P2Dist Y = [-13, 13-(EnemyNear,Const(Size.Head.Pos.Y))]
+Anim = 20095
+ID = 20095
+Pos = 0,0
+PosType = P1
+Scale = 0.5,0.5
+Ownpal = 1
+SprPriority = 3
+IgnoreHitPause = 1
+
+[State グレイズ音]
+Type = PlaySnd
+TriggerAll = NumEnemy > 0
+TriggerAll = movetype = I
+Trigger1 = P2Dist X = [-13-(EnemyNear,Const(Size.Ground.Front)), 13+(EnemyNear,Const(Size.Ground.Back))]
+Trigger1 = P2Dist Y = [-13, 13-(EnemyNear,Const(Size.Head.Pos.Y))]
+Value = 0, 8
+
+[State グレイズ]
+Type = null;ChangeState
+TriggerAll = NumEnemy > 0
+TriggerAll = movetype = I
+Trigger1 = P2Dist X = [-13-(EnemyNear,Const(Size.Ground.Front)), 13+(EnemyNear,Const(Size.Ground.Back))]
+Trigger1 = P2Dist Y = [-13, 13-(EnemyNear,Const(Size.Head.Pos.Y))]
+Value = 10600
+
+[State 11110, 消滅]
+type = DestroySelf
+triggerall = Time > 30
+trigger1 = Pos Y > 120
+trigger2 = ScreenPos Y < -360
+
+[State 11110]
+Type     = ChangeState
+Trigger1 = Vel Y > 0 && Pos Y >= -5
+Value    = 11111
+ctrl = 0
+
+
+
+[Statedef 11111];鐘
+type = A
+movetype = A
+ctrl = 0
+anim = 11110
+SprPriority = 3
+
+[State 00]
+type = PlaySnd
+trigger1 = Time = 0
+value = s3, 17
+
+[State -1]
+Type     = AngleDraw
+Trigger1 = 1
+
+[State 10605, 7]
+type = AngleDraw
+trigger1 = 1
+scale = 2, 2
+
+[State 10300,00]
+type = AssertSpecial
+trigger1 = 1
+flag = noshadow
+
+[State 10602,00]
+type = Trans
+trigger1 = Time > 10
+Trans = AddAlpha
+Alpha = 256-floor((Time-10)*25.6),256
+time = 1
+
+[State 195, 火炎1]
+Type = Explod
+trigger1 = Time = 0
+Anim = 10301
+Pos = 0,0
+PosType = P1
+Scale = 2.2,2.2
+Ownpal = 1
+SprPriority = 4
+IgnoreHitPause = 1
+Persistent = 0
+
+[State 10300,00]
+type = SprPriority
+trigger1 = 1
+value = 3
+
+[State 10300,00]
+Type     = Posset
+trigger1 = 1
+y        = 0
+
+[State 10300,00]
+Type     = Velset
+trigger1 = 1
+y        = 0
+
+[State 11110, ヒット定義]
+type = HitDef
+trigger1 = Time = 0
+attr = A, NP
+damage = ceil(root,fvar(1)*80), 0
+animtype = Light
+guardflag = MA
+hitflag = MAFD
+priority = 3, Hit
+pausetime = 9, 12
+sparkno = s20230
+sparkxy = 0, 0
+hitsound = s1, 2
+guardsound = s4, 2
+ground.type = High
+ground.hittime  = 48
+air.hittime  = 48
+ground.slidetime = 36
+air.slidetime = 36
+ground.velocity = -3
+airguard.velocity = 0,-.8
+air.type = High
+air.velocity = 0,-3
+getpower = 15,5
+Fall = 1
+fall.recover = 0
+
+[State 10300, 補正]
+Type = ParentVarSet
+Trigger1 = MoveHit
+fvar(1) = root,fvar(1) * 0.98
+Persistent = 1
+IgnoreHitPause = 1
+
+[State 10300, NotHitby];飛び道具だけあたる
+type = NotHitBy
+trigger1 = 1
+value = ,AT
+
+[State 10300, Override]
+type = HitOverride
+trigger1 = 1
+attr = SCA,AP,AA,AT
+stateno = 10605 ;飛び道具が当った場合、10610ステートへ飛ぶ
+IgnoreHitPause = 1
+time = -1
+
+[State 攻撃無効]
+Type = StateTypeSet
+TriggerAll = NumEnemy > 0
+Trigger1 = (EnemyNear,StateNo) = [100,119]
+Trigger2 = (((EnemyNear,StateNo) = [5210,5219]) && ((EnemyNear,Time) < 10))
+movetype = I
+
+[State 攻撃有効]
+Type = StateTypeSet
+TriggerAll = NumEnemy > 0
+Trigger1 = (EnemyNear,StateNo) != [100,119]
+Trigger2 = (((EnemyNear,StateNo) = [5210,5219]) && ((EnemyNear,Time) >= 10))
+movetype = A
+
+[State エフェクト]
+Type = Explod
+TriggerAll = NumEnemy > 0
+TriggerAll = movetype = I
+Trigger1 = P2Dist X = [-13-(EnemyNear,Const(Size.Ground.Front)), 13+(EnemyNear,Const(Size.Ground.Back))]
+Trigger1 = P2Dist Y = [-13, 13-(EnemyNear,Const(Size.Head.Pos.Y))]
+Anim = 20095
+ID = 20095
+Pos = 0,0
+PosType = P1
+Scale = 0.5,0.5
+Ownpal = 1
+SprPriority = 3
+IgnoreHitPause = 1
+
+[State グレイズ音]
+Type = PlaySnd
+TriggerAll = NumEnemy > 0
+TriggerAll = movetype = I
+Trigger1 = P2Dist X = [-13-(EnemyNear,Const(Size.Ground.Front)), 13+(EnemyNear,Const(Size.Ground.Back))]
+Trigger1 = P2Dist Y = [-13, 13-(EnemyNear,Const(Size.Head.Pos.Y))]
+Value = 0, 8
+
+[State グレイズ]
+Type = null;ChangeState
+TriggerAll = NumEnemy > 0
+TriggerAll = movetype = I
+Trigger1 = P2Dist X = [-13-(EnemyNear,Const(Size.Ground.Front)), 13+(EnemyNear,Const(Size.Ground.Back))]
+Trigger1 = P2Dist Y = [-13, 13-(EnemyNear,Const(Size.Head.Pos.Y))]
+Value = 10600
+
+[State 11110, 消滅]
+type = DestroySelf
+trigger1 = Pos Y > 120
+trigger2 = ScreenPos Y < -360
+trigger3 = Time > 20
+
+
+
+
+;=====================================================================
+;　　　大蛇薙
+;--------------------------------------------------------------------
+[Statedef 1150]
+type    = S
+movetype= A
+physics = S
+juggle  = 2
+ctrl = 0
+anim = 1150
+sprpriority = 2
+
+[State 00,ボイス乱数]
+type = varrandom
+trigger1 = Time = 0
+v = 5
+range = 0,1
+
+[State 00,ボイス]
+type = Playsnd
+trigger1 = Var(5) = 0
+trigger1 = Var(2) != 2
+trigger1 = AnimElem = 3
+value = 200,2
+channel = 0
+
+[State 00,ボイス制御]
+type = varset
+trigger1 = Var(5) = 0
+trigger1 = AnimElemTime(3) >= 0
+var(2) = 2
+
+[State 00]
+type = PlaySnd
+trigger1 = AnimElem = 4
+value = 0, 5
+
+[State 00]
+type = PlaySnd
+trigger1 = AnimElem = 4
+value = s3, 17
+
+[State 00]
+type = Velset
+trigger1 = AnimElemtime(4) = [0,12]
+x = 7
+
+[State 195, 火炎1]
+Type = Explod
+trigger1 = AnimElem = 4
+Anim = 11150
+Pos = 60,-40
+PosType = P1
+Scale = 0.5,0.5
+Ownpal = 1
+SprPriority = 4
+IgnoreHitPause = 1
+Persistent = 0
+removeongethit = 1
+bindtime = 22
+
+[State 195, 火炎1]
+Type = Explod
+trigger1 = AnimElem = 4
+Anim = 11151
+Pos = 60,-40
+PosType = P1
+Scale = 0.6,0.6
+Ownpal = 1
+SprPriority = 1
+IgnoreHitPause = 1
+Persistent = 0
+removeongethit = 1
+bindtime = 22
+
+[State 00]
+type = HitDef
+trigger1 = Time%4 = 0
+attr = S, SA
+animtype  = Hard
+damage    = ceil(fvar(1)*72),4
+hitflag = MAF
+guardflag = L
+pausetime = 3, 12
+sparkno = s20120
+sparkxy = -10,-45
+hitsound   = s1,3
+guardsound = s4,2
+ground.type = Low
+ground.hittime  = 36
+air.hittime = 36
+ground.slidetime = 24
+air.slidetime = 24
+ground.velocity = -8,-6
+air.velocity = -9,-6
+getpower = 35,15
+fall = 1
+guard.kill = 0;この技による削りKOを不可に
+getpower = 10,5
+palfx.time = 44
+palfx.mul = 240,200,100
+palfx.sinadd = 63,65,68,18
+palfx.add = 230,180,124
+
+[State 00]
+Type = Helper
+trigger1 = Movehit
+StateNo = 10610
+ID = 10610
+name = "hit"
+Pos = 0,0
+PosType = P2
+Ownpal = 1
+IgnoreHitPause = 1
+Persistent = 0
+
+[State 補正]
+Type = VarSet
+Trigger1 = MoveHit
+fvar(1) = fvar(1) * 0.98
+Persistent = 0
+IgnoreHitPause = 1
+
+[State 00]
+Type = Helper
+trigger1 = movehit
+StateNo = 20090
+ID = 20090
+Name = "hiteffring"
+Pos = 0,-40
+PosType = P2
+Ownpal = 1
+IgnoreHitPause = 1
+Persistent = 0
+size.xscale = 1.2
+size.yscale = 1.2
+
+[State 補正]
+Type = VarSet
+Trigger1 = MoveHit
+fvar(1) = fvar(1) * 0.90
+Persistent = 0
+IgnoreHitPause = 1
+
+[State 1150, ステート変更]
+type = ChangeState
+trigger1 = AnimTime = 0
+value = 0
+ctrl = 1
+
+
+
+
+;=====================================================================
+;　　　八咫烏
+;--------------------------------------------------------------------
+[Statedef 1160]
+type    = S
+movetype= A
+physics = S
+juggle  = 8
+ctrl = 0
+anim = 1160
+sprpriority = 2
+
+[State 00,ボイス乱数]
+type = varrandom
+trigger1 = Time = 0
+v = 5
+range = 0,1
+
+[State 00,ボイス]
+type = Playsnd
+trigger1 = Var(5) = 0
+trigger1 = Var(2) != 1
+trigger1 = AnimElem = 5
+value = 200,1
+channel = 0
+
+[State 00,ボイス制御]
+type = varset
+trigger1 = Var(5) = 0
+trigger1 = AnimElemTime(5) >= 0
+var(2) = 1
+
+[State 00]
+type = PlaySnd
+trigger1 = AnimElem = 5
+value = 0, 4
+
+[State 00]
+type = PlaySnd
+trigger1 = AnimElem = 6
+value = s4, 9
+
+[State 00]
+type = PlaySnd
+trigger1 = AnimElem = 6
+value = s3, 16
+
+[State 00]
+type = Velmul
+trigger1 = 1
+x = 0.98
+
+[State 00]
+type = Velset
+trigger1 = AnimElem = 5
+x = 2.8
+y = -9.5
+
+[State 00]
+type = StateTypeSet
+trigger1 = AnimElem = 5
+statetype = A
+movetype = A
+physics = A
+
+[State 195, 火炎1]
+Type = Explod
+trigger1 = AnimElem = 5
+Anim = 11152
+Pos = 10,20
+PosType = P1
+Scale = 0.5,0.5
+Ownpal = 1
+SprPriority = 4
+IgnoreHitPause = 1
+Persistent = 0
+removeongethit = 1
+bindtime = -1
+
+[State 195, 火炎1]
+Type = Explod
+trigger1 = AnimElem = 5
+Anim = 11153
+Pos = 10,20
+PosType = P1
+Scale = 0.6,0.6
+Ownpal = 1
+SprPriority = 1
+IgnoreHitPause = 1
+Persistent = 0
+removeongethit = 1
+bindtime = -1
+
+[State 00, NotHitby]
+type = NotHitBy
+trigger1 = AnimElemtime(6) < 0
+value = SCA
+
+[State 00]
+type = HitDef
+trigger1 = AnimElem = 6
+attr = A, SA
+animtype  = Hard
+damage    = ceil(fvar(1)*72),6
+hitflag = MAF
+guardflag = M
+pausetime = 10, 10
+sparkno = s20120
+sparkxy = -10,-45
+hitsound   = s1,7
+guardsound = s4,2
+ground.type = Low
+ground.hittime  = 36
+air.hittime = 36
+ground.slidetime = 24
+air.slidetime = 24
+ground.velocity = -1.5,-10
+air.velocity = -0.5,-8
+getpower = 35,15
+fall = 1
+ID = 210
+guard.kill = 0;この技による削りKOを不可に
+getpower = 10,5
+palfx.time = 44
+palfx.mul = 200,140,240
+palfx.sinadd = 63,65,68,18
+palfx.add = 124,180,230
+
+[State 00]
+type = TargetState
+trigger1 = movehit
+value = 6016
+id = 210
+persistent = 0
+
+[State 00]
+Type = Helper
+trigger1 = Movehit
+StateNo = 10610
+ID = 10610
+name = "hit"
+Pos = 0,0
+PosType = P2
+Ownpal = 1
+IgnoreHitPause = 1
+Persistent = 0
+
+[State 補正]
+Type = VarSet
+Trigger1 = MoveHit
+fvar(1) = fvar(1) * 0.98
+Persistent = 0
+IgnoreHitPause = 1
+
+[State 00]
+Type = Helper
+trigger1 = movehit
+StateNo = 20090
+ID = 20090
+Name = "hiteffring"
+Pos = 0,-40
+PosType = P2
+Ownpal = 1
+IgnoreHitPause = 1
+Persistent = 0
+size.xscale = 1.2
+size.yscale = 1.2
+
+[State 00]
+Type = Helper
+trigger1 = movehit
+StateNo = 20095
+ID = 20095
+Name = "hiteffring"
+Pos = 0,-40
+PosType = P2
+Ownpal = 1
+IgnoreHitPause = 1
+Persistent = 0
+size.xscale = 1.2
+size.yscale = 1.2
+
+[State 補正]
+Type = VarSet
+Trigger1 = MoveHit
+fvar(1) = fvar(1) * 0.90
+Persistent = 0
+IgnoreHitPause = 1
+
+[State 610, 終わり]
+type = null;CtrlSet
+trigger1 = time >= 72
+value = 1
+
+

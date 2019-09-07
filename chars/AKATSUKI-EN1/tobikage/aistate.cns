@@ -1,0 +1,1304 @@
+;━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+;AI立ち
+;━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[Statedef 1]
+type    = S
+physics = S
+sprpriority = 0
+
+[State 0, アニメ変更] ;振り向き動作から移行
+type = ChangeAnim
+trigger1 = Anim != 0 && Anim != 5
+trigger2 = Anim = 5 && AnimTime = 0 ;Turn anim over
+value = 0
+
+[State 0, 軸位置] ;地上に戻す
+type = PosSet
+trigger1 = Time = 0
+y = 0
+
+[State 0, 移動速度] ;Y方向の速度を0に
+type = VelSet
+trigger1 = Time = 0
+y = 0
+
+[State 0, 移動速度] ;低速になるか4フレーム経過で停止
+type = VelSet
+trigger1 = abs(vel x) < 2
+trigger2 = Time = 4
+x = 0
+
+[State 0, ステート変更] ;生存判定
+type = ChangeState
+trigger1 = !alive
+value = 5050 ;生存していない場合ステート5050へ
+
+[State 0, ヘルパーを消去] ;ヘルパーによる分身防止
+type = DestroySelf
+trigger1 = IsHelper
+ignorehitpause = 1
+
+;━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+;AI前進
+;━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[Statedef 19]
+type    = S
+physics = S
+sprpriority = 0
+anim = 20
+ctrl = 0
+
+[State 20, 移動速度] ;前進する速度
+type = VelSet
+trigger1 = 1
+x = const(velocity.walk.fwd.x) ;定数で設定した速度
+
+[State 19, 1]
+type = Turn
+trigger1 = P2dist X < 0
+
+[State 20, 音]
+type = PlaySnd
+trigger1 = Animelem = 4 || Animelem = 8
+value = 10, 0
+
+[State 19, 5]
+type = changestate
+trigger1 = roundstate != 2
+trigger2 = P2BodyDist X <= 0
+trigger3 = inguarddist
+trigger3 = random <= 100*var(59)
+value = 0
+ctrl = 1
+
+;━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+;AI後退
+;━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[Statedef 21]
+type    = S
+physics = S
+sprpriority = 0
+anim = 21
+ctrl = 0
+
+[State 20, 移動速度] ;後退する速度
+type = VelSet
+trigger1 = 1
+x = const(velocity.walk.back.x) ;定数で設定した速度
+
+[State 19, 1]
+type = Turn
+trigger1 = P2dist X < 0
+
+[State 20, 音]
+type = PlaySnd
+trigger1 = Animelem = 4 || Animelem = 8
+value = 10, 0
+
+[State 21, 5]
+type = changestate
+trigger1 = roundstate != 2
+trigger2 = P2BodyDist X >= 240
+trigger3 = inguarddist
+trigger3 = random <= 100*var(59)
+trigger4 = BackEdgeBodyDist <= 0
+value = 0
+ctrl = 1
+
+[Statedef 22]
+type    = S
+physics = S
+sprpriority = 0
+anim = 21
+ctrl = 0
+
+[State 20, 移動速度] ;後退する速度
+type = VelSet
+trigger1 = 1
+x = const(velocity.walk.back.x) ;定数で設定した速度
+
+[State 19, 1]
+type = Turn
+trigger1 = P2dist X < 0
+
+[State 20, 音]
+type = PlaySnd
+trigger1 = Animelem = 4 || Animelem = 8
+value = 10, 0
+
+[State 21, 5]
+type = changestate
+trigger1 = roundstate != 2
+trigger2 = P2BodyDist X >= 50
+trigger3 = inguarddist
+trigger3 = random <= 100*var(59)
+trigger4 = BackEdgeBodyDist <= 0
+trigger5 = Var(40) = 0
+value = 1
+
+;━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+;ジャンプ
+;━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[Statedef 40]
+type    = S
+physics = S
+anim = 40
+ctrl = 0
+sprpriority = 1
+
+;■■■■■
+;AI用
+[State 20, 1]
+type = changestate
+trigger1 = var(59)
+trigger1 = time = 0
+value = 0
+ctrl = 1
+;■■■■■
+
+[State 40, 1]
+type = VarSet
+trigger1 = Time = 0
+sysvar(1) = 0
+
+[State 40, 2]
+type = VarSet
+trigger1 = command = "holdfwd"
+sysvar(1) = 1
+
+[State 40, 3]
+type = VarSet
+trigger1 = command = "holdback"
+sysvar(1) = -1
+
+[State 40, 4]
+type = VelSet
+trigger1 = AnimTime = 0
+x = ifelse(sysvar(1)=0, const(velocity.jump.neu.x), ifelse(sysvar(1)=1, const(velocity.jump.fwd.x), const(velocity.jump.back.x)))
+y = const(velocity.jump.y)
+
+[State 40, 5]
+type = VelSet
+trigger1 = AnimTime = 0
+trigger1 = prevstateno = 100 ;RUN_FWD
+trigger1 = sysvar(1) = 1
+x = const(velocity.runjump.fwd.x)
+
+[State 40, 6]
+type = ChangeState
+trigger1 = AnimTime = 0
+value = 50
+ctrl = 1
+
+;━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+;AIジャンプ
+;━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+;//////////////////////////////////////////////////////
+;垂直ジャンプ
+;//////////////////////////////////////////////////////
+
+[Statedef 30,垂直]
+type    = S
+physics = S
+anim = 40
+ctrl = 0
+sprpriority = 1
+
+[State 40, 1]
+type = VarSet
+trigger1 = Time = 0
+sysvar(1) = 0
+
+[State 40, 4]
+type = VelSet
+trigger1 = AnimTime = 0
+x = ifelse(sysvar(1)=0, const(velocity.jump.neu.x), ifelse(sysvar(1)=1, const(velocity.jump.fwd.x), const(velocity.jump.back.x)))
+y = const(velocity.jump.y)
+
+[State 40, 5]
+type = VelSet
+trigger1 = AnimTime = 0
+trigger1 = prevstateno = 100 ;RUN_FWD
+trigger1 = sysvar(1) = 1
+x = const(velocity.runjump.fwd.x)
+
+[State 40, 6]
+type = ChangeState
+trigger1 = AnimTime = 0
+value = 50
+ctrl = 1
+
+[Statedef 60,垂直]
+type    = S
+physics = S
+anim = 40
+ctrl = 0
+sprpriority = 1
+
+[State 40, 1]
+type = VarSet
+trigger1 = Time = 0
+sysvar(1) = 0
+
+[State 40, 4]
+type = VelSet
+trigger1 = AnimTime = 0
+x = ifelse(sysvar(1)=0, const(velocity.jump.neu.x), ifelse(sysvar(1)=1, const(velocity.jump.fwd.x), const(velocity.jump.back.x)))
+y = const(velocity.jump.y)
+
+[State 40, 5]
+type = VelSet
+trigger1 = AnimTime = 0
+trigger1 = prevstateno = 100 ;RUN_FWD
+trigger1 = sysvar(1) = 1
+x = const(velocity.runjump.fwd.x)
+
+[State 40, 6]
+type = ChangeState
+trigger1 = AnimTime = 0
+value = 61
+ctrl = 1
+
+
+;//////////////////////////////////////////////////////
+;前ジャンプ
+;//////////////////////////////////////////////////////
+
+[Statedef 31,前]
+type    = S
+physics = S
+anim = 40
+ctrl = 0
+sprpriority = 1
+
+[State 40, 1]
+type = VarSet
+trigger1 = Time = 0
+sysvar(1) = 1
+
+[State 40, 4]
+type = VelSet
+trigger1 = AnimTime = 0
+x = ifelse(sysvar(1)=0, const(velocity.jump.neu.x), ifelse(sysvar(1)=1, const(velocity.jump.fwd.x), const(velocity.jump.back.x)))
+y = const(velocity.jump.y)
+
+[State 40, 5]
+type = VelSet
+trigger1 = AnimTime = 0
+trigger1 = prevstateno = 100 ;RUN_FWD
+trigger1 = sysvar(1) = 1
+x = const(velocity.runjump.fwd.x)
+
+[State 40, 6]
+type = ChangeState
+trigger1 = AnimTime = 0
+value = 50
+ctrl = 1
+
+[Statedef 62,前]
+type    = S
+physics = S
+anim = 40
+ctrl = 0
+sprpriority = 1
+
+[State 40, 1]
+type = VarSet
+trigger1 = Time = 0
+sysvar(1) = 1
+
+[State 40, 4]
+type = VelSet
+trigger1 = AnimTime = 0
+x = ifelse(sysvar(1)=0, const(velocity.jump.neu.x), ifelse(sysvar(1)=1, const(velocity.jump.fwd.x), const(velocity.jump.back.x)))
+y = const(velocity.jump.y)
+
+[State 40, 5]
+type = VelSet
+trigger1 = AnimTime = 0
+trigger1 = prevstateno = 100 ;RUN_FWD
+trigger1 = sysvar(1) = 1
+x = const(velocity.runjump.fwd.x)
+
+[State 40, 6]
+type = ChangeState
+trigger1 = AnimTime = 0
+value = 61
+ctrl = 1
+
+;//////////////////////////////////////////////////////
+;後ろジャンプ
+;//////////////////////////////////////////////////////
+
+[Statedef 32,後]
+type    = S
+physics = S
+anim = 40
+ctrl = 0
+sprpriority = 1
+
+[State 40, 1]
+type = VarSet
+trigger1 = Time = 0
+sysvar(1) = -1
+
+[State 40, 4]
+type = VelSet
+trigger1 = AnimTime = 0
+x = ifelse(sysvar(1)=0, const(velocity.jump.neu.x), ifelse(sysvar(1)=1, const(velocity.jump.fwd.x), const(velocity.jump.back.x)))
+y = const(velocity.jump.y)
+
+[State 40, 5]
+type = VelSet
+trigger1 = AnimTime = 0
+trigger1 = prevstateno = 100 ;RUN_FWD
+trigger1 = sysvar(1) = 1
+x = const(velocity.runjump.fwd.x)
+
+[State 40, 6]
+type = ChangeState
+trigger1 = AnimTime = 0
+value = 50
+ctrl = 1
+
+;━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+;AI空中ジャンプ
+;━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+;//////////////////////////////////////////////////////
+;空中垂直ジャンプ
+;//////////////////////////////////////////////////////
+
+[Statedef 35,空垂直]
+type    = A
+physics = A
+ctrl = 1
+velset = 0,0
+
+;---------------------------------------------------------------------------
+;ガード不能に
+[State -2, AssertSpecial]
+type = AssertSpecial
+trigger1 = 1
+flag = noairguard
+IgnoreHitPause = 1
+
+[State 45, Explod]
+type = Explod
+trigger1 = Time = 0
+anim = 10020
+;ID = 0
+pos = 0, 0
+postype = p1
+facing = 1
+vfacing = 1
+bindtime = 1
+vel = 0, 0
+accel = 0, 0
+random = 0, 0
+removetime = -2
+supermovetime = 999999
+pausemovetime = 999999
+scale = 0.5, 0.5
+sprpriority = 5
+ontop = 0
+ownpal = 0
+removeongethit = 0
+
+[State 45, 音]
+type = PlaySnd
+trigger1 = Time = 0
+value = 3, 4
+
+[State 45, 変数を設定]
+type = VarSet
+trigger1 = Time = 0
+sysvar(1) = 0
+
+[State 45, 移動速度]
+type = VelSet
+trigger1 = Time = 2
+x = ifelse(sysvar(1)=0, const(velocity.airjump.neu.x), ifelse(sysvar(1)=1, const(velocity.airjump.fwd.x), const(velocity.airjump.back.x)))
+y = -10+(var(3)*0.2)
+
+[State 45, アニメ変更]
+type = ChangeAnim
+trigger1 = Time = 2
+value = ifelse((vel x)=0, 51, ifelse((vel x)>0, 52, 53))
+
+;//////////////////////////////////////////////////////
+;空中前ジャンプ
+;//////////////////////////////////////////////////////
+
+[Statedef 36,空前]
+type    = A
+physics = A
+ctrl = 1
+velset = 0,0
+
+;---------------------------------------------------------------------------
+;ガード不能に
+[State -2, AssertSpecial]
+type = AssertSpecial
+trigger1 = 1
+flag = noairguard
+IgnoreHitPause = 1
+
+[State 45, Explod]
+type = Explod
+trigger1 = Time = 0
+anim = 10020
+;ID = 0
+pos = 0, 0
+postype = p1
+facing = 1
+vfacing = 1
+bindtime = 1
+vel = 0, 0
+accel = 0, 0
+random = 0, 0
+removetime = -2
+supermovetime = 999999
+pausemovetime = 999999
+scale = 0.5, 0.5
+sprpriority = 5
+ontop = 0
+ownpal = 0
+removeongethit = 0
+
+[State 45, 音]
+type = PlaySnd
+trigger1 = Time = 0
+value = 3, 4
+
+[State 45, 変数を設定]
+type = VarSet
+trigger1 = Time = 0
+sysvar(1) = 1
+
+[State 45, 移動速度]
+type = VelSet
+trigger1 = Time = 2
+x = ifelse(sysvar(1)=0, const(velocity.airjump.neu.x), ifelse(sysvar(1)=1, const(velocity.airjump.fwd.x), const(velocity.airjump.back.x)))
+y = -10+(var(3)*0.2)
+
+[State 45, アニメ変更]
+type = ChangeAnim
+trigger1 = Time = 2
+value = ifelse((vel x)=0, 51, ifelse((vel x)>0, 52, 53))
+
+;//////////////////////////////////////////////////////
+;空中後ろジャンプ
+;//////////////////////////////////////////////////////
+
+[Statedef 37,空後]
+type    = A
+physics = A
+ctrl = 1
+velset = 0,0
+
+;---------------------------------------------------------------------------
+;ガード不能に
+[State -2, AssertSpecial]
+type = AssertSpecial
+trigger1 = 1
+flag = noairguard
+IgnoreHitPause = 1
+
+[State 45, Explod]
+type = Explod
+trigger1 = Time = 0
+anim = 10020
+;ID = 0
+pos = 0, 0
+postype = p1
+facing = 1
+vfacing = 1
+bindtime = 1
+vel = 0, 0
+accel = 0, 0
+random = 0, 0
+removetime = -2
+supermovetime = 999999
+pausemovetime = 999999
+scale = 0.5, 0.5
+sprpriority = 5
+ontop = 0
+ownpal = 0
+removeongethit = 0
+
+[State 45, 音]
+type = PlaySnd
+trigger1 = Time = 0
+value = 3, 4
+
+[State 45, 変数を設定]
+type = VarSet
+trigger1 = Time = 0
+sysvar(1) = -1
+
+[State 45, 移動速度]
+type = VelSet
+trigger1 = Time = 2
+x = ifelse(sysvar(1)=0, const(velocity.airjump.neu.x), ifelse(sysvar(1)=1, const(velocity.airjump.fwd.x), const(velocity.airjump.back.x)))
+y = -10+(var(3)*0.2)
+
+[State 45, アニメ変更]
+type = ChangeAnim
+trigger1 = Time = 2
+value = ifelse((vel x)=0, 51, ifelse((vel x)>0, 52, 53))
+
+;//////////////////////////////////////////////////////
+;AIジャンプ中
+;//////////////////////////////////////////////////////
+
+[Statedef 61]
+type    = A
+physics = A
+ctrl = 1
+
+;---------------------------------------------------------------------------
+;ガード不能に
+[State -2, AssertSpecial]
+type = AssertSpecial
+trigger1 = time <= 5
+flag = noairguard
+IgnoreHitPause = 1
+
+[State 50, アニメ変更] ;表示アニメの決定
+type = ChangeAnim
+trigger1 = Time = 0
+value = ifelse((vel x)=0, 41, ifelse((vel x)>0, 42, 43))
+;X軸の移動速度が0ならば41へ、マイナスならば42へ、それ以外なら43へ
+
+[State 50, アニメ変更]
+type = ChangeAnim
+trigger1 = Vel y > -2
+trigger1 = SelfAnimExist(anim + 3)
+persistent = 0
+value = Anim + 3
+
+[State 50, time]
+type = VarSet
+trigger1 = 1
+var(3) = time
+
+[State 50, 音]
+type = PlaySnd
+trigger1 = Time = 1
+value = 10, 1
+
+;━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+;ガード
+;━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+;---------------------------------------------------------------------------
+; GUARD (start)
+[Statedef 120]
+type = U    ;Leave state type unchanged
+physics = U ;Leave physics unchanged
+
+[State 120, 1]
+type = ChangeAnim
+trigger1 = Time = 0
+value = 120 + (statetype = C) + (statetype = A)*2
+
+[State 120, 2]
+type = StateTypeSet
+trigger1 = Time = 0 && statetype = S
+physics = S
+
+[State 120, 3]
+type = StateTypeSet
+trigger1 = Time = 0 && statetype = C
+physics = C
+
+[State 120, 4]
+type = StateTypeSet
+trigger1 = Time = 0 && statetype = A
+physics = A
+
+[State 120, Hi to Lo]
+type = StateTypeSet
+triggerall = statetype = S
+trigger1 = !var(59)
+Trigger1 = command = "holddown"
+trigger2 = var(59)
+trigger2 = EnemyNear(Var(58)),StateType != A
+trigger2 = Random <= 100*(Var(59))
+Trigger3 = NumHelper(10001)>0
+Trigger3 = Helper(10001),Var(55) = 1
+trigger3 = Random <= 60*Var(59)
+statetype = C
+physics = C
+
+[State 120, Lo to Hi]
+type = StateTypeSet
+triggerall = statetype = C
+trigger1 = !var(59)
+Trigger1 = command != "holddown"
+trigger2 = var(59)
+trigger2 = EnemyNear(Var(58)),StateType = A
+trigger2 = Random <= 100*(Var(59))
+Trigger3 = EnemyNear(Var(58)),StateType = S
+Trigger3 = EnemyNear(Var(58)),Time >= 18
+Trigger3 = !Enemy,NumProj
+trigger3 = Random <= 60*(Var(59))
+Trigger4 = NumHelper(10001)>0
+Trigger4 = Helper(10001),Var(56) = 1
+trigger4 = Random <= 60*Var(59)
+statetype = S
+physics = S
+
+[State 120, 5]
+type = ChangeState
+trigger1 = AnimTime = 0
+value = 130 + (statetype = C) + (statetype = A)*2
+
+[State 120, Stop Guarding]
+type = ChangeState
+trigger1 = var(59) = 0
+trigger1 = command != "holdback"
+trigger2 = !inguarddist
+value = 140
+
+;---------------------------------------------------------------------------
+; STAND GUARD (guarding)
+[Statedef 130]
+type    = S
+physics = S
+
+[State 130, 1]
+type = ChangeAnim
+trigger1 = Anim != 130
+value = 130
+
+[State 130, Hi to Lo]
+type = ChangeState
+trigger1 = !var(59)
+Trigger1 = command = "holddown"
+trigger2 = var(59)
+trigger2 = EnemyNear(Var(58)),StateType != A
+trigger2 = time > 0
+trigger2 = Random <= 100*(Var(59))
+Trigger3 = NumHelper(10001)>0
+Trigger3 = Helper(10001),Var(55) = 1
+trigger3 = Random <= 60*Var(59)
+trigger3 = time > 0
+value = 131
+
+[State 130, Stop Guarding]
+type = ChangeState
+trigger1 = !var(59)
+trigger1 = command != "holdback"
+trigger2 = !inguarddist
+value = 140
+
+;---------------------------------------------------------------------------
+; CROUCH GUARD (guarding)
+[Statedef 131]
+type    = C
+physics = C
+
+[State 131, 1]
+type = ChangeAnim
+trigger1 = Anim != 131
+value = 131
+
+[State 131, Lo to Hi]
+type = ChangeState
+trigger1 = !var(59)
+Trigger1 = command != "holddown"
+trigger2 = var(59)
+trigger2 = EnemyNear(Var(58)),StateType = A
+trigger2 = Random <= 100*(var(59))
+Trigger3 = EnemyNear(Var(58)),StateType = S
+Trigger3 = EnemyNear(Var(58)),Time >= 18
+Trigger3 = !Enemy,NumProj
+trigger3 = Random <= 60*Var(59)
+Trigger4 = NumHelper(10001)>0
+Trigger4 = Helper(10001),Var(56) = 1
+trigger4 = Random <= 60*Var(59)
+value = 130
+
+[State 131, Stop Guarding]
+type = ChangeState
+trigger1 = !var(59)
+trigger1 = command != "holdback"
+trigger2 = !inguarddist
+value = 140
+
+;---------------------------------------------------------------------------
+; AIR GUARD (guarding)
+[Statedef 132]
+type    = A
+physics = N
+
+[State 132, 1]
+type = ChangeAnim
+trigger1 = Anim != 132
+value = 132
+
+[State 132, 2]
+type = VelAdd
+trigger1 = 1
+y = Const(movement.yaccel)
+
+[State 132, 3]
+type = VarSet
+trigger1 = 1
+sysvar(0) = (pos y >= 0) && (vel y > 0)
+
+[State 132, 4]
+type = VelSet
+trigger1 = sysvar(0)
+y = 0
+
+[State 132, 5]
+type = PosSet
+trigger1 = sysvar(0)
+y = 0
+
+[State 132, 6]
+type = ChangeState
+trigger1 = sysvar(0)
+trigger1 = command = "holdback" || var(59)
+trigger1 = inguarddist
+value = 130
+
+[State 132, 7]
+type = ChangeState
+trigger1 = sysvar(0)
+value = 52
+
+[State 132, Stop Guarding]
+type = ChangeState
+trigger1 = !var(59)
+trigger1 = command != "holdback"
+trigger2 = !inguarddist
+value = 140
+
+;---------------------------------------------------------------------------
+; GUARD (end)
+[Statedef 140]
+type = U    ;Leave state type unchanged
+physics = U ;Leave physics unchanged
+ctrl = 1
+
+[State 140, 1]
+type = ChangeAnim
+trigger1 = Time = 0
+value = 140 + (statetype = C) + (statetype = A)*2
+
+[State 140, 2]
+type = StateTypeSet
+trigger1 = Time = 0 && statetype = S
+physics = S
+
+[State 140, 3]
+type = StateTypeSet
+trigger1 = Time = 0 && statetype = C
+physics = C
+
+[State 140, 4]
+type = StateTypeSet
+trigger1 = Time = 0 && statetype = A
+physics = A
+
+[State 140, Hi to Lo]
+type = StateTypeSet
+triggerall = statetype = S
+trigger1 = !var(59)
+Trigger1 = command = "holddown"
+trigger2 = var(59)
+trigger2 = EnemyNear(Var(58)),StateType != A
+trigger2 = Random <= 100*(Var(59))
+Trigger3 = NumHelper(10001)>0
+Trigger3 = Helper(10001),Var(55) = 1
+trigger3 = Random <= 60*Var(59)
+statetype = C
+physics = C
+
+[State 140, Lo to Hi]
+type = StateTypeSet
+triggerall = statetype = C
+trigger1 = !var(59)
+Trigger1 = command != "holddown"
+trigger2 = var(59)
+trigger2 = EnemyNear(Var(58)),StateType = A
+trigger2 = Random <= 100*(Var(59))
+Trigger3 = EnemyNear(Var(58)),StateType = S
+Trigger3 = EnemyNear(Var(58)),Time >= 18
+Trigger3 = !Enemy,NumProj
+trigger3 = Random <= 60*Var(59)
+Trigger4 = NumHelper(10001)>0
+Trigger4 = Helper(10001),Var(56) = 1
+trigger4 = Random <= 60*Var(59)
+statetype = S
+physics = S
+
+;[State 140, 5] ;Implemented within engine
+;type = ChangeState
+;trigger1 = AnimTime = 0
+;value = (statetype = C)*11 + (statetype = A)*51
+
+;---------------------------------------------------------------------------
+; SGUARDHIT2 (knocked back)
+[Statedef 151]
+type    = S
+movetype= H
+physics = S
+anim = 150
+
+[State 151, 1]
+type = HitVelSet
+trigger1 = Time = 0
+x = 1
+
+[State 151, 2]
+type = VelSet
+trigger1 = Time = GetHitVar(slidetime)
+trigger2 = HitOver
+x = 0
+
+[State 151, 3]
+type = CtrlSet
+trigger1 = Time = GetHitVar(ctrltime)
+value = 1
+
+[State 153, Hi to Lo]
+type = StateTypeSet
+triggerall = statetype = S
+trigger1 = !var(59)
+Trigger1 = command = "holddown"
+trigger2 = var(59)
+trigger2 = EnemyNear(Var(58)),StateType != A
+trigger2 = Random <= 100*(var(59))
+Trigger3 = NumHelper(10001)>0
+Trigger3 = Helper(10001),Var(55) = 1
+trigger3 = Random <= 60*var(59)
+statetype = C
+physics = C
+
+[State 153, Lo to Hi]
+type = StateTypeSet
+triggerall = statetype = C
+trigger1 = !var(59)
+Trigger1 = command != "holddown"
+trigger2 = var(59)
+trigger2 = EnemyNear(Var(58)),StateType = A
+trigger2 = Random <= 100*(var(54))
+Trigger3 = EnemyNear(Var(58)),StateType = S
+Trigger3 = EnemyNear(Var(58)),Time >= 18
+Trigger3 = !Enemy,NumProj
+trigger3 = Random <= Var(59)*60
+Trigger4 = NumHelper(10001)>0
+Trigger4 = Helper(10001),Var(56) = 1
+trigger4 = Random <= 60*var(59)
+statetype = S
+physics = S
+
+[State 151, 4]
+type = ChangeState
+trigger1 = HitOver
+value = 130
+ctrl = 1
+
+;---------------------------------------------------------------------------
+; CGUARDHIT2 (knocked back)
+[Statedef 153]
+type    = C
+movetype= H
+physics = C
+anim = 151
+
+[State 153, 1]
+type = HitVelSet
+trigger1 = Time = 0
+x = 1
+
+[State 153, 2]
+type = VelSet
+trigger1 = Time = GetHitVar(slidetime)
+trigger2 = HitOver
+x = 0
+
+[State 153, 3]
+type = CtrlSet
+trigger1 = Time = GetHitVar(ctrltime)
+value = 1
+
+[State 153, Hi to Lo]
+type = StateTypeSet
+triggerall = statetype = S
+trigger1 = !var(59)
+Trigger1 = command = "holddown"
+trigger2 = var(59)
+trigger2 = EnemyNear(Var(58)),StateType != A
+trigger2 = Random <= 100*(var(59))
+Trigger3 = NumHelper(10001)>0
+Trigger3 = Helper(10001),Var(55) = 1
+trigger3 = Random <= 60*var(59)
+statetype = C
+physics = C
+
+[State 153, Lo to Hi]
+type = StateTypeSet
+triggerall = statetype = C
+trigger1 = !var(59)
+Trigger1 = command != "holddown"
+trigger2 = var(59)
+trigger2 = EnemyNear(Var(58)),StateType = A
+trigger2 = Random <= 100*(var(54))
+Trigger3 = EnemyNear(Var(58)),StateType = S
+Trigger3 = EnemyNear(Var(58)),Time >= 18
+Trigger3 = !Enemy,NumProj
+trigger3 = Random <= Var(59)*60
+Trigger4 = NumHelper(10001)>0
+Trigger4 = Helper(10001),Var(56) = 1
+trigger4 = Random <= 60*var(59)
+statetype = S
+physics = S
+
+[State 153, 4]
+type = ChangeState
+trigger1 = HitOver
+value = 131
+ctrl = 1
+
+;---------------------------------------------------------------------------
+; AGUARDHIT2 (knocked away)
+[Statedef 155]
+type    = A
+movetype= H
+physics = N
+anim = 152
+
+[State 155, 1]
+type = HitVelSet
+trigger1 = Time = 0
+x = 1
+y = 1
+
+[State 155, 2]
+type = VelAdd
+trigger1 = 1
+y = Const(movement.yaccel)
+
+[State 155, 3]
+type = CtrlSet
+trigger1 = Time = GetHitVar(ctrltime)
+value = 1
+
+[State 155, 4]
+type = VarSet
+trigger1 = 1
+sysvar(0) = (pos y >= 0) && (vel y > 0)
+
+[State 155, 5]
+type = VelSet
+trigger1 = sysvar(0)
+y = 0
+
+[State 155, 6]
+type = PosSet
+trigger1 = sysvar(0)
+y = 0
+
+[State 155, 6]
+type = ChangeState
+trigger1 = sysvar(0)
+trigger1 = command = "holdback" || var(59)
+trigger1 = inguarddist
+value = 130
+
+[State 155, 7]
+type = ChangeState
+trigger1 = sysvar(0)
+value = 52
+
+;━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+;ダッシュ→ダッシュ攻撃
+;━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[Statedef 101]
+type    = S
+physics = N
+ctrl = 0
+anim = 100
+
+[State 100, 移動速度]
+type = VelSet
+trigger1 = Animelem = 2
+x = const(velocity.run.fwd.x)
+y = const(velocity.run.fwd.y)
+
+[State 100, 停止]
+type = Velmul
+trigger1 = Animelem = 6,>= 0
+x = 0.8
+
+[State -2, Sound]
+type = PlaySnd
+trigger1 = Animelem = 2
+value = 3, 4
+
+[State 100, Explod]
+type = Explod
+trigger1 = Time = 0
+anim = 10021
+;ID = 0
+pos = 0, 0
+postype = p1
+facing = 1
+vfacing = 1
+bindtime = 1
+vel = 0, 0
+accel = 0, 0
+random = 0, 0
+removetime = -2
+supermovetime = 999999
+pausemovetime = 999999
+scale = 0.75, 0.75
+sprpriority = 5
+ontop = 0
+ownpal = 0
+removeongethit = 0
+
+[state -2, 立ちに戻る]
+type = Changestate
+trigger1 = Animtime = 0
+value = 0
+ctrl = 1
+
+;━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+;ヘルパー
+;━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[Statedef 10000]
+anim=10000;なにも表示しないｱﾆﾒでもいいけど入れなくても全然問題ない
+ctrl=0
+
+[State 10000,間違いで本体が来たら立ちへ移行]
+type=selfstate
+trigger1=!ishelper
+value=0
+
+[State 10000,プレイヤー判定]
+type=varset
+trigger1=command="up"&&root,command="up"
+trigger2=command="down"&&root,command="down"
+trigger3=command="back"&&root,command="back"
+trigger4=command="fwd"&&root,command="fwd"
+trigger5=command="a"&&root,command="a"
+trigger6=command="b"&&root,command="b"
+trigger7=command="c"&&root,command="c"
+trigger8=command="x"&&root,command="x"
+trigger9=command="y"&&root,command="y"
+trigger10=command="z"&&root,command="z"
+trigger11=command="start"&&root,command="start"
+var(59)=-1
+
+[State 10000,立ったら消失]
+Type = DestroySelf
+triggerAll = isHelper
+Trigger1 = root,var(59)||var(59)=-1
+trigger2=command="up"&&root,command="up"
+trigger3=command="down"&&root,command="down"
+trigger4=command="back"&&root,command="back"
+trigger5=command="fwd"&&root,command="fwd"
+trigger6=command="a"&&root,command="a"
+trigger7=command="b"&&root,command="b"
+trigger8=command="c"&&root,command="c"
+trigger9=command="x"&&root,command="x"
+trigger10=command="y"&&root,command="y"
+trigger11=command="z"&&root,command="z"
+trigger12=command="start"&&root,command="start"
+
+[State 10000,ﾌﾗｸﾞON]
+type=varset
+triggerall=var(59)!=-1
+trigger1=root,command="up"
+trigger2=root,command="down"
+trigger3=root,command="back"
+trigger4=root,command="fwd"
+trigger5=root,command="a"
+trigger6=root,command="b"
+trigger7=root,command="c"
+trigger8=root,command="x"
+trigger9=root,command="y"
+trigger10=root,command="z"
+trigger11=root,command="start"
+var(59)=1
+
+[Statedef 10001]
+anim=100001;なにも表示しないｱﾆﾒでもいいけど入れなくても全然問題ない
+ctrl=0
+
+[State 21000]
+type = assertspecial
+trigger1 = 1
+flag = invisible
+flag2 = noshadow
+
+[State 21000]
+type = NotHitBy
+value = SCA
+trigger1 = 1
+
+[State 21000]
+type = PlayerPush
+trigger1 = 1
+value = 0
+
+[State 21000]
+type = SprPriority
+trigger1 = 1
+value = -5
+
+[State 21000]
+type=selfstate
+trigger1=!ishelper
+value=0
+
+[State -2];ガード時間・のけぞり時間・受身不能時間。
+type=varadd
+trigger1=var(0) > 0
+var(0)=-1
+ignorehitpause=1
+
+[State -2];ガード時間・のけぞり時間・受身不能時間
+type=varset
+triggerall=var(0)>0
+trigger1=EnemyNear(root,var(58)),Movetype!=H
+var(0)=0
+
+[State -2];ガード硬直
+type=varset
+triggerall=EnemyNear(root,var(58)),Movetype=H
+triggerall=EnemyNear(root,var(58)),stateno < 200
+triggerall=EnemyNear(root,var(58)),Statetype=A
+trigger1=!EnemyNear(root,var(58)),gethitvar(fall)
+trigger1=!(EnemyNear(root,var(58)),hitshakeover)
+trigger1=EnemyNear(root,var(58)),time=1 || var(0)=0
+var(0)=EnemyNear(root,var(58)),gethitvar(ctrltime)+EnemyNear(root,var(58)),gethitvar(hitshaketime)+1
+ignorehitpause=1
+
+[State -2];ガード硬直
+type=varset
+triggerall=EnemyNear(root,var(58)),Movetype=H
+triggerall=EnemyNear(root,var(58)),stateno < 200
+triggerall=EnemyNear(root,var(58)),Statetype!=A
+trigger1=!EnemyNear(root,var(58)),gethitvar(fall)
+trigger1=!(EnemyNear(root,var(58)),hitshakeover)
+trigger1=EnemyNear(root,var(58)),time=1 || var(0)=0
+var(0)=ifelse(EnemyNear(root,var(58)),gethitvar(ctrltime)<EnemyNear(root,var(58)),gethitvar(hittime),EnemyNear(root,var(58)),gethitvar(ctrltime),EnemyNear(root,var(58)),gethitvar(hittime))+EnemyNear(root,var(58)),gethitvar(hitshaketime)+1
+ignorehitpause=1
+
+[State -2];のけぞり時間
+type=varset
+triggerall=EnemyNear(root,var(58)),Movetype=H
+triggerall=EnemyNear(root,var(58)),stateno > 199
+trigger1=!EnemyNear(root,var(58)),gethitvar(fall)
+trigger1=!(EnemyNear(root,var(58)),hitshakeover)
+trigger1=EnemyNear(root,var(58)),time=1
+var(0)=EnemyNear(root,var(58)),gethitvar(hittime)+EnemyNear(root,var(58)),gethitvar(hitshaketime)+1
+ignorehitpause=1
+
+
+[State -3,中段記憶]
+Type = VarSet
+triggerall = var(56) = 0
+trigger1 = root,Statetype = C
+trigger1 = root,StateNo != [120,159]
+trigger1 = EnemyNear(root,Var(58)),StateType != A
+trigger1 = root,MoveType = H
+trigger1 = root,StateNo = [5000,5011]
+trigger1 = (root,PrevStateNo=131)||(root,PrevStateNo=[151,153])
+V = 56
+Value = EnemyNear(root,Var(58)),StateNo
+
+[State -3,下段記憶]
+Type = VarSet
+triggerall = var(55) = 0
+trigger1 = root,Statetype = S
+trigger1 = root,StateNo != [120,159]
+trigger1 = EnemyNear(root,Var(58)),StateType = S
+trigger1 = root,MoveType = H
+trigger1 = root,StateNo = [5000,5001]
+trigger1 = (root,PrevStateNo=[120,130])||(root,PrevStateNo=[150,151])
+V = 55
+Value = EnemyNear(root,Var(58)),StateNo
+
+[State 10000,立ったら消失]
+Type = DestroySelf
+triggerAll = isHelper
+Trigger1 = ishelper && (root,life <= 0 || !root,Alive)
+
+[Statedef 21000]
+Type = A
+Ctrl = 0
+Anim = 0
+Velset = ifelse(ishelper(21005),5,-5),0
+Movetype = I
+Physics = N
+Sprpriority = 1
+
+[State 21000]
+type = assertspecial
+trigger1 = 1
+flag = invisible
+flag2 = noshadow
+
+[State 21000]
+type = NotHitBy
+value = SCA
+trigger1 = 1
+
+[State 21000]
+type = PlayerPush
+trigger1 = 1
+value = 0
+
+[State 21000]
+type = SprPriority
+trigger1 = 1
+value = -5
+
+[State 21000]
+type=selfstate
+trigger1=!ishelper
+value=0
+
+[state 21000]
+Type=Projectile
+Trigger1 = time = 0
+Velocity = ifelse(ishelper(21005),5,-5),0
+ProjID = ifelse(ishelper(21005),21005,21000)
+Projanim = 0
+projhits = 9999
+projpriority = 9999
+Offset = 0,9999
+projstagebound = const(size.ground.front)
+Projedgebound = 100000
+Projremovetime = -1
+supermovetime = 9999
+pausemovetime = 9999
+
+
+[state 21000]
+type = velset
+Trigger1 = !Root,NumProjID(ifelse(ishelper(21005),21005,21000)) && time
+x = 0
+y = 0
+
+[State 21000]
+Type = DestroySelf
+Trigger1 = ishelper && (RoundState > 3 || Root,Life <= 0)
+
+

@@ -1,0 +1,350 @@
+;コンフィグ
+;---------------------------------------------------------------------------
+; Initialize (at the start of the round)
+[Statedef 5900]
+type = U
+
+[State 5900, 1] ;Clear all int variables
+type = VarRangeSet
+trigger1 = roundsexisted = 0
+value = 0
+first = 1
+last = 12
+
+[State 5900, 1] ;Clear all int variables
+type = VarRangeSet
+trigger1 = roundsexisted = 0
+value = 0
+first = 15
+last = 58
+
+[State 5900, 2] ;Clear all float variables
+type = VarRangeSet
+trigger1 = roundsexisted = 0
+fvalue = 0
+first = 0
+last = 8
+
+[State 5900, 2] ;Clear all float variables
+type = VarRangeSet
+trigger1 = roundsexisted = 0
+fvalue = 0
+first = 10
+last = 39
+
+[State 5900, 3] ;Change palette
+type = RemapPal
+TriggerAll = RoundState = 0
+TriggerAll = NumHelper(24000) = 0
+Trigger1 = RoundNo = 1
+Trigger2 = TeamMode = Turns
+Trigger2 = RoundsExisted = 0
+source = 1,1
+dest = 1,palno
+
+;---------------------------------------------------------------------------
+;ここから下の部分を自分の好みで設定できます
+;※「Value = Var(?)」の後の()の中の数字をいじってください
+;---------------------------------------------------------------------------
+
+;開幕前行動の設定
+[State 5900, 0]
+Type = VarSet
+Trigger1 = RoundState = 0
+V = 58
+Value = Var(58)-(0)       ;0が行動可(デフォルト)、1が行動不可
+
+;エフェクト表示の設定
+[State 5900, 0]
+Type = VarSet
+Trigger1 = Var(0)%10 = 0
+V = 0
+Value = Var(0)+(0)        ;0が通常(デフォルト)、1が簡易(ヒットエフェクト
+　　　　　　　　　　　    ;の簡易化、一部エフェクトを無表示化)
+
+;システムメッセージと勝利メッセージ表示の設定
+[State 5900, 0]
+Type = VarSet
+Trigger1 = Var(0)/10%10 = 0
+V = 0
+Value = Var(0)+(0)*10     ;0が表示あり(デフォルト)、1が表示なし
+
+;ゲージ表示の設定
+[State 5900, 0]
+Type = VarSet
+Trigger1 = Var(0)/100%10 = 0
+V = 0
+Value = Var(0)+(0)*100    ;0が表示あり(デフォルト)、1が表示なし
+
+;ゲージY座標の設定
+[State 5900, 0]
+Type = VarSet
+Trigger1 = Var(0)/100000%10 = 0
+V = 0
+Value = Var(0)+(0)*100000 ;0がデフォルト、
+　　　　　　　　　　　　  ;＋が上方向、－が下方向(0を基準)
+
+;ガードゲージの有無設定
+[State 5900, 0]
+Type = VarSet
+Trigger1 = Var(0)/10000%10 = 0
+V = 0
+Value = Var(0)+(0)*10000  ;0がガードブレイクありでゲージ表示あり(デフォルト)、
+　　　　　　　　　　　　  ;1がガードブレイク無しでゲージ表示なし
+
+;スタイルの固定
+[State 5900, 0]
+Type = VarSet
+Trigger1 = RoundNo = 1
+Trigger2 = TeamMode = Turns
+Trigger2 = RoundsExisted = 0
+V = 57
+Value = Var(57)+(0)
+　　　　　　　　　　　　  ;0がデフォルトでスタイルはランダム、
+　　　　　　　　　　　　  ;1がC(クレセント)、2がH(ハーフ)、3がF(フル)、
+　　　　　　　　　　　　  ;4がE(イクリプス)
+　　　　　　　　　　　　  ;1桁目がシステム、2桁目が通常行動、3桁目が必殺技
+　　　　　　　　　　　　  ;例、111と入力した場合全システムクレセント
+　　　　　　　　　　　　  ;
+　　　　　　　　　　　　  ;※以下、私のAI導入時追加要項
+　　　　　　　　　　　　  ;スタイル選択に選択肢を追加しておきます。
+　　　　　　　　　　　　  ;555…Eを含まず他3スタイルでランダム。
+　　　　　　　　　　　　  ;666…クレセントとハーフのみ
+　　　　　　　　　　　　  ;777…ハーフとフルのみ
+　　　　　　　　　　　　  ;888…クレセントとフルのみ
+　　　　　　　　　　　　  ;※ここまではシステム、通常技、必殺技が選択された1種類のみで固定されます。
+　　　　　　　　　　　　  ;  (111、222、333、444のどれか)
+　　　　　　　　　　　　  ;999…オールランダム
+　　　　　　　　　　　　  ;システム、通常技、必殺技の全てがそれぞれランダムで選ばれます。(123とか414とか)
+　　　　　　　　　　　　  ;なお、動作が素晴らしく滅茶苦茶になるはずなので、使用するかどうかは自己責任でお願いします。
+　　　　　　　　　　　　  ;デフォルトでは4スタイルから選ばれるようになっていますが、それを嫌う人はこのまま下にスクロールしていってください。
+
+;ハンディキャップの固定
+[State 5900, 0]
+Type = VarSet
+Trigger1 = RoundNo = 1
+Trigger2 = TeamMode = Turns
+Trigger2 = RoundsExisted = 0
+V = 56
+Value = Var(56)+(0)       ;0がデフォルト、
+　　　　　　　　　　　　  ;1がサーキットブレイク、2がアンリミテッド
+
+;ダメージ表示の設定
+[State 5900, 0]
+Type = VarSet
+Trigger1 = Var(0)/1000%10 = 0
+V = 0
+Value = Var(0)+(0)*1000   ;0が表示あり(デフォルト)、1が表示なし
+
+;LocalCoordの設定
+[State 5900, 0]
+Type = VarSet
+Trigger1 = FVar(37) = 0
+FV = 37
+Value = FVar(37)-(0)      ;0が320(デフォルト)、1が400(15:9のワイド用)
+
+;---------------------------------------------------------------------------
+;ここまで
+;---------------------------------------------------------------------------
+
+[State 5900, 0]
+Type = VarSet
+Trigger1 = Var(0)/100%10 = 0
+Trigger1 = NumPartner > 0
+Trigger1 = Partner,ID < ID
+V = 0
+Value = Var(0)+100
+
+[State 5900, 0]
+Type = VarSet
+Trigger1 = Var(0)/10000%10 = 0
+Trigger1 = TeamMode = Simul || Enemy,NumPartner > 0
+V = 0
+Value = Var(0)+10000
+
+[State -1]
+Type = VarSet
+Trigger1 = FVar(37) <= 0
+FV = 37
+Value = IfElse(Ceil(FVar(37)=-1),1.25,1.00)
+
+[State 5900, 0]
+Type = VarSet
+TriggerAll = Var(57)%10 = 0 || Var(57)/10%10 = 0 || Var(57)/100%10 = 0
+TriggerAll = RoundState = 0
+TriggerAll = NumHelper(24000) = 0
+Trigger1 = RoundNo = 1
+Trigger2 = TeamMode = Turns
+Trigger2 = RoundsExisted = 0
+V = 57
+Value = 0
+
+;AI時追加要項
+[State 5900, 0]
+Type = VarSet
+TriggerAll = Var(57)%10 = 5 || Var(57)/10%10 = 5 || Var(57)/100%10 = 5
+TriggerAll = RoundState = 0
+TriggerAll = NumHelper(24000) = 0
+Trigger1 = RoundNo = 1
+Trigger2 = TeamMode = Turns
+Trigger2 = RoundsExisted = 0
+V = 57
+Value = 5
+
+[State 5900, 0]
+Type = VarSet
+TriggerAll = Var(57)%10 = 6 || Var(57)/10%10 = 6 || Var(57)/100%10 = 6
+TriggerAll = RoundState = 0
+TriggerAll = NumHelper(24000) = 0
+Trigger1 = RoundNo = 1
+Trigger2 = TeamMode = Turns
+Trigger2 = RoundsExisted = 0
+V = 57
+Value = 6
+
+[State 5900, 0]
+Type = VarSet
+TriggerAll = Var(57)%10 = 7 || Var(57)/10%10 = 7 || Var(57)/100%10 = 7
+TriggerAll = RoundState = 0
+TriggerAll = NumHelper(24000) = 0
+Trigger1 = RoundNo = 1
+Trigger2 = TeamMode = Turns
+Trigger2 = RoundsExisted = 0
+V = 57
+Value = 7
+
+[State 5900, 0]
+Type = VarSet
+TriggerAll = Var(57)%10 = 8 || Var(57)/10%10 = 8 || Var(57)/100%10 = 8
+TriggerAll = RoundState = 0
+TriggerAll = NumHelper(24000) = 0
+Trigger1 = RoundNo = 1
+Trigger2 = TeamMode = Turns
+Trigger2 = RoundsExisted = 0
+V = 57
+Value = 8
+
+[State 5900, 0]
+Type = VarSet
+TriggerAll = Var(57)%10 = 9 || Var(57)/10%10 = 9 || Var(57)/100%10 = 9
+TriggerAll = RoundState = 0
+TriggerAll = NumHelper(24000) = 0
+Trigger1 = RoundNo = 1
+Trigger2 = TeamMode = Turns
+Trigger2 = RoundsExisted = 0
+V = 57
+Value = 9
+;ここまで
+
+[State 5900, 0]
+Type = VarSet
+TriggerAll = Var(57) = 0
+TriggerAll = RoundState = 0
+TriggerAll = NumHelper(24000) = 0
+Trigger1 = RoundNo = 1
+Trigger2 = TeamMode = Turns
+Trigger2 = RoundsExisted = 0
+V = 57
+Value = (Random%4)+1
+
+;AI時追加要項
+[State 5900, 0]
+Type = VarSet
+TriggerAll = Var(57) = 5
+TriggerAll = RoundState = 0
+TriggerAll = NumHelper(24000) = 0
+Trigger1 = RoundNo = 1
+Trigger2 = TeamMode = Turns
+Trigger2 = RoundsExisted = 0
+V = 57
+Value = (Random%3)+1
+
+[State 5900, 0]
+Type = VarSet
+TriggerAll = Var(57) = 6
+TriggerAll = RoundState = 0
+TriggerAll = NumHelper(24000) = 0
+Trigger1 = RoundNo = 1
+Trigger2 = TeamMode = Turns
+Trigger2 = RoundsExisted = 0
+V = 57
+Value = (Random%2)+1
+
+[State 5900, 0]
+Type = VarSet
+TriggerAll = Var(57) = 7
+TriggerAll = RoundState = 0
+TriggerAll = NumHelper(24000) = 0
+Trigger1 = RoundNo = 1
+Trigger2 = TeamMode = Turns
+Trigger2 = RoundsExisted = 0
+V = 57
+Value = (Random%2)+2 
+
+[State 5900, 0]
+Type = VarSet
+TriggerAll = Var(57) = 8
+TriggerAll = RoundState = 0
+TriggerAll = NumHelper(24000) = 0
+Trigger1 = RoundNo = 1
+Trigger2 = TeamMode = Turns
+Trigger2 = RoundsExisted = 0
+V = 57
+Value = IfElse(((Random%3)+1=2),3,1)
+
+[State 5900, 0]
+Type = VarSet
+TriggerAll = Var(57) = 9
+TriggerAll = RoundState = 0
+TriggerAll = NumHelper(24000) = 0
+Trigger1 = RoundNo = 1
+Trigger2 = TeamMode = Turns
+Trigger2 = RoundsExisted = 0
+V = 57
+Value = 0
+;ここまで
+
+[State 5900, 0]
+Type = VarAdd
+TriggerAll = Var(57) = [1,5]
+TriggerAll = RoundState = 0
+TriggerAll = NumHelper(24000) = 0
+Trigger1 = RoundNo = 1
+Trigger2 = TeamMode = Turns
+Trigger2 = RoundsExisted = 0
+V = 57
+Value = IfElse((Var(57)=[1,4]),110*Var(57),110)
+
+[State 5900, 0]
+Type = VarAdd
+TriggerAll = Var(57) = 0
+TriggerAll = RoundState = 0
+TriggerAll = NumHelper(24000) = 0
+Trigger1 = RoundNo = 1
+Trigger2 = TeamMode = Turns
+Trigger2 = RoundsExisted = 0
+V = 57
+Value = 100*((Random%4)+1)+10*((Random%4)+1)+((Random%4)+1) ;ランダムにイクリプスを含めたい場合
+;Value = 100*((Random%3)+1)+10*((Random%3)+1)+((Random%3)+1) ;ランダムにイクリプスを含めたくない場合
+
+;コンフィングで「999」を選択した場合、ここの「Value」を入れ替えることが出来ます。内容は説明の通りです。
+;Eスタイルを含めるかどうかを各自のご判断にお任せしますので、どうぞご自由に。
+;個人的には入れても良いと思います。その方が余計に滅茶苦茶になって面白いでしょうし。
+
+[State 5900, 0]
+Type = PowerSet
+Trigger1 = RoundNo = 1
+Trigger1 = Time = 0
+Value = Ceil(1000*IfElse(Var(57)%10=2,1.334,IfElse(Var(57)%10=3,1.115,1.0000)))
+
+[State 5900, 3] ;Intro
+type = ChangeState
+Trigger1 = RoundNo = 1
+Trigger2 = TeamMode = Turns
+Trigger2 = RoundsExisted = 0
+value = 190
+
+[State 5900, 3] ;Intro
+type = ChangeState
+Trigger1 = RoundNo > 1
+value = 0

@@ -1,0 +1,1647 @@
+;北斗システム関係
+;★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+;ブースト
+[Statedef 3000]
+type     = S                     
+movetype = I                     
+physics  = N                    
+ctrl     = 0                     
+anim     = 3000                  
+sprpriority = 2     
+
+;■■■■■■■■■■■■■■■■■■■■[ブースト関係]
+
+[state boost];ここは特殊でブーストからブーストへシフトの可否
+type = ChangeState
+triggerall = var(16) >=100 || var(16) < 100 && var(17) = 1
+triggerall = time >= 15
+Trigger1 = !var(59)
+trigger1 = command = "z" 
+value = 3000
+ctrl = 0
+
+[State Pal, 1];本体色
+type = PalFX
+triggerall = var(16) >=100 || var(16) < 100 && var(17) = 1
+triggerall = time >= 15
+Trigger1 = !var(59)
+trigger1 = command = "z"
+time = 5
+add = 180,180,180
+
+[State a, 0];効果音
+type = PlaySnd
+trigger1 = time = 0
+value = 3000,0 ;[ブースト]
+volume = 255
+channel = 0
+
+[state a];ブーストゲージ減少
+type = varadd
+trigger1 = time = 0
+v = 16
+value = -20
+
+[state a];ブーストフラグON
+type = varset
+trigger1 = time = 0 
+v = 17
+value = 1
+
+;■■■■■■■■■■■■■■■■■■■■
+
+;----------------------[エフェクト]
+[State 100];砂煙
+type = helper
+trigger1 = pos Y >= 0
+trigger1 = Time = 0
+stateno = 102
+ID = 102
+pos = 0,0
+postype = p1
+ownpal = 1
+pausemovetime = 99999
+supermovetime = 99999
+supermove = 1
+ignorehitpause = 1
+persistent = 0
+
+[State 100, 2];砂煙
+type = Explod
+trigger1 = pos Y >= 0
+trigger1 = numexplod(6000) <= 6
+trigger1 = Timemod = 8,0
+anim = 6001
+id = 6001
+pos = 0,0
+ownpal = 1
+ignorehitpause = 1
+persistent = 1
+sprpriority = 4
+scale = 0.5,0.5
+
+;★★★★★★★★★★★★|↓後から条件追加して-3stateで管理する予定|★★★★★★★★★★★★
+[State 3000, 0];ブーストエフェクト中央Ａ
+type = Explod
+trigger1 = time = 0
+anim = 7200
+ID = 7200
+pos = 0,-29
+postype = p1  ;p2,front,back,left,right
+facing = 1
+vfacing = 1
+bindtime = 1
+vel = -0.9,0
+accel = -0.12,0
+removetime = -2
+supermovetime = 9999999999
+pausemovetime = 9999999999
+scale = 0.5,0.5
+sprpriority = 5
+ownpal = 1
+;ignorehitpause = 
+;persistent = 
+
+;★★★★★★★★★★★★|↑後から条件追加して-3stateで管理する予定|★★★★★★★★★★★★
+
+[State 3000, 0];ｺﾞｸﾄ用
+type = VarSet
+trigger1 = Var(29) >= 0
+trigger1 = Time = 0
+var(29) = 0
+
+;----------------------[本体色]
+[State Pal, 1]
+type = PalFX
+trigger1 = time = 0
+time = 5
+add = 180,180,180
+
+;----------------------[移動]
+[State 3000, 0]
+type = VelAdd
+trigger1 = time = 0
+x = 9
+ignorehitpause = 1
+persistent = 0
+
+[state a]
+type = veladd
+trigger1 = vel x < 8
+x = 0.2
+
+[State 3000, 0]
+type = null;MoveHitReset
+trigger1 = 1
+ignorehitpause =1
+
+;-------------[状態関係]
+[state a]
+type = statetypeset
+trigger1 = pos y < 0
+value = A
+
+;-------------[重力]
+[state a]
+type = veladd;gravity
+trigger1 = Statetype = A
+y = 0.45
+
+;-------------[状態関係]
+[state a]
+type = statetypeset
+trigger1 = pos y >= 0
+value = S
+
+;-------------[地面に立たせる]
+[state a]
+type = posset
+trigger1 = Statetype = S
+y = 0
+
+[state a]
+type = velset
+trigger1 = Pos Y >= 0
+y = 0
+
+[State 04]
+type = posset
+trigger1 = Pos Y > 0
+y = 0
+
+;-------------[]
+[State 02] 
+type = AssertSpecial
+trigger1 = 1
+flag = NoWalk
+
+[State 03] 
+type = AssertSpecial
+trigger1 = 1
+flag = NoAutoTurn
+
+;----------------------[終了]
+
+[State 3000,0]
+type = ChangeState
+trigger1 = statetype = S
+trigger1 = Time = 60 || time >= 5 && FrontEdgeDist < 40
+value = 0
+ctrl = 1
+
+[State 3000,0]
+type = ChangeState
+trigger1 = statetype = A
+trigger1 = Time = 60
+value = 3001
+ctrl = 1
+
+[State 3000, 0]
+type = ChangeState
+trigger1 = statetype = A
+trigger1 = FrontEdgeDist < 30
+value = 50;1222
+ctrl = 1
+
+;---------------------------------------------------------------------------
+; 空中ダッシュ終了
+[Statedef 3001]
+type    = A
+physics = A
+anim = 3000
+sprpriority = 1
+ctrl = 1
+
+[State 03] ;Prevent from turning
+type = AssertSpecial
+trigger1 = 1
+flag = NoAutoTurn
+
+
+;★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+;ブースト(斜め上とブースト同時押し)
+[Statedef 3005]
+type     = A                     
+movetype = I                     
+physics  = A                    
+ctrl     = 1                     
+anim     = 41                  
+sprpriority = 2     
+
+;■■■■■■■■■■■■■■■■■■■■[ブースト関係]
+
+[state boost];ここは特殊でブーストからブーストへシフトの可否
+type = ChangeState
+triggerall = var(16) >=100 || var(16) < 100 && var(17) = 1
+triggerall = time >= 15
+Trigger1 = !var(59)
+trigger1 = command = "z" 
+value = 3000
+ctrl = 0
+
+[State Pal, 1];本体色
+type = PalFX
+triggerall = var(16) >=100 || var(16) < 100 && var(17) = 1
+triggerall = time >= 15
+Trigger1 = !var(59)
+trigger1 = command = "z"
+time = 5
+add = 180,180,180
+
+[State a, 0];効果音
+type = PlaySnd
+trigger1 = time = 0
+value = 3000,0 ;[ブースト]
+volume = 255
+channel = 0
+
+[state a];ブーストゲージ減少
+type = varadd
+trigger1 = time = 0
+v = 16
+value = -20
+
+[state a];ブーストフラグON
+type = varset
+trigger1 = time = 0 
+v = 17
+value = 1
+
+;■■■■■■■■■■■■■■■■■■■■
+
+;★★★★★★★★★★★★|↓後から条件追加して-3stateで管理する予定|★★★★★★★★★★★★
+[State 3005, 0];ブーストエフェクト中央Ａ
+type = Explod
+trigger1 = time = 0
+anim = 7200
+ID = 7200
+pos = 0,-29
+postype = p1  ;p2,front,back,left,right
+facing = 1
+vfacing = 1
+bindtime = 1
+vel = -0.9,0
+accel = -0.12,0
+removetime = -2
+supermovetime = 9999999999
+pausemovetime = 9999999999
+scale = 0.5,0.5
+sprpriority = 5
+ownpal = 1
+;ignorehitpause = 
+;persistent = 
+
+;★★★★★★★★★★★★|↑後から条件追加して-3stateで管理する予定|★★★★★★★★★★★★
+
+[State 3005, 0];ｺﾞｸﾄ用
+type = VarSet
+trigger1 = Var(29) >= 0
+trigger1 = Time = 0
+var(29) = 0
+
+;----------------------[本体色]
+[State Pal, 1]
+type = PalFX
+trigger1 = time = 0
+time = 5
+add = 180,180,180
+
+;----------------------[移動]
+[State 3005, 0]
+type = Velset
+trigger1 = time = 0
+x = 7
+y = -10
+
+[State 3005, 0]
+type = Velset
+trigger1 = pos y = -100
+x = 1
+y = 0.4
+
+[State 3005, 0]
+type = null;MoveHitReset
+trigger1 = 1
+ignorehitpause =1
+
+[State 3005] 
+type = AssertSpecial
+trigger1 = 1
+flag = NoAutoTurn
+
+;★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+;ブースト(真上とブースト同時押し)
+[Statedef 3006]
+type     = A                     
+movetype = I                     
+physics  = A                    
+ctrl     = 1                    
+anim     = 41                  
+sprpriority = 2     
+
+;■■■■■■■■■■■■■■■■■■■■[ブースト関係]
+
+[state boost];ここは特殊でブーストからブーストへシフトの可否
+type = ChangeState
+triggerall = var(16) >=100 || var(16) < 100 && var(17) = 1
+triggerall = time >= 15
+Trigger1 = !var(59)
+trigger1 = command = "z" 
+value = 3000
+ctrl = 0
+
+[State Pal, 1];本体色
+type = PalFX
+triggerall = var(16) >=100 || var(16) < 100 && var(17) = 1
+triggerall = time >= 15
+Trigger1 = !var(59)
+trigger1 = command = "z"
+time = 5
+add = 180,180,180
+
+[State a, 0];効果音
+type = PlaySnd
+trigger1 = time = 0
+value = 3000,0 ;[ブースト]
+volume = 255
+channel = 0
+
+[state a];ブーストゲージ減少
+type = varadd
+trigger1 = time = 0
+v = 16
+value = -20
+
+[state a];ブーストフラグON
+type = varset
+trigger1 = time = 0 
+v = 17
+value = 1
+
+;■■■■■■■■■■■■■■■■■■■■
+
+;★★★★★★★★★★★★|↓後から条件追加して-3stateで管理する予定|★★★★★★★★★★★★
+[State 3006, 0];ブーストエフェクト中央Ａ
+type = Explod
+trigger1 = time = 0
+anim = 7200
+ID = 7200
+pos = 0,-29
+postype = p1  ;p2,front,back,left,right
+facing = 1
+vfacing = 1
+bindtime = 1
+vel = -0.9,0
+accel = -0.12,0
+removetime = -2
+supermovetime = 9999999999
+pausemovetime = 9999999999
+scale = 0.5,0.5
+sprpriority = 5
+ownpal = 1
+;ignorehitpause = 
+;persistent = 
+
+;★★★★★★★★★★★★|↑後から条件追加して-3stateで管理する予定|★★★★★★★★★★★★
+
+;----------------------[本体色]
+[State Pal, 1]
+type = PalFX
+trigger1 = time = 0
+time = 5
+add = 180,180,180
+
+;----------------------[移動]
+[State 3006, 0]
+type = Velset
+trigger1 = time = 0
+y = -11.5
+
+[State 3005, 0]
+type = Velset
+trigger1 = pos y = -100
+y = 0.4
+
+[State 3006, 0]
+type = null;MoveHitReset
+trigger1 = 1
+ignorehitpause =1
+
+[State 3006] 
+type = AssertSpecial
+trigger1 = 1
+flag = NoAutoTurn
+
+
+;★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+;ブーストゲージ関係(ヘルパー)
+
+;------------------↓[1p側]↓---------------------
+[Statedef 10000];ヘルパーステート
+type = A
+ctrl = 0
+anim = 7300
+velset = 0,0
+movetype = I
+physics = N
+sprpriority = 10
+
+[state a]
+type = AssertSpecial
+trigger1 = 1
+flag = noshadow
+flag2 = invisible
+
+:-----------------------------------------[表示]
+[State 10000,Explod1];1pブーストゲージ(枠)
+type = Explod
+triggerall = TeamSide = 1
+trigger1 = NumExplod(7300) = 0
+trigger1 = 1
+anim = 7300
+id = 7300
+pos = 5,219
+postype = left
+facing = 1
+ontop = 1 ;一番手前に
+sprpriority = 100
+bindtime = -1 ;固定
+ownpal = 1
+removetime = -1
+persistent = 0 ;注意
+ignorehitpause = 1
+scale = 0.5,0.5
+
+[State 10000,Explod1];1pブーストゲージ(格子)
+type = Explod
+triggerall = TeamSide = 1
+trigger1 = NumExplod(7301) = 0
+trigger1 = 1
+anim = 7301
+id = 7301
+pos = 5,219
+postype = left
+facing = 1
+ontop = 0 ;注意
+sprpriority = 90 ;ゲージ中身(青)より奥
+bindtime = -1 ;固定
+ownpal = 1
+removetime = -1
+persistent = 0 ;注意
+ignorehitpause = 1
+scale = 0.5,0.5
+
+[State 10000,Explod1];1pブーストゲージ(青)
+type = Explod
+triggerall = TeamSide = 1
+trigger1 = NumExplod(7302) = 0
+trigger1 = root,Var(16) >= 0
+anim = 7302
+id = 7302
+pos = 5,219
+postype = left
+facing = 1
+ontop = 0 ;注意
+sprpriority = 95 ;ゲージ(格子)より手前
+bindtime = -1 ;固定
+ownpal = 0 ;親のpalfixに影響される(今はヘルパーID(10000)が親)
+removetime = -1
+persistent = 0 ;注意
+ignorehitpause = 1
+scale = 0,0 ;初期値
+
+[State 10000,Explod1];1pブーストゲージ(赤)
+type = Explod
+triggerall = TeamSide = 1
+trigger1 = NumExplod(7303) = 0
+trigger1 = root,Var(16) >= 100
+anim = 7303
+id = 7303
+pos = 5,219
+postype = left
+facing = 1
+ontop = 0
+sprpriority = 100
+bindtime = -1 ;固定
+ownpal = 0 ;親のpalfixに影響される(今はヘルパーID(10000)が親)
+removetime = -1
+persistent = 1 ;注意
+ignorehitpause = 1
+scale = 0.5,0.5
+
+[State 10000,Explod1];1pブーストゲージ(黄)
+type = Explod
+triggerall = TeamSide = 1
+trigger1 = NumExplod(7304) = 0
+trigger1 = root,Var(16) >= 200
+anim = 7304
+id = 7304
+pos = 5,219
+postype = left
+facing = 1
+ontop = 0
+sprpriority = 100
+bindtime = -1 ;固定
+ownpal = 0 ;親のpalfixに影響される(今はヘルパーID(10000)が親)
+removetime = -1
+persistent = 1 ;注意
+ignorehitpause = 1
+scale = 0.5,0.5 
+
+[State 10000,Explod1];1pブーストゲージ(緑)
+type = Explod
+triggerall = TeamSide = 1
+trigger1 = NumExplod(7305) = 0
+trigger1 = root,Var(16) = 300
+anim = 7305
+id = 7305
+pos = 5,219
+postype = left
+facing = 1
+ontop = 0
+sprpriority = 100
+bindtime = -1 ;固定
+ownpal = 0 ;親のpalfixに影響される(今はヘルパーID(10000)が親)
+removetime = -1
+persistent = 1 ;注意
+ignorehitpause = 1
+scale = 0.5,0.5
+
+[State 10000,Explod1];1pブーストゲージ(光)
+type = Explod
+triggerall = TeamSide = 1
+trigger1 = NumExplod(7306) = 0
+trigger1 = root,Var(16) >= 0
+anim = 7306
+id = 7302
+pos = 5,219
+postype = left
+facing = 1
+ontop = 0 ;注意
+sprpriority = 9999
+bindtime = -1 ;固定
+ownpal = 0 ;親のpalfixに影響される(今はヘルパーID(10000)が親)
+removetime = -1
+persistent = 0 ;注意
+ignorehitpause = 1
+scale = 0,0 ;初期値
+
+;--------------------------------[explodのスケール変更]
+[State 10000, 0]
+type = ModifyExplod
+triggerall = root,Var(16) <= 300
+trigger1 = 1
+ID = 7302
+scale = root,Var(16)*0.00167,0.5 ;X=0.501を1とする
+
+;--------------------------------[三色のゲージの消去]
+[State 10000, 赤]
+type = RemoveExplod
+trigger1 = root,Var(16) < 100
+ID = 7303
+
+[State 10000, 黄色]
+type = RemoveExplod
+trigger1 = root,Var(16) < 200
+ID = 7304
+
+[State 10000, 緑]
+type = RemoveExplod
+trigger1 = root,Var(16) < 300
+ID = 7305
+
+;★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+
+
+;------------------↓[2p側]↓---------------------
+[Statedef 10005];ヘルパーステート
+type = A
+ctrl = 0
+anim = 7310
+velset = 0,0
+movetype = I
+physics = N
+sprpriority = 10
+
+[state a]
+type = AssertSpecial
+trigger1 = 1
+flag = noshadow
+flag2 = invisible
+
+[State 10005,Explod1];2pブーストゲージ(枠)
+type = Explod
+triggerall = TeamSide = 2
+trigger1 = NumExplod(7310) = 0
+trigger1 = 1
+anim = 7310
+id = 7310
+pos = -5,219
+postype = right
+facing = 1
+ontop = 1 ;一番手前に
+sprpriority = 100
+bindtime = -1 ;固定
+ownpal = 1
+removetime = -1
+persistent = 0 ;注意
+ignorehitpause = 1
+scale = 0.5,0.5
+
+[State 10005,Explod1];2pブーストゲージ(格子)
+type = Explod
+triggerall = TeamSide = 2
+trigger1 = NumExplod(7311) = 0
+trigger1 = 1
+anim = 7311
+id = 7311
+pos = -5,219
+postype = right
+facing = 1
+ontop = 0 ;注意
+sprpriority = 90 ;ゲージ中身(青)より奥
+bindtime = -1 ;固定
+ownpal = 1
+removetime = -1
+persistent = 0 ;注意
+ignorehitpause = 1
+scale = 0.5,0.5
+
+[State 10005,Explod1];2pブーストゲージ(青) 
+type = Explod
+triggerall = TeamSide = 2
+trigger1 = NumExplod(7312) = 0
+trigger1 = root,Var(16) >= 0
+anim = 7312
+id = 7312
+pos = -5,219
+postype = right
+facing = 1
+ontop = 0 ;注意
+sprpriority = 95 ;ゲージ(格子)より手前
+bindtime = -1 ;固定
+ownpal = 0 ;親のpalfixに影響される(今はヘルパーID(10005)が親)
+removetime = -1
+persistent = 1 ;注意
+ignorehitpause = 1
+scale = 0,0 ;初期値
+
+[State 10005,Explod1];2pブーストゲージ(赤)
+type = Explod
+triggerall = TeamSide = 2
+trigger1 = NumExplod(7313) = 0
+trigger1 = root,Var(16) >= 100
+anim = 7313
+id = 7313
+pos = -5,219
+postype = right
+facing = 1
+ontop = 0
+sprpriority = 100
+bindtime = -1 ;固定
+ownpal = 0 ;親のpalfixに影響される(今はヘルパーID(10005)が親)
+removetime = -1
+persistent = 1 ;注意
+ignorehitpause = 1
+scale = 0.5,0.5
+
+[State 10005,Explod1];2pブーストゲージ(黄)
+type = Explod
+triggerall = TeamSide = 2
+trigger1 = NumExplod(7314) = 0
+trigger1 = root,Var(16) >= 200
+anim = 7314
+id = 7314
+pos = -5,219
+postype = right
+facing = 1
+ontop = 0
+sprpriority = 100
+bindtime = -1 ;固定
+ownpal = 0 ;親のpalfixに影響される(今はヘルパーID(10005)が親)
+removetime = -1
+persistent = 1 ;注意
+ignorehitpause = 1
+scale = 0.5,0.5
+
+[State 10005,Explod1];2pブーストゲージ(緑)
+type = Explod
+triggerall = TeamSide = 2
+trigger1 = NumExplod(7315) = 0
+trigger1 = root,Var(16) = 300
+anim = 7315
+id = 7315
+pos = -5,219
+postype = right
+facing = 1
+ontop = 0
+sprpriority = 100
+bindtime = -1 ;固定
+ownpal = 0 ;親のpalfixに影響される(今はヘルパーID(10005)が親)
+removetime = -1
+persistent = 1 ;注意
+ignorehitpause = 1
+scale = 0.5,0.5 
+
+[State 10005,Explod1];2pブーストゲージ(光)
+type = Explod
+triggerall = TeamSide = 2
+trigger1 = NumExplod(7316) = 0
+trigger1 = root,Var(16) >= 0
+anim = 7316
+id = 7312
+pos = -5,219
+postype = right
+facing = 1
+ontop = 0 ;注意
+sprpriority = 9999
+bindtime = -1 ;固定
+ownpal = 0 ;親のpalfixに影響される(今はヘルパーID(10000)が親)
+removetime = -1
+persistent = 0 ;注意
+ignorehitpause = 1
+scale = 0,0 ;初期値
+
+;--------------------------------[explodのスケール変更]
+[State 10005, 0]
+type = ModifyExplod
+triggerall = root,Var(16) <= 300
+trigger1 = 1
+ID = 7312
+scale = root,Var(16)*0.00167,0.5 ;X=0.501を1とする
+
+;--------------------------------[三色のゲージの消去]
+[State 10000, 赤]
+type = RemoveExplod
+trigger1 = root,Var(16) < 100
+ID = 7313
+
+[State 10000, 黄色]
+type = RemoveExplod
+trigger1 = root,Var(16) < 200
+ID = 7314
+
+[State 10000, 緑]
+type = RemoveExplod
+trigger1 = root,Var(16) < 300
+ID = 7315
+
+;★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+;オーラゲージ
+[Statedef 7350]
+type = A
+ctrl = 0
+anim = 7350
+velset = 0,0
+movetype = I
+physics = N
+sprpriority = 10
+
+[state a]
+type = AssertSpecial
+trigger1 = 1
+flag = noshadow
+flag2 = invisible
+
+:-----------------------------------------[表示]
+[State 7350,Explod1];1pオーラゲージ(枠)
+type = Explod
+triggerall = TeamSide = 1
+trigger1 = NumExplod(7350) = 0
+trigger1 = 1
+anim = 7350
+id = 7350
+pos = 10,228
+postype = left
+facing = 1
+sprpriority = 100
+bindtime = -1 ;固定
+ontop = 1
+ownpal = 1
+removetime = -1
+persistent = 0 ;注意
+ignorehitpause = 1
+scale = 0.5,0.5
+
+[State 7350,Explod1];1pオーラゲージ(格子)
+type = Explod
+triggerall = TeamSide = 1
+trigger1 = NumExplod(7351) = 0
+trigger1 = 1
+anim = 7351
+id = 7351
+pos = 10,228
+postype = left
+facing = 1
+ontop = 0 ;注意
+sprpriority = 90 ;ゲージ中身(青)より奥
+bindtime = -1 ;固定
+ownpal = 1
+removetime = -1
+persistent = 0 ;注意
+ignorehitpause = 1
+scale = 0.5,0.5
+
+[State 7350,Explod1];1pオーラゲージ(青)
+type = Explod
+triggerall = TeamSide = 1
+trigger1 = NumExplod(7352) = 0
+trigger1 = root,Var(14) >=0
+anim = 7352
+id = 7352
+pos = 10,228
+postype = left
+facing = 1
+ontop = 0 ;注意
+sprpriority = 95 ;ゲージ(格子)より手前
+bindtime = -1 ;固定
+ownpal = 0 
+removetime = -1
+persistent = 0 ;注意
+ignorehitpause = 1
+scale = 0,0 ;初期値
+
+[State 7350,Explod1];1pオーラゲージ(橙)
+type = Explod
+triggerall = TeamSide = 1
+trigger1 = NumExplod(7353) = 0
+trigger1 = root,Var(15) >=0
+anim = 7353
+id = 7353
+pos = 10,228
+postype = left
+facing = 1
+ontop = 0 ;注意
+sprpriority = 96 ;ゲージ(格子)より手前
+bindtime = -1 ;固定
+ownpal = 0 
+removetime = -1
+persistent = 0 ;注意
+ignorehitpause = 1
+scale = 0,0 ;初期値
+
+[State 7350,Explod1];1pオーラゲージ(光)
+type = Explod
+triggerall = TeamSide = 1
+trigger1 = NumExplod(7354) = 0
+trigger1 = root,Var(14) >=0
+anim = 7354
+id = 7352
+pos = 10,228
+postype = left
+facing = 1
+ontop = 0 ;注意
+sprpriority = 9999
+bindtime = -1 ;固定
+ownpal = 0 
+removetime = -1
+persistent = 0 ;注意
+ignorehitpause = 1
+scale = 0,0 ;初期値
+
+;-----[ゲージ処理]--------------------------------
+[State 7350];オーラゲージ用
+type = Varset
+trigger1 = 1
+v = 15
+value = power / 10
+ignorehitpause = 1
+
+[State 7350];オーラゲージ橙用
+type = Varset
+trigger1 = 1
+v = 14
+value = var(15) - 100
+ignorehitpause = 1
+
+[State 7350];オーラゲージ青縮小
+type = modifyexplod
+trigger1 = power <= 999
+ID = 7352
+scale = 0.5 * (var(15) * 0.01),0.5
+ignorehitpause = 1
+
+[State 7350];オーラゲージ橙縮小
+type = modifyexplod
+trigger1 = power = [1000,1999]
+ID = 7353
+scale = 0.5 * (var(14) * 0.01),0.5
+ignorehitpause = 1
+
+[State 7350];オーラゲージ青固定
+type = modifyexplod
+trigger1 = power >= 1000
+ID = 7352
+scale = 0.5,0.5
+ignorehitpause = 1
+
+[State 7350];オーラゲージ橙固定
+type = modifyexplod
+trigger1 = power >= 2000
+ID = 7353
+scale = 0.5,0.5
+ignorehitpause = 1
+
+[State 7350];オーラゲージ橙消える
+type = modifyexplod
+trigger1 = power <= 999
+ID = 7353
+scale = 0,0.5
+ignorehitpause = 1
+
+;------------------↓[2p側]↓---------------------
+[Statedef 7360]
+type = A
+ctrl = 0
+anim = 7360
+velset = 0,0
+movetype = I
+physics = N
+sprpriority = 10
+
+[state a]
+type = AssertSpecial
+trigger1 = 1
+flag = noshadow
+flag2 = invisible
+
+[State 7360,Explod1];2pオーラゲージ(枠)
+type = Explod
+triggerall = TeamSide = 2
+trigger1 = NumExplod(7360) = 0
+trigger1 = 1
+anim = 7360
+id = 7360
+pos = -10,228
+postype = right
+facing = 1
+sprpriority = 100
+bindtime = -1 ;固定
+ownpal = 1
+ontop = 1
+removetime = -1
+persistent = 0 ;注意
+ignorehitpause = 1
+scale = 0.5,0.5
+
+[State 7360,Explod1];2pオーラゲージ(格子)
+type = Explod
+triggerall = TeamSide = 2
+trigger1 = NumExplod(7361) = 0
+trigger1 = 1
+anim = 7361
+id = 7361
+pos = -10,228
+postype = right
+facing = 1
+ontop = 0 ;注意
+sprpriority = 90 ;ゲージ中身(青)より奥
+bindtime = -1 ;固定
+ownpal = 1
+removetime = -1
+persistent = 0 ;注意
+ignorehitpause = 1
+scale = 0.5,0.5
+
+[State 7360,Explod1];2pオーラゲージ(青)
+type = Explod
+triggerall = TeamSide = 2
+trigger1 = NumExplod(7362) = 0
+anim = 7362
+id = 7362
+pos = -10,228
+postype = right
+facing = 1
+ontop = 0 ;注意
+sprpriority = 95 ;ゲージ(格子)より手前
+bindtime = -1 ;固定
+ownpal = 0 
+removetime = -1
+persistent = 0 ;注意
+ignorehitpause = 1
+scale = 0,0 ;初期値
+
+[State 7360,Explod1];2pオーラゲージ(橙)
+type = Explod
+triggerall = TeamSide = 2
+trigger1 = NumExplod(7363) = 0
+anim = 7363
+id = 7363
+pos = -10,228
+postype = right
+facing = 1
+ontop = 0 ;注意
+sprpriority = 96 ;ゲージ(格子)より手前
+bindtime = -1 ;固定
+ownpal = 0 
+removetime = -1
+persistent = 0 ;注意
+ignorehitpause = 1
+scale = 0,0 ;初期値
+
+[State 7360,Explod1];2pオーラゲージ(光)
+type = Explod
+triggerall = TeamSide = 2
+trigger1 = NumExplod(7364) = 0
+anim = 7364
+id = 7362
+pos = -10,228
+postype = right
+facing = 1
+ontop = 0 ;注意
+sprpriority = 9999
+bindtime = -1 ;固定
+ownpal = 0 
+removetime = -1
+persistent = 0 ;注意
+ignorehitpause = 1
+scale = 0,0 ;初期値
+
+;-----[ゲージ処理]--------------------------------
+[State 7360];オーラゲージ用
+type = Varset
+trigger1 = 1
+v = 15
+value = power / 10
+ignorehitpause = 1
+
+[State 7360];オーラゲージ橙用
+type = Varset
+trigger1 = 1
+v = 14
+value = var(15) - 100
+ignorehitpause = 1
+
+[State 7360];オーラゲージ青縮小
+type = modifyexplod
+trigger1 = power <= 999
+ID = 7362
+scale = 0.5 * (var(15) * 0.01),0.5
+ignorehitpause = 1
+
+[State 7360];オーラゲージ橙縮小
+type = modifyexplod
+trigger1 = power = [1000,1999]
+ID = 7363
+scale = 0.5 * (var(14) * 0.01),0.5
+ignorehitpause = 1
+
+[State 7360];オーラゲージ青固定
+type = modifyexplod
+trigger1 = power >= 1000
+ID = 7362
+scale = 0.5,0.5
+ignorehitpause = 1
+
+[State 7360];オーラゲージ橙固定
+type = modifyexplod
+trigger1 = power >= 2000
+ID = 7363
+scale = 0.5,0.5
+ignorehitpause = 1
+
+[State 7360];オーラゲージ橙消える
+type = modifyexplod
+trigger1 = power <= 999
+ID = 7363
+scale = 0,0.5
+ignorehitpause = 1
+
+;★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+;鳳凰呼闘塊天ゲージ関係(ヘルパー)
+;------------------↓[1p側]↓---------------------
+[Statedef 6200];ヘルパーステート
+type = A
+ctrl = 0
+anim = 14000
+velset = 0,0
+movetype = I
+physics = N
+sprpriority = 10
+
+[state a]
+type = AssertSpecial
+trigger1 = 1
+flag = noshadow
+flag2 = invisible
+
+:-----------------------------------------[表示]
+[State 6200,Explod1];1pゲージ(枠)
+type = Explod
+triggerall = TeamSide = 1
+trigger1 = NumExplod(6200) = 0
+trigger1 = 1
+anim = 6200
+id = 6200
+pos = 25,210
+postype = left
+facing = 1
+ontop = 1 ;一番手前に
+sprpriority = 100
+bindtime = -1 ;固定
+ownpal = 1
+removetime = -1
+persistent = 0 ;注意
+ignorehitpause = 1
+scale = 0.5,0.5
+
+[State 6200,Explod1];1pゲージ(格子)
+type = Explod
+triggerall = TeamSide = 1
+trigger1 = NumExplod(6201) = 0
+trigger1 = 1
+anim = 6201
+id = 6201
+pos = 25,210
+postype = left
+facing = 1
+ontop = 0 ;注意
+sprpriority = 90 ;ゲージ中身(青)より奥
+bindtime = -1 ;固定
+ownpal = 1
+removetime = -1
+persistent = 0 ;注意
+ignorehitpause = 1
+scale = 0.5,0.5
+
+[State 6200,Explod1];1pゲージ(青)
+type = Explod
+triggerall = TeamSide = 1
+trigger1 = NumExplod(6202) = 0
+trigger1 = Root,Var(12) <= 100
+anim = 6202
+id = 6202
+pos = 25,210
+postype = left
+facing = 1
+ontop = 0 ;注意
+sprpriority = 95 ;ゲージ(格子)より手前
+bindtime = -1 ;固定
+ownpal = 1 ;
+removetime = -1
+persistent = 0 ;注意
+ignorehitpause = 1
+scale = 0,0 ;初期値
+
+;--------------------------------[explodのスケール変更]
+[State 6200, 0]
+type = ModifyExplod
+triggerall = Root,Var(12) <= 100
+trigger1 = 1
+ID = 6202
+scale = Root,Var(12)*0.005,0.5
+
+;--------------------------------[消去]
+[State 6200, ReMoveExplod];ゲージ枠
+type = ReMoveExplod
+trigger1 = Root,Var(11)=0
+ID = 6200
+ignorehitpause = 1
+
+[State 6200, ReMoveExplod];格子
+type = ReMoveExplod
+trigger1 = Root,Var(11)=0
+ID = 6201
+ignorehitpause = 1
+
+[State 6200, ReMoveExplod];ゲージ(青)
+type = ReMoveExplod
+trigger1 = Root,Var(11)=0
+ID = 6202
+ignorehitpause = 1
+
+[State 6200, DestroySelf]
+type = DestroySelf
+trigger1 = Root,Var(11)=0
+ignorehitpause = 1
+
+;------------------↓[2p側]↓---------------------
+[Statedef 6205];ヘルパーステート
+type = A
+ctrl = 0
+anim = 14000
+velset = 0,0
+movetype = I
+physics = N
+sprpriority = 10
+
+[state a]
+type = AssertSpecial
+trigger1 = 1
+flag = noshadow
+flag2 = invisible
+
+[State 6205,Explod1];2pゲージ(枠)
+type = Explod
+triggerall = TeamSide = 2
+trigger1 = NumExplod(6205) = 0
+trigger1 = 1
+anim = 6205
+id = 6205
+pos = -25,210
+postype = right
+facing = 1
+ontop = 1 ;一番手前に
+sprpriority = 100
+bindtime = -1 ;固定
+ownpal = 1
+removetime = -1
+persistent = 0 ;注意
+ignorehitpause = 1
+scale = 0.5,0.5
+
+[State 6205,Explod1];2pゲージ(格子)
+type = Explod
+triggerall = TeamSide = 2
+trigger1 = NumExplod(6206) = 0
+trigger1 = 1
+anim = 6206
+id = 6206
+pos = -25,210
+postype = right
+facing = 1
+ontop = 0 ;注意
+sprpriority = 90 ;ゲージ中身(青)より奥
+bindtime = -1 ;固定
+ownpal = 1
+removetime = -1
+persistent = 0 ;注意
+ignorehitpause = 1
+scale = 0.5,0.5
+
+[State 6205,Explod1];2pゲージ(青) 
+type = Explod
+triggerall = TeamSide = 2
+trigger1 = NumExplod(6207) = 0
+trigger1 = Root,Var(12) <= 100
+anim = 6207
+id = 6207
+pos = -25,210
+postype = right
+facing = 1
+ontop = 0 ;注意
+sprpriority = 95 ;ゲージ(格子)より手前
+bindtime = -1 ;固定
+ownpal = 1 ;
+removetime = -1
+persistent = 1 ;注意
+ignorehitpause = 1
+scale = 0,0 ;初期値
+
+;--------------------------------[explodのスケール変更]
+[State 6205, 0]
+type = ModifyExplod
+triggerall = Root,Var(12) <= 100
+trigger1 = 1
+ID = 6207
+scale = Root,Var(12)*0.005,0.5
+
+;--------------------------------[消去]
+[State 6205, ReMoveExplod];ゲージ枠
+type = ReMoveExplod
+trigger1 = Root,Var(11)=0
+ID = 6205
+ignorehitpause = 1
+
+[State 6205, ReMoveExplod];格子
+type = ReMoveExplod
+trigger1 = Root,Var(11)=0
+ID = 6206
+ignorehitpause = 1
+
+[State 6205, ReMoveExplod];ゲージ(青)
+type = ReMoveExplod
+trigger1 = Root,Var(11)=0
+ID = 6207
+ignorehitpause = 1
+
+[State 6205, DestroySelf]
+type = DestroySelf
+trigger1 = Root,Var(11)=0
+ignorehitpause = 1
+
+;★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+;ガードゲージ
+;------------------↓[1p側]↓---------------------
+[Statedef 7400]
+type = A
+ctrl = 0
+anim = 14000
+velset = 0,0
+movetype = I
+physics = N
+sprpriority = 10
+
+[state a]
+type = AssertSpecial
+trigger1 = 1
+flag = noshadow
+flag2 = invisible
+
+:-----------------------------------------[表示]
+[State 7400,Explod1];1pガードゲージ(枠)
+type = Explod
+triggerall = TeamSide = 1
+trigger1 = NumExplod(7400) = 0
+trigger1 = 1
+anim = 7400
+id = 7400
+pos = 80,43
+postype = left
+facing = 1
+ontop = 1 ;一番手前に
+sprpriority = 100
+bindtime = -1 ;固定
+ownpal = 0 ;親のpalfixに影響される(今はヘルパーID(7400)が親)
+removetime = -1
+persistent = 0 ;注意
+ignorehitpause = 1
+scale = 0.5,0.5
+
+[State 7401,Explod1];1pガードゲージ(格子)
+type = Explod
+triggerall = TeamSide = 1
+trigger1 = NumExplod(7401) = 0
+trigger1 = 1
+anim = 7401
+id = 7401
+pos = 80,43
+postype = left
+facing = 1
+ontop = 0 ;注意
+sprpriority = 90 ;ゲージ中身(緑)より奥
+bindtime = -1 ;固定
+ownpal = 1
+removetime = -1
+persistent = 0 ;注意
+ignorehitpause = 1
+scale = 0.5,0.5
+
+[State 7402,Explod1];1pガードゲージ(中身・緑)
+type = Explod
+triggerall = TeamSide = 1
+trigger1 = NumExplod(7402) = 0
+trigger1 = root,Var(4) > 0
+anim = 7402
+id = 7402
+pos = 117,43
+postype = left
+facing = 0 ;注意           
+ontop = 0 ;注意
+sprpriority = 95 ;ゲージ(格子)より手前
+bindtime = -1 ;固定
+ownpal = 0 ;親のpalfixに影響される(今はヘルパーID(7400)が親)
+removetime = -1
+supermovetime = 999999
+pausemovetime = 999999
+persistent = 0 ;注意
+ignorehitpause = 1
+scale = 0.5,0.5 ;初期値
+
+;--------------------------------[explodのスケール変更]
+[State -2, 0]
+type = ModifyExplod
+triggerall = Root,Var(4) <= 100
+trigger1 = 1
+ID = 7402
+scale = 0.5*(root,var(4)*0.01),0.5 
+
+;--------------------------------[色変化]
+[State 7402, 0];ゲージ残量20パーセント以下の時
+type = PalFX
+trigger1 = root,Var(4) <= 20
+time = 1
+add = 130,130,130
+mul = 130+ceil(cos(gametime/2.0)*45),130+ceil(cos(gametime/2.0)*45),130+ceil(cos(gametime/2.0)*45)
+invertall = 0
+color = 256
+ignorehitpause = 1
+
+;------------------↓[2p側]↓---------------------
+[Statedef 7405]
+type = A
+ctrl = 0
+anim = 14000
+velset = 0,0
+movetype = I
+physics = N
+sprpriority = 10
+
+[state a]
+type = AssertSpecial
+trigger1 = 1
+flag = noshadow
+flag2 = invisible
+
+:-----------------------------------------[表示]
+[State 7405,Explod1];2pガードゲージ(枠)
+type = Explod
+triggerall = TeamSide = 2
+trigger1 = NumExplod(7405) = 0
+trigger1 = 1
+anim = 7405
+id = 7405
+pos = -80,43
+postype = right
+facing = 1
+ontop = 1 ;一番手前に
+sprpriority = 100
+bindtime = -1 ;固定
+ownpal = 0 ;親のpalfixに影響される(今はヘルパーID(7405)が親)
+removetime = -1
+persistent = 0 ;注意
+ignorehitpause = 1
+scale = 0.5,0.5
+
+[State 7406,Explod1];2pガードゲージ(格子)
+type = Explod
+triggerall = TeamSide = 2
+trigger1 = NumExplod(7406) = 0
+trigger1 = 1
+anim = 7406
+id = 7406
+pos = -80,43
+postype = right
+facing = 1
+ontop = 0 ;注意
+sprpriority = 90 ;ゲージ中身(緑)より奥
+bindtime = -1 ;固定
+ownpal = 1
+removetime = -1
+persistent = 0 ;注意
+ignorehitpause = 1
+scale = 0.5,0.5
+
+[State 7407,Explod1];2pガードゲージ(中身・緑)
+type = Explod
+triggerall = TeamSide = 2
+trigger1 = NumExplod(7407) = 0
+trigger1 = root,Var(4) > 0
+anim = 7407
+id = 7407
+pos = -117,43
+postype = right
+facing = 0 ;注意
+ontop = 0 ;注意
+sprpriority = 95 ;ゲージ(格子)より手前
+bindtime = -1 ;固定
+ownpal = 0 ;親のpalfixに影響される(今はヘルパーID(7405)が親)
+removetime = -1
+supermovetime = 999999
+pausemovetime = 999999
+persistent = 0 ;注意
+ignorehitpause = 1
+scale = 0.5,0.5 ;初期値
+
+;--------------------------------[explodのスケール変更]
+[State 7407, 0]
+type = ModifyExplod
+triggerall = Root,Var(4) <= 100
+trigger1 = 1
+ID = 7407
+scale = 0.5*(root,var(4)*0.01),0.5
+
+;--------------------------------[色変化]
+[State 7407, 0];ゲージ残量20パーセント以下の時
+type = PalFX
+trigger1 = root,Var(4) <= 20
+time = 1
+add = 130,130,130
+mul = 130+ceil(cos(gametime/2.0)*45),130+ceil(cos(gametime/2.0)*45),130+ceil(cos(gametime/2.0)*45)
+invertall = 0
+color = 256
+ignorehitpause = 1
+
+;★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★[オーラガード]
+[Statedef 6070,オーラガード]
+Type = A
+MoveType = I
+Physics = N
+Ctrl = 0
+Anim = 6070
+VelSet = 0,0
+SprPriority = -10
+
+[State 6070]
+Type = VarSet
+Trigger1 = Parent,StateNo = [150,160)
+V = 0
+Value = 45
+
+[State 6070]
+Type = VarAdd
+Trigger1 = Var(0) > 0
+V = 0
+Value = -1
+
+[State 6070]
+Type = ChangeAnim
+Trigger1 = Var(0)
+Trigger1 = Anim != 6075
+Value = 6075
+
+[State 6030]
+Type = ChangeAnim
+Trigger1 = !Var(0)
+Trigger1 = Anim != 6070
+Value = 6070
+
+[State 6070]
+Type = AssertSpecial
+Trigger1 = Time%17 = [0,14]
+Trigger2 = Anim = 6075
+Flag = NoShadow
+
+[State 6070]
+Type = AssertSpecial
+Trigger1 = Time%17 = [15,16]
+Trigger1 = Anim = 6070
+Flag = Invisible
+
+[State 6070]
+Type = BindToParent
+Trigger1 = 1
+Pos = 0,-45
+
+[State 6070]
+Type = PowerAdd
+Trigger1 = 1
+Value = -1-(GameTime%3!=0)
+
+[State 6070]
+Type = DestroySelf
+Trigger1 = Power = 0
+Trigger2 = Parent,MoveType = H
+Trigger2 = Parent,StateNo != [120,160)
+Trigger3 = Parent,StateNo = 40
+Trigger4 = Parent,StateNo = 42
+Trigger5 = Parent,StateNo = 100
+Trigger6 = Parent,StateNo = 110
+Trigger7 = Parent,MoveType = A
+Trigger8 = (!Parent,Command="hold_z")*(!Var(59))
+
+;---------------------------------------------------------------------------
+[Statedef 6075,残像]
+Type = A
+MoveType = I
+Physics = N
+Ctrl = 0
+VelSet = 0,0
+SprPriority = 7
+
+[State 6075]
+Type = NotHitBy
+Trigger1 = 1
+Value = SCA, NA, SA, HA, NT, ST, HT, NP, SP, HP
+Time = -1
+IgnoreHitPause = 1
+PauseMoveTime = 99999999
+SuperMoveTime = 99999999
+
+[State 6075]
+Type = ChangeAnim
+Trigger1 = IsHelper
+Value = Parent,Anim
+Elem = Parent,AnimElemNo(0)
+
+[State 6031]
+Type = AssertSpecial
+Trigger1 = Time%17 = [0,14]
+Trigger2 = Anim = 6075
+Flag = NoShadow
+
+[State 6075]
+Type = AssertSpecial
+Trigger1 = Time%17 = [15,16]
+Trigger1 = Anim = 6070
+Flag = Invisible
+
+[State 6075]
+Type = BindToParent
+Trigger1 = 1
+Pos = 0,0
+
+[State 6075]
+Type = Turn
+Trigger1 = Facing != Parent,Facing
+
+[State 6075]
+Type = Trans
+Trigger1 = 1
+Trans = AddAlpha
+Alpha = 64,192
+
+[State 6075]
+Type = VarSet
+Trigger1 = 1
+V = 0
+Value = Time%17
+
+[State 6075]
+Type = AngleDraw
+Trigger1 = 1
+Scale = 2,(1+0.0025*Var(0))*2.5
+
+[State 6075]
+Type = DestroySelf
+Trigger1 = !NumHelper(150)

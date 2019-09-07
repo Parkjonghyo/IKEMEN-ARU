@@ -1,0 +1,3202 @@
+
+;---------------------------------------------------------------------------
+; 常時監視ステート（p2statenoなどで相手に行動を制御された時は実行しない）
+;---------------------------------------------------------------------------
+
+[Statedef -3]
+
+;これはジャンプ後とバックステップ後に着地音を鳴らすコントローラです。
+[State -3, 音を鳴らす]
+type=PlaySnd
+triggerall=Time=1
+trigger1=stateno=52  ;ジャンプ後の着地
+trigger2=stateno=106 ;バックステップ後の着地
+value=40, 0
+
+[State -3,画面外から復帰]
+type=ChangeState
+trigger1=ctrl && screenpos X !=[0,320]
+trigger2=ctrl=0 && stateno=1
+trigger1=(RoundState=2)
+value=9999
+
+;※常時監視ステートは常に有効にしたいステートコントローラをどんどん追加していきます。
+
+
+;---------------------------------------------------------------------------
+;以下、ＡＩ用記述
+;---------------------------------------------------------------------------
+
+
+
+
+[State -1, AI起動用ヘルパー]
+type=helper
+TriggerAll=!ishelper
+TriggerAll=RoundState<2||(RoundState=2&&ctrl)
+trigger1=!NumHelper(10000+id)
+trigger1=alive
+trigger1=var(59)=0
+helpertype=normal
+name="AI"
+stateno=10000
+ID=10000+id
+pos=9999,9999
+keyctrl=1
+pausemovetime=2147483647
+supermovetime=2147483647
+persistent=0
+
+[State -1, ↑が余計なことしないように]
+type=changestate
+trigger1=ishelper
+trigger1=ishelper(10000+root,id)
+trigger1=stateno!=10000
+value=10000
+
+
+[State -3]
+type=assertspecial
+trigger1=var(59)>0
+flag=nostandguard
+flag2=noairguard
+flag3=nocrouchguard
+
+
+[State -3]
+type=assertspecial
+trigger1=var(59)>0
+flag=nowalk
+
+
+
+;ＡＩ発動用コマンド
+[State -1, 変数]
+type=VarSet
+triggerall=(var(59) <=0)&&!IsHelper
+Trigger1=Command="AI0"||Command="AI1"
+Trigger2=Command="AI2"||Command="AI3"
+Trigger3=Command="AI4"||Command="AI5"
+Trigger4=Command="AI6"||Command="AI7"
+Trigger5=Command="AI8"||Command="AI9"
+Trigger6=Command="AI10"||Command="AI11"
+Trigger7=Command="AI12"||Command="AI13"
+Trigger8=Command="AI14"||Command="AI15"
+Trigger9=Command="AI16"||Command="AI17"
+Trigger10=Command="AI18"||Command="AI19"
+Trigger11=Command="AI20"||Command="AI21"
+Trigger12=Command="AI22"||Command="AI23"
+Trigger13=Command="AI24"||Command="AI25"
+Trigger14=Command="AI26"||Command="AI27"
+Trigger15=Command="AI28"||Command="AI29"
+Trigger16=Command="AI30"||Command="AI31"
+Trigger17=Command="AI32"||Command="AI33"
+Trigger18=Command="AI34"||Command="AI35"
+Trigger19=Command="AI36"||Command="AI37"
+Trigger20=Command="AI38"||Command="AI39"
+Trigger21=Command="AI40"||Command="AI41"
+Trigger22=Command="AI42"||Command="AI43"
+Trigger23=Command="AI44"||Command="AI45"
+Trigger24=Command="AI46"||Command="AI47"
+Trigger25=Command="AI48"||Command="AI49"
+Trigger26=Command="AI50"
+Trigger27=var(59)=0
+Trigger27=numhelper(10000+id)
+Trigger27=helper(10000+id),var(59)>0
+;trigger28=1             ;ここの行の左端のセミコロンを外すとＡＩ常時起動状態になります。自分で使うつもりが無い場合はオススメ。
+v=59
+value=10
+IgnoreHitPause=1
+Persistent=1
+
+
+;↑の「value=*」を、0～11（半角）に変更すれば、AIレベルが調整可（デフォは10）
+;レベルが上がるにつれて、コンボの精度やガードの固さ、技を振る確率などが上がる。これについてはレベル10で最大に。
+;レベル11になると反応速度が自重しなくなる
+
+[State -2];右ステージ端判定用
+type=Helper
+trigger1=!numhelper(30000)
+;trigger1=var(59) > 0
+helpertype=normal
+name="helper for AI on right_edge"
+ID=30000
+pos=0, 0
+postype=right
+facing=1
+stateno=30000
+ownpal=1
+supermovetime=99999
+pausemovetime=99999
+
+[State -2];左ステージ端判定用
+type=Helper
+trigger1=!numhelper(30010)
+;trigger1=var(59) > 0
+helpertype=normal
+name="helper for AI on left_edge"
+ID=30010
+pos=0, 0
+postype=left
+facing=-1
+stateno=30010
+ownpal=1
+supermovetime=0
+pausemovetime=0
+
+
+
+[state -2];飛び道具対策など
+type=Helper
+triggerall=!ishelper
+trigger1=!numhelper(30020)
+helpertype=normal
+name="for proj etc"
+ID=30020
+pos=50, 0
+postype=p1
+facing=1
+stateno=30020
+ownpal=1
+supermovetime=0
+pausemovetime=0
+
+
+[State -1,StateNo=5120];起き上がり制御
+Type=ChangeState
+value=5120
+triggerall=!ishelper
+TriggerAll=helper(30000),var(58)||random<100&&var(59)>0
+Triggerall=statetype!=A&&!pos y
+Trigger1=Alive
+Trigger1=Time>0
+Trigger1=StateNo=5110
+
+
+
+[State -1,Hi to Lo]
+Type = StateTypeSet
+Triggerall = statetype = S
+triggerall = var(59)>0
+triggerall=(stateno=[150,153])
+trigger1=helper(30000),var(46)=1
+trigger1=playerID(var(57)),StateType!=A
+trigger1=helper(30000),var(39)<-40+helper(30000),var(35)*2||helper(30000),var(39)<-26+helper(30000),var(35)*2&&random<100||random<10*(9+helper(30000),var(35))/2||helper(30000),var(35)>=10
+trigger2=helper(30000),var(46)=1
+trigger2=helper(30000),var(47)>27-helper(30000),var(35)*2&&random<120||random<20||helper(30000),var(47)>38-helper(30000),var(35)*2&&random<300||helper(30000),var(35)>=10
+trigger3=helper(30000),var(35)<10
+trigger3=helper(30000),var(34)<=0&&helper(30000),var(34)>helper(30000),var(35)-10
+trigger4=helper(30000),var(35)<10
+trigger4=helper(30000),var(46)=2
+trigger4=playerID(var(57)),StateType=A
+trigger4=helper(30000),var(39)<=40-helper(30000),var(35)*2
+trigger4=random<100
+trigger5=helper(30000),var(35)<10
+trigger5=helper(30000),var(46)=2
+trigger5=playerID(var(57)),StateType!=A
+trigger5=helper(30000),var(47)<=38-helper(30000),var(35)*2
+trigger5=random<100
+StateType = C
+Physics = C
+IgnoreHitPause = 1
+
+
+[State 120, Lo to Hi]
+type = StateTypeSet
+triggerall = statetype = C
+triggerall = var(59)>0
+triggerall=(stateno=[150,153])
+triggerall=helper(30000),var(34)<=0&&helper(30000),var(34)>helper(30000),var(35)-10
+trigger1=helper(30000),var(46)=2
+trigger1=playerID(var(57)),StateType=A
+trigger1=helper(30000),var(39)>40-helper(30000),var(35)*2||helper(30000),var(39)>26-helper(30000),var(35)*2&&random<100||random<20||helper(30000),var(35)>=10
+trigger2=helper(30000),var(46)=2
+trigger2=helper(30000),var(47)>27-helper(30000),var(35)*2&&random<120||random<20||helper(30000),var(47)>38-helper(30000),var(35)*2&&random<300||helper(30000),var(35)>=10
+trigger3=helper(30000),var(35)<10
+trigger3=helper(30000),var(46)=1
+trigger3=playerID(var(57)),StateType!=A
+trigger3=helper(30000),var(39)<=-40+helper(30000),var(35)*2
+trigger3=random<100
+trigger4=helper(30000),var(35)<10
+trigger4=helper(30000),var(46)=1
+trigger4=playerID(var(57)),StateType!=A
+trigger4=helper(30000),var(47)<=38-helper(30000),var(35)*2
+trigger4=random<100
+statetype = S
+physics = S
+
+
+
+
+[State -2 デバッグ用]
+type=displayToClipboard
+trigger1=1
+ignorehitpause=1
+text="eht=%d"
+params=helper(30010),var(0)
+
+[state -3]
+Type=varset
+triggerall=!ishelper
+trigger1=numenemy=1
+var(57)=enemynear(0),ID
+
+[state -3]
+Type=varset
+triggerall=!ishelper
+triggerall=numenemy=2
+trigger1=!numtarget
+trigger2=var(56)
+trigger3=numtarget
+trigger3=target,stateno<200
+trigger4=numtarget
+trigger4=!target,alive
+var(57)=ifelse(EnemyNear(0),alive,enemynear(0),ID,enemynear(1),ID)
+
+
+[state -3]
+Type=varset
+triggerall=!ishelper
+trigger1=numenemy=2
+trigger1=numtarget
+trigger1=!var(56)
+trigger1=target,stateno>=200
+trigger1=target,alive
+var(57)=target,ID
+
+
+
+[State -3,Guard];ガード
+Type=ChangeState
+Value=120
+TriggerAll=var(59)>0
+TriggerAll=StateNo!=[120,155]
+TriggerAll=InGuardDist||(playerID(var(57)),MoveType=A&&playerID(var(57)),hitdefattr=SCA,AA,AT,AP)||helper(30020),var(2)
+triggerall=!var(35)&&!fvar(12)
+triggerall=helper(30010),var(24)<=0
+triggerall=stateno!=100||helper(30020),var(1)>=40-var(59)*2&&random<50||helper(30020),var(1)>=60-var(59)*2||var(59)>10
+Trigger1=Ctrl||stateno=0||stateno=11
+
+
+
+;---------------------------------------------------------------------------
+;オリコン用
+;---------------------------------------------------------------------------
+
+
+[State -1, オリジナルコンボ発動]
+type=ChangeState
+value=704
+triggerall=(var(35)=0) && (fvar(12)=0)
+triggerall=(NumEnemy)
+triggerall=(RoundState=2) && (Alive)
+triggerall=(Power > 1499)
+triggerall=ctrl
+triggerall=var(59)>0||helper(30000),var(58)
+TriggerAll=Random<=var(59)*100||helper(30000),var(58)
+TriggerAll=RoundState=2
+triggerall=Alive
+triggerall=helper(30000),var(38)<=0&&(numenemy<2||(enemynear(0),alive)+(enemynear(numenemy>=2),alive)<2)
+Triggerall=playerID(var(57)),StateType !=L
+Triggerall=playerID(var(57)),StateType !=A
+triggerall=P2BodyDist x < 40
+Trigger1=playerID(var(57)),MoveType=H
+trigger1=statetype !=A
+trigger1=P2Dist x > 0
+trigger1=helper(30010),var(0)>=6
+trigger1=playerID(var(57)),stateno>=200
+trigger2=helper(30010),var(24)>0
+
+
+
+[State -1, Wood-Board Throw]
+type=ChangeState
+value=1200
+triggerall=NumHelper(1200)=0 ;ＩＤナンバー1200のヘルパーが画面中に１個も出てない時
+triggerall=NumProjID(1200)=0 ;ＩＤナンバー1200の飛び道具が画面中に１個も出てない時
+triggerall=var(59)>0||helper(30000),var(58)
+TriggerAll=Random<=var(59)*100||helper(30000),var(58)
+TriggerAll=RoundState=2
+TriggerAll=playerID(var(57)),StateType !=L
+triggerall=playerID(var(57)),StateType=S
+TriggerAll=playerID(var(57)),MoveType=H
+triggerall=Alive
+triggerall=statetype !=A
+triggerall=helper(30010),var(0)>=13
+triggerall=var(35)=1
+trigger1=stateno=1200 && time > 15
+trigger2=stateno=240 || stateno=210 || stateno=410
+trigger2=movehit
+trigger2=(facing=1&&helper(30000),fvar(39)<100||facing=-1&&helper(30010),fvar(0)<100)
+trigger2=random < 300
+
+
+[State -1, スピア]
+type=ChangeState
+value=2060
+triggerall=var(59)>0||helper(30000),var(58)
+TriggerAll=Random<=var(59)*100||helper(30000),var(58)
+TriggerAll=RoundState=2
+TriggerAll=playerID(var(57)),StateType !=L
+TriggerAll=playerID(var(57)),MoveType=H
+triggerall=Alive
+triggerall=statetype !=A
+triggerall=var(35)=1
+trigger1=stateno=1110
+trigger1=movehit
+trigger1=animelemtime(7)>0
+
+
+[State -1, 空刃強]
+type=ChangeState
+value=760
+triggerall=var(59)>0||helper(30000),var(58)
+TriggerAll=Random<=var(59)*100||helper(30000),var(58)
+TriggerAll=RoundState=2
+TriggerAll=playerID(var(57)),StateType !=L
+TriggerAll=playerID(var(57)),MoveType=H
+triggerall=Alive
+triggerall=statetype=A
+triggerall=var(35)=1
+trigger1=stateno=2060
+trigger1=vel y > 1
+trigger1=movehit
+trigger2=stateno=760
+trigger2=movehit
+trigger2=time > 5
+trigger3=stateno=850
+trigger3=movehit
+trigger3=vel y > 0
+
+
+[State -1, アッパーｙ]
+type=ChangeState
+value=1110
+triggerall=var(59)>0||helper(30000),var(58)
+TriggerAll=Random<=var(59)*100||helper(30000),var(58)
+TriggerAll=RoundState=2
+TriggerAll=playerID(var(57)),StateType !=L
+TriggerAll=playerID(var(57)),MoveType=H
+triggerall=Alive
+triggerall=statetype !=A
+triggerall=helper(30010),var(0)>=10
+triggerall=var(35)=1
+trigger1=stateno=1010 || stateno=1400&&animelemtime(8)>0 || stateno=1330
+trigger1=playerID(var(57)),pos y=[-30,-15]
+trigger1=movehit
+trigger1=(facing=1&&helper(30000),fvar(39)<100||facing=-1&&helper(30010),fvar(0)<100)||stateno=1400
+
+
+[State -1, ランス]
+type=ChangeState
+value=850
+triggerall=var(59)>0||helper(30000),var(58)
+TriggerAll=Random<=var(59)*100||helper(30000),var(58)
+TriggerAll=RoundState=2
+TriggerAll=playerID(var(57)),StateType !=L
+TriggerAll=playerID(var(57)),MoveType=H
+triggerall=Alive
+triggerall=statetype !=A
+triggerall=helper(30010),var(0)>=15
+triggerall=var(35)=1
+trigger1=stateno=1010
+trigger1=playerID(var(57)),pos y <=-20
+trigger1=movehit
+
+
+[State -1, ラッシュ]
+type=ChangeState
+value=1400
+triggerall=var(59)>0||helper(30000),var(58)
+TriggerAll=Random<=var(59)*100||helper(30000),var(58)
+TriggerAll=RoundState=2
+TriggerAll=playerID(var(57)),StateType !=L
+TriggerAll=playerID(var(57)),MoveType=H
+triggerall=Alive
+triggerall=statetype !=A
+triggerall=helper(30010),var(0)>=14
+triggerall=random < 300
+triggerall=var(35)=1
+trigger1=stateno=240 || stateno=410
+trigger1=movehit
+trigger2=stateno=1010 || stateno=1400&&animelemtime(8)>0 || stateno=1330
+trigger2=playerID(var(57)),pos y > -20 || helper(30010),var(0)=[14,15]
+trigger2=movehit
+
+
+
+
+[State -1, 突き手ｙ]
+type=ChangeState
+value=1010
+triggerall=var(59)>0||helper(30000),var(58)
+TriggerAll=Random<=var(59)*100||helper(30000),var(58)
+TriggerAll=RoundState=2
+TriggerAll=playerID(var(57)),StateType !=L
+TriggerAll=playerID(var(57)),MoveType=H
+triggerall=Alive
+triggerall=statetype !=A
+triggerall=helper(30010),var(0)>=14
+triggerall=var(35)=1
+trigger1=stateno=240 || stateno=410
+trigger1=movehit
+trigger2=stateno=1010 || stateno=1400&&animelemtime(8)>0 || stateno=1330
+trigger2=playerID(var(57)),pos y > -20 || helper(30010),var(0)=[14,15]
+trigger2=movehit
+
+
+[State -1, ２弱Ｋ]
+type=ChangeState
+value=430
+triggerall=var(59)>0||helper(30000),var(58)
+TriggerAll=Random<=var(59)*100||helper(30000),var(58)
+TriggerAll=RoundState=2
+TriggerAll=playerID(var(57)),StateType !=L
+TriggerAll=playerID(var(57)),StateType !=A
+TriggerAll=playerID(var(57)),MoveType=H
+triggerall=Alive
+triggerall=statetype !=A
+triggerall=helper(30010),var(0)>=4
+triggerall=var(35)=1
+trigger1=movehit
+trigger1=stateno=[200,430]
+trigger1=P2BodyDist x < 40
+trigger1=fvar(12) >=0.35
+
+
+[State -1, 強Ｋもしくは２強Ｐ]
+type=ChangeState
+value=240+(P2bodydist x < 20)*170
+triggerall=var(59)>0||helper(30000),var(58)
+TriggerAll=Random<=var(59)*100||helper(30000),var(58)
+TriggerAll=RoundState=2
+TriggerAll=playerID(var(57)),StateType !=L
+TriggerAll=playerID(var(57)),MoveType=H
+triggerall=Alive
+triggerall=statetype !=A
+triggerall=helper(30010),var(0)>=8
+triggerall=var(35)=1
+trigger1=stateno=[200,430]
+trigger1=movehit
+trigger2=ctrl
+trigger2=P2BodyDist x >=40
+
+
+
+
+
+[State -1, ２弱Ｐ]
+type=ChangeState
+value=400
+triggerall=var(59)>0||helper(30000),var(58)
+TriggerAll=Random<=var(59)*100||helper(30000),var(58)
+TriggerAll=RoundState=2
+TriggerAll=playerID(var(57)),StateType !=L
+TriggerAll=playerID(var(57)),StateType !=A
+triggerall=Alive
+triggerall=statetype !=A
+triggerall=var(35)=1
+triggerall=ctrl
+triggerall=P2BodyDist x < 40
+trigger1=helper(30010),var(0)>=4
+trigger2=helper(30010),var(24)>0
+
+;---------------------------------------------------------------------------
+;通常時のコンボ用
+;---------------------------------------------------------------------------
+
+
+[State -3　三烈]
+type=ChangeState
+value=3000
+triggerall=!var(35)
+triggerall=var(59)>0||helper(30000),var(58)
+TriggerAll=Random<=var(59)*100||helper(30000),var(58)
+TriggerAll=RoundState=2
+TriggerAll=playerID(var(57)),Stateno>199 || var(59)=[1,9]
+TriggerAll=playerID(var(57)),StateType !=L
+TriggerAll=playerID(var(57)),MoveType=H
+triggerall=Alive
+triggerall=statetype !=A
+triggerall=P2Dist x > 0
+triggerall=helper(30010),var(0)>=14
+triggerall=helper(30000),var(45)=[4,9]
+triggerall=power>=1000
+triggerall=!numtarget(3050)
+trigger1=ctrl
+trigger1=playerID(var(57)),pos y + (playerID(var(57)),stateno=1425)*60 + (playerID(var(57)),vel y + playerID(var(57)),gethitvar(yaccel)*7)*14=[-20,0]
+trigger1=P2Bodydist x + (facing*playerID(var(57)),facing*playerID(var(57)),vel x) * 14=[20,60]
+
+
+
+
+
+[State -3　スマッシュ]
+type=ChangeState
+value=3050
+triggerall=!var(35)
+triggerall=var(59)>0||helper(30000),var(58)
+TriggerAll=Random<=var(59)*100||helper(30000),var(58)
+TriggerAll=RoundState=2
+TriggerAll=playerID(var(57)),Stateno>199 || var(59)=[1,9]
+TriggerAll=playerID(var(57)),StateType !=L
+TriggerAll=playerID(var(57)),MoveType=H
+triggerall=Alive
+triggerall=statetype !=A
+triggerall=helper(30010),var(0)>=8||stateno=4210
+triggerall=helper(30000),var(45)>=4
+triggerall=(helper(30000),var(45)<=9)||power>=2000||(stateno=[1600,1620])
+triggerall=power>=1000
+triggerall=!numtarget(3050)
+trigger1=ctrl
+trigger1=helper(30000),var(45)<=5
+trigger1=playerID(var(57)),pos y + (playerID(var(57)),stateno=1425)*60 + (playerID(var(57)),vel y + playerID(var(57)),gethitvar(yaccel)*3.5)*7=[-50,0]
+trigger1=P2Bodydist x + (facing*playerID(var(57)),facing*playerID(var(57)),vel x) * 7=[0,30]
+trigger2=movehit
+trigger2=stateno=[1100,1110]
+trigger2=animelemtime(7) > 0
+trigger2=P2Dist y >=-30
+trigger3=(facing=1&&helper(30000),fvar(39) < 70 || facing=-1&&helper(30010),fvar(0) < 70)
+trigger3=stateno=3000
+trigger3=power >=2000
+trigger3=helper(30000),var(45)>=8
+trigger3=hitcount=2
+trigger4=movehit >=2
+trigger4=stateno=4210
+trigger5=stateno=[1600,1620]
+trigger5=movehit
+trigger5=power<3000
+
+
+
+[State -3　スーパー]
+type=ChangeState
+value=4200
+triggerall=!var(35)
+triggerall=var(59)>0||helper(30000),var(58)
+TriggerAll=Random<=var(59)*100||helper(30000),var(58)
+TriggerAll=RoundState=2
+TriggerAll=playerID(var(57)),Stateno>199 || var(59)=[1,9]
+TriggerAll=playerID(var(57)),StateType !=L
+TriggerAll=playerID(var(57)),MoveType=H
+triggerall=Alive
+triggerall=statetype !=A
+triggerall=P2Dist x > 0
+triggerall=power>=1000
+triggerall=helper(30000),var(45)>=5
+trigger1=power>=3000
+trigger1=movehit
+trigger1=playerID(var(57)),Stateno=[1030,1032]
+trigger1=stateno=1320
+trigger2=stateno=810&&anim=810&&AnimElemTime(13)=8
+trigger3=(stateno=[3050,3051])&&movehit
+trigger4=(stateno=[3000,3001])&&movehit&&animelemtime(21)>0
+trigger5=stateno=[1600,1620]
+trigger5=movehit
+trigger5=power>=3000
+trigger5=helper(30010),var(0)>=15
+trigger5=playerID(var(57)),pos y<-10
+
+
+[State -3　速い突き手]
+type=ChangeState
+value=1020
+triggerall=!var(35)
+triggerall=var(59)>0||helper(30000),var(58)
+TriggerAll=Random<=var(59)*100||helper(30000),var(58)
+TriggerAll=RoundState=2
+TriggerAll=playerID(var(57)),Stateno>199 || var(59)=[1,9]
+TriggerAll=playerID(var(57)),StateType !=L
+TriggerAll=playerID(var(57)),MoveType=H
+triggerall=Alive
+triggerall=statetype !=A
+triggerall=P2Dist x > 0
+triggerall=helper(30010),var(0)>=11
+triggerall=helper(30000),var(45)>=6
+triggerall=power>=330
+triggerall=!numtarget(3050)
+trigger1=ctrl
+trigger1=playerID(var(57)),pos y + (playerID(var(57)),stateno=1425)*60 + (playerID(var(57)),vel y + playerID(var(57)),gethitvar(yaccel)*5)*10=[-25,-10]
+trigger1=P2Bodydist x + (facing*playerID(var(57)),facing*playerID(var(57)),vel x) * 10=[30,120]
+trigger2=numtarget(1400) || numtarget(1410)
+trigger2=P2BodyDist x <=80
+trigger2=ctrl
+
+
+[State -3  EX木]
+type=ChangeState
+value=1210
+triggerall=!var(35)
+triggerall=var(59)>0||helper(30000),var(58)
+TriggerAll=Random<=var(59)*100||helper(30000),var(58)
+TriggerAll=RoundState=2
+TriggerAll=playerID(var(57)),Stateno>199 || var(59)=[1,9]
+TriggerAll=playerID(var(57)),StateType !=L
+TriggerAll=playerID(var(57)),MoveType=H
+triggerall=Alive
+triggerall=NumHelper(1200)=0 ;ＩＤナンバー1200のヘルパーが画面中に１個も出てない時
+triggerall=NumProjID(1200)=0 ;ＩＤナンバー1200の飛び道具が画面中に１個も出てない時
+triggerall=statetype !=A
+triggerall=P2Dist x > 0
+triggerall=helper(30010),var(0)>=15
+triggerall=helper(30000),var(45)=[3,5]
+TriggerAll=playerID(var(57)),StateType=A
+triggerall=!numtarget(3050)
+triggerall=power>=330
+trigger1=playerID(var(57)),pos y + (playerID(var(57)),stateno=1425)*60 + (playerID(var(57)),vel y + playerID(var(57)),gethitvar(yaccel)*6)*12=[-40,-10]
+trigger1=P2Bodydist x + (facing*playerID(var(57)),facing*playerID(var(57)),vel x) * 12=[0,80]
+trigger1=ctrl
+
+
+
+
+[State -3  ランス]
+type=ChangeState
+value=850 +(power<330&&random<500)*5+((power=[330,2000))&&helper(30000),var(45)>=6)*10
+triggerall=!var(35)
+triggerall=var(59)>0||helper(30000),var(58)
+TriggerAll=Random<=var(59)*100||helper(30000),var(58)
+TriggerAll=RoundState=2
+TriggerAll=playerID(var(57)),Stateno>199 || var(59)=[1,9]
+TriggerAll=playerID(var(57)),StateType !=L
+TriggerAll=playerID(var(57)),MoveType=H
+triggerall=Alive
+triggerall=statetype !=A
+triggerall=P2Dist x > 0
+triggerall=helper(30010),var(0)>=15||stateno=810
+triggerall=helper(30000),var(45)>=4
+TriggerAll=playerID(var(57)),StateType=A
+triggerall=!numtarget(3050)
+trigger1=stateno=810&&anim=810&&AnimElemTime(13) >=(power>=2000)*10
+trigger2=movehit
+trigger2=P2BodyDist x > 40
+trigger2=stateno=200 || stateno=400 || stateno=230 || stateno=210 || stateno=240 || stateno=410 || stateno=430
+trigger2=!playerID(var(57)),gethitvar(fall)
+
+
+
+[State -3　アッパー]
+type=ChangeState
+value=1110+ (power>=330&&helper(30000),var(45)>=6)*10
+triggerall=!var(35)
+triggerall=var(59)>0||helper(30000),var(58)
+TriggerAll=Random<=var(59)*100||helper(30000),var(58)
+TriggerAll=RoundState=2
+TriggerAll=playerID(var(57)),Stateno>199 || var(59)=[1,9]
+TriggerAll=playerID(var(57)),StateType !=L
+TriggerAll=playerID(var(57)),MoveType=H
+triggerall=Alive
+triggerall=statetype !=A
+triggerall=helper(30010),var(0)>=5
+triggerall=helper(30000),var(45)>=4
+TriggerAll=playerID(var(57)),StateType=A
+triggerall=!numtarget(3050)
+trigger1=movehit
+trigger1=P2BodyDist x <=20
+trigger1=stateno=200 || stateno=400 || stateno=230 || stateno=210 || stateno=240 || stateno=410 || stateno=430
+trigger1=!playerID(var(57)),gethitvar(fall)
+trigger2=numtarget(1410)
+trigger2=P2BodyDist x <=30
+trigger2=ctrl
+trigger3=ctrl
+trigger3=playerID(var(57)),pos y + (playerID(var(57)),stateno=1425)*60 + (playerID(var(57)),vel y + playerID(var(57)),gethitvar(yaccel)*2)*4=[-10,0]
+trigger3=P2Bodydist x + (facing*playerID(var(57)),facing*playerID(var(57)),vel x) * 4=[-20,20]
+
+
+[State -3　ニー]
+type=ChangeState
+value=1060 + (power>=330&&helper(30000),var(45)>=11)*10
+triggerall=!var(35)
+triggerall=var(59)>0||helper(30000),var(58)
+TriggerAll=Random<=var(59)*100||helper(30000),var(58)
+TriggerAll=RoundState=2
+TriggerAll=playerID(var(57)),Stateno>199 || var(59)=[1,9]
+TriggerAll=playerID(var(57)),StateType !=L
+TriggerAll=playerID(var(57)),MoveType=H
+triggerall=Alive
+triggerall=statetype !=A
+triggerall=P2Dist x > 0
+triggerall=helper(30010),var(0)>=8
+triggerall=helper(30000),var(45)>=4
+TriggerAll=playerID(var(57)),StateType=A
+triggerall=!numtarget(3050)
+trigger1=movehit
+trigger1=P2BodyDist x > 20
+trigger1=stateno=200 || stateno=400 || stateno=230 || stateno=210 || stateno=240 || stateno=410 || stateno=430
+trigger1=!playerID(var(57)),gethitvar(fall)
+trigger2=ctrl
+trigger2=playerID(var(57)),pos y + (playerID(var(57)),stateno=1425)*60 + (playerID(var(57)),vel y + playerID(var(57)),gethitvar(yaccel)*5)*10=[-15,0]
+trigger2=P2Bodydist x + (facing*playerID(var(57)),facing*playerID(var(57)),vel x) * 10=[15,40]
+trigger2=power < 1000
+
+
+[State -3　空刃脚]
+type=ChangeState
+value=760+(power>=330&&random<500)*5
+triggerall=!var(35)
+triggerall=var(59)>0||helper(30000),var(58)
+TriggerAll=Random<=var(59)*100||helper(30000),var(58)
+TriggerAll=RoundState=2
+TriggerAll=playerID(var(57)),Stateno>199 || var(59)=[1,9]
+TriggerAll=playerID(var(57)),StateType !=L || playerID(var(57)),stateno=5100 || playerID(var(57)),stateno=5101
+TriggerAll=playerID(var(57)),MoveType=H
+triggerall=Alive
+triggerall=statetype=A
+triggerall=P2Dist x > 0
+triggerall=helper(30000),var(45)>=5
+triggerall=!numtarget(3050)
+trigger1=time >=8
+trigger1=stateno=1055 || stateno=1075
+trigger2=stateno=610||stateno=640
+trigger2=movehit
+trigger2=helper(30010),var(0)<=6*(10+(var(59)<10)*(10-var(59)))*0.1
+trigger3=ctrl
+trigger3=playerID(var(57)),StateType=L
+trgiger3=P2BodyDist x=[0,50]
+
+
+[State -3　斬空]
+type=ChangeState
+value=4400
+triggerall=power>=2000
+triggerall=!var(35)
+triggerall=var(59)>0||helper(30000),var(58)
+TriggerAll=Random<=var(59)*100||helper(30000),var(58)
+TriggerAll=RoundState=2
+TriggerAll=playerID(var(57)),Stateno>199 || var(59)=[1,9]
+TriggerAll=playerID(var(57)),StateType !=L
+TriggerAll=playerID(var(57)),MoveType=H
+triggerall=Alive
+triggerall=statetype=A
+triggerall=helper(30000),var(45)>=3
+triggerall=!numtarget(3050)
+triggerall=movehit
+TriggerAll=playerID(var(57)),StateType=A
+triggerall=P2Dist y + (playerID(var(57)),statetype=A)*(playerID(var(57)),vel y + playerID(var(57)),gethitvar(yaccel)*4.5)*9=[10,120]
+triggerall=ifelse(P2Dist x>=0,1,-1)*((P2Bodydist x + (facing*playerID(var(57)),facing*playerID(var(57)),vel x) * 9)=[-10,70])||frontedgedist < 10||abs(P2dist y)<30
+triggerall=playerID(var(57)),pos y + (playerID(var(57)),vel y + playerID(var(57)),gethitvar(yaccel)*4.5)*9<0
+trigger1=stateno=[750,765]
+trigger2=stateno=[4210,4211]
+trigger2=movehit>=2
+trigger3=(stateno=[850,855])&&vel y > 0
+
+
+[State -3　速いパーム]
+type=ChangeState
+value=1320
+triggerall=!var(35)
+triggerall=var(59)>0||helper(30000),var(58)
+TriggerAll=Random<=var(59)*100||helper(30000),var(58)
+TriggerAll=RoundState=2
+TriggerAll=playerID(var(57)),Stateno>199 || var(59)=[1,9]
+TriggerAll=playerID(var(57)),StateType !=L
+TriggerAll=playerID(var(57)),MoveType=H
+triggerall=Alive
+triggerall=statetype !=A
+triggerall=P2Dist x > 0
+triggerall=helper(30010),var(0)>=11
+triggerall=power>=330
+triggerall=!numtarget(3050)
+trigger1=ctrl
+trigger1=playerID(var(57)),pos y + (playerID(var(57)),stateno=1425)*80 + (playerID(var(57)),vel y + playerID(var(57)),gethitvar(yaccel)*5)*10=[-30,-10]
+trigger1=P2Bodydist x+playerID(var(57)),facing*facing*playerID(var(57)),vel x*10=[-40,40]
+trigger1=helper(30000),var(45)>=11
+trigger1=power>=1330||playerID(var(57)),Stateno=1425
+
+
+[State -3　速いラッシュ＆速い突き手]
+type=ChangeState
+value=1020 + (P2BodyDist x-playerID(var(57)),vel x*8<=30&&random<500)*400
+triggerall=!var(35)
+triggerall=var(59)>0||helper(30000),var(58)
+TriggerAll=Random<=var(59)*100||helper(30000),var(58)
+TriggerAll=RoundState=2
+TriggerAll=playerID(var(57)),Stateno>199 || var(59)=[1,9]
+TriggerAll=playerID(var(57)),StateType !=L
+TriggerAll=playerID(var(57)),MoveType=H
+triggerall=Alive
+triggerall=statetype !=A
+triggerall=P2Dist x > 0
+triggerall=helper(30010),var(0)>=15
+triggerall=playerID(var(57)),StateType !=A
+triggerall=power>=330
+triggerall=!numtarget(3050)
+trigger1=movehit
+trigger1=stateno=240 || stateno=210 || stateno=410&&animelemtime(4)>0
+
+
+
+[State -3　弱Ｋ]
+type=ChangeState
+value=230
+triggerall=!var(35)
+triggerall=var(59)>0||helper(30000),var(58)
+TriggerAll=Random<=var(59)*100||helper(30000),var(58)
+TriggerAll=RoundState=2
+TriggerAll=playerID(var(57)),Stateno>199 || var(59)=[1,9]
+TriggerAll=playerID(var(57)),StateType !=L
+TriggerAll=playerID(var(57)),MoveType=H
+triggerall=Alive
+triggerall=statetype !=A
+triggerall=helper(30010),var(0)>=5
+triggerall=helper(30000),var(45)>=4
+TriggerAll=playerID(var(57)),StateType !=A
+trigger1=ctrl
+trigger1=P2BodyDist x <=40
+
+
+[State -3　２弱Ｐ]
+type=ChangeState
+value=400
+triggerall=!var(35)
+triggerall=var(59)>0||helper(30000),var(58)
+TriggerAll=Random<=var(59)*100||helper(30000),var(58)
+TriggerAll=RoundState=2
+TriggerAll=playerID(var(57)),Stateno>199 || var(59)=[1,9]
+TriggerAll=playerID(var(57)),StateType !=L
+TriggerAll=playerID(var(57)),MoveType=H
+triggerall=Alive
+triggerall=statetype !=A
+triggerall=helper(30010),var(0)>=4
+triggerall=helper(30000),var(45)>=5
+TriggerAll=playerID(var(57)),StateType !=A
+trigger1=ctrl
+trigger1=P2BodyDist x <=40
+
+
+[State -3　強Ｋ]
+type=ChangeState
+value=240
+triggerall=!var(35)
+triggerall=var(59)>0||helper(30000),var(58)
+TriggerAll=Random<=var(59)*100||helper(30000),var(58)
+TriggerAll=RoundState=2
+TriggerAll=playerID(var(57)),Stateno>199 || var(59)=[1,9]
+TriggerAll=playerID(var(57)),StateType !=L
+TriggerAll=playerID(var(57)),MoveType=H
+triggerall=Alive
+triggerall=statetype !=A
+triggerall=helper(30010),var(0)>=8
+triggerall=helper(30000),var(45)>=5
+triggerall=playerID(var(57)),StateType !=A
+trigger1=movehit
+trigger1=stateno=200&&time>5 || stateno=230&&time>6
+trigger2=ctrl
+trigger2=P2BodyDist x <=50
+trigger2=helper(30010),var(0)<10
+
+
+
+
+
+
+[State -3　突き手]
+type=ChangeState
+value=1010+(power>=330)*10
+triggerall=!var(35)
+triggerall=var(59)>0||helper(30000),var(58)
+TriggerAll=Random<=var(59)*100||helper(30000),var(58)
+TriggerAll=RoundState=2
+TriggerAll=playerID(var(57)),Stateno>199 || var(59)=[1,9]
+TriggerAll=playerID(var(57)),StateType !=L
+TriggerAll=playerID(var(57)),MoveType=H
+triggerall=Alive
+triggerall=statetype !=A
+triggerall=P2Dist x > 0
+triggerall=helper(30000),var(45)>=4
+triggerall=playerID(var(57)),StateType !=A
+trigger1=movehit
+trigger1=stateno=200 || stateno=230 || stateno=400 || stateno=430
+trigger1=P2bodyDist x >=30
+trigger1=random < 500
+
+[State -3　２強Ｐ]
+type=ChangeState
+value=410
+triggerall=!var(35)
+triggerall=var(59)>0||helper(30000),var(58)
+TriggerAll=Random<=var(59)*100||helper(30000),var(58)
+TriggerAll=RoundState=2
+TriggerAll=playerID(var(57)),Stateno>199 || var(59)=[1,9]
+TriggerAll=playerID(var(57)),StateType !=L
+TriggerAll=playerID(var(57)),MoveType=H
+triggerall=Alive
+triggerall=statetype !=A
+triggerall=P2Dist x > 0
+triggerall=helper(30010),var(0)>=8
+triggerall=helper(30000),var(45)>=5
+trigger1=movehit
+trigger1=stateno=400||stateno=430
+trigger1=time > 5
+trigger1=P2BodyDist x < 20
+
+
+[State -3　２強Ｋ]
+type=ChangeState
+value=440
+triggerall=!var(35)
+triggerall=var(59)>0||helper(30000),var(58)
+TriggerAll=Random<=var(59)*100||helper(30000),var(58)
+TriggerAll=RoundState=2
+TriggerAll=playerID(var(57)),Stateno>199 || var(59)=[1,9]
+TriggerAll=playerID(var(57)),MoveType=H
+triggerall=Alive
+triggerall=statetype !=A
+triggerall=helper(30010),var(0)>=8||(playerID(var(57)),Stateno=[5100,5101])
+triggerall=helper(30000),var(45)>=7
+Trigger1=playerID(var(57)),StateType !=A
+trigger1=movehit
+trigger1=stateno=400||stateno=430
+trigger1=time > 5
+trigger1=P2BodyDist x >=20
+trigger2=helper(30010),var(2)
+trigger2=playerID(var(57)),Stateno=[5100,5101]
+trigger2=playerID(var(57)),vel y <=0
+trigger2=ctrl
+trigger2=P2BodyDist x < 50
+
+
+[State -3　３強Ｋ]
+type=ChangeState
+value=445
+triggerall=!var(35)
+triggerall=var(59)>0||helper(30000),var(58)
+TriggerAll=Random<=var(59)*100||helper(30000),var(58)
+TriggerAll=RoundState=2
+TriggerAll=playerID(var(57)),Stateno>199 || var(59)=[1,9]
+TriggerAll=playerID(var(57)),MoveType=H
+triggerall=Alive
+triggerall=statetype !=A
+triggerall=helper(30000),var(45)>=7
+Trigger1=stateno=440
+Trigger1=movehit=1
+Trigger1=random<500
+trigger1=helper(30010),var(2)
+
+
+[State -3　ラッシュa]
+type=ChangeState
+value=1400
+triggerall=!var(35)
+triggerall=var(59)>0||helper(30000),var(58)
+TriggerAll=Random<=var(59)*100||helper(30000),var(58)
+TriggerAll=RoundState=2
+TriggerAll=playerID(var(57)),Stateno>199 || var(59)=[1,9]
+TriggerAll=playerID(var(57)),StateType !=L
+TriggerAll=playerID(var(57)),MoveType=H
+triggerall=Alive
+triggerall=statetype !=A
+triggerall=P2Dist x > 0
+triggerall=helper(30010),var(0)>=16
+triggerall=helper(30000),var(45)>=4
+trigger1=movehit
+trigger1=stateno=240 || stateno=210 || stateno=410&&animelemtime(4)>0
+trigger1=P2BodyDist x < 40 || (random<300&&movehit=1&&playerID(var(57)),hitshakeover)
+
+[State -3  木]
+type=ChangeState
+value=1200
+triggerall=!var(35)
+triggerall=var(59)>0||helper(30000),var(58)
+TriggerAll=Random<=var(59)*100||helper(30000),var(58)
+TriggerAll=RoundState=2
+TriggerAll=playerID(var(57)),Stateno>199 || var(59)=[1,9]
+TriggerAll=playerID(var(57)),StateType !=L
+TriggerAll=playerID(var(57)),MoveType=H
+triggerall=NumHelper(1200)=0 ;ＩＤナンバー1200のヘルパーが画面中に１個も出てない時
+triggerall=NumProjID(1200)=0 ;ＩＤナンバー1200の飛び道具が画面中に１個も出てない時
+triggerall=Alive
+triggerall=statetype !=A
+triggerall=P2Dist x > 0
+triggerall=helper(30010),var(0)>=13
+triggerall=helper(30000),var(45)>=1
+trigger1=movehit
+trigger1=stateno=240 || stateno=210 || stateno=410&&animelemtime(4)>0
+trigger1=P2BodyDist x >=40
+
+
+[State -3　パームx]
+type=ChangeState
+value=1300
+triggerall=!var(35)
+triggerall=!inguarddist
+triggerall=var(59)>0||helper(30000),var(58)
+TriggerAll=Random<=var(59)*100||helper(30000),var(58)
+TriggerAll=RoundState=2
+TriggerAll=playerID(var(57)),Stateno>199 || var(59)=[1,9]
+TriggerAll=playerID(var(57)),StateType !=L
+TriggerAll=playerID(var(57)),MoveType=H
+triggerall=Alive
+triggerall=statetype !=A
+triggerall=P2Dist x > 0
+triggerall=helper(30010),var(0)>=11
+triggerall=helper(30000),var(45)>=4
+triggerall=!numtarget(3050)
+trigger1=ctrl
+trigger1=playerID(var(57)),pos y + (playerID(var(57)),stateno=1425)*60 + (playerID(var(57)),vel y + playerID(var(57)),gethitvar(yaccel)*5)*10=[-10,0]
+trigger1=P2Bodydist x + (facing*playerID(var(57)),facing*playerID(var(57)),vel x) * 10=[-10,50]
+trigger1=power < 1000
+
+
+
+[State -3  空弱Ｐ＆Ｋ]
+type=ChangeState
+value=600 + (P2Dist y > 0&&helper(30000),var(45)>=3)*30
+triggerall=!var(35)
+triggerall=var(59)>0||helper(30000),var(58)
+TriggerAll=Random<=var(59)*100||helper(30000),var(58)
+TriggerAll=RoundState=2
+TriggerAll=playerID(var(57)),Stateno>199 || var(59)=[1,9]
+TriggerAll=playerID(var(57)),StateType !=L
+TriggerAll=playerID(var(57)),MoveType=H
+triggerall=Alive
+triggerall=statetype=A
+triggerall=P2Dist x > 0
+triggerall=helper(30010),var(0)>=4
+triggerall=helper(30000),var(45)>=2
+trigger1=ctrl
+trigger1=P2Dist y + (playerID(var(57)),statetype=A)*(playerID(var(57)),vel y + playerID(var(57)),gethitvar(yaccel)*1.5)*3 - (vel y + 0.44*1.5)*3=[-100,50]
+trigger1=P2Bodydist x + (facing*playerID(var(57)),facing*playerID(var(57)),vel x - vel x) * 3 < 40
+trigger1=!playerID(var(57)),gethitvar(fall)
+
+
+[State -3  空強Ｐ]
+type=ChangeState
+value=610
+triggerall=!var(35)
+triggerall=var(59)>0||helper(30000),var(58)
+TriggerAll=Random<=var(59)*100||helper(30000),var(58)
+TriggerAll=RoundState=2
+TriggerAll=playerID(var(57)),Stateno>199 || var(59)=[1,9]
+TriggerAll=playerID(var(57)),StateType !=L
+TriggerAll=playerID(var(57)),MoveType=H
+triggerall=Alive
+triggerall=statetype=A
+triggerall=P2Dist x > 0
+triggerall=helper(30010),var(0)>=7
+triggerall=helper(30000),var(45)>=4
+trigger1=movehit
+trigger1=stateno=600||stateno=630
+trigger1=P2BodyDist x <=40
+trigger1=P2Dist y < 10
+trigger1=!playerID(var(57)),gethitvar(fall)
+
+
+[State -3  空強Ｋ]
+type=ChangeState
+value=640
+triggerall=!var(35)
+triggerall=var(59)>0||helper(30000),var(58)
+TriggerAll=Random<=var(59)*100||helper(30000),var(58)
+TriggerAll=RoundState=2
+TriggerAll=playerID(var(57)),Stateno>199 || var(59)=[1,9]
+TriggerAll=playerID(var(57)),StateType !=L
+TriggerAll=playerID(var(57)),MoveType=H
+triggerall=Alive
+triggerall=statetype=A
+triggerall=P2Dist x > 0
+triggerall=helper(30010),var(0)>=7
+triggerall=helper(30000),var(45)>=4
+trigger1=movehit
+trigger1=stateno=600||stateno=630
+trigger1=P2BodyDist x <=55
+trigger1=!playerID(var(57)),gethitvar(fall)
+
+
+
+
+
+[State -3　歩き]
+type=ChangeState
+value=19
+triggerall=!var(35)
+triggerall=var(59)>0||helper(30000),var(58)
+TriggerAll=Random<=var(59)*100||helper(30000),var(58)
+TriggerAll=RoundState=2
+TriggerAll=playerID(var(57)),Stateno>199 || var(59)=[1,9]
+TriggerAll=playerID(var(57)),StateType !=L
+TriggerAll=playerID(var(57)),MoveType=H
+triggerall=Alive
+triggerall=statetype !=A
+triggerall=P2Dist x > 0
+triggerall=(stateno!=[19,20])
+triggerall=stateno!=100
+trigger1=ctrl
+trigger1=playerID(var(57)),Stateno=[1025,1029]
+trigger1=pos x!=[-20,20]
+trigger2=ctrl
+trigger2=P2BodyDist x <=40
+trigger2=playerID(var(57)),Stateno=1425
+
+
+
+
+
+[State -3　ダッシュ]
+type=ChangeState
+value=100
+triggerall=!var(35)
+triggerall=var(59)>0||helper(30000),var(58)
+TriggerAll=Random<=var(59)*100||helper(30000),var(58)
+TriggerAll=RoundState=2
+TriggerAll=playerID(var(57)),Stateno>199 || var(59)=[1,9]
+TriggerAll=playerID(var(57)),StateType !=L
+TriggerAll=playerID(var(57)),MoveType=H
+triggerall=Alive
+triggerall=statetype !=A
+triggerall=P2Dist x > 0
+triggerall=stateno!=100
+trigger1=ctrl
+trigger1=P2BodyDist x >=50
+trigger1=(playerID(var(57)),Stateno!=[1025,1029])||facing*pos x < -20
+
+
+
+;---------------------------------------------------------------------------
+;飛び道具対策
+;---------------------------------------------------------------------------
+
+[State -1,　前転]
+Type=ChangeState
+value=2110
+TriggerAll=var(59)>0||helper(30020),var(59)
+TriggerAll=Random<=var(59)*100||helper(30020),var(59)
+triggerall=Alive
+TriggerAll=RoundState=2
+triggerall=ctrl
+triggerall=playerID(var(57)),Movetype!=H||playerID(var(57)),stateno<200
+triggerall=statetype !=A
+triggerall=helper(30000),var(46)
+triggerall=helper(30010),var(24)<=0
+triggerall=helper(30000),var(46)!=3
+trigger1=P2BodyDist x+playerID(var(57)),facing*playerID(var(57)),vel x*facing*8>100
+trigger1=random<20*helper(30020),fvar(0)
+trigger1=helper(30020),var(58)%10
+
+[State -1,　ジャンプ]
+Type=ChangeState
+value=39
+TriggerAll=var(59)>0||helper(30020),var(59)
+TriggerAll=Random<=var(59)*100||helper(30020),var(59)
+triggerall=Alive
+TriggerAll=RoundState=2
+triggerall=ctrl
+triggerall=playerID(var(57)),Movetype!=H||playerID(var(57)),stateno<200
+triggerall=statetype !=A
+triggerall=helper(30000),var(46)
+triggerall=helper(30010),var(24)<=0
+triggerall=!inguarddist
+triggerall=power>=330
+trigger1=P2BodyDist x+playerID(var(57)),facing*playerID(var(57)),vel x*facing*8>100
+trigger1=random<8*helper(30020),fvar(0)
+trigger1=helper(30020),var(58)%10&&!((helper(30020),var(58)/100)%10)
+
+
+[State -1,　ランスキック]
+Type=ChangeState
+value=855
+TriggerAll=var(59)>0||helper(30020),var(59)
+TriggerAll=Random<=var(59)*100||helper(30020),var(59)
+triggerall=Alive
+TriggerAll=RoundState=2
+triggerall=ctrl
+triggerall=playerID(var(57)),Movetype!=H||playerID(var(57)),stateno<200
+triggerall=statetype !=A
+triggerall=helper(30000),var(46)
+triggerall=helper(30010),var(24)<=0
+Trigger1=P2Bodydist x + (facing*playerID(var(57)),facing*playerID(var(57)),vel x)*14 =[70,200]
+trigger1=playerID(var(57)),pos y + (playerID(var(57)),vel y + playerID(var(57)),Const(movement.yaccel)*11)*22 >=-200
+trigger1=random<30
+trigger1=(helper(30020),var(58)/10)%10
+
+
+[State -1,　カンフー山靠]
+Type=ChangeState
+value=1610
+TriggerAll=var(59)>0||helper(30020),var(59)
+TriggerAll=Random<=var(59)*100||helper(30020),var(59)
+triggerall=Alive
+TriggerAll=RoundState=2
+triggerall=ctrl
+triggerall=playerID(var(57)),Movetype!=H||playerID(var(57)),stateno<200
+triggerall=statetype !=A
+triggerall=helper(30000),var(46)
+triggerall=helper(30010),var(24)<=0
+Trigger1=P2Bodydist x + (facing*playerID(var(57)),facing*playerID(var(57)),vel x)*16=[40,120]
+trigger1=playerID(var(57)),pos y + (playerID(var(57)),vel y + playerID(var(57)),Const(movement.yaccel)*8)*16 >=-40
+trigger1=random<5*helper(30020),fvar(2)
+trigger1=(helper(30020),var(58)/10)%10
+
+
+[State -1,　EX空刃]
+Type=ChangeState
+value=765
+TriggerAll=var(59)>0||helper(30020),var(59)
+TriggerAll=Random<=var(59)*100||helper(30020),var(59)
+triggerall=Alive
+TriggerAll=RoundState=2
+triggerall=playerID(var(57)),Movetype!=H||playerID(var(57)),stateno<200
+triggerall=playerID(var(57)),Statetype!=L
+triggerall=statetype=A
+triggerall=helper(30000),var(46)
+triggerall=P2Dist x > 0
+triggerall=power>=330
+Trigger1=ctrl
+trigger1=helper(30020),var(58)%10&&!((helper(30020),var(58)/100)%10)
+trigger1=pos y<-100
+
+
+;---------------------------------------------------------------------------
+;その他
+;---------------------------------------------------------------------------
+
+
+[State -1,　パワー貯め]
+Type=ChangeState
+value=700
+TriggerAll=var(59)>0||helper(30000),var(58)&&playerID(var(57)),MoveType=H
+TriggerAll=Random<=var(59)*100||helper(30000),var(58)
+triggerall=power<powermax
+triggerall=Alive
+TriggerAll=RoundState=2
+triggerall=statetype!=A
+triggerall=ctrl
+triggerall=!inguarddist
+triggerall=helper(30000),var(46)
+triggerall=!helper(30020),var(2)
+trigger1=playerID(var(57)),Statetype=L
+trigger1=playerID(var(57)),stateno !=5120 || helper(30010),var(23) < -20
+trigger2=helper(30000),var(45)<3+(power<330)
+trigger3=playerID(var(57)),MoveType=H
+trigger3=playerID(var(57)),Stateno > 199
+trigger3=playerID(var(57)),gethitvar(fall)
+trigger3=playerID(var(57)),stateno!=1425
+trigger3=playerID(var(57)),stateno!=[1025,1028]
+trigger3=playerID(var(57)),pos y + (playerID(var(57)),stateno=1425)*60 + (playerID(var(57)),vel y + playerID(var(57)),gethitvar(yaccel)*2)*4 > 0
+trigger4=playerID(var(57)),MoveType!=H||playerID(var(57)),Stateno < 200
+trigger4=P2BodyDist x>=80
+Trigger4=(numenemy<2||(enemynear(0),alive)+(enemynear(numenemy>=2),alive)<2)
+trigger4=random<50+(P2BodyDist x >=150)*80
+Trigger4=power<2000||random<500
+trigger5=playerID(var(57)),stateno=1425
+trigger5=playerID(var(57)),movetype=H
+trigger5=playerID(var(57)),pos y + (playerID(var(57)),vel y + playerID(var(57)),gethitvar(yaccel)*15)*25 < -50
+trigger6=playerID(var(57)),stateno=[1030,1032]
+trigger6=playerID(var(57)),movetype=H
+trigger6=ctrl
+trigger6=helper(30000),var(45)<4
+trigger7=playerID(var(57)),stateno=[1025,1028]
+trigger7=playerID(var(57)),movetype=H
+trigger7=stateno!=19&&stateno!=100
+trigger7=helper(30000),var(45)<4
+trigger8=numhelper(1200)
+trigger8=playerID(var(57)),movetype=H
+trigger8=playerID(var(57)),stateno=[150,154]
+trigger9=helper(30000),var(38)>0
+trigger9=playerID(var(57)),MoveType=H&&playerID(var(57)),stateno>=200
+trigger9=playerID(var(57)),stateno!=[1025,1032]
+trigger9=helper(30000),var(45)<6||partner,numtarget&&playerID(var(57)),vel y<=2&&playerID(var(57)),pos y<-30
+
+
+[State -1,　シールド]
+Type=ChangeState
+value=701
+TriggerAll=var(59)>0
+TriggerAll=Random<=var(59)*100
+triggerall=Alive
+TriggerAll=RoundState=2
+triggerall=ctrl
+triggerall=statetype!=A
+triggerall=playerID(var(57)),Movetype!=H
+triggerall=playerID(var(57)),Statetype !=L
+triggerall=helper(30000),var(46)
+triggerall=helper(30000),var(46)!=3
+triggerall=helper(30010),var(24)<=0
+triggerall=!playerID(var(57)),movecontact||var(59)<6
+trigger1=P2BodyDist x<60+(power>=330)*60
+trigger1=P2Dist y=[-50,30]
+trigger1=random <20+(helper(30000),var(43)=[-5,-1])*50
+trigger1=var(59)<=10
+trigger1=helper(30000),var(47)<50-var(59)*20
+trigger2=var(59)>10||helper(30000),var(47)>=50-var(59)*20
+trigger2=playerID(var(57)),movetype=A
+trigger2=P2BodyDist x<100
+trigger2=P2Dist y=[-50,30]
+trigger2=random< 50
+Trigger3=helper(30000),var(38)=[2,3]
+Trigger3=partner,pos x-pos x=[-50,50]
+Trigger3=helper(30000),var(43)<0
+Trigger3=random<100
+
+
+[State -1,　クロスカウンター]
+Type=ChangeState
+value=1500
+TriggerAll=var(59)>0
+TriggerAll=Random<=var(59)*100
+triggerall=Alive
+TriggerAll=RoundState=2
+triggerall=ctrl
+triggerall=statetype!=A
+triggerall=playerID(var(57)),Movetype!=H
+triggerall=playerID(var(57)),Statetype!=L
+triggerall=helper(30000),var(46)
+triggerall=helper(30010),var(24)<=0
+triggerall=helper(30000),var(46)!=3
+triggerall=!playerID(var(57)),movecontact||var(59)<6
+triggerall=random<200||(facing=1&&helper(30000),fvar(39)<140||facing=-1&&helper(30010),fvar(0)<140)
+trigger1=P2BodyDist x < 120
+trigger1=P2Dist y=[-50,30]
+trigger1=random<20+(helper(30000),var(43)<0)*30
+trigger1=var(59)<=10
+trigger2=var(59)>10
+trigger2=playerID(var(57)),movetype=A
+trigger2=P2BodyDist x < 100
+trigger2=P2Dist y=[-50,30]
+trigger2=playerID(var(57)),time<20
+trigger2=random<25
+
+
+[State -1,　ダッシュ]
+Type=ChangeState
+value=100
+TriggerAll=var(59)>0
+TriggerAll=Random<=var(59)*100
+triggerall=Alive
+TriggerAll=RoundState=2
+triggerall=ctrl
+triggerall=playerID(var(57)),Movetype!=H||playerID(var(57)),stateno<200
+triggerall=playerID(var(57)),Statetype !=L
+triggerall=!inguarddist
+triggerall=Statetype!=A
+triggerall=stateno!=100
+triggerall=P2Dist x > 0
+triggerall=helper(30000),var(46)
+triggerall=helper(30010),var(24)<=0
+trigger1=helper(30000),var(38)!=1
+trigger1=random <10+(P2Bodydist x>50)*15+(P2Bodydist x>150)*35
+Trigger1=power>=1500||random<300
+Trigger2=helper(30000),var(38)=2
+Trigger2=facing*(partner,pos x-pos x)=[50,-20]
+Trigger2=P2BodyDIst x>=150
+Trigger3=!playerID(var(57)),ctrl
+trigger3=helper(30010),var(23)<-10
+Trigger3=P2Bodydist x + (facing*playerID(var(57)),facing*playerID(var(57)),vel x)*7>70
+trigger3=helper(30000),var(47)>35-var(59)*2&&random<50||var(59)>10||helper(30000),var(47)>55-var(59)*2
+Trigger3=playerID(var(57)),stateno>=200
+trigger4=playerID(var(57)),stateno=[150,153]
+
+
+
+[State -1,　バクステ]
+Type=ChangeState
+value=105
+TriggerAll=var(59)>0
+TriggerAll=Random<=var(59)*100
+triggerall=Alive
+TriggerAll=RoundState=2
+triggerall=ctrl
+triggerall=playerID(var(57)),Movetype!=H
+triggerall=!inguarddist||random<100
+triggerall=Statetype!=A
+triggerall=stateno!=100
+triggerall=P2Dist x > 0
+triggerall=helper(30000),var(46)
+triggerall=helper(30010),var(24)<=0
+trigger1=random < 10
+trigger1=P2BodyDist x < 100
+trigger2=helper(30010),var(1)
+trigger2=P2BodyDist x < 20
+trigger2=playerID(var(57)),Statetype !=A
+trigger3=playerID(var(57)),Statetype=L
+trigger3=P2BodyDist x < 30
+trigger3=playerID(var(57)),Stateno=5120
+trigger3=helper(30010),var(23) > -10
+trigger3=random < 100
+trigger4=helper(30000),var(46)=3
+trigger4=helper(30000),var(47)>35-var(59)*2&&random<50||var(59)>10||helper(30000),var(47)>55-var(59)*2
+
+
+
+
+[State -1,　歩き]
+Type=ChangeState
+value=19
+TriggerAll=var(59)>0
+TriggerAll=Random<=var(59)*100
+triggerall=Alive
+TriggerAll=RoundState=2
+triggerall=ctrl
+triggerall=playerID(var(57)),Movetype!=H
+triggerall=!inguarddist||random<100
+triggerall=Statetype!=A
+triggerall=P2Dist x > 0
+triggerall=helper(30000),var(46)
+triggerall=helper(30010),var(24)<=0
+triggerall=stateno!=19
+trigger1=playerID(var(57)),Statetype=L
+trigger1=P2BodyDist x < 40
+trigger1=playerID(var(57)),Stateno=5120
+trigger2=!inguarddist
+trigger2=random<60
+
+
+[State -1,　ガーキャン]
+Type=ChangeState
+value=1012
+TriggerAll=var(59)>0
+TriggerAll=Random<=var(59)*100
+triggerall=Alive
+TriggerAll=RoundState=2
+triggerall=playerID(var(57)),Movetype!=H
+triggerall=Statetype!=A
+triggerall=P2Dist x > 0
+triggerall=helper(30000),var(46)
+triggerall=stateno=[150,155]
+triggerall=power>=1000
+triggerall=!playerID(var(57)),ctrl
+trigger1=P2BodyDist x < 80
+trigger1=helper(30010),var(23) < -9 || var(59) < 7
+trigger1=random < 2
+
+
+
+
+[State -1,　前転＆緊急回避１]
+Type=ChangeState
+value=2100+(random<300||P2BodyDist x>=100)*10
+TriggerAll=var(59)>0
+TriggerAll=Random<=var(59)*100
+triggerall=Alive
+TriggerAll=RoundState=2
+triggerall=ctrl
+triggerall=playerID(var(57)),Movetype!=H
+triggerall=playerID(var(57)),statetype!=L
+triggerall=statetype !=A
+triggerall=helper(30000),var(46)
+triggerall=helper(30000),var(46)!=3
+triggerall=helper(30010),var(24)<=0
+trigger1=P2BodyDist x+playerID(var(57)),facing*playerID(var(57)),vel x*facing*8<120
+trigger1=random <10+(helper(30000),var(43)<0)*70 + (playerID(var(57)),statetype=A)*20
+trigger1=playerID(var(57)),pos y > -100
+trigger1=var(59)<=10||Inguarddist&&playerID(var(57)),movetype=A&&!playerID(var(57)),ctrl&&helper(30010),var(23)<-35
+trigger1=((helper(30000),var(47)<=55-var(59)*2&&random<50)||helper(30000),var(47)<=35-var(59)*2)&&var(59)<=10||helper(30010),var(23)>-4||playerID(var(57)),statetype=A||playerID(var(57)),ctrl||playerID(var(57)),stateno<200
+trigger2=P2BodyDist x>=60
+trigger2=power>=1000 || helper(30000),var(3)>=300||helper(30010),var(4)&&random < 200
+trigger2=random < 100
+trigger2=((helper(30000),var(47)<=55-var(59)*2&&random<50)||helper(30000),var(47)<=35-var(59)*2)&&var(59)<=10||helper(30010),var(23)>-4||playerID(var(57)),statetype=A||playerID(var(57)),ctrl||playerID(var(57)),stateno<200||P2Bodydist x>=120
+
+
+
+[State -1,　緊急回避＆前転２]
+Type=ChangeState
+value=2100+(helper(30000+(facing=1)*10),fvar((facing=-1)*39)<=100)*10
+TriggerAll=var(59)>0
+TriggerAll=Random<=var(59)*100
+triggerall=Alive
+TriggerAll=RoundState=2
+triggerall=ctrl
+triggerall=playerID(var(57)),Movetype!=H
+triggerall=playerID(var(57)),statetype!=L
+triggerall=statetype !=A
+triggerall=helper(30000),var(46)!=3
+triggerall=helper(30000),var(46)
+triggerall=helper(30010),var(24)<=0
+trigger1=helper(30000),var(38)!=2
+trigger1=P2BodyDist x+playerID(var(57)),facing*playerID(var(57)),vel x*facing*8<200
+trigger1=random <20+(helper(30000),var(43)<0)*80 + (playerID(var(57)),statetype=A)*20
+trigger1=power<1500&&power<powermax
+Trigger2=helper(30000),var(38)=1
+Trigger2=helper(30000+(facing=1)*10),fvar((facing=-1)*39)>=120
+Trigger2=P2BodyDist x<=150
+Trigger2=random<100
+trigger2=backedgedist>40
+
+[State -1,　前転]
+Type=ChangeState
+value=2110
+TriggerAll=var(59)>0
+TriggerAll=Random<=var(59)*100
+triggerall=Alive
+TriggerAll=RoundState=2
+triggerall=ctrl
+triggerall=playerID(var(57)),Movetype!=H
+triggerall=playerID(var(57)),statetype!=L
+triggerall=statetype !=A
+triggerall=helper(30000),var(46)
+triggerall=helper(30010),var(24)<=0
+triggerall=helper(30000),var(46)!=3
+trigger1=P2BodyDist x+playerID(var(57)),facing*playerID(var(57)),vel x*facing*8>130
+trigger1=random <50
+trigger1=((helper(30000),var(47)<=55-var(59)*2&&random<50)||helper(30000),var(47)<=35-var(59)*2)&&var(59)<=10||helper(30010),var(23)>-4||playerID(var(57)),statetype=A||playerID(var(57)),ctrl||playerID(var(57)),stateno<200||P2Bodydist x>=120
+trigger1=power>=1500||power>=powermax
+trigger2=inguarddist
+trigger2=!helper(30020),inguarddist
+trigger2=helper(30020),var(1)>=40-var(59)*2&&random<50||helper(30020),var(1)>=60-var(59)*2||var(59)>10
+trigger2=random<50||P2BodyDist x+playerID(var(57)),facing*playerID(var(57)),vel x*facing*20>=200
+Trigger3=helper(30000),var(38)=2
+Trigger3=facing*(partner,pos x-pos x)>-30
+Trigger3=P2BodyDist x>=100
+
+
+
+
+[State -1,　ジャンプ]
+Type=ChangeState
+value=39
+TriggerAll=var(59)>0
+TriggerAll=Random<=var(59)*100
+triggerall=Alive
+TriggerAll=RoundState=2
+triggerall=ctrl
+triggerall=statetype !=A
+triggerall=playerID(var(57)),Statetype !=L
+triggerall=P2Dist x > 0
+triggerall=!inguarddist||random<200
+triggerall=helper(30000),var(46)
+triggerall=helper(30010),var(24)<=0
+triggerall=playerID(var(57)),Movetype!=H||playerID(var(57)),stateno<200
+trigger1=random< 20 + (stateno=100&&P2BodyDist x=[80,200])*80
+trigger2=P2BodyDist x<=80
+Trigger2=!inguarddist
+Trigger2=power>=1500
+Trigger2=random<80
+
+
+[State -1,　空中ジャンプ]
+Type=ChangeState
+value=44
+TriggerAll=var(59)>0
+TriggerAll=Random<=var(59)*100
+triggerall=Alive
+TriggerAll=RoundState=2
+triggerall=ctrl
+triggerall=playerID(var(57)),Movetype!=H
+triggerall=statetype=A
+triggerall=playerID(var(57)),Statetype !=L
+triggerall=helper(30000),var(46)
+triggerall=helper(30010),var(24)<=0
+triggerall=helper(30000),var(42)
+trigger1=random < 10
+trigger2=playerID(var(57)),Statetype !=A
+trigger2=random < 30 + (prevstateno=5210)*80
+
+
+
+
+[State -1,　速いスピア]
+Type=ChangeState
+value=2067
+TriggerAll=var(59)>0
+TriggerAll=Random<=var(59)*100
+triggerall=Alive
+TriggerAll=RoundState=2
+triggerall=playerID(var(57)),Movetype!=H
+triggerall=playerID(var(57)),Statetype !=L
+triggerall=statetype !=A
+triggerall=helper(30010),var(1)>-9
+triggerall=helper(30000),var(46)
+triggerall=P2Dist x > 0
+triggerall=power>=330
+Trigger1=P2Bodydist x<100
+Trigger1=P2Bodydist x<=50||random<200
+Trigger1=ctrl
+Trigger1=(random<20+(helper(30000),var(43)<0)*20)*(1+(power>=1330)*2)
+trigger1=playerID(var(57)),Statetype!=A
+trigger1=var(59)<=10
+trigger2=helper(30000),var(47)>35-var(59)*2&&random<50||var(59)>10||helper(30000),var(47)>55-var(59)*2
+trigger2=playerID(var(57)),Statetype!=A
+trigger2=P2bodydist x < 100
+trigger2=random<100||var(59)>10
+trigger2=!playerID(var(57)),ctrl&&playerID(var(57)),stateno>=200
+trigger2=helper(30010),var(23)<-5-floor((P2BodyDist x)/9)
+trigger2=ctrl
+trigger3=ctrl
+Trigger3=helper(30000),var(38)>0
+Trigger3=facing*(partner,pos x-pos x)=[-50,100]
+trigger3=playerID(var(57)),Statetype !=A
+Trigger3=P2BodyDist x+(facing*playerID(var(57)),facing*playerID(var(57)),vel x)*5<=100
+Trigger3=partner,movetype=H
+trigger3=partner,statetype!=L
+
+
+[State -1,　端脚]
+Type=ChangeState
+value=1889
+TriggerAll=var(59)>0
+triggerall=Alive
+TriggerAll=RoundState=2
+triggerall=ctrl
+triggerall=playerID(var(57)),Movetype!=H
+triggerall=playerID(var(57)),Statetype!=A
+triggerall=playerID(var(57)),Statetype !=L
+triggerall=statetype !=A
+triggerall=!inguarddist||random<200||var(59)>10
+triggerall=abs(helper(30010),var(1))<3
+triggerall=P2Dist x > 0
+triggerall=helper(30000),var(46)
+triggerall=power>=2000
+Trigger1=Random<=var(59)*30||var(59)>10||helper(30010),var(24)>0
+Trigger1=P2BodyDist x < 30
+
+[State -1,　投げ]
+Type=ChangeState
+value=800
+TriggerAll=var(59)>0
+triggerall=Alive
+TriggerAll=RoundState=2
+triggerall=ctrl
+triggerall=playerID(var(57)),Movetype!=H
+triggerall=playerID(var(57)),Statetype!=A
+triggerall=playerID(var(57)),Statetype !=L
+triggerall=statetype !=A
+triggerall=!inguarddist||random<300||var(59)>10||!(playerID(var(57)),hitdefattr=SCA,AA,AP,AT)
+triggerall=!helper(30010),var(1)
+triggerall=helper(30000),var(46)
+triggerall=P2Dist x > 0
+triggerall=stateno!=100
+triggerall=!var(35)
+Trigger1=Random<=var(59)*30||var(59)>10||helper(30010),var(24)>0
+Trigger1=P2BodyDist x < 5
+
+
+
+
+[State -1,　瞬獄]
+Type=ChangeState
+value=3500
+TriggerAll=var(59)>0
+triggerall=random<var(59)*100
+triggerall=Alive
+TriggerAll=RoundState=2
+triggerall=ctrl
+triggerall=playerID(var(57)),Movetype!=H
+triggerall=playerID(var(57)),Statetype!=A
+triggerall=playerID(var(57)),Statetype !=L
+triggerall=statetype !=A
+triggerall=P2Dist x > 0
+triggerall=helper(30000),var(46)
+triggerall=power>=3000
+Trigger1=P2BodyDist x < 100
+Trigger1=playerID(var(57)),pos y > -50
+Trigger1=random<2
+trigger2=!playerID(var(57)),ctrl&&playerID(var(57)),stateno>=200
+trigger2=helper(30010),var(23)<-25-(P2BodyDist x >=20)*((P2BodyDist x -20)/5)
+Trigger2=P2Bodydist x  < 100
+Trigger2=random<200
+trigger2=helper(30000),var(47)>35-var(59)*2&&random<50||var(59)>10||helper(30000),var(47)>55-var(59)*2
+Trigger2=playerID(var(57)),stateno>=200
+
+
+
+[State -1,　弱Ｐ]
+Type=ChangeState
+value=200
+TriggerAll=var(59)>0
+TriggerAll=Random<=var(59)*100
+triggerall=Alive
+TriggerAll=RoundState=2
+triggerall=playerID(var(57)),Movetype!=H
+triggerall=playerID(var(57)),Statetype !=L
+triggerall=statetype !=A
+triggerall=!inguarddist||stateno=100
+triggerall=helper(30010),var(1)>-3
+triggerall=helper(30000),var(46)
+triggerall=P2Dist x > 0
+Trigger1=P2Bodydist x + (facing*playerID(var(57)),facing*playerID(var(57)),vel x)*3  < 40
+trigger1=playerID(var(57)),pos y + (playerID(var(57)),vel y + playerID(var(57)),Const(movement.yaccel)*1.5)*3>-20
+Trigger1=ctrl
+Trigger1=random<60
+
+[State -1,　弱Ｋ]
+Type=ChangeState
+value=230
+TriggerAll=var(59)>0
+TriggerAll=Random<=var(59)*100
+triggerall=Alive
+TriggerAll=RoundState=2
+triggerall=playerID(var(57)),Movetype!=H
+triggerall=playerID(var(57)),Statetype!=A
+triggerall=playerID(var(57)),Statetype !=L
+triggerall=statetype !=A
+triggerall=!inguarddist||stateno=100||helper(30010),var(24)>0
+triggerall=helper(30010),var(1)>-4
+triggerall=helper(30000),var(46)
+triggerall=P2Dist x > 0
+Trigger1=P2Bodydist x + (facing*playerID(var(57)),facing*playerID(var(57)),vel x)*4  < 30
+Trigger1=ctrl
+Trigger1=random<50||helper(30010),var(24)>0
+trigger2=!playerID(var(57)),ctrl&&playerID(var(57)),stateno>=200
+trigger2=helper(30010),var(23)<-3
+Trigger2=P2Bodydist x + (facing*playerID(var(57)),facing*playerID(var(57)),vel x)*4  < 30
+Trigger2=random<200
+trigger2=helper(30000),var(47)>35-var(59)*2&&random<50||var(59)>10||helper(30000),var(47)>55-var(59)*2
+Trigger2=playerID(var(57)),stateno>=200
+Trigger2=ctrl
+trigger2=playerID(var(57)),Statetype!=A
+
+[State -1,　強Ｐ]
+Type=ChangeState
+value=210
+TriggerAll=var(59)>0
+TriggerAll=Random<=var(59)*100
+triggerall=Alive
+TriggerAll=RoundState=2
+triggerall=playerID(var(57)),Movetype!=H||playerID(var(57)),stateno<200
+triggerall=playerID(var(57)),Statetype !=L
+triggerall=playerID(var(57)),Statetype!=A
+triggerall=statetype !=A
+triggerall=!inguarddist||stateno=100
+triggerall=helper(30010),var(1)>-7
+triggerall=helper(30000),var(46)
+triggerall=P2Dist x > 0
+Trigger1=P2Bodydist x + (facing*playerID(var(57)),facing*playerID(var(57)),vel x)*6  < 40
+Trigger1=ctrl
+Trigger1=random<50
+trigger2=movecontact
+trigger2=stateno=200&&time>5||stateno=230&&time>6
+trigger2=random<500
+
+
+
+[State -1,　強Ｋ]
+Type=ChangeState
+value=240
+TriggerAll=var(59)>0
+TriggerAll=Random<=var(59)*100
+triggerall=Alive
+TriggerAll=RoundState=2
+triggerall=playerID(var(57)),Movetype!=H||playerID(var(57)),stateno<200
+triggerall=playerID(var(57)),Statetype !=L
+triggerall=playerID(var(57)),Statetype!=A
+triggerall=statetype !=A
+triggerall=!inguarddist||stateno=100||helper(30010),var(24)>0
+triggerall=helper(30010),var(1)>-7
+triggerall=helper(30000),var(46)
+triggerall=P2Dist x > 0
+Trigger1=P2Bodydist x + (facing*playerID(var(57)),facing*playerID(var(57)),vel x)*7  < 50
+Trigger1=ctrl
+Trigger1=random<50||helper(30010),var(24)>0
+trigger2=!playerID(var(57)),ctrl&&playerID(var(57)),stateno>=200
+trigger2=helper(30010),var(23)<-6
+Trigger2=P2Bodydist x + (facing*playerID(var(57)),facing*playerID(var(57)),vel x)*7  < 50
+Trigger2=random<200
+trigger2=helper(30000),var(47)>35-var(59)*2&&random<50||var(59)>10||helper(30000),var(47)>55-var(59)*2
+Trigger2=playerID(var(57)),stateno>=200
+Trigger2=ctrl
+trigger2=playerID(var(57)),Statetype!=A
+trigger3=movecontact
+trigger3=stateno=200&&time>5||stateno=230&&time>6
+trigger3=random<500
+
+
+
+[State -1,　２弱Ｐ]
+Type=ChangeState
+value=400
+TriggerAll=var(59)>0
+TriggerAll=Random<=var(59)*100
+triggerall=Alive
+TriggerAll=RoundState=2
+triggerall=playerID(var(57)),Movetype!=H||playerID(var(57)),stateno<200
+triggerall=playerID(var(57)),Statetype!=A
+triggerall=playerID(var(57)),Statetype !=L
+triggerall=statetype !=A
+triggerall=!inguarddist||stateno=100
+triggerall=helper(30010),var(1)>-3
+triggerall=helper(30000),var(46)
+triggerall=P2Dist x > 0
+Trigger1=P2Bodydist x + (facing*playerID(var(57)),facing*playerID(var(57)),vel x)*3  < 30
+Trigger1=ctrl
+Trigger1=random<50+(prevstateno=52)*50
+trigger2=playerID(var(57)),Statetype=L
+trigger2=P2BodyDist x < 30
+trigger2=playerID(var(57)),Stateno=5120
+trigger2=helper(30010),var(23) > -5
+trigger2=random < 100
+
+
+
+[State -1,　２弱Ｋ]
+Type=ChangeState
+value=430
+TriggerAll=var(59)>0
+TriggerAll=Random<=var(59)*100
+triggerall=Alive
+TriggerAll=RoundState=2
+triggerall=playerID(var(57)),Movetype!=H||playerID(var(57)),stateno<200
+triggerall=playerID(var(57)),Statetype !=L
+triggerall=playerID(var(57)),Statetype!=A
+triggerall=statetype !=A
+triggerall=!inguarddist||stateno=100
+triggerall=helper(30010),var(1)>-4
+triggerall=helper(30000),var(46)
+triggerall=P2Dist x > 0
+Trigger1=P2Bodydist x + (facing*playerID(var(57)),facing*playerID(var(57)),vel x)*4  < 40
+Trigger1=ctrl
+Trigger1=random<50+(prevstateno=52)*50
+
+
+
+
+[State -1,　２強Ｐ]
+Type=ChangeState
+value=410
+TriggerAll=var(59)>0
+TriggerAll=Random<=var(59)*100
+triggerall=Alive
+TriggerAll=RoundState=2
+triggerall=playerID(var(57)),Movetype!=H||playerID(var(57)),stateno<200
+triggerall=playerID(var(57)),Statetype !=L
+triggerall=statetype !=A
+triggerall=!inguarddist||stateno=100
+triggerall=helper(30010),var(1)>-4
+triggerall=helper(30000),var(46)
+triggerall=P2Dist x > 0
+Trigger1=P2Bodydist x + (facing*playerID(var(57)),facing*playerID(var(57)),vel x)*4  < 30
+Trigger1=ctrl
+trigger1=playerID(var(57)),pos y + (playerID(var(57)),vel y + playerID(var(57)),Const(movement.yaccel)*2)*4>-20
+Trigger1=random<50
+trigger2=!playerID(var(57)),ctrl&&playerID(var(57)),stateno>=200
+trigger2=helper(30010),var(23)<-6
+Trigger2=P2Bodydist x + (facing*playerID(var(57)),facing*playerID(var(57)),vel x)*4  < 30
+Trigger2=random<200
+trigger2=helper(30000),var(47)>35-var(59)*2&&random<50||var(59)>10||helper(30000),var(47)>55-var(59)*2
+Trigger2=playerID(var(57)),stateno>=200
+Trigger2=ctrl
+trigger2=playerID(var(57)),pos y + (playerID(var(57)),vel y + playerID(var(57)),Const(movement.yaccel)*2)*4>-20
+trigger3=movecontact
+trigger3=stateno=400||stateno=430
+trigger3=time>5
+trigger3=random<500
+
+[State -1,　２強Ｋ]
+Type=ChangeState
+value=440
+TriggerAll=var(59)>0
+TriggerAll=Random<=var(59)*100
+triggerall=Alive
+TriggerAll=RoundState=2
+triggerall=playerID(var(57)),Movetype!=H||playerID(var(57)),stateno<200
+triggerall=playerID(var(57)),Statetype!=A
+triggerall=playerID(var(57)),Statetype !=L
+triggerall=statetype !=A
+triggerall=!inguarddist||stateno=100
+triggerall=helper(30010),var(1)>-4
+triggerall=helper(30000),var(46)
+triggerall=P2Dist x > 0
+Trigger1=P2Bodydist x + (facing*playerID(var(57)),facing*playerID(var(57)),vel x)*9  < 50
+Trigger1=ctrl
+Trigger1=random<30+(prevstateno=52)*50
+trigger2=movecontact
+trigger2=stateno=400||stateno=430
+trigger2=time>5
+trigger2=random<500
+
+
+[State -1,　３強Ｋ]
+Type=ChangeState
+value=445
+TriggerAll=var(59)>0
+TriggerAll=Random<=var(59)*100
+triggerall=Alive
+TriggerAll=RoundState=2
+triggerall=playerID(var(57)),Movetype!=H||playerID(var(57)),stateno<200
+triggerall=playerID(var(57)),Statetype!=A
+triggerall=playerID(var(57)),Statetype!=L
+triggerall=statetype !=A
+triggerall=!inguarddist||stateno=100
+triggerall=helper(30010),var(1)>-4
+triggerall=helper(30000),var(46)
+triggerall=P2Dist x > 0
+Trigger1=P2Bodydist x <100
+Trigger1=ctrl
+Trigger1=random<5
+trigger2=movecontact
+trigger2=stateno=440
+trigger2=time>5
+trigger2=random<200
+
+
+[State -1,　アッパー]
+Type=ChangeState
+value=1100+(random<500&&power>=330)*20
+TriggerAll=var(59)>0
+TriggerAll=Random<=var(59)*100
+triggerall=Alive
+TriggerAll=RoundState=2
+triggerall=playerID(var(57)),Movetype!=H
+triggerall=playerID(var(57)),Statetype !=L
+triggerall=statetype !=A
+triggerall=helper(30010),var(1)>-9
+triggerall=helper(30000),var(46)
+triggerall=P2Dist x > 0
+Trigger1=P2Bodydist x + (facing*playerID(var(57)),facing*playerID(var(57)),vel x)*8  < 30
+trigger1=playerID(var(57)),pos y + (playerID(var(57)),vel y + playerID(var(57)),Const(movement.yaccel)*4)*8=[-40,-20]
+Trigger1=ctrl
+Trigger1=random<20
+trigger1=playerID(var(57)),Statetype=A
+trigger2=helper(30010),var(24)>0
+trigger2=playerID(var(57)),Statetype=A
+Trigger2=P2Bodydist x < 30
+trigger2=playerID(var(57)),pos y=[-40,0]
+Trigger2=ctrl
+
+[State -1,　ニー]
+Type=ChangeState
+value=1060+(random<500&&power>=330)*10
+TriggerAll=var(59)>0
+TriggerAll=Random<=var(59)*100
+triggerall=Alive
+TriggerAll=RoundState=2
+triggerall=playerID(var(57)),Movetype!=H
+triggerall=playerID(var(57)),Statetype !=L
+triggerall=statetype !=A
+triggerall=helper(30010),var(1)>-9
+triggerall=helper(30000),var(46)
+triggerall=P2Dist x > 0
+trigger1=ctrl
+trigger1=helper(30010),var(24)>0
+trigger1=playerID(var(57)),Statetype=A
+Trigger1=P2Bodydist x >=30
+trigger1=playerID(var(57)),pos y=[-40,0]
+
+[State -1,　スピアx]
+Type=ChangeState
+value=2060
+TriggerAll=var(59)>0
+TriggerAll=Random<=var(59)*100
+triggerall=Alive
+TriggerAll=RoundState=2
+triggerall=playerID(var(57)),Movetype!=H
+triggerall=playerID(var(57)),Statetype !=L
+triggerall=statetype !=A
+triggerall=helper(30010),var(1)>-9
+triggerall=helper(30000),var(46)
+triggerall=P2Dist x > 0
+Trigger1=P2Bodydist x + (facing*playerID(var(57)),facing*playerID(var(57)),vel x)*8 < 30
+trigger1=playerID(var(57)),pos y + (playerID(var(57)),vel y + playerID(var(57)),Const(movement.yaccel)*4)*8=[-40,-20]
+Trigger1=ctrl
+Trigger1=random<20
+trigger1=playerID(var(57)),Statetype=A
+
+
+[State -1,　スピアy]
+Type=ChangeState
+value=2065
+TriggerAll=var(59)>0
+TriggerAll=Random<=var(59)*100
+triggerall=Alive
+TriggerAll=RoundState=2
+triggerall=playerID(var(57)),Movetype!=H
+triggerall=playerID(var(57)),Statetype !=L
+triggerall=statetype !=A
+triggerall=helper(30000),var(46)
+triggerall=P2Dist x > 0
+Trigger1=P2Bodydist x < 60
+Trigger1=ctrl
+Trigger1=random<10
+trigger1=playerID(var(57)),Statetype!=A
+
+
+
+
+[State -1,　パームy]
+Type=ChangeState
+value=1330
+TriggerAll=var(59)>0
+TriggerAll=Random<=var(59)*100
+triggerall=Alive
+TriggerAll=RoundState=2
+triggerall=playerID(var(57)),Movetype!=H
+triggerall=playerID(var(57)),Statetype !=L
+triggerall=statetype !=A
+triggerall=helper(30000),var(46)
+triggerall=P2Dist x > 0
+Trigger1=P2Bodydist x + (facing*playerID(var(57)),facing*playerID(var(57)),vel x)*17<80
+trigger1=playerID(var(57)),pos y + (playerID(var(57)),vel y + playerID(var(57)),Const(movement.yaccel)*8.5)*17>-20
+Trigger1=ctrl
+Trigger1=random<30+(helper(30000),var(43)<0)*30
+Trigger2=ctrl
+Trigger2=P2Bodydist x + (facing*playerID(var(57)),facing*playerID(var(57)),vel x)*17<100
+trigger2=playerID(var(57)),pos y + (playerID(var(57)),vel y + playerID(var(57)),Const(movement.yaccel)*8.5)*17>-20
+Trigger2=numenemy>=2&&enemynear(0),alive+enemynear(numenemy>=2),alive>=2
+Trigger2=random<150
+
+
+
+[State -1,　ラッシュa]
+Type=ChangeState
+value=1400
+TriggerAll=var(59)>0
+TriggerAll=Random<=var(59)*100
+triggerall=Alive
+TriggerAll=RoundState=2
+triggerall=playerID(var(57)),Movetype!=H||playerID(var(57)),stateno<5000
+triggerall=playerID(var(57)),Statetype !=L
+triggerall=playerID(var(57)),Statetype !=A
+triggerall=statetype !=A
+triggerall=!inguarddist||stateno=100||helper(30010),var(24)>0
+triggerall=helper(30000),var(46)
+triggerall=P2Dist x > 0
+Trigger1=(var(35)=1) && (hitdefattr=SC, NA, SA, HA) && movecontact
+
+
+
+[State -1,　速いカンフー鉄山靠]
+Type=ChangeState
+value=1620
+TriggerAll=var(59)>0
+TriggerAll=Random<=var(59)*100
+triggerall=Alive
+TriggerAll=RoundState=2
+triggerall=playerID(var(57)),Movetype!=H||playerID(var(57)),stateno<5000
+triggerall=playerID(var(57)),Statetype!=L
+triggerall=statetype !=A
+triggerall=helper(30000),var(46)
+triggerall=P2Dist x > 0
+Triggerall=ctrl
+Trigger1=P2Bodydist x + (facing*playerID(var(57)),facing*playerID(var(57)),vel x)*15=[60,120]
+trigger1=playerID(var(57)),pos y + (playerID(var(57)),vel y + playerID(var(57)),Const(movement.yaccel)*7.5)*15>=-40
+Trigger1=random<8
+
+
+[State -1,　ランスb]
+Type=ChangeState
+value=855
+TriggerAll=var(59)>0
+TriggerAll=Random<=var(59)*100
+triggerall=Alive
+TriggerAll=RoundState=2
+triggerall=playerID(var(57)),Movetype!=H||playerID(var(57)),stateno<200
+triggerall=playerID(var(57)),Statetype !=L
+triggerall=statetype !=A
+triggerall=helper(30000),var(46)
+triggerall=P2Dist x > 0
+Trigger1=P2Bodydist x + (facing*playerID(var(57)),facing*playerID(var(57)),vel x)*14 >=70
+trigger1=playerID(var(57)),pos y + (playerID(var(57)),vel y + playerID(var(57)),Const(movement.yaccel)*11)*22 >=-200
+Triggerall=ctrl
+Trigger1=random<5+(helper(30010),var(3)>=500)*15
+Trigger2=helper(30000),var(38)=2
+Trigger2=partner,movetype=H&&partner,statetype!=L&&partner,stateno>=200
+Trigger2=playerID(var(57)),Statetype=A
+Trigger2=facing*(partner,pos x-pos x)>0
+Trigger2=power<1000
+Trigger2=!inguarddist||random<100
+
+
+[State -1,　ラッシュb]
+Type=ChangeState
+value=1410
+TriggerAll=var(59)>0
+TriggerAll=Random<=var(59)*100
+triggerall=Alive
+TriggerAll=RoundState=2
+triggerall=playerID(var(57)),Movetype!=H||playerID(var(57)),stateno<200
+triggerall=playerID(var(57)),Statetype !=L
+triggerall=statetype !=A
+triggerall=helper(30000),var(46)
+triggerall=P2Dist x > 0
+trigger1=!inguarddist||helper(30010),var(24)>0
+Trigger1=P2Bodydist x + (facing*playerID(var(57)),facing*playerID(var(57)),vel x)*22=[120,200]
+trigger1=playerID(var(57)),pos y + (playerID(var(57)),vel y + playerID(var(57)),Const(movement.yaccel)*11)*22>-20
+Triggerall=ctrl
+Trigger1=random<5
+Trigger2=helper(30000),var(38)=2
+Trigger2=partner,movetype=H
+Trigger2=playerID(var(57)),Statetype!=A
+Trigger2=facing*(partner,pos x-pos x)>0
+Trigger2=power<1000
+Trigger2=!inguarddist||random<100
+
+[State -1,　スペシャル木]
+Type=ChangeState
+value=3200
+TriggerAll=var(59)>0
+TriggerAll=Random<=var(59)*100
+triggerall=Alive
+TriggerAll=RoundState=2
+triggerall=playerID(var(57)),Movetype!=H||playerID(var(57)),stateno<200
+triggerall=playerID(var(57)),Statetype !=L
+triggerall=playerID(var(57)),pos y+(playerID(var(57)),vel y+playerID(var(57)),Const(movement.yaccel)*10)*20>-150
+triggerall=statetype !=A
+triggerall=!inguarddist||helper(30010),var(24)>0
+triggerall=power>=1000
+triggerall=helper(30000),var(46)
+triggerall=NumHelper(1200)=0 ;ＩＤナンバー1200のヘルパーが画面中に１個も出てない時
+triggerall=NumProjID(1200)=0 ;ＩＤナンバー1200の飛び道具が画面中に１個も出てない時
+triggerall=P2Dist x > 0
+trigger1=ctrl
+Trigger1=helper(30000),var(38)>0
+Trigger1=P2BodyDist x>=120
+Trigger1=random<10
+
+
+[State -1,　３木]
+Type=ChangeState
+value=1210
+TriggerAll=var(59)>0
+TriggerAll=Random<=var(59)*100
+triggerall=Alive
+TriggerAll=RoundState=2
+triggerall=playerID(var(57)),Movetype!=H||playerID(var(57)),stateno<200
+triggerall=playerID(var(57)),Statetype !=L
+triggerall=statetype !=A
+triggerall=power>=330
+triggerall=helper(30000),var(46)
+triggerall=NumHelper(1200)=0 ;ＩＤナンバー1200のヘルパーが画面中に１個も出てない時
+triggerall=NumProjID(1200)=0 ;ＩＤナンバー1200の飛び道具が画面中に１個も出てない時
+triggerall=P2Dist x > 0
+trigger1=!inguarddist||helper(30010),var(24)>0
+Trigger1=P2Bodydist x + (facing*playerID(var(57)),facing*playerID(var(57)),vel x)*12 >=100
+trigger1=playerID(var(57)),pos y + (playerID(var(57)),vel y + playerID(var(57)),Const(movement.yaccel)*6)*12>-150
+Trigger1=ctrl
+Trigger1=random<10+(power>=2000)*40||helper(30010),var(24)>0
+Trigger2=helper(30000),var(38)=1||helper(30000),var(38)=3
+Trigger2=facing*(partner,pos x-pos x)>=0
+Trigger2=ctrl
+trigger2=!inguarddist||partner,movetype=H
+
+
+[State -1,　木]
+Type=ChangeState
+value=1200
+TriggerAll=var(59)>0
+TriggerAll=Random<=var(59)*100
+triggerall=Alive
+triggerall=NumHelper(1200)=0 ;ＩＤナンバー1200のヘルパーが画面中に１個も出てない時
+triggerall=NumProjID(1200)=0 ;ＩＤナンバー1200の飛び道具が画面中に１個も出てない時
+TriggerAll=RoundState=2
+triggerall=playerID(var(57)),Movetype!=H||playerID(var(57)),stateno<200
+triggerall=statetype !=A
+triggerall=playerID(var(57)),Statetype !=L
+triggerall=helper(30000),var(46)
+triggerall=P2Dist x > 0
+trigger1=!inguarddist||helper(30010),var(24)>0
+Trigger1=P2Bodydist x+(facing*playerID(var(57)),facing*playerID(var(57)),vel x)*12>=100
+Trigger1=P2Bodydist x+(facing*playerID(var(57)),facing*playerID(var(57)),vel x)*12>=180||random<300
+trigger1=playerID(var(57)),pos y + (playerID(var(57)),vel y + playerID(var(57)),Const(movement.yaccel)*6)*12>-40
+Trigger1=ctrl
+Trigger1=random<50||helper(30010),var(24)>0
+trigger2=!inguarddist||helper(30010),var(24)>0
+trigger2=var(35)=1
+trigger2=ctrl||stateno=1200&&time>15
+trigger2=random<50
+Trigger3=helper(30000),var(38)=1||helper(30000),var(38)=3
+Trigger3=facing*(partner,pos x-pos x)>=0
+Trigger3=ctrl
+trigger3=!inguarddist||partner,movetype=H
+trigger4 = (stateno = [200,299]) || (stateno = [400,499])
+trigger4 = (stateno != [440,445])
+trigger4 = movecontact
+
+
+
+[State -1,　速い突き手]
+Type=ChangeState
+value=1020
+TriggerAll=var(59)>0
+TriggerAll=Random<=var(59)*100
+triggerall=Alive
+TriggerAll=RoundState=2
+triggerall=playerID(var(57)),Movetype!=H
+triggerall=playerID(var(57)),Statetype !=L
+triggerall=statetype !=A
+triggerall=!inguarddist||helper(30010),var(24)>0
+triggerall=helper(30000),var(46)
+triggerall=P2Dist x > 0
+triggerall=power>=330
+Trigger1=P2Bodydist x + (facing*playerID(var(57)),facing*playerID(var(57)),vel x)*10=[50,140]
+trigger1=playerID(var(57)),pos y >-30
+Trigger1=ctrl
+Trigger1=helper(30010),var(24)>0
+
+
+
+[State -1,　三烈]
+Type=ChangeState
+value=3000
+TriggerAll=var(59)>0
+TriggerAll=Random<=var(59)*100
+triggerall=Alive
+TriggerAll=RoundState=2
+triggerall=playerID(var(57)),Movetype!=H
+triggerall=playerID(var(57)),Statetype !=L
+triggerall=statetype !=A
+triggerall=power>=1000
+triggerall=helper(30000),var(46)
+triggerall=P2Dist x > 0
+Trigger1=P2Bodydist x + (facing*playerID(var(57)),facing*playerID(var(57)),vel x)*13 <=80
+trigger1=playerID(var(57)),pos y + (playerID(var(57)),vel y + playerID(var(57)),Const(movement.yaccel)*6.5)*13>-20
+Trigger1=ctrl
+Trigger1=random<5+(helper(30000),var(43)<0)*30
+Trigger1=var(59)<=10
+Trigger2=helper(30000),var(47)>35-var(59)*2&&random<50||var(59)>10||helper(30000),var(47)>55-var(59)*2
+trigger2=playerID(var(57)),Statetype!=A
+trigger2=P2bodydist x < 50
+trigger2=random<100
+trigger2=!playerID(var(57)),ctrl&&playerID(var(57)),stateno>=200
+trigger2=helper(30010),var(23)<-12
+trigger2=ctrl
+
+
+
+[State -1,　轟槌]
+Type=ChangeState
+value=3001
+TriggerAll=var(59)>0
+TriggerAll=Random<=var(59)*100
+triggerall=Alive
+TriggerAll=RoundState=2
+triggerall=playerID(var(57)),Movetype!=H
+triggerall=playerID(var(57)),Statetype !=L
+triggerall=statetype !=A
+triggerall=power>=2000
+triggerall=helper(30000),var(46)
+triggerall=P2Dist x > 0
+Trigger1=P2Bodydist x + (facing*playerID(var(57)),facing*playerID(var(57)),vel x)*13 <=80
+trigger1=playerID(var(57)),statetype!=A
+Trigger1=ctrl
+Trigger1=random<10+(helper(30000),var(43)<0)*10
+Trigger1=var(59)<=10
+Trigger2=helper(30000),var(47)>35-var(59)*2&&random<50||var(59)>10||helper(30000),var(47)>55-var(59)*2
+trigger2=playerID(var(57)),Statetype!=A
+trigger2=P2bodydist x < 50
+trigger2=random<100
+trigger2=!playerID(var(57)),ctrl&&playerID(var(57)),stateno>=200
+trigger2=helper(30010),var(23)<-12
+trigger2=ctrl
+
+
+[State -1,　天穿]
+Type=ChangeState
+value=3052
+TriggerAll=var(59)>0
+TriggerAll=Random<=var(59)*100
+triggerall=Alive
+TriggerAll=RoundState=2
+triggerall=playerID(var(57)),Movetype!=H
+triggerall=playerID(var(57)),Statetype !=L
+triggerall=statetype !=A
+triggerall=power>=2000
+triggerall=helper(30010),var(1)>-9
+triggerall=helper(30000),var(46)
+triggerall=P2Dist x > 0
+Trigger1=P2Bodydist x + (facing*playerID(var(57)),facing*playerID(var(57)),vel x)*7=[0,30]
+trigger1=playerID(var(57)),pos y + (playerID(var(57)),vel y + playerID(var(57)),Const(movement.yaccel)*3.5)*7>-200
+Trigger1=ctrl
+Trigger1=random<20
+
+
+
+[State -1,　スマッシュ]
+Type=ChangeState
+value=3050
+TriggerAll=var(59)>0
+TriggerAll=Random<=var(59)*100
+triggerall=Alive
+TriggerAll=RoundState=2
+triggerall=playerID(var(57)),Movetype!=H
+triggerall=playerID(var(57)),Statetype !=L
+triggerall=statetype !=A
+triggerall=power>=1000
+triggerall=helper(30010),var(1)>-9
+triggerall=helper(30000),var(46)
+triggerall=P2Dist x > 0
+Trigger1=P2Bodydist x + (facing*playerID(var(57)),facing*playerID(var(57)),vel x)*7=[0,30]
+trigger1=playerID(var(57)),pos y + (playerID(var(57)),vel y + playerID(var(57)),Const(movement.yaccel)*3.5)*7>-50
+Trigger1=ctrl
+Trigger1=random<10+(helper(30000),var(43)<0)*20
+trigger1=var(59)<=10
+trigger2=helper(30000),var(47)>35-var(59)*2&&random<50||var(59)>10||helper(30000),var(47)>55-var(59)*2
+Trigger2=P2Bodydist x + (facing*playerID(var(57)),facing*playerID(var(57)),vel x)*7=[0,30]
+trigger2=playerID(var(57)),pos y + (playerID(var(57)),vel y + playerID(var(57)),Const(movement.yaccel)*3.5)*7>-50
+trigger2=random<100
+trigger2=!playerID(var(57)),ctrl&&playerID(var(57)),stateno>=200
+trigger2=helper(30010),var(23)<-6
+trigger2=ctrl
+
+
+
+[State -1,　スーパー]
+Type=ChangeState
+value=4201
+triggerall=power>=2000
+TriggerAll=var(59)>0
+TriggerAll=Random<=var(59)*100
+triggerall=Alive
+TriggerAll=RoundState=2
+triggerall=playerID(var(57)),Movetype!=H||moveguarded
+triggerall=playerID(var(57)),Statetype!=L
+triggerall=statetype !=A
+triggerall=power>=1000
+triggerall=helper(30000),var(46)
+Trigger1=ctrl
+Trigger1=random<3
+trigger2=stateno=440||stateno=445||stateno=2067||stateno=1330
+trigger2=movecontact
+
+
+[State -1,　スーパー]
+Type=ChangeState
+value=4200+(random<400&&power>=2000)
+TriggerAll=var(59)>0
+TriggerAll=Random<=var(59)*100
+triggerall=Alive
+TriggerAll=RoundState=2
+triggerall=playerID(var(57)),Movetype!=H||moveguarded
+triggerall=playerID(var(57)),Statetype!=L
+triggerall=statetype !=A
+triggerall=power>=1000
+triggerall=helper(30000),var(46)
+Trigger1=ctrl
+Trigger1=random<2+(helper(30000),var(43)<0)*20
+trigger2=!playerID(var(57)),ctrl&&playerID(var(57)),stateno>=200
+trigger2=helper(30010),var(23)<-18
+Trigger2=random<200||playerID(var(57)),Statetype!=A
+trigger2=helper(30000),var(47)>35-var(59)*2&&random<50||var(59)>10||helper(30000),var(47)>55-var(59)*2
+Trigger2=playerID(var(57)),stateno>=200
+Trigger2=ctrl
+trigger3=stateno=440||stateno=445||stateno=2067||stateno=1330
+trigger3=movecontact
+Trigger4=helper(30000),var(38)
+Trigger4=partner,movetype=H
+Trigger4=random<100||partner,stateno>=200
+Trigger4=partner,stateno!=[800,899]
+Trigger4=ctrl
+trigger4=playerID(var(57)),facing=facing||helper(30000),var(38)>0
+
+
+
+
+[State -1,　空弱Ｐ]
+Type=ChangeState
+value=600
+TriggerAll=var(59)>0
+TriggerAll=Random<=var(59)*100
+triggerall=Alive
+TriggerAll=RoundState=2
+triggerall=playerID(var(57)),Movetype!=H||playerID(var(57)),stateno<200
+triggerall=playerID(var(57)),Statetype !=L
+triggerall=statetype=A
+triggerall=helper(30010),var(1)>-4
+triggerall=helper(30000),var(46)
+triggerall=P2Dist x > 0
+triggerall=!inguarddist||helper(30010),var(24)>0
+Trigger1=P2Bodydist x + (facing*playerID(var(57)),facing*playerID(var(57)),vel x-vel x)*3=[0,30]
+trigger1=P2Dist y + (playerID(var(57)),statetype=A)*(playerID(var(57)),vel y + playerID(var(57)),Const(movement.yaccel)*1.5)*3-(vel y + 0.44*1.5)*3=[-40,0]
+Trigger1=ctrl
+Trigger1=random<150||helper(30010),var(24)>0
+trigger2=stateno=600
+trigger2=time >=7
+trigger2=random<500
+
+
+[State -1,　空弱Ｋ]
+Type=ChangeState
+value=630
+TriggerAll=var(59)>0
+TriggerAll=Random<=var(59)*100
+triggerall=Alive
+TriggerAll=RoundState=2
+triggerall=playerID(var(57)),Movetype!=H||playerID(var(57)),stateno<200
+triggerall=playerID(var(57)),Statetype!=L
+triggerall=statetype=A
+triggerall=helper(30010),var(1)>-4
+triggerall=helper(30000),var(46)
+triggerall=P2Dist x > 0
+triggerall=!inguarddist||helper(30010),var(24)>0
+Trigger1=P2Bodydist x + (facing*playerID(var(57)),facing*playerID(var(57)),vel x-vel x)*3=[0,30]
+trigger1=P2Dist y + (playerID(var(57)),statetype=A)*(playerID(var(57)),vel y + playerID(var(57)),Const(movement.yaccel)*1.5)*3-(vel y + 0.44*1.5)*3=[0,40]
+Trigger1=ctrl
+Trigger1=random<150||helper(30010),var(24)>0
+
+[State -1,　空強Ｐ]
+Type=ChangeState
+value=610
+TriggerAll=var(59)>0
+TriggerAll=Random<=var(59)*100
+triggerall=Alive
+TriggerAll=RoundState=2
+triggerall=playerID(var(57)),Movetype!=H||playerID(var(57)),stateno<200
+triggerall=playerID(var(57)),Statetype!=L
+triggerall=statetype=A
+triggerall=helper(30010),var(1)>-7
+triggerall=helper(30000),var(46)
+triggerall=P2Dist x > 0
+triggerall=!inguarddist||helper(30010),var(24)>0
+Trigger1=P2Bodydist x + (facing*playerID(var(57)),facing*playerID(var(57)),vel x-vel x)*6=[0,50]
+trigger1=P2Dist y + (playerID(var(57)),statetype=A)*(playerID(var(57)),vel y + playerID(var(57)),Const(movement.yaccel)*3)*6-(vel y + 0.44*3)*6=[-50,10]
+Trigger1=ctrl
+Trigger1=random<150||helper(30010),var(24)>0
+Trigger2=movecontact
+Trigger2=stateno=600||stateno=630
+trigger2=P2Dist y <=0
+
+[State -1,　空強Ｋ]
+Type=ChangeState
+value=640
+TriggerAll=var(59)>0
+TriggerAll=Random<=var(59)*100
+triggerall=Alive
+TriggerAll=RoundState=2
+triggerall=playerID(var(57)),Movetype!=H||playerID(var(57)),stateno<200
+triggerall=statetype=A
+triggerall=helper(30010),var(1)>-7
+triggerall=helper(30000),var(46)
+triggerall=P2Dist x > 0
+triggerall=!inguarddist||helper(30010),var(24)>0
+Trigger1=P2Bodydist x + (facing*playerID(var(57)),facing*playerID(var(57)),vel x-vel x)*6=[0,55]
+trigger1=P2Dist y + (playerID(var(57)),statetype=A)*(playerID(var(57)),vel y + playerID(var(57)),Const(movement.yaccel)*3)*6-(vel y + 0.44*3)*6=[10,50]
+Trigger1=ctrl
+Trigger1=random<100+(stateno=105)*200||helper(30010),var(24)>0
+Trigger2=movecontact
+Trigger2=stateno=600||stateno=630
+trigger2=P2Dist y > 0
+
+
+[State -1,　EX空刃]
+Type=ChangeState
+value=765
+TriggerAll=var(59)>0
+TriggerAll=Random<=var(59)*100
+triggerall=Alive
+TriggerAll=RoundState=2
+triggerall=power>=330
+triggerall=playerID(var(57)),Movetype!=H||playerID(var(57)),stateno<200
+triggerall=playerID(var(57)),Statetype !=L
+triggerall=statetype=A
+triggerall=!helper(30010),var(1)
+triggerall=helper(30000),var(46)
+triggerall=P2Dist x > 0
+triggerall=!(helper(30020),inguarddist&&!inguarddist)
+Trigger1=ctrl
+Trigger1=random < 30 + (power>=1830)*40 + (P2Dist y > 150)*200
+Trigger1=playerID(var(57)),pos y > -20
+Trigger2=ctrl
+Trigger2=P2Bodydist x=[0,60]
+Trigger2=P2Dist y=[-10,20]
+Trigger2=helper(30000),var(47)>35-var(59)*2&&random<50||var(59)>10||helper(30000),var(47)>55-var(59)*2
+trigger2=!playerID(var(57)),ctrl&&playerID(var(57)),stateno>=200
+trigger2=random<100
+trigger3=stateno=1055||stateno=1075
+trigger3=time>=8
+trigger3=random<300
+trigger4=(hitdefattr=A, NA) && movecontact
+trigger4=random<300
+Trigger5=ctrl
+Trigger5=vel y<0
+Trigger5=pos y=[-30,-60]
+Trigger5=random<150
+
+
+[State -1,　斬空]
+Type=ChangeState
+value=4400
+TriggerAll=var(59)>0
+TriggerAll=Random<=var(59)*100
+triggerall=Alive
+TriggerAll=RoundState=2
+triggerall=playerID(var(57)),Movetype!=H
+triggerall=playerID(var(57)),Statetype !=L
+triggerall=statetype=A
+triggerall=!helper(30010),var(1)
+triggerall=helper(30000),var(46)
+triggerall=P2Dist x > 0
+triggerall=power>=2000
+Trigger1=ctrl
+Trigger1=P2Bodydist x=[10,40]
+Trigger1=P2Dist y +(playerID(var(57)),statetype=A)*(playerID(var(57)),vel y + playerID(var(57)),Const(movement.yaccel)*4.5)*9=[50,100]
+Trigger1=helper(30000),var(47)>35-var(59)*2&&random<50||var(59)>10||helper(30000),var(47)>55-var(59)*2
+Trigger1=!playerID(var(57)),ctrl
+trigger1=random<100
+
+
+[State -1,　疾]
+Type=ChangeState
+value=3100
+TriggerAll=var(59)>0
+TriggerAll=Random<=var(59)*100
+triggerall=Alive
+TriggerAll=RoundState=2
+triggerall=playerID(var(57)),Movetype!=H
+triggerall=playerID(var(57)),Statetype !=L
+triggerall=!helper(30010),var(1)
+triggerall=helper(30000),var(46)
+triggerall=P2Dist x > 0
+triggerall=power>=1000
+Trigger1=P2Bodydist x >=30
+Trigger1=P2Dist y+(playerID(var(57)),statetype=A)*(playerID(var(57)),vel y + playerID(var(57)),Const(movement.yaccel)*4.5)*9=[-10,50]
+Trigger1=ctrl
+Trigger1=random<3
+
+
+
+[State -1,　空刃弱]
+Type=ChangeState
+value=750
+TriggerAll=var(59)>0
+TriggerAll=Random<=var(59)*100
+triggerall=Alive
+TriggerAll=RoundState=2
+triggerall=playerID(var(57)),Movetype!=H
+triggerall=playerID(var(57)),Statetype !=L
+triggerall=statetype=A
+triggerall=!helper(30010),var(1)
+triggerall=helper(30000),var(46)
+triggerall=P2Dist x > 0
+triggerall=pos y < -30||movecontact||stateno=1055||stateno=1075
+Trigger1=P2Bodydist x=[0,30]
+trigger1=(P2Dist y=[-50,100])||playerID(var(57)),statetype!=A&&pos y > -200
+Trigger1=ctrl
+Trigger1=random<180
+Trigger1=!inguarddist||playerID(var(57)),Statetype!=A
+Trigger2=ctrl
+Trigger2=P2Bodydist x=[0,30]
+Trigger2=P2Dist y=[-20,40]
+Trigger2=helper(30000),var(47)>35-var(59)*2&&random<50||var(59)>10||helper(30000),var(47)>55-var(59)*2
+trigger2=!playerID(var(57)),ctrl&&playerID(var(57)),stateno>=200
+trigger2=random<100
+trigger3=stateno=1055||stateno=1075
+trigger3=time>=8
+trigger3=random<500
+trigger4=(hitdefattr=A, NA) && movecontact
+trigger4=random<500
+
+[State -1,　空刃強]
+Type=ChangeState
+value=760
+TriggerAll=var(59)>0
+TriggerAll=Random<=var(59)*100
+triggerall=Alive
+TriggerAll=RoundState=2
+triggerall=playerID(var(57)),Movetype!=H
+triggerall=playerID(var(57)),Statetype !=L
+triggerall=statetype=A
+triggerall=!helper(30010),var(1)
+triggerall=helper(30000),var(46)
+triggerall=P2Dist x > 0
+triggerall=!(helper(30020),inguarddist&&!inguarddist)
+triggerall=pos y < -30||movecontact||stateno=1055||stateno=1075
+Trigger1=ctrl
+Trigger1=P2Bodydist x=[30,60]
+trigger1=P2Dist y=[-30,50]
+Trigger1=random<100||helper(30010),var(24)>0
+Trigger1=!inguarddist||helper(30010),var(24)>0||playerID(var(57)),Statetype!=A
+Trigger2=P2BodyDist x >=100
+Trigger2=ctrl
+Trigger2=pos y < -80
+Trigger2=random<50
+Trigger2=!inguarddist
+Trigger3=ctrl
+Trigger3=P2Bodydist x=[0,60]
+Trigger3=P2Dist y=[-10,20]
+Trigger3=helper(30000),var(47)>35-var(59)*2&&random<50||var(59)>10||helper(30000),var(47)>55-var(59)*2
+Trigger3=!playerID(var(57)),ctrl
+trigger3=random<100
+trigger4=stateno=1055||stateno=1075
+trigger4=time>=8
+trigger5=(hitdefattr=A, NA) && movecontact
+trigger6=stateno=5210||prevstateno=5210
+trigger6=P2Dist y > 80
+trigger6=P2BodyDist x=[-100,70]
+trigger6=random<50
+
+
+
+
+
+;---------------------------------------------------------------------------
+; AI Walk
+[Statedef 19]
+type   =S
+physics=S
+sprpriority=0
+
+
+[State 20]
+type=ChangeState
+trigger1=var(59) <=0 && !helper(30000),var(58)
+value=0
+ctrl=1
+
+
+[State 20, 2]
+type=VelSet
+trigger1=pos x=[-20,20]
+trigger1=playerID(var(57)),stateno=[1025,1029]
+trigger2=playerID(var(57)),movetype!=H
+trigger2=random<10
+x=0
+
+
+[State 20, 1]
+type=VelSet
+trigger1=facing * pos x < -20
+trigger1=playerID(var(57)),stateno=[1025,1029]
+trigger2=playerID(var(57)),movetype!=H
+trigger2=power>=1500
+x=const(velocity.walk.fwd.x)
+
+[State 20, 2]
+type=VelSet
+trigger1=facing * pos x > 20
+trigger1=playerID(var(57)),stateno=[1025,1029]
+trigger2=P2BodyDist x < 40
+trigger3=playerID(var(57)),movetype!=H
+trigger3=power<1500
+x=const(velocity.walk.back.x)
+
+
+
+[State 20, 5]
+type=changestate
+trigger1=vel X=0
+value=0
+ctrl=1
+
+
+[State 20, 3]
+type=ChangeAnim
+triggerall=vel x > 0
+trigger1=Anim !=20 && Anim !=5
+trigger2=Anim=5 && AnimTime=0
+value=20
+
+[State 20, 4]
+type=ChangeAnim
+triggerall=vel x < 0
+trigger1=Anim !=21 && Anim !=5
+trigger2=Anim=5 && AnimTime=0
+value=21
+
+;---------------------------------------------------------------------------
+; AI Jump Start
+[Statedef 39]
+type   =S
+physics=S
+anim=40
+ctrl=0
+sprpriority=1
+
+[State 20]
+type=ChangeState
+trigger1=var(59) <=0
+value=0
+ctrl=1
+
+[State 40, 1]
+type=VarSet
+trigger1=Time=0
+sysvar(1)=0
+
+[State 40, 2]
+type=VarSet
+trigger1=random < 333
+trigger1=!time
+sysvar(1)=1
+
+[State 40, 3]
+type=VarSet
+trigger1=random < 500
+trigger1=!time
+sysvar(1)=-1
+
+
+
+[State 40, 4]
+type=VelSet
+trigger1=AnimTime=0
+x=ifelse(sysvar(1)=0, const(velocity.jump.neu.x), ifelse(sysvar(1)=1, const(velocity.jump.fwd.x), const(velocity.jump.back.x)))
+y=const(velocity.jump.y)
+
+[State 40, 5]
+type=VelSet
+trigger1=AnimTime=0
+trigger1=prevstateno=100 ;RUN_FWD
+trigger1=sysvar(1)=1
+x=const(velocity.runjump.fwd.x)
+
+[State 40, 6]
+type=ChangeState
+trigger1=AnimTime=0
+value=50
+ctrl=1
+
+;---------------------------------------------------------------------------
+; AI AirJump Start
+[Statedef 44]
+type   =A
+physics=N
+ctrl=0
+velset=0,0
+
+
+[State 20]
+type=ChangeState
+trigger1=var(59) <=0
+value=50
+ctrl=1
+
+[State 45, 1]
+type=ChangeAnim
+trigger1=SelfAnimExist(44)
+value=44
+
+[State 45, 2]
+type=ChangeAnim
+trigger1=!SelfAnimExist(44)
+value=41
+
+[State 45, 3]
+type=VarSet
+trigger1=Time=0
+sysvar(1)=0
+
+[State 45, 4]
+type=VarSet
+trigger1=!time
+trigger1=random < 333
+sysvar(1)=1
+
+[State 45, 5]
+type=VarSet
+trigger1=!time
+trigger1=random < 500
+sysvar(1)=-1
+
+[State 45, 6]
+type=VelSet
+trigger1=Time=2
+x=ifelse(sysvar(1)=0, const(velocity.airjump.neu.x), ifelse(sysvar(1)=1, const(velocity.airjump.fwd.x), const(velocity.airjump.back.x)))
+y=const(velocity.airjump.y)
+
+[State 45, 7]
+type=ChangeState
+trigger1=Time=2
+value=50
+ctrl=1
+
+
+
+;右端ヘルパー、キャラ別ステート
+[Statedef 30002]
+anim=9999
+ctrl=0
+
+[State 30002]
+type=Changestate
+trigger1=time>=1
+value=30000
+
+[State 30002];ガードレベル設定。1~10までの間で。
+type=varset
+trigger1=1
+var(35)=10
+
+
+
+[State -3];juggle計算
+type=VarSet
+trigger1=root,P2Movetype !=H
+trigger2=root,P2Stateno < 200
+trigger3=!playerID(root,var(57)),gethitvar(fall)
+var(45)=root,Const(data.airjuggle)
+IgNoreHitPause=1
+
+
+[State -3];juggle計算
+Type=Varset
+trigger1=root,stateno!=1400&&root,stateno!=1410
+trigger1=root,stateno !=[3000,3001]
+trigger1=root,stateno!=1320
+trigger1=root,stateno!=[1100,1120]
+var(44)=1
+
+
+[State -3];juggle計算
+Type=Varadd
+triggerall=root,time >=1
+Triggerall=root,movehit=1
+Triggerall=playerID(root,var(57)),Statetype=A
+Triggerall=!playerID(root,var(57)),hitshakeover
+Triggerall=playerID(root,var(57)),time=1
+Triggerall=playerID(root,var(57)),gethitvar(fall)
+Trigger1=root,stateno=200
+var(45)=-1
+
+[State -3];juggle計算
+Type=Varadd
+triggerall=root,time >=1
+Triggerall=root,movehit=1
+Triggerall=playerID(root,var(57)),Statetype=A
+Triggerall=!playerID(root,var(57)),hitshakeover
+Triggerall=playerID(root,var(57)),time=1
+Triggerall=playerID(root,var(57)),gethitvar(fall)
+Trigger1=root,stateno=600 || root,stateno=766
+var(45)=-2
+
+[State -3];juggle計算
+Type=Varadd
+triggerall=root,time >=1
+Triggerall=root,movehit=1
+Triggerall=playerID(root,var(57)),Statetype=A
+Triggerall=!playerID(root,var(57)),hitshakeover
+Triggerall=playerID(root,var(57)),time=1
+Triggerall=playerID(root,var(57)),gethitvar(fall)
+Trigger1=root,stateno=630 || root,stateno=765
+var(45)=-3
+
+[State -3];juggle計算
+Type=Varadd
+triggerall=root,time >=1
+Triggerall=root,movehit=1
+Triggerall=playerID(root,var(57)),Statetype=A
+Triggerall=!playerID(root,var(57)),hitshakeover
+Triggerall=playerID(root,var(57)),time=1
+Triggerall=playerID(root,var(57)),gethitvar(fall)
+Trigger1=root,stateno=1000 || root,stateno=1010
+Trigger2=root,stateno=2060
+Trigger3=root,stateno=1050 || root,stateno=1060
+Trigger4=root,stateno=610 || root,stateno=1300 || root,stateno=640 
+Trigger5=root,stateno=210 || root,stateno=850 || root,stateno=855
+Trigger6=root,stateno=230
+trigger7=root,stateno=1100&&var(44) || root,stateno=1110&&var(44)
+trigger8=root,stateno=1400 || root,stateno=1410
+trigger9=root,stateno=[3000,3001]
+trigger9=var(44)
+trigger10=root,stateno=[3050,3051]
+var(45)=-4
+
+
+
+
+
+[State -3];juggle計算
+Type=Varadd
+triggerall=root,time >=1
+Trigger1=root,movehit=1
+Trigger1=playerID(root,var(57)),Statetype=A
+Trigger1=!playerID(root,var(57)),hitshakeover
+Trigger1=playerID(root,var(57)),time=1
+Trigger1=playerID(root,var(57)),gethitvar(fall)
+Trigger1=root,stateno=1420
+trigger1=animelemtime(14)>=0
+trigger2=root,stateno=1400 || root,stateno=1410
+trigger2=root,movehit=2
+trigger2=var(44)
+trigger2=playerID(root,var(57)),gethitvar(fall)
+var(45)=-4
+
+[State -3];juggle計算
+Type=Varadd
+trigger1=root,stateno=4400
+trigger1=time=1
+var(45)=-3
+
+[State -3];juggle計算
+Type=Varadd
+triggerall=root,time >=1
+Triggerall=root,movehit=1
+Triggerall=!playerID(root,var(57)),hitshakeover
+Triggerall=playerID(root,var(57)),time=1
+Triggerall=playerID(root,var(57)),gethitvar(fall)
+Triggerall=playerID(root,var(57)),Statetype=A
+Trigger1=root,stateno=240 || root,stateno=430 || root,stateno=400
+trigger2=root,stateno=1330 || root,stateno=750 || root,stateno=760
+var(45)=-5
+
+
+[State -3];juggle計算
+Type=Varadd
+Triggerall=playerID(root,var(57)),gethitvar(fall)
+Trigger1=(root,stateno=[4210,4211])
+Trigger1=root,time=1
+var(45)=-5
+
+[State -3];juggle計算
+Type=Varadd
+triggerall=root,time >=1
+Triggerall=root,movehit=1
+Triggerall=!playerID(root,var(57)),hitshakeover
+Triggerall=playerID(root,var(57)),time=1
+Triggerall=playerID(root,var(57)),gethitvar(fall)
+Triggerall=playerID(root,var(57)),Statetype=A
+Trigger1=root,stateno=410 || root,stateno=1020 || root,stateno=1120&&var(44) || root,stateno=1070
+Trigger2=root,stateno=860|| root,stateno=1320&&var(44)
+var(45)=-6
+
+[State -3];juggle計算
+Type=Varadd
+triggerall=root,time >=1
+Triggerall=root,movehit=1
+Triggerall=!playerID(root,var(57)),hitshakeover
+Triggerall=playerID(root,var(57)),time=1
+Triggerall=playerID(root,var(57)),gethitvar(fall)
+Triggerall=playerID(root,var(57)),Statetype=A
+Trigger1=root,stateno=440 || root,stateno=445
+var(45)=-7
+
+
+[State -3];juggle計算
+Type=Varset
+trigger1=((root,stateno=1400||root,stateno=1410)&&playerID(root,var(57)),gethitvar(fall)&&root,movehit=2)
+trigger2=((root,stateno=[3000,3001])&&playerID(root,var(57)),gethitvar(fall)&&root,movehit=2)
+trigger3=((root,stateno=1320)&&playerID(root,var(57)),gethitvar(fall)&&root,movehit=1)
+trigger4=((root,stateno=[1100,1120])&&playerID(root,var(57)),gethitvar(fall)&&root,movehit=1)
+var(44)=0
+
+
+
+
+[State -2];カンフーマスター、ジャンプ回数
+type=varset
+trigger1=root,movetype=H
+trigger2=root,statetype!=A
+var(42)=1
+
+
+[State -2];カンフーマスター、ジャンプ回数
+type=varset
+trigger1=root,stateno=44
+trigger1=root,movetype=I
+var(42)=0
+
+
+
+
+[State -2];
+type=varset
+triggerall=numpartner
+triggerall=partner,alive
+trigger1=partner,name="justice"||partner,name="Nocturne"||partner,name="Jimmy"||partner,name="Kaede"||partner,name="Katakura Kojuro"
+trigger1=root,life-partner,life<=300
+trigger1=partner,numhelper(30000)
+trigger1=partner,var(59)>0
+trigger2=partner,name="chipp_arrange"||partner,name="Morrigan Aensland"||partner,name="ky"||partner,name="Lucario"||partner,name="Kung Fu Man"||partner,name="Date Masamune"||partner,name="millia"
+trigger2=root,life-partner,life<-300
+trigger2=partner,numhelper(30000)
+trigger2=partner,var(59)>0
+var(38)=1
+
+
+[State -2];
+type=varset
+triggerall=numpartner
+triggerall=partner,alive
+trigger1=partner,name="chipp_arrange"||partner,name="Morrigan Aensland"||partner,name="ky"||partner,name="Lucario"||partner,name="Kung Fu Man"||partner,name="Date Masamune"||partner,name="millia"
+trigger1=partner,numhelper(30000)
+trigger1=root,life-partner,life>300
+trigger1=partner,var(59)>0
+trigger2=partner,name="Alice Margatroid"
+trigger3=partner,name="dizzy"||partner,name="Hong Meirin"
+trigger3=partner,numhelper(30000)
+trigger3=partner,var(59)>0
+trigger4=partner,name="justice"||partner,name="Nocturne"||partner,name="Jimmy"||partner,name="Kaede"||partner,name="Katakura Kojuro"||partner,name="Sanada Yukimura"
+trigger4=root,life-partner,life>300
+trigger4=partner,numhelper(30000)
+trigger4=partner,var(59)>0
+var(38)=2
+
+
+
+[State -2];
+type=varset
+triggerall=numpartner
+triggerall=partner,alive
+trigger1=var(38)!=[1,2]
+trigger2=root,life-partner,life=[-300,300]
+trigger2=partner,name="Morrigan Aensland"||partner,name="ky"||partner,name="Kung Fu Man"||partner,name="chipp_arrange"||partner,name="Lucario"||partner,name="Date Masamune"||partner,name="millia"
+trigger2=partner,numhelper(30000)
+trigger2=partner,var(59)>0
+var(38)=3
+
+
+[State -2];
+type=varset
+trigger1=var(38)>=1
+trigger1=!(partner,alive)
+var(38)=-1
+
+[State -2];受身不能時間
+type=varset
+triggerall=playerID(root,var(57)),stateno > 199
+triggerall=playerID(root,var(57)),Movetype=H
+triggerall=playerID(root,var(57)),statetype!=L
+trigger1=playerID(root,var(57)),stateno=[1030,1032]
+var(0)=999
+
+
+[State 30002]
+type=varset
+trigger1=root,movetype!=A
+trigger1=var(33)=1
+var(33)=-1
+
+[State 30002]
+type=varset
+triggerall=root,movetype!=A
+trigger1=playerID(root,var(57)),stateno/100!=var(32)/100||playerID(root,var(57)),ctrl||playerID(root,var(57)),stateno<200
+trigger2=playerID(root,var(57)),movetype=I&&playerID(root,var(57)),stateno!=var(32)
+trigger3=playerID(root,var(57)),movetype=H
+var(33)=0
+
+[State 30002]
+type=varset
+trigger1=!var(33)
+var(32)=playerID(root,var(57)),stateno
+
+[State 30002]
+type=varset
+triggerall=!var(33)
+triggerall=root,movetype=A
+trigger1=root,stateno=[3000,3050]
+var(33)=1
+
+
+[State -2 デバッグ用]
+type=displayToClipboard
+trigger1=1
+ignorehitpause=1
+text="numtarget=%d var(45)=%d P2BD x=%d P2D y=%d var(59)=%d"
+params=numtarget,var(45),ceil(root,P2BodyDist x),ceil(root,P2Dist y),var(59)
+
+[State -2 デバッグ用]
+type=null;appendToClipboard
+trigger1=1
+ignorehitpause=1
+text="\nvar(38)=%d"
+params=var(38)
+
+;左端ヘルパー、キャラ別ステート
+[Statedef 30012]
+anim=9999
+ctrl=0
+
+[State 30001]
+type=Changestate
+trigger1=time>=1
+value=30010
+
+
+[State 30010]
+type=null
+trigger1=var(24)>0
+trigger1=var(24):=var(24)-1
+trigger2=root,name="Morrigan Aensland"
+trigger2=var(24)<0
+trigger2=var(24):=var(24)+1
+trigger3=root,name="Morrigan Aensland"
+trigger3=var(24)>0
+trigger3=root,movetype!=I||root,stateno=[120,132]
+trigger3=var(24):=0
+
+[State 30010]
+type=varset
+trigger1=root,stateno=702
+var(24)=3
+
+;飛び道具対策、キャラ別ステート
+[Statedef 30029]
+anim=9999
+ctrl=0
+
+[State 30029]
+type=CHangeState
+trigger1=time>0
+value=30020
+
+
+
+[State 30029]
+type=CHangeState
+trigger1=!playerIDExist(var(3+var(55)))
+trigger1=var(55)<var(54)-1
+trigger1=var(55):=var(55)+1
+value=30029
+
+[State 30020]
+type=varset
+trigger1=prevstateno!=30029
+var(58)=0
+
+[State 30020 地上波動、前転用]
+type=varadd
+trigger1=playerIDExist(var(3+var(55)))
+trigger1=playerID(var(3+var(55))),movetype=A
+trigger1=playerID(var(3+var(55))),pos y+playerID(var(3+var(55))),vel y*10=[-100,60]
+trigger1=abs(playerID(var(3+var(55))),vel x)>1
+trigger1=playerID(var(3+var(55))),facing*(root,pos x-playerID(var(3+var(55))),pos x)>-100
+trigger1=fvar(0):=playerID(var(3+var(55))),vel x
+var(58)=1
+
+[State 30020 ランスキック用]
+type=varadd
+trigger1=playerIDExist(var(3+var(55)))
+trigger1=playerID(var(3+var(55))),movetype=A
+trigger1=playerID(var(3+var(55))),pos y>-200
+trigger1=abs(playerID(var(3+var(55))),vel x)>1
+trigger1=playerID(var(3+var(55))),facing*(root,pos x-playerID(var(3+var(55))),pos x)=[-50,150]
+trigger1=fvar(1):=playerID(var(3+var(55))),vel y
+var(58)=10
+
+
+[State 30020 空中波動、ジャベリン禁止用]
+type=varadd
+trigger1=playerIDExist(var(3+var(55)))
+trigger1=playerID(var(3+var(55))),movetype=A
+trigger1=playerID(var(3+var(55))),pos y+playerID(var(3+var(55))),vel y*5<-100
+trigger1=abs(playerID(var(3+var(55))),vel x)>1
+trigger1=playerID(var(3+var(55))),facing*(root,pos x-playerID(var(3+var(55))),pos x)>-50
+var(58)=100
+
+[State 30020 山靠用]
+type=varadd
+trigger1=playerIDExist(var(3+var(55)))
+trigger1=playerID(var(3+var(55))),movetype=A
+trigger1=playerID(var(3+var(55))),pos y>-200
+trigger1=abs(playerID(var(3+var(55))),vel x)>1
+trigger1=playerID(var(3+var(55))),facing*(root,pos x-playerID(var(3+var(55))),pos x)-playerID(var(3+var(55))),vel x*7>=50
+trigger1=playerID(var(3+var(55))),facing*(root,pos x-playerID(var(3+var(55))),pos x)-playerID(var(3+var(55))),vel x*24<100
+trigger1=playerID(var(3+var(55))),hitdefattr=SCA,AP
+trigger1=fvar(2):=playerID(var(3+var(55))),vel x
+var(58)=1000
+
+
+[State 30029]
+type=CHangeState
+trigger1=var(55)<var(54)
+trigger1=var(55):=var(55)+1||1
+value=30029
+
+
+[State -2 デバッグ用]
+type=displayToClipboard
+trigger1=1
+ignorehitpause=1
+text=" var(2)=%d var(4)=%d var(3)=%d var(5)=%d var(6)=%d"
+params=var(2),var(4),var(3),var(5),var(6)
+
+
+[State -2 デバッグ用]
+type=AppendToClipboard
+trigger1=1
+ignorehitpause=1
+text=" \nvar(7)=%d var(59)=%d var(55)=%d var(54)=%d var(58)=%d"
+params=var(7),var(59),var(55),var(54),var(58)
+
+
+[State 30020];カウンタ初期化
+type=varset
+trigger1=1
+var(55)=0
+
+[State 30020]
+type=varset
+trigger1=1
+var(56)=0
+
+[State 30020]
+type=varset
+trigger1=1
+var(15)=0

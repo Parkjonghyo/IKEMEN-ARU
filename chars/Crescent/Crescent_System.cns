@@ -1,0 +1,607 @@
+;=============================================================
+;			脚払い擬似コモン
+;=============================================================
+;転ばせ効果--------------------------------------------
+[StateDef 5600]
+Type = U
+MoveType = H
+Physics = U
+Ctrl = 0
+VelSet = 0,0
+SprPriority = 0
+
+[State 在るべきところへ帰れ]
+Type = SelfState
+Trigger1 = GetHitVar(Guarded)
+Trigger2 = IsHelper
+Value = PrevStateNo
+IgnoreHitPause = 1
+
+[State お前はここに居るべきではない]
+Type = SelfState
+TriggerAll = Time = 0
+Trigger1 = StateType = A
+Trigger2 = StateType = L
+Value = 5000
+IgnoreHitPause = 1
+
+[State 無に還れ]
+Type = SelfState
+Trigger1 = !Alive
+Value = 5000
+IgnoreHitPause = 1
+
+[State アニメ変更]
+Type = ChangeAnim
+Trigger1 = 1
+Value = 5070
+
+[State 状態変更]
+Type = StateTypeSet
+Trigger1 = Time = 0
+StateType = L
+
+[State ステート移行]
+Type = ChangeState
+Trigger1 = HitShakeOver
+Trigger1 = Alive
+Value = 5601
+Ctrl = 0
+
+;転ばせ効果(転倒中)--------------------------------------------
+[StateDef 5601]
+Type = L
+MoveType = H
+Physics = N
+
+[State 速度ベクトルON]
+Type = HitVelSet
+Trigger1 = Time = 0
+X = 1
+Y = 1
+
+[State 重力]
+Type = VelAdd
+Trigger1 = 1
+Y = 0.5
+
+[State 接地]
+Type = ChangeState
+Trigger1 = Vel Y > 0
+Trigger1 = Pos Y >= 25
+Value = 5602
+
+;転ばせ効果(ダウン)--------------------------------------------
+[StateDef 5602]
+Type = L
+MoveType = H
+Physics = N
+
+[State 画面振動]
+Type = FallEnvShake
+Trigger1 = Time = 0
+
+[State アニメ変更]
+Type = ChangeAnim
+Trigger1 = Time = 0
+Value = 5170
+
+[State Y位置調整]
+Type = PosSet
+Trigger1 = Time = 0
+Y = 0
+
+[State 落下速度記憶]
+Type = VarSet
+Trigger1 = Time = 0
+Trigger1 = GetHitVar(Fall.YVel) != 0
+sysvar(1) = Floor(Vel Y)
+
+[State 着地エフェクト]
+Type = GameMakeAnim
+Trigger1 = Time = 0
+Trigger1 = !SysVar(0)
+Value = 60
+Pos = 0, 0
+Under = SysVar(1) <= 10
+
+[State Y速度調整]
+Type = VelSet
+Trigger1 = Time = 0
+Y = 0
+
+[State ダウンアニメ]
+Type = ChangeAnim
+Trigger1 = Anim = 5170
+Trigger1 = AnimTime = 0
+Value = 5110
+
+[State SysVar]
+Type = VarSet
+Trigger1 = Time = 0
+sysvar(0) = 1
+
+[State ご臨終DEATH]
+Type = SelfState
+Trigger1 = !Alive
+Value = 5150
+
+[State 摩擦]
+Type = VelMul
+Trigger1 = 1
+X = 0.85
+
+[State お返しします]
+Type = SelfState
+Trigger1 = Time >= 30
+Value = 5120
+
+;=============================================================
+;			叩き落し擬似コモン
+;=============================================================
+;叩き落し効果--------------------------------------------
+[StateDef 5610]
+Type = U
+MoveType = H
+Physics = N
+Ctrl = 0
+VelSet = 0,0
+
+[State 在るべきところへ帰れ]
+Type = SelfState
+Trigger1 = GetHitVar(Guarded)
+Trigger2 = IsHelper
+Value = PrevStateNo
+IgnoreHitPause = 1
+
+[State お前はここに居るべきではない]
+Type = SelfState
+Trigger1 = !Alive
+Trigger2 = StateType != A
+Trigger2 = StateType != L
+Value = 5000
+IgnoreHitPause = 1
+
+[State アニメ固定]
+Type = ChangeAnim
+Trigger1 = 1
+Value = 5012
+
+[State ステート移行]
+Type = ChangeState
+Trigger1 = HitShakeOver
+Trigger1 = Alive
+Value = 5611
+Ctrl = 0
+IgnoreHitPause = 1
+
+;叩き落し効果続き--------------------------------------------
+[StateDef 5611]
+Type = A
+MoveType = H
+Physics = N
+Ctrl = 0
+
+[State 重力]
+Type = VelAdd
+Trigger1 = 1
+Y = 0.5
+
+[State 速度ベクトルON]
+Type = HitVelSet
+Trigger1 = Time = 0
+X = 1
+Y = 1
+
+[State 接地]
+Type = ChangeState
+Trigger1 = HitOver
+Trigger2 = Vel Y > 0
+Trigger2 = Pos Y >= 10
+Value = 5613
+
+[State 次のステートへ]
+Type = ChangeState
+Trigger1 = AnimTime = 0
+Value = 5612
+
+;叩き落し効果(落下中)--------------------------------------------
+[StateDef 5612]
+Type = A
+MoveType = H
+Physics = N
+
+[State アニメ変更]
+Type = ChangeAnim
+Trigger1 = Time = 0
+Trigger1 = SelfAnimExist(5035)
+Value = 5035
+
+[State 重力]
+Type = VelAdd
+Trigger1 = 1
+Y = 0.5
+
+[State ステート移行]
+Type = ChangeState
+Trigger1 = HitOver
+Trigger2 = AnimTime = 0
+Trigger3 = Vel Y > 0
+Trigger3 = Pos Y >= 10
+Trigger4 = Time = 0
+Trigger4 = Anim != 5035
+Value = 5613
+
+;叩き落し効果(落下中)--------------------------------------------
+[StateDef 5613]
+Type = A
+MoveType = H
+Physics = N
+
+[State アニメ変更]
+Type = ChangeAnim
+Trigger1 = AnimTime = 0
+Trigger1 = Anim = 5035
+Trigger2 = Time = 0
+Trigger2 = Anim != 5035
+Value = 5050
+
+[State アニメ変更]
+Type = ChangeAnim
+Trigger1 = Anim = 5050
+Trigger1 = Vel Y >= 1
+Trigger1 = SelfAnimExist(5060)
+Value = 5060
+Persistent = 0
+
+[State 重力]
+Type = VelAdd
+Trigger1 = 1
+Y = 0.5
+
+[State バウンド]
+Type = ChangeState
+Trigger1 = Vel Y > 0
+Trigger1 = Pos Y >= 25
+Value = 5614
+
+;相手バウンド開始------------------------------------------------------
+[StateDef 5614]
+Type = L
+MoveType= H
+Physics = N
+
+[State 速度調整]
+Type = VelSet
+Trigger1 = Time = 0
+Trigger1 = GetHitVar(Fall.YVel) = 0
+Trigger1 = Vel X > 1
+X = 1
+
+[State 減速]
+Type = VelMul
+Trigger1 = Time = 0
+X = 0.75
+
+[State 画面振動]
+Type = FallEnvShake
+Trigger1 = Time = 0
+
+[State 落下速度記憶]
+Type = VarSet
+Trigger1 = Time = 0
+sysvar(1) = Floor(Vel Y)
+
+[State Y位置調整]
+Type = PosSet
+Trigger1 = Time = 0
+Y = 0
+
+[State Y速度消滅]
+Type = VelSet
+Trigger1 = Time = 0
+Y = 0
+
+[State アニメ変更]
+Type = ChangeAnim
+Trigger1 = Time = 0
+Value = 5100
+
+[State 接地エフェクト]
+Type = GameMakeAnim
+Trigger1 = Time = 1
+Value = 60 
+Pos = 0, 0
+Under = SysVar(1) <= 10
+
+[State 位置固定]
+Type = PosFreeze
+Trigger1 = 1
+
+[State 次へ]
+Type = SelfState
+Trigger1 = AnimTime = 0
+Value = 5101
+
+
+;=============================================================
+;			ヒットスパーク
+;=============================================================
+;通常・必殺--------------------------------------------------
+[StateDef 6000]
+Type = A
+MoveType = I
+Physics = N
+Anim = 6002
+SprPriority = 100
+
+[State 影消し]
+Type = AssertSpecial
+Trigger1 = 1
+Flag = Noshadow
+
+[State ヒットスパーク]
+Type = Explod
+Trigger1 = Time = 0
+Anim = 6000
+Pos = 0, 0
+BindTime = 1
+OnTop = 1
+OwnPal = 0
+Scale = 0.5*Const(Size.XScale), 0.5*Const(Size.XScale)
+Persistent = 0
+IgnoreHitPause = 1
+
+[State ヒットスパーク]
+Type = Explod
+Trigger1 = Time = 0
+Anim = 6001
+Pos = 0, 0
+BindTime = 1
+OnTop = 1
+OwnPal = 0
+Scale = 0.5*Const(Size.XScale), 0.5*Const(Size.XScale)
+Persistent = 0
+IgnoreHitPause = 1
+
+[State 消滅]
+Type = DestroySelf
+Trigger1 = AnimTime = 0
+
+;超必殺--------------------------------------------------
+[StateDef 6020]
+Type = A
+MoveType = I
+Physics = N
+Anim = 6022
+SprPriority = 100
+
+[State 影消し]
+Type = AssertSpecial
+Trigger1 = 1
+Flag = Noshadow
+
+[State サイズ調整]
+Type = AngleDraw
+Trigger1 = 1
+Value = 0
+Scale = 1.5, 1.5
+
+[State 透過]
+Type = Trans
+Trigger1 = 1
+Trans = Add
+
+[State ヒットスパーク]
+Type = Explod
+Trigger1 = Time = 0
+Anim = 6020
+Pos = 0, 0
+BindTime = 1
+OnTop = 1
+OwnPal = 0
+Scale = 0.5, 0.5;*Const(Size.XScale), 0.5*Const(Size.XScale)
+Persistent = 0
+IgnoreHitPause = 1
+
+[State ヒットスパーク]
+Type = Explod
+Trigger1 = Time = 0
+Anim = 6021
+Pos = 0, 0
+BindTime = 1
+OnTop = 1
+OwnPal = 0
+Scale = 0.5, 0.5;*Const(Size.XScale), 0.5*Const(Size.XScale)
+Persistent = 0
+IgnoreHitPause = 1
+
+[State 消滅]
+Type = DestroySelf
+Trigger1 = AnimTime = 0
+
+
+;=============================================================
+;			先行入力
+;=============================================================
+[StateDef 7100]
+Type = A
+MoveType = I
+Physics = N
+Ctrl = 0
+Anim = 10000
+
+[State 保険]
+Type = SelfState
+Trigger1 = !IsHelper
+Value = 0
+
+[State 念のため無敵]
+Type = NotHitBy
+Trigger1 = 1
+Value = SCA,AA,AP,AT
+
+[State 位置と向き]
+Type = BindToRoot
+Trigger1 = 1
+Facing = 1
+Pos = 0,9999
+
+[State 有効時間]
+Type = Null
+Trigger1 = Var(0) > 0
+Trigger1 = Var(0) := Var(0) -1
+Trigger1 = 0
+Trigger2 = Var(1) > 0
+Trigger2 = Var(1) := Var(1) -1
+Trigger2 = 0
+Trigger3 = Var(2) > 0
+Trigger3 = Var(2) := Var(2) -1
+Trigger3 = 0
+Trigger4 = Var(3) > 0
+Trigger4 = Var(3) := Var(3) -1
+Trigger4 = 0
+Trigger5 = Var(4) > 0
+Trigger5 = Var(4) := Var(4) -1
+Trigger5 = 0
+Trigger6 = Var(5) > 0
+Trigger6 = Var(5) := Var(5) -1
+Trigger6 = 0
+Trigger7 = Var(6) > 0
+Trigger7 = Var(6) := Var(6) -1
+Trigger7 = 0
+Trigger8 = Var(7) > 0
+Trigger8 = Var(7) := Var(7) -1
+Trigger8 = 0
+Trigger9 = Var(8) > 0
+Trigger9 = Var(8) := Var(8) -1
+Trigger9 = 0
+Trigger10 = Var(9) > 0
+Trigger10 = Var(9) := Var(9) -1
+Trigger10 = 0
+Trigger11 = Var(10) > 0
+Trigger11 = Var(10) := Var(10) -1
+Trigger11 = 0
+Trigger12 = Var(11) > 0
+Trigger12 = Var(11) := Var(11) -1
+Trigger12 = 0
+Trigger13 = Var(12) > 0
+Trigger13 = Var(12) := Var(12) -1
+Trigger13 = 0
+Trigger14 = Var(13) > 0
+Trigger14 = Var(13) := Var(13) -1
+Trigger15 = 0
+Trigger16 = Var(14) > 0
+Trigger16 = Var(14) := Var(14) -1
+Trigger16 = 0
+
+;=============================================================================
+;				超必殺技
+;=============================================================================
+[State 逢魔]
+Type = VarSet
+TriggerAll = Command = "逢魔"
+Trigger1 = Root,MoveType = H
+Trigger2 = Root,StateType = L
+Trigger3 = Root,StateNo = [100,106]
+var(0) = 5
+
+[State 22EX]
+Type = VarSet
+TriggerAll = Command = "22EX"
+Trigger1 = Root,MoveType = H
+Trigger2 = Root,StateType = L
+Trigger3 = Root,StateNo = [100,106]
+var(1) = 5
+
+[State EX波動]
+Type = VarSet
+TriggerAll = Command = "EX波動"
+Trigger1 = Root,MoveType = H
+Trigger2 = Root,StateType = L
+Trigger3 = Root,StateNo = [100,106]
+var(2) = 5
+
+[State EX竜巻]
+Type = VarSet
+TriggerAll = Command = "EX竜巻"
+Trigger1 = Root,MoveType = H
+Trigger2 = Root,StateType = L
+Trigger3 = Root,StateNo = [100,106]
+var(3) = 5
+
+
+;=============================================================================
+;				必殺技
+;=============================================================================
+[State 必殺技強度]
+Type = ParentVarSet
+TriggerAll = Command="A波動" || Command="A竜巻" || Command="22A"
+Trigger1 = Root,MoveType = H
+Trigger2 = Root,StateType = L
+Trigger3 = Root,StateNo = [100,106]
+var(5) = 0
+
+[State 必殺技強度]
+Type = ParentVarSet
+TriggerAll = Command="B波動" || Command="B竜巻" || Command="22B"
+Trigger1 = Root,MoveType = H
+Trigger2 = Root,StateType = L
+Trigger3 = Root,StateNo = [100,106]
+var(5) = 1
+
+[State 必殺技強度]
+Type = ParentVarSet
+TriggerAll = Command="C波動" || Command="C竜巻" || Command="22C"
+Trigger1 = Root,MoveType = H
+Trigger2 = Root,StateType = L
+Trigger3 = Root,StateNo = [100,106]
+var(5) = 2
+
+[State 波動]
+Type = VarSet
+TriggerAll = Command="A波動" || Command="B波動" || Command="C波動"
+Trigger1 = Root,MoveType = H
+Trigger2 = Root,StateType = L
+Trigger3 = Root,StateNo = [100,106]
+var(4) = 5
+
+[State C竜巻]
+Type = VarSet
+TriggerAll = Command = "C竜巻"
+Trigger1 = Root,MoveType = H
+Trigger2 = Root,StateType = L
+Trigger3 = Root,StateNo = [100,106]
+var(5) = 5
+
+[State B竜巻]
+Type = VarSet
+TriggerAll = Command = "B竜巻"
+Trigger1 = Root,MoveType = H
+Trigger2 = Root,StateType = L
+Trigger3 = Root,StateNo = [100,106]
+var(6) = 5
+
+[State A竜巻]
+Type = VarSet
+TriggerAll = Command = "A竜巻"
+Trigger1 = Root,MoveType = H
+Trigger2 = Root,StateType = L
+Trigger3 = Root,StateNo = [100,106]
+var(7) = 5
+
+[State 22]
+Type = VarSet
+TriggerAll = Command = "22A" || Command = "22B" || Command = "22C"
+Trigger1 = Root,MoveType = H
+Trigger2 = Root,StateType = L
+Trigger3 = Root,StateNo = [100,106]
+var(8) = 5
+
+[State フィルアップ]
+Type = VarSet
+TriggerAll = Command = "x"
+Trigger1 = Root,MoveType = H
+Trigger2 = Root,StateType = L
+Trigger3 = Root,StateNo = [100,106]
+var(9) = 5

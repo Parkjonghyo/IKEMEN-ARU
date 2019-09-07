@@ -1,0 +1,1926 @@
+
+;Var(45)常時AI
+;Var(55)生死判別
+;Var(56)超反応
+;Var(57)ランダム
+;Var(58)敵のヘルパー確認
+;Var(59)AI判定
+
+;FVar(7)時間
+
+;FVar(9)夢想天生使用回数
+;FVar(10)夢想天生
+;FVar(11)臓器破壊ヒット
+;FVar(12)博麗拳術奥儀『武想滅塵』
+;FVar(33)霊力
+;FVar(35)攻撃力変動
+;FVar(36)霊激
+
+
+;===========================================================================
+; 準常時監視ステート（－３）
+;===========================================================================
+
+
+[Statedef -3]
+
+;---------------------------------------------------------------------------
+;設定
+;---------------------------------------------------------------------------
+
+[State -3, 常時AI];1だと常時起動 0だと無しデフォは0
+type = VarSet
+TriggerAll =! isHelper
+TriggerAll = RoundState = 2
+Trigger1   = ctrl
+V = 45
+Value = 0
+
+
+[State -2, 霊力自動回復強化]
+type = Varadd
+TriggerAll = RoundState = 2
+TriggerAll =! isHelper
+TriggerAll = life != 0
+Trigger1   = 1
+FV = 33
+Value = 0       ;小数点化
+
+[State -3, 一撃ゲージ自動上昇]
+Type = Varadd
+TriggerAll = RoundState = 2
+TriggerAll =! isHelper
+TriggerAll =! life = 0
+Trigger1 =  1
+FV = 12
+Value = 0          ;小数点化、参考にピンチ時の自動上昇は0.02
+IgnoreHitPause = 1
+
+
+[State -2, 全攻撃ガード不能化]
+type = AssertSpecial
+trigger1 = 0      ;0でoff、1でon 
+flag = UnGuardable
+IgnoreHitPause = 1
+
+
+;---------------------------------------------------------------------------
+;効果音
+;---------------------------------------------------------------------------
+
+
+[State -3, 音を鳴らす];「ジャンプ」か「バックステップ」
+type = PlaySnd
+TriggerAll =!  isHelper
+TriggerAll = Time = 1
+Trigger1 = stateno = 52  ;着地ステート
+Trigger2 = stateno = 106 ;バックステップ後の着地ステート
+value = 0, 2
+
+
+
+[State -3, 音を鳴らす];ジャンプ
+type = PlaySnd
+TriggerAll =!  isHelper
+TriggerAll = Time = 1
+Trigger1 = stateno = 40
+Trigger2 = stateno = 45
+value = 0, 1
+
+
+;---------------------------------------------------------------------------
+;試験用ステ抜け
+;---------------------------------------------------------------------------
+
+
+
+
+[State -3, ]
+Type = VarSet
+Trigger1 = 1
+V = 37
+Value = Gametime
+IgnoreHitPause = 1
+
+[State -3, ]
+Type = VarSet
+Trigger1 = 1
+V = 38
+Value = Gametime+1
+IgnoreHitPause = 1
+
+[State -3, ヘルパー行動不可]
+type = Ctrlset
+Trigger1 =  isHelper
+value = 0
+IgnoreHitPause = 1
+
+
+[State -3, ヘルパー画面固定]
+type = screenbound
+Trigger1 = isHelper
+value = 0
+movecamera = 0,0
+IgnoreHitPause = 1
+
+
+;---------------------------------------------------------------------------
+;不具合　修正
+;---------------------------------------------------------------------------
+
+
+
+[State -3, ステート変更]
+type = ChangeState
+TriggerAll =!isHelper
+TriggerAll = Var(59) != 0
+TriggerAll = pos Y < -5
+Trigger1 = StateNo = 120
+Trigger2 = StateNo = 130
+Trigger3 = StateNo = 131
+value = 132
+SuperMoveTime = 9999
+PauseMoveTime = 9999
+
+
+
+[State -3, ステート変更]
+type = ChangeState
+TriggerAll =!isHelper
+TriggerAll = Statetype != A
+TriggerAll = Statetype != L
+TriggerAll = movetype != H 
+TriggerAll = movetype != A 
+TriggerAll = pos Y < -5
+TriggerAll = RoundState = 2
+Trigger1 = 1
+value = 50
+SuperMoveTime = 9999
+PauseMoveTime = 9999
+
+
+
+[State -1,]
+type = PosSet
+TriggerAll =!isHelper
+TriggerAll = Statetype != A
+TriggerAll = Statetype != L
+TriggerAll = movetype != H 
+TriggerAll = movetype != A 
+TriggerAll = RoundState = 2
+Trigger1 = pos Y > 10
+y = 0
+
+
+;---------------------------------------------------------------------------
+;AI
+;---------------------------------------------------------------------------
+
+
+
+
+[State -3, AI]
+type = VarSet
+TriggerAll = Var(59) = 0
+TriggerAll =!  isHelper
+TriggerAll = RoundState = [1,2]
+TriggerAll   = Life != 0
+Trigger1   = command = "AI_0"
+Trigger2   = command = "AI_1"
+Trigger3   = command = "AI_2"
+Trigger4   = command = "AI_3"
+Trigger5   = command = "AI_4"
+Trigger6   = command = "AI_5"
+Trigger7   = command = "AI_6"
+Trigger8   = command = "AI_7"
+Trigger9   = command = "AI_8"
+Trigger10   = command = "AI_9"
+Trigger11   = command = "AI_10"
+Trigger12   = command = "AI_11"
+Trigger13   = command = "AI_12"
+Trigger14   = command = "AI_13"
+Trigger15   = command = "AI_14"
+Trigger16   = command = "AI_15"
+Trigger17   = command = "AI_16"
+Trigger18   = command = "AI_17"
+Trigger19   = command = "AI_18"
+Trigger20   = command = "AI_19"
+Trigger21   = command = "AI_20"
+Trigger22   = command = "AI_21"
+Trigger23   = command = "AI_22"
+Trigger24   = command = "AI_23"
+Trigger25   = command = "AI_24"
+Trigger26   = command = "AI_25"
+Trigger27   = command = "AI_26"
+Trigger28   = command = "AI_27"
+Trigger29   = command = "AI_28"
+Trigger30   = command = "AI_29"
+Trigger31   = command = "AI_30"
+Trigger32   = command = "AI_31"
+Trigger33   = command = "AI_32"
+Trigger34   = command = "AI_33"
+Trigger35   = command = "AI_34"
+Trigger36   = command = "AI_35"
+Trigger37   = command = "AI_36"
+Trigger38   = command = "AI_37"
+Trigger39   = command = "AI_38"
+Trigger40   = command = "AI_39"
+Trigger41   = command = "AI_40"
+Trigger42   = command = "AI_41"
+Trigger43   = command = "AI_42"
+Trigger44   = command = "AI_43"
+Trigger45   = command = "AI_44"
+Trigger46   = command = "AI_45"
+Trigger47   = command = "AI_46"
+Trigger48   = command = "AI_47"
+Trigger49   = command = "AI_48"
+Trigger50   = command = "AI_49"
+Trigger51   = command = "AI_50"
+Trigger52   = command = "AI_51"
+Trigger53   = command = "AI_52"
+Trigger54   = command = "AI_53"
+Trigger55   = command = "AI_54"
+Trigger56   = command = "AI_55"
+Trigger57   = command = "AI_56"
+Trigger58   = command = "AI_57"
+Trigger59   = command = "AI_58"
+Trigger60   = command = "AI_59"
+Trigger61   = command = "AI_60"
+Trigger62 = Var(45) !=0
+V = 59
+Value = 1
+
+
+
+
+
+
+[State -3, AI]
+type = VarSet
+TriggerAll = Var(59) >= 1
+TriggerAll =!  isHelper
+Trigger1   = RoundState >= 3
+Trigger2   = Life = 0
+V = 59
+Value = 0
+
+
+
+
+
+[State -3, ]
+type = VarSet
+TriggerAll = Var(58) = 0
+TriggerAll =!isHelper
+Trigger1   = EnemyNear, NumHelper > 0
+Trigger1   = RoundState < 2
+V = 58
+Value = EnemyNear, NumHelper
+
+
+
+
+[State -3, AI]
+type = VarRandom
+TriggerAll = Var(59) = 1
+TriggerAll =!  isHelper
+Trigger1   = Time = 1
+Trigger2   = Time%60 = 1
+Trigger2   = MoveType != I
+Trigger3   = Time%1 = 1
+Trigger3   = MoveType = I
+Trigger4   = stateno = 1010
+Trigger5   = stateno = 1080
+v = 57
+Range = 0,99
+IgnoreHitPause = 1
+
+
+
+
+[State -3, AI];超反応2
+type = VarSet
+TriggerAll = Var(56) = 0
+TriggerAll =!  isHelper
+Trigger1   =  EnemyNear,HitDefAttr != SCA
+V = 56
+Value = 0
+IgnoreHitPause = 1
+
+
+[State -3, AI];超反応
+type = VarAdd
+TriggerAll = Var(56) = 1
+TriggerAll =!  isHelper
+Trigger1   = EnemyNear,HitDefAttr = SCA
+V = 56
+Value = 1
+IgnoreHitPause = 1
+
+
+
+
+[State -3, 生死判別]
+Type = VarSet
+TriggerAll =!  isHelper
+Trigger1 = NumEnemy = 1
+Trigger2 = NumEnemy = 2
+Trigger2 = EnemyNear,Life > 0
+V = 55
+Value = 0
+IgnoreHitPause = 1
+
+
+[State -3, 生死判別2]
+Type = VarSet
+TriggerAll =!  isHelper
+Trigger1 = NumEnemy > 1
+Trigger1 = EnemyNear,Life = 0
+V = 55
+Value = 1
+IgnoreHitPause = 1
+
+
+
+[State -3, ];時間
+Type = Varset
+TriggerAll =! isHelper
+Trigger1 = RoundState < 2
+Trigger2 = RoundState > 2
+FV = 7
+Value = 0
+IgnoreHitPause = 1
+
+
+
+[State -3, ];時間
+Type = Varadd
+TriggerAll =! isHelper
+TriggerAll = RoundState = 2
+Trigger1 = 1
+FV = 7
+Value = 0.3
+IgnoreHitPause = 1
+
+;---------------------------------------------------------------------------
+;試験用ステ抜け
+;---------------------------------------------------------------------------
+
+
+
+[State -3, ]
+Type = VarSet
+TriggerAll = palno = 11
+Trigger1 = 1
+V = 37
+Value = Gametime
+IgnoreHitPause = 1
+
+
+[State -3, ]
+Type = VarSet
+TriggerAll = root,palno = 11
+Trigger1 = 1
+V = 37
+Value = Gametime
+IgnoreHitPause = 1
+
+
+
+[State -3, ]
+Type = VarSet
+TriggerAll =! isHelper
+TriggerAll = 1
+TriggerAll = palno = 12
+Trigger1 = 1
+V = 37
+Value = Gametime
+IgnoreHitPause = 1
+
+
+[State -3, ]
+Type = VarSet
+TriggerAll = root,palno = 12
+Trigger1 = 1
+V = 37
+Value = Gametime
+IgnoreHitPause = 1
+
+;---------------------------------------------------------------------------
+;---------------------------------------------------------------------------
+;追撃系
+;---------------------------------------------------------------------------
+;---------------------------------------------------------------------------
+
+
+[State -3, ];敵空中喰らい拾い小攻撃
+type = ChangeState
+value = 200
+TriggerAll = Var(59) = 1
+TriggerAll = StateType != A
+TriggerAll = P2BodyDist X-Ceil(Vel X)-Ceil(EnemyNear(Var(55)),Vel X) = [-110,110]
+TriggerAll = P2BodyDist Y-Ceil(Vel Y)-Ceil(EnemyNear(Var(55)),Vel Y) = [-170,-40]
+TriggerAll = EnemyNear(Var(55)),Vel Y > 1.8
+TriggerAll = EnemyNear(Var(55)),MoveType = H
+Trigger1 = ctrl || stateno = 19|| stateno = 20
+
+
+
+[State -3, 敵がガード時に博麗剣術『頭砕き』]
+type = ChangeState
+value = 1080
+TriggerAll = Var(59) = 1
+TriggerAll = palno  = [1,12]
+TriggerAll = StateType != A
+TriggerAll = P2BodyDist X > 5
+TriggerAll = P2BodyDist X < 50
+TriggerAll = P2StateType != A
+TriggerAll = P2BodyDist Y-Ceil(Vel Y)-Ceil(EnemyNear(Var(55)),Vel Y) >= -40
+TriggerAll =  Random<=var(57)*40
+TriggerAll = P2MoveType != A
+TriggerAll = FVar(33) > 20
+Trigger1 = statetype = S
+Trigger1 = ctrl || stateno = 19|| stateno = 20
+trigger1 = P2stateno = [120,160]
+
+
+
+
+[State -3, 開幕スライディング]
+type = ChangeState
+value = 300
+TriggerAll = var(59) = 1 
+TriggerAll = palno != 12 
+TriggerAll =!  isHelper
+TriggerAll = StateType != A
+TriggerAll = Fvar(7) = [0,100]
+Trigger1 = ctrl || stateno = 19|| stateno = 20
+Trigger1 = EnemyNear(var(55)),P2BodyDist X > 80
+Trigger1 = EnemyNear(var(55)),P2BodyDist X < 150
+Trigger1 = Random<=var(57)*80
+
+[State -3, 相手バウンド反応博麗拳術『顎崩し』]
+type = ChangeState
+value = 1020
+TriggerAll = var(59) = 1
+TriggerAll =!  isHelper
+TriggerAll = Random <= var(57)*40
+TriggerAll = StateType = S
+TriggerAll = FVar(33) > 20
+TriggerAll = P2BodyDist X-Ceil(Vel X)-Ceil(EnemyNear(Var(55)),Vel X) <= 120
+TriggerAll = P2BodyDist Y-Ceil(Vel Y)-Ceil(EnemyNear(Var(55)),Vel Y) < -30
+TriggerAll = EnemyNear(var(55)),stateno = [60000,60010]
+TriggerAll = EnemyNear(var(55)),movetype = H
+Trigger1 = ctrl || stateno = 19|| stateno = 20
+
+
+
+[State -3, ジャンプ反応博麗拳術『天掌』]
+type = ChangeState
+value = 1030
+TriggerAll = var(59) = 1
+TriggerAll =!  isHelper
+TriggerAll = Random <= var(57)*40
+TriggerAll = StateType = S
+TriggerAll = FVar(33) > 20
+TriggerAll = P2BodyDist X-Ceil(Vel X)-Ceil(EnemyNear(Var(55)),Vel X) <= 40
+TriggerAll = EnemyNear(var(55)),StateType = A
+TriggerAll = EnemyNear(var(55)),movetype != A
+Trigger1 = ctrl || stateno = 19|| stateno = 20
+Trigger1 = Random<=var(57)*30
+
+
+[State -3, ジャンプ反応博麗拳術『顎崩し』]
+type = ChangeState
+value = 1020
+TriggerAll = var(59) = 1
+TriggerAll =!  isHelper
+TriggerAll = Random <= var(57)*40
+TriggerAll = StateType = S
+TriggerAll = FVar(33) > 20
+TriggerAll = P2BodyDist X-Ceil(Vel X)-Ceil(EnemyNear(Var(55)),Vel X) <= 80
+TriggerAll = EnemyNear(var(55)),StateType = A
+TriggerAll = EnemyNear(var(55)),movetype != A
+Trigger1 = ctrl || stateno = 19|| stateno = 20
+Trigger1 = Random<=var(57)*30
+
+
+
+[State -1, 食らい時博麗拳術秘技『夢想天生』使用後];ゲージレベル１
+type = SelfState
+value = 2061
+TriggerAll = Var(59) = 1
+TriggerAll =!  isHelper
+TriggerAll = palno  = [1,12]
+TriggerAll = FVar(10) != 0
+TriggerAll = Alive
+TriggerAll = FVar(33) > 10
+TriggerAll = statetype != A
+TriggerAll = P2BodyDist X-Ceil(Vel X)-Ceil(EnemyNear(Var(55)),Vel X) <= 80
+TriggerAll =  Random<=var(57)*20
+Trigger1 = pos Y > -5
+Trigger1 = StateNo=[5000,5001] 
+Trigger2 = StateNo=[5010,5011] 
+Persistent = 1
+supermove = 1
+IgnoreHitPause = 1
+pausemovetime = 99999999
+supermovetime = 99999999
+
+
+
+
+
+
+
+[State -1, 博麗拳術秘技『霊激』];ゲージレベル１
+type = SelfState
+value = 2080
+TriggerAll = Var(59) = 1
+TriggerAll =!  isHelper
+TriggerAll = palno  = [1,12]
+TriggerAll = Alive
+TriggerAll = FVar(36) != 0
+TriggerAll = FVar(33) > 80
+TriggerAll = statetype != A
+TriggerAll = P2BodyDist X-Ceil(Vel X)-Ceil(EnemyNear(Var(55)),Vel X) <= 80
+TriggerAll =  Random<=var(57)*10
+Trigger1 = pos Y > -5
+Trigger1 = StateNo=[5000,5001] 
+Trigger2 = StateNo=[5010,5011] 
+Persistent = 1
+supermove = 1
+IgnoreHitPause = 1
+pausemovetime = 99999999
+supermovetime = 99999999
+
+
+[State -3, 博麗拳術秘技『夢想天生』使用後]
+type = ChangeState
+value = 2061
+TriggerAll = Var(59) = 1
+TriggerAll =!  isHelper
+TriggerAll = palno  = [1,12]
+TriggerAll = StateType != A 
+TriggerAll = p2movetype = A
+TriggerAll = StateType = S
+TriggerAll = RoundState = 2
+TriggerAll = StateNo!=[120,155]
+TriggerAll = FVar(10) != 0
+TriggerAll = Life  < 500
+TriggerAll = Ctrl || stateno = 19|| stateno = 20
+TriggerAll = P2BodyDist X-Ceil(Vel X)-Ceil(EnemyNear(Var(55)),Vel X) >= 0
+TriggerAll = P2BodyDist X-Ceil(Vel X)-Ceil(EnemyNear(Var(55)),Vel X) <= 80
+TriggerAll = inguarddist
+TriggerAll = Pos Y = 0
+TriggerAll = EnemyNear(var(55)),P2BodyDist X <= 40
+Trigger1 = Random<=var(57)*75||var(57)>9
+Trigger2 = P2BodyDist X>90||EnemyNear,Time>50
+Trigger2 = Random<=var(57)*16
+Trigger3 = var(56) > 0
+Trigger3 = P2BodyDist X = [0,60]
+Trigger4 = InGuardDist || P2BodyDist X = [-40,28]
+Trigger4 = EnemyNear,HitDefAttr = SA,AA,AP
+Trigger4 = random <= 600
+Trigger5 = var(56) > 0
+Trigger5 = P2BodyDist X = [-20,60]
+Trigger6 = EnemyNear,Time < 2
+Trigger6 = inguarddist
+Trigger6 = random <= 500
+Trigger7 = EnemyNear,HitDefAttr = C,AA || EnemyNear,HitDefAttr = C,AP
+Trigger7 = p2bodydist X = [-10,60]
+Trigger7 = random <= 500
+Trigger8 = var(56) > 0
+Trigger8 = P2BodyDist X = [-20,60]
+Trigger9 = P2MoveType = A
+Trigger9 = P2BodyDist X = [-10,30]
+ 
+
+
+[State -3, 特攻しゃがみ弱スライディング]
+type = ChangeState
+value = 300
+TriggerAll = Var(59) = 1
+TriggerAll =!  isHelper
+TriggerAll = StateType != A
+TriggerAll = P2MoveType = A
+TriggerAll = P2MoveType != H
+TriggerAll = FVar(33) >= 20
+TriggerAll = P2BodyDist X-Ceil(Vel X)-Ceil(EnemyNear(Var(55)),Vel X) = [90,200]
+TriggerAll =  Random<=var(57)*40
+TriggerAll =  Random = [500,999]
+TriggerAll = EnemyNear(Var(55)),StateType = S
+TriggerAll = EnemyNear(var(55)),HitDefAttr != ,HA
+Trigger1 = statetype = S
+Trigger1 = ctrl || stateno = 19|| stateno = 20
+
+
+
+[State -3, 博麗拳術『因果転掌』]
+type = ChangeState
+value = 1060
+TriggerAll = Var(59) = 1
+TriggerAll =!  isHelper
+TriggerAll = palno  = [1,12]
+TriggerAll = FVar(33) > 20
+TriggerAll = StateType != A 
+TriggerAll = p2movetype = A
+TriggerAll = StateType = S
+TriggerAll = RoundState = 2
+TriggerAll = StateNo!=[120,155]
+TriggerAll = Ctrl || stateno = 19|| stateno = 20
+TriggerAll = P2BodyDist X-Ceil(Vel X)-Ceil(EnemyNear(Var(55)),Vel X) = [-110,110]
+TriggerAll = inguarddist
+TriggerAll = Pos Y = 0
+Trigger1 = Random<=var(57)*75||var(57)>9
+Trigger2 = P2BodyDist X>90||EnemyNear,Time>50
+Trigger2 = Random<=var(57)*16
+Trigger3 = var(56) > 0
+Trigger3 = P2BodyDist X = [0,60]
+Trigger4 = InGuardDist || P2BodyDist X = [-40,28]
+Trigger4 = EnemyNear,HitDefAttr = SA,AA,AP
+Trigger4 = random <= 600
+Trigger5 = var(56) > 0
+Trigger5 = P2BodyDist X = [-20,60]
+Trigger6 = EnemyNear,Time < 2
+Trigger6 = inguarddist
+Trigger6 = random <= 500
+Trigger7 = EnemyNear,HitDefAttr = C,AA || EnemyNear,HitDefAttr = C,AP
+Trigger7 = p2bodydist X = [-10,60]
+Trigger7 = random <= 500
+Trigger8 = var(56) > 0
+Trigger8 = P2BodyDist X = [-20,60]
+Trigger9 = P2MoveType = A
+Trigger9 = P2BodyDist X = [-10,30]
+
+
+[State -3, 博麗拳術『背面取り』]
+type = ChangeState
+value = 1050
+TriggerAll = Var(59) = 1
+TriggerAll =!  isHelper
+TriggerAll = FVar(33) > 20
+TriggerAll = StateType = S
+TriggerAll = stateno != 1050
+TriggerAll = P2stateno != [5020,5071]
+TriggerAll = ctrl || stateno = 19|| stateno = 20
+;TriggerAll = EnemyNear(Var(55)),BackEdgeBodyDist >= 20
+Trigger1 = EnemyNear(var(55)),HitDefAttr = ,NT
+Trigger2 = EnemyNear(Var(55)),MoveType = A
+Trigger2 = Random<=var(57)*50
+Trigger3 = var(56) > 0
+Trigger4 = EnemyNear,MoveType = A
+Trigger4 = EnemyNear,HitDefAttr = SA,AA,AP || Enemy,NumHelper > 0 || Enemy,NumProj > 0 || Enemy,NumHelper >Var(58)    
+Trigger4 = ctrl || stateno = 19|| stateno = 20
+Trigger5 = InGuardDist || (EnemyNear,MoveType = A && (EnemyNear,P2BodyDist X = [-20,120])) 
+Trigger5 = Enemy,NumHelper > 0 
+Trigger6 = InguardDist || P2MoveType = A
+Trigger6 = P2BodyDist X-Ceil(Vel X)-Ceil(EnemyNear(Var(55)),Vel X) >= 0
+Trigger6 = EnemyNear,HitDefAttr = SA,AA,AP
+Trigger6 = random <= 500
+Trigger7 = InGuardDist
+Trigger7 = P2BodyDist X-Ceil(Vel X)-Ceil(EnemyNear(Var(55)),Vel X) <= 70
+Trigger7 = EnemyNear,Vel X >= 0
+Trigger8 = InguardDist
+Trigger8 = EnemyNear,MoveType = A
+Trigger8 = Enemy,NumHelper > 0 || Enemy,NumProj > 0
+Trigger9 = P2MoveType = A
+Trigger9 = P2BodyDist X-Ceil(Vel X)-Ceil(EnemyNear(Var(55)),Vel X) = [-10,30]
+Trigger10 = P2MoveType = A
+Trigger10 = Enemy,NumHelper >Var(58) 
+Trigger11 = EnemyNear,HitDefAttr = ,NP,SP,HP
+Trigger11 = EnemyNear,NumHelper >Var(54) || Enemy,NumHelper >Var(53)
+Trigger12 = var(56) > 0
+Trigger12 = Ctrl || stateno = 19 || stateno = 20
+
+
+
+
+
+[State -3, 『背面取り』から博麗拳術『天掌』]
+type = ChangeState
+value = 1030
+TriggerAll = Var(59) = 1
+TriggerAll =!  isHelper
+TriggerAll = StateType != A
+TriggerAll = P2BodyDist X-Ceil(Vel X)-Ceil(EnemyNear(Var(55)),Vel X) = [-50,50]
+TriggerAll = P2BodyDist Y-Ceil(Vel Y)-Ceil(EnemyNear(Var(55)),Vel Y) < -30
+TriggerAll =  Random<=var(57)*20
+TriggerAll = EnemyNear(Var(55)),StateType = A
+Trigger1 = (stateno = 1050) && time > 11
+Trigger2 = (stateno = 100) && time >= 25
+Trigger3 = (stateno = 105) && time >= 25
+
+[State -3, 『背面取り』から博麗拳術『座者抜き』]
+type = ChangeState
+value = 1110
+TriggerAll = Var(59) = 1
+TriggerAll =!  isHelper
+TriggerAll = StateType != A
+TriggerAll = P2BodyDist X-Ceil(Vel X)-Ceil(EnemyNear(Var(55)),Vel X) = [-60,60]
+TriggerAll =  Random<=var(57)*20
+TriggerAll = EnemyNear(Var(55)),StateType != A
+Trigger1 = (stateno = 1050) && time > 11
+Trigger2 = (stateno = 100) && time >= 25
+Trigger3 = (stateno = 105) && time >= 25
+
+[State -3, 『背面取り』から博麗拳術『顎崩し』]
+type = ChangeState
+value = 1020
+TriggerAll = Var(59) = 1
+TriggerAll =!  isHelper
+TriggerAll = StateType != A
+TriggerAll = P2BodyDist X-Ceil(Vel X)-Ceil(EnemyNear(Var(55)),Vel X) = [-90,90]
+TriggerAll =  Random<=var(57)*10
+TriggerAll = EnemyNear(Var(55)),StateType = A
+Trigger1 = (stateno = 1050) && time > 11
+Trigger2 = (stateno = 100) && time >= 25
+Trigger3 = (stateno = 105) && time >= 25
+
+
+[State -3, 『背面取り』から博麗拳術『疾風撃ち』]
+type = ChangeState
+value = 1090
+TriggerAll = Var(59) = 1
+TriggerAll =!  isHelper
+TriggerAll = StateType != A
+TriggerAll = P2BodyDist X-Ceil(Vel X)-Ceil(EnemyNear(Var(55)),Vel X) = [-110,110]
+TriggerAll =  Random<=var(57)*20
+TriggerAll = EnemyNear(Var(55)),StateType != L
+Trigger1 = (stateno = 1050) && time > 11
+Trigger2 = (stateno = 100) && time >= 25
+Trigger3 = (stateno = 105) && time >= 25
+
+[State -3, 『背面取り』から立ち弱]
+type = ChangeState
+value = 200
+TriggerAll = Var(59) = 1
+TriggerAll =!  isHelper
+TriggerAll = StateType != A
+TriggerAll = P2BodyDist X-Ceil(Vel X)-Ceil(EnemyNear(Var(55)),Vel X) = [-50,50]
+TriggerAll =  Random<=var(57)*200
+TriggerAll = EnemyNear(Var(55)),StateType != L
+Trigger1 = (stateno = 1050) && time > 11
+Trigger2 = (stateno = 100) && time >= 25
+Trigger3 = (stateno = 105) && time >= 25
+
+
+[State -3, 『背面取り』からしゃがみ強]
+type = ChangeState
+value = 310
+TriggerAll = Var(59) = 1
+TriggerAll =!  isHelper
+TriggerAll = StateType != A
+TriggerAll = P2BodyDist X-Ceil(Vel X)-Ceil(EnemyNear(Var(55)),Vel X) = [-150,150]
+TriggerAll =  Random<=var(57)*200
+TriggerAll = EnemyNear(Var(55)),StateType != L
+Trigger1 = (stateno = 1050) && time > 11
+Trigger2 = (stateno = 100) && time >= 25
+Trigger3 = (stateno = 105) && time >= 25
+
+
+[State -3, 仰け反っていたらしゃがみ弱スライディング]
+type = ChangeState
+value = 300
+TriggerAll = Var(59) = 1
+TriggerAll =!  isHelper
+TriggerAll = StateType != A
+TriggerAll = P2MoveType = H
+TriggerAll = P2StateType != A
+TriggerAll = P2BodyDist X-Ceil(Vel X)-Ceil(EnemyNear(Var(55)),Vel X) = [-130,130]
+TriggerAll =  Random<=var(57)*40
+TriggerAll = EnemyNear(var(55)),stateno != [5080,5120]
+Trigger1 = statetype = S
+Trigger1 = ctrl || stateno = 19|| stateno = 20
+
+
+
+[State -3, 特攻博麗拳術秘技『昇り星』]
+type = ChangeState
+value = 2050
+TriggerAll = Var(59) = 1
+TriggerAll =!  isHelper
+TriggerAll = FVar(33) > 50
+TriggerAll = StateType != A
+TriggerAll = P2MoveType = A
+TriggerAll = P2BodyDist X-Ceil(Vel X)-Ceil(EnemyNear(Var(55)),Vel X) < 120
+TriggerAll =  Random<=var(57)*5
+TriggerAll = EnemyNear(Var(55)),StateType = S
+TriggerAll = EnemyNear(var(55)),HitDefAttr != ,HA
+Trigger1 = statetype = S
+Trigger1 = ctrl || stateno = 19|| stateno = 20
+
+
+
+[State -3, 飛び道具用博麗拳術『背面取り』]
+type = ChangeState
+value = 1050
+TriggerAll = Var(59) = 1
+TriggerAll =!  isHelper
+TriggerAll = FVar(33) > 20
+TriggerAll = StateType = S
+TriggerAll = P2MoveType = A
+TriggerAll = P2BodyDist X-Ceil(Vel X)-Ceil(EnemyNear(Var(55)),Vel X) >= 140
+TriggerAll = stateno != 1050
+TriggerAll = EnemyNear(Var(55)),StateType != L
+TriggerAll = P2stateno != [5020,5071]
+TriggerAll =  Random<=var(57)*15
+TriggerAll = ctrl || stateno = 19|| stateno = 20
+Trigger1 = EnemyNear,NumHelper >Var(58)
+Trigger2 = EnemyNear,NumProj > 0
+
+
+
+
+[State -3, 敵が倒れた時博麗拳術秘技『夢想天生』]
+type = ChangeState
+value = 2060
+TriggerAll = var(59) = 1
+TriggerAll =!  isHelper
+TriggerAll = palno  = [1,12]
+TriggerAll = Random <= var(57)*20
+TriggerAll = FVar(10) = 0
+TriggerAll = FVar(9) != 0
+TriggerAll = Life  < 500
+TriggerAll = FVar(33) > 50
+TriggerAll = StateType != A
+Trigger1 = EnemyNear(var(55)),stateno = 5120
+Trigger1 = ctrl || stateno = 19|| stateno = 20
+Trigger1 = EnemyNear(var(55)),P2BodyDist X > 40
+Trigger1 = P2MoveType != A
+Trigger1 = Random<=var(57)*60
+Trigger2 = ctrl || stateno = 19|| stateno = 20
+Trigger2 = P2StateType = A
+Trigger2 = P2MoveType = H
+Trigger2 = Random<=var(57)*60
+Trigger2 = EnemyNear(var(55)),P2BodyDist X > 50
+
+
+
+
+[State -3, おきぜめ博麗拳術秘技『封魔宝玉』]
+type = ChangeState
+value = 2030
+TriggerAll = var(59) = 1
+TriggerAll =!  isHelper
+TriggerAll = Random <= var(57)*20
+TriggerAll = FVar(33) > 50
+TriggerAll = StateType != A
+Trigger1 = EnemyNear(var(55)),stateno = 5120
+Trigger1 = ctrl || stateno = 19|| stateno = 20
+Trigger1 = EnemyNear(var(55)),P2BodyDist X > 50
+Trigger1 = EnemyNear(var(55)),P2BodyDist X < 120
+Trigger1 = P2MoveType != A
+Trigger1 = Random<=var(57)*60
+
+
+
+[State -3, おきぜめ博麗拳術『幻幽』]
+type = ChangeState
+value = 1010
+TriggerAll = var(59) = 1
+TriggerAll =!  isHelper
+TriggerAll = Random <= var(57)*20
+TriggerAll = FVar(33) > 20
+TriggerAll = StateType != A
+Trigger1 = EnemyNear(var(55)),stateno = 5110
+Trigger1 = ctrl || stateno = 19|| stateno = 20
+Trigger1 = EnemyNear(var(55)),P2BodyDist X > 30
+Trigger1 = EnemyNear(var(55)),P2BodyDist X < 150
+Trigger1 = P2MoveType != A
+Trigger1 = Random<=var(57)*60
+
+
+
+
+
+
+
+[State -3, おきぜめ博麗拳術『地祇抉り』]
+type = ChangeState
+value = 1040
+TriggerAll = var(59) = 1
+TriggerAll =!  isHelper
+TriggerAll = Random <= var(57)*20
+TriggerAll = FVar(33) > 20
+TriggerAll = StateType != A
+TriggerAll = EnemyNear(Var(55)),Stateno != 60003
+Trigger1 = EnemyNear(var(55)),stateno = 5120
+Trigger1 = ctrl || stateno = 19|| stateno = 20
+Trigger1 = P2BodyDist X-Ceil(Vel X)-Ceil(EnemyNear(Var(55)),Vel X) > 50
+Trigger1 = P2BodyDist X-Ceil(Vel X)-Ceil(EnemyNear(Var(55)),Vel X) <= 200
+Trigger1 = P2MoveType != A
+Trigger1 = Random<=var(57)*60
+
+[State -3, おきぜめ立ち強]
+type = ChangeState
+value = 210
+TriggerAll = var(59) = 1
+TriggerAll =!  isHelper
+TriggerAll = Random <= var(57)*40
+TriggerAll = StateType != A
+TriggerAll = FVar(33) >= 20
+Trigger1 = EnemyNear(var(55)),stateno = 5120
+Trigger1 = ctrl || stateno = 19|| stateno = 20
+Trigger1 = P2BodyDist X-Ceil(Vel X)-Ceil(EnemyNear(Var(55)),Vel X) =[-40,40]
+Trigger1 = P2MoveType != A
+
+
+
+[State -3, 相手がぶっとんだらゲージ回復]
+type = ChangeState
+value = 1980
+TriggerAll = var(59) = 1 
+TriggerAll =!  isHelper
+TriggerAll = palno = [1,5]
+TriggerAll = StateType != A
+TriggerAll = FVar(33) < 50
+TriggerAll = ctrl || stateno = 19|| stateno = 20
+TriggerAll = P2MoveType != A
+TriggerAll = Random<=var(57)*60
+Trigger1 = p2stateno = 5050
+Trigger2 = p2stateno = 60003
+Trigger3 = MoveType = H
+Trigger4 = p2stateno = [5100,5120]
+
+[State -3, 敵が倒れたらバックダッシュ]
+type = ChangeState
+value = 105
+TriggerAll = var(59) = 1
+TriggerAll =!  isHelper
+TriggerAll = Random <= var(57)*20
+TriggerAll = StateType != A
+TriggerAll = BackEdgeBodyDist >= 40
+Trigger1 = EnemyNear(var(55)),stateno = 5120
+Trigger1 = ctrl || stateno = 19|| stateno = 20
+Trigger1 = EnemyNear(var(55)),P2BodyDist X < 50
+Trigger1 = P2MoveType != A
+Trigger1 = Random<=var(57)*60
+
+
+[State -3, 調整ダッシュ]
+type = ChangeState
+value= 100
+TriggerAll = var(59)= 1
+TriggerAll =!  isHelper
+TriggerAll = RoundState = 2
+TriggerAll = StateType != A
+TriggerAll = MoveType != A
+TriggerAll = P2BodyDist X-Ceil(Vel X)-Ceil(EnemyNear(Var(55)),Vel X) < 0
+TriggerAll = Ctrl || stateno = 19|| stateno = 20
+TriggerAll = stateno != 100
+TriggerAll = stateno != 105
+Trigger1 = EnemyNear(var(55)),P2BodyDist X < 30
+Trigger1 = BackEdgeBodyDist <= 20
+Trigger1 = Random<=var(57)*60
+
+
+[State -3, 緊急バックダッシュ]
+type = ChangeState
+value= 105
+TriggerAll = var(59)= 1
+TriggerAll =!  isHelper
+TriggerAll = RoundState = 2
+TriggerAll = StateType != A
+triggerAll = EnemyNear(Var(55)),stateno = [120,160]
+Trigger1 = BackEdgeBodyDist >= 150
+Trigger1 = (stateno = 210) && time > 45
+Trigger2 = BackEdgeBodyDist >= 150
+Trigger2 = (stateno = 300) && time > 25
+Trigger3 = (stateno = 310) && time > 45
+
+
+[State -3, 強攻撃]
+type = ChangeState
+value = 210
+TriggerAll = Var(59) = 1
+TriggerAll =!  isHelper
+TriggerAll = StateType != A
+TriggerAll = P2BodyDist X-Ceil(Vel X)-Ceil(EnemyNear(Var(55)),Vel X) = [40,70]
+TriggerAll = P2BodyDist Y >= -100
+TriggerAll =  Random<=var(57)*40
+TriggerAll = FVar(33) >= 20
+TriggerAll = EnemyNear(Var(55)),StateType != L
+TriggerAll = P2MoveType != A
+Trigger1 = statetype = S
+Trigger1 = ctrl || stateno = 19|| stateno = 20
+Trigger1 = EnemyNear(Var(55)),movetype  != A
+
+
+
+
+[State -3, しゃがみ弱スライディング]
+type = ChangeState
+value = 300
+TriggerAll = Var(59) = 1
+TriggerAll =!  isHelper
+TriggerAll = StateType != A
+TriggerAll = P2BodyDist X-Ceil(Vel X)-Ceil(EnemyNear(Var(55)),Vel X) = [-150,150]
+TriggerAll =  Random<=var(57)*40
+TriggerAll = EnemyNear(Var(55)),StateType = S
+TriggerAll = P2MoveType != A
+TriggerAll = P2MoveType != H
+TriggerAll =  Random =[0,50]
+TriggerAll = FVar(33) >= 20
+TriggerAll = EnemyNear(var(55)),stateno != [5080,5120]
+Trigger1 = statetype = S
+Trigger1 = ctrl || stateno = 19|| stateno = 20
+
+
+
+[State -3, しゃがみ強]
+type = ChangeState
+value = 310
+TriggerAll = Var(59) = 1
+TriggerAll =!  isHelper
+TriggerAll = StateType != A
+TriggerAll = P2BodyDist X-Ceil(Vel X)-Ceil(EnemyNear(Var(55)),Vel X) = [-50,50]
+TriggerAll = P2BodyDist Y >= -80
+TriggerAll =  Random<=var(57)*40
+TriggerAll = FVar(33) >= 20
+TriggerAll = EnemyNear(Var(55)),StateType != L
+TriggerAll = P2MoveType != A
+TriggerAll = P2MoveType != H
+Trigger1 = statetype = S
+Trigger1 = ctrl || stateno = 19|| stateno = 20
+Trigger1 = EnemyNear(Var(55)),movetype  != A
+
+
+
+
+
+[State -3, 博麗拳術『地祇抉り』]
+type = ChangeState
+value = 1040
+TriggerAll = Var(59) = 1
+TriggerAll =!  isHelper
+TriggerAll = StateType != A
+TriggerAll = FVar(33) > 20
+TriggerAll = P2BodyDist X-Ceil(Vel X)-Ceil(EnemyNear(Var(55)),Vel X) = [-120,120]
+TriggerAll = P2BodyDist Y >= -100
+TriggerAll =  Random<=var(57)*1
+TriggerAll = EnemyNear(Var(55)),StateType != L
+TriggerAll = P2MoveType != A
+TriggerAll = EnemyNear(Var(55)),Stateno != 60003
+Trigger1 = statetype = S
+Trigger1 = ctrl || stateno = 19|| stateno = 20
+Trigger1 = EnemyNear(Var(55)),movetype  != A
+
+
+
+[State -3, 博麗拳術『毛玉遊び』]
+type = ChangeState
+value = 1070
+TriggerAll = Var(59) = 1
+TriggerAll =!isHelper
+TriggerAll = palno  = [1,12]
+TriggerAll = StateType != A
+TriggerAll = FVar(33) > 20
+TriggerAll = P2BodyDist X-Ceil(Vel X)-Ceil(EnemyNear(Var(55)),Vel X) >= 100
+TriggerAll = P2BodyDist Y >= -200
+TriggerAll =  Random<=var(57)*6
+TriggerAll = EnemyNear(var(55)),stateno != 5120
+TriggerAll = EnemyNear,StateType != L
+TriggerAll = Enemy,NumHelper < Var(58)
+Trigger1 = ctrl || stateno = 19|| stateno = 20
+
+[State -3, 博麗拳術『背面取り』]
+type = ChangeState
+value = 1050
+TriggerAll = Var(59) = 1
+TriggerAll =!  isHelper
+TriggerAll =  Random<=var(57)*12
+TriggerAll = FVar(33) > 20
+TriggerAll = StateType = S
+TriggerAll = stateno != 1050
+TriggerAll = P2stateno != [5020,5071]
+TriggerAll =  Random = [0,50]
+TriggerAll = P2MoveType != H
+Trigger1 = ctrl || stateno = 19|| stateno = 20
+
+
+;---------------------------------------------------------------------------
+;始動系
+;---------------------------------------------------------------------------
+
+
+;---------------------------------------------------------------------------
+;防御・移動系
+;---------------------------------------------------------------------------
+
+
+
+
+[State -3, 前移動]
+type = ChangeState
+value= 19
+Triggerall = var(59)= 1
+TriggerAll =!  isHelper
+Triggerall = RoundState = 2
+Triggerall = StateType = S
+Triggerall = MoveType != A
+TriggerAll = EnemyNear(Var(55)),P2StateType != A
+TriggerAll =! inguarddist
+Triggerall = P2BodyDist X-Ceil(Vel X)-Ceil(EnemyNear(Var(55)),Vel X) > 10
+Triggerall = Ctrl
+Triggerall = Enemy,NumProj = 0 
+Trigger1 = Random <= var(57)*300
+Trigger1 = P2MoveType != A
+
+
+
+
+
+
+[State -3, 後ろ移動]
+type = ChangeState
+value= 19
+Triggerall = var(59)= 1
+TriggerAll =!  isHelper
+Triggerall = RoundState = 2
+Triggerall = StateType = S
+Triggerall = MoveType != A
+TriggerAll = EnemyNear(Var(55)),P2StateType != A
+TriggerAll =! inguarddist
+Triggerall = EnemyNear(var(55)),StateType = L
+Triggerall = P2BodyDist X-Ceil(Vel X)-Ceil(EnemyNear(Var(55)),Vel X) >= 160
+Triggerall = P2BodyDist X-Ceil(Vel X)-Ceil(EnemyNear(Var(55)),Vel X) <= 200
+Triggerall = Ctrl
+Triggerall = Enemy,NumProj = 0 
+Trigger1 = Random <= var(57)*10
+
+
+
+[State -3, バックステップ]
+type = ChangeState
+value= 105
+TriggerAll = var(59)= 1
+TriggerAll =!  isHelper
+TriggerAll = RoundState = 2
+TriggerAll = StateType != A
+TriggerAll = Ctrl || stateno = 19|| stateno = 20
+TriggerAll = BackEdgeBodyDist >= 70
+TriggerAll = stateno != 100
+TriggerAll = stateno != 105
+TriggerAll =! inguarddist
+Trigger1 = EnemyNear,HitDefAttr = ,NT,ST,HT
+Trigger1 = P2BodyDist X-Ceil(Vel X)-Ceil(EnemyNear(Var(55)),Vel X) >= 0
+Trigger1 = P2BodyDist Y-Ceil(Vel Y)-Ceil(EnemyNear(Var(55)),Vel Y) = [-30,0]
+Trigger1 = Random<=var(57)*35
+Trigger2 = P2BodyDist X-Ceil(Vel X)-Ceil(EnemyNear(Var(55)),Vel X) < 70
+Trigger2 = EnemyNear(var(55)),P2StateNo = 5120
+Trigger2 = Random<=var(57)*60
+Trigger3 = var(56) > 0
+Trigger3 = Enemy,NumHelper > 0
+Trigger3 = Enemy,NumHelper >Var(54)
+Trigger3 = Random<=var(57)*40
+Trigger4 = var(56) > 0
+Trigger4 = P2BodyDist X-Ceil(Vel X)-Ceil(EnemyNear(Var(55)),Vel X) > 40
+Trigger4 = P2BodyDist X-Ceil(Vel X)-Ceil(EnemyNear(Var(55)),Vel X) < 100
+Trigger5 = P2stateno = 5120
+Trigger5 = P2BodyDist X-Ceil(Vel X)-Ceil(EnemyNear(Var(55)),Vel X) < 40
+Trigger6 = EnemyNear,HitDefAttr = C,AA,AP
+Trigger6 = P2BodyDist X-Ceil(Vel X)-Ceil(EnemyNear(Var(55)),Vel X) < 50
+Trigger7 = var(56) > 0
+Trigger8 = MoveGuarded
+Trigger8 = P2BodyDist X-Ceil(Vel X)-Ceil(EnemyNear(Var(55)),Vel X) > 70
+Trigger9 = P2StateType = A
+Trigger9 = P2MoveType = A
+Trigger9 = EnemyNear(var(55)),P2BodyDist X <= 100
+Trigger9 = EnemyNear(var(55)),P2BodyDist Y <= -40
+
+
+[State -3, ダッシュ]
+type = ChangeState
+value= 100
+TriggerAll = var(59)= 1
+TriggerAll =!  isHelper
+TriggerAll = RoundState = 2
+TriggerAll = StateType != A
+TriggerAll = MoveType != A
+TriggerAll = Ctrl || stateno = 19|| stateno = 20
+TriggerAll = stateno != 100
+TriggerAll = stateno != 105
+TriggerAll = P2BodyDist X-Ceil(Vel X)-Ceil(EnemyNear(Var(55)),Vel X) < 0
+TriggerAll = EnemyNear(var(55)),StateType != L
+TriggerAll =! inguarddist
+Trigger1 = EnemyNear(var(55)),P2BodyDist X >= 150
+Trigger1 = P2MoveType = A
+Trigger2 = stateno = 0
+Trigger2 = Random<=var(57)*10
+Trigger3 = BackEdgeBodyDist <= 70
+Trigger3 = EnemyNear(var(55)),P2StateNo = 5120
+Trigger3 = Random<=var(57)*60
+
+
+
+
+[State -3,ジャンプ]
+Type = ChangeState
+Value = 39
+TriggerAll = var(59)= 1
+TriggerAll =!  isHelper
+TriggerAll = RoundState = 2
+TriggerAll = StateType != A
+TriggerAll = MoveType != A
+TriggerAll = EnemyNear(var(55)),StateNo != 5120
+TriggerAll = Ctrl || stateno = 19|| stateno = 20
+TriggerAll = EnemyNear(var(55)),StateType != L
+TriggerAll = EnemyNear(var(55)),MoveType != H
+Trigger1 = EnemyNear(var(55)),HitDefAttr = ,NT
+Trigger1 = inguarddist
+Trigger1 = P2BodyDist X-Ceil(Vel X)-Ceil(EnemyNear(Var(55)),Vel X) >= 15
+Trigger1 = P2BodyDist Y-Ceil(Vel Y)-Ceil(EnemyNear(Var(55)),Vel Y) = [-30,0]
+Trigger1 = Random<=var(57)*600
+Trigger2 = var(56) > 0
+Trigger2 = enemynear,HitDefAttr = SC, NT,ST,HT
+Trigger2 = P2BodyDist X-Ceil(Vel X)-Ceil(EnemyNear(Var(55)),Vel X) <= 40
+
+
+
+
+
+
+[State -3, 空中復帰]
+type = ChangeState
+TriggerAll = var(59)= 1
+TriggerAll =!  isHelper
+TriggerAll = RoundState = 2
+TriggerAll = NumEnemy
+TriggerAll = CanRecover
+TriggerAll = life != 0
+Trigger1 = (StateNo = 5030) && (Movetype = H) && (EnemyNear(var(55)),MoveType != A) && (Pos Y < -20)
+Trigger2 = (StateNo = 5035) && (Movetype = H) && (EnemyNear(var(55)),MoveType != A) && (Pos Y < -20)
+Trigger3 = (StateNo = 5050) && (Movetype = H) && (EnemyNear(var(55)),MoveType != A) && (Pos Y < -20)
+Trigger4 = (StateNo = 5071) && (Movetype = H) && (EnemyNear(var(55)),MoveType != A) && (Pos Y < -20)
+value = 5210
+IgnoreHitPause = 1
+
+
+
+
+
+
+
+;---------------------------------------------------------------------------
+;コンボ系
+;---------------------------------------------------------------------------
+
+
+
+[State -3,  博麗拳術奥儀『武想滅塵』]
+type = ChangeState
+value = 4500
+TriggerAll =!  isHelper
+TriggerAll = Var(59) = 1
+TriggerAll = StateType != A
+TriggerAll =  Random<=var(57)*25
+TriggerAll = EnemyNear(var(55)),StateType != A
+TriggerAll = FVar(12) = 100
+triggerAll = EnemyNear(Var(55)),stateno != [5100,5120]
+Trigger1 = MoveHit
+Trigger1 = var(1)
+Trigger2 = (stateno = [200,299]) || (stateno = [300,399]) || stateno = 401
+Trigger2 = stateno != 440 ;[Statedef 440]（足払いのステート）ではない時
+Trigger2 = movecontact
+Trigger2 = palno  = 12
+
+[State -3,  博麗拳術極技『夢想封滅』]
+type = ChangeState
+value = 4000
+TriggerAll =!  isHelper
+TriggerAll = Var(59) = 1
+TriggerAll = StateType != A
+TriggerAll =  Random<=var(57)*25
+TriggerAll = EnemyNear(var(55)),StateType != L
+TriggerAll = Life  < 300
+TriggerAll = FVar(33) > 80
+TriggerAll = power >= 3000
+Trigger1 = MoveHit
+Trigger1 = var(1)
+Trigger2 = (stateno = [200,299]) || (stateno = [300,399]) || stateno = 401
+Trigger2 = stateno != 440 ;[Statedef 440]（足払いのステート）ではない時
+Trigger2 = movecontact
+Trigger2 = palno  = 12
+
+[State -3,  博麗拳術秘技『臓器破壊』]
+type = ChangeState
+value = 2070
+TriggerAll =!  isHelper
+TriggerAll = Var(59) = 1
+TriggerAll = palno  = [1,12]
+TriggerAll = StateType != A
+TriggerAll = Life  < 900
+TriggerAll =  Random<=var(57)*10
+TriggerAll = EnemyNear(var(55)),StateType != L
+TriggerAll = FVar(11) = 0
+TriggerAll = FVar(33) >= 50
+TriggerAll = stateno != 210 && stateno != 310
+Trigger1 = var(1)
+Trigger1 = MoveHit
+
+
+[State -3,  博麗拳術秘技『夢想封印』]
+type = ChangeState
+value = 2000
+TriggerAll =!  isHelper
+TriggerAll = Var(59) = 1
+TriggerAll = StateType != A
+TriggerAll = Random<=var(57)*25
+TriggerAll = EnemyNear(var(55)),StateType != L
+TriggerAll = FVar(33) > 50
+TriggerAll = EnemyNear(var(55)),pos y = 0
+TriggerAll = stateno = 200 || stateno = 300 
+TriggerAll = random= [0,100]
+Trigger1 = MoveHit
+Trigger1 = var(1)
+Trigger2 = (stateno = [200,299]) || (stateno = [300,399]) || stateno = 401
+Trigger2 = stateno != 440 ;[Statedef 440]（足払いのステート）ではない時
+Trigger2 = movecontact
+Trigger2 = palno  = 12
+
+
+
+[State -3,  博麗拳術秘技『封魔宝玉』]
+type = ChangeState
+value = 2030
+TriggerAll =!  isHelper
+TriggerAll = Var(59) = 1
+TriggerAll = StateType != A
+TriggerAll =  Random<=var(57)*25
+TriggerAll = EnemyNear(var(55)),StateType != L
+TriggerAll = FVar(33) > 50
+TriggerAll = stateno = 300
+TriggerAll = random= [101,200]
+Trigger1 = MoveHit
+Trigger1 = var(1)
+Trigger2 = (stateno = [200,299]) || (stateno = [300,399]) || stateno = 401
+Trigger2 = stateno != 440 ;[Statedef 440]（足払いのステート）ではない時
+Trigger2 = movecontact
+Trigger2 = palno  = 12
+
+
+
+[State -3, 博麗拳術秘技『気功散戒』]
+type = ChangeState
+value = 2010
+TriggerAll =!  isHelper
+TriggerAll = Var(59) = 1
+TriggerAll = StateType != A
+TriggerAll = P2BodyDist X-Ceil(Vel X)-Ceil(EnemyNear(Var(55)),Vel X) <= 135
+TriggerAll = Random<=var(57)*40
+TriggerAll = EnemyNear(var(55)),StateType != L
+TriggerAll = FVar(33) > 50
+TriggerAll = random= [201,300] 
+Trigger1 = MoveHit
+Trigger1 = var(1)
+Trigger2 = (stateno = [200,299]) || (stateno = [300,399]) || stateno = 401
+Trigger2 = stateno != 440 ;[Statedef 440]（足払いのステート）ではない時
+Trigger2 = movecontact
+Trigger2 = palno  = 12
+
+
+
+[State -3, 博麗拳術秘技『一矢葬送』]
+type = ChangeState
+value = 2020
+TriggerAll =!  isHelper
+TriggerAll = Var(59) = 1
+TriggerAll = StateType != A
+TriggerAll = P2BodyDist X-Ceil(Vel X)-Ceil(EnemyNear(Var(55)),Vel X) <= 65
+TriggerAll =  Random<=var(57)*40
+TriggerAll = EnemyNear(var(55)),StateType != L
+TriggerAll = FVar(33) > 50
+TriggerAll = Random = [301,400]
+TriggerAll = stateno = 210 || stateno = 310 || stateno = 300 
+Trigger1 = MoveHit
+Trigger1 = var(1)
+Trigger2 = (stateno = [200,299]) || (stateno = [300,399]) || stateno = 401
+Trigger2 = stateno != 440 ;[Statedef 440]（足払いのステート）ではない時
+Trigger2 = movecontact
+Trigger2 = palno  = 12
+
+
+
+[State -3, 博麗拳術秘技『昇り星』]
+type = ChangeState
+value = 2050
+TriggerAll =!  isHelper
+TriggerAll = Var(59) = 1
+TriggerAll = StateType != A
+TriggerAll = P2BodyDist X-Ceil(Vel X)-Ceil(EnemyNear(Var(55)),Vel X) <= 105
+TriggerAll = P2BodyDist Y-Ceil(Vel Y)-Ceil(EnemyNear(Var(55)),Vel Y) >= -15
+TriggerAll =  Random<=var(57)*40
+TriggerAll = EnemyNear(var(55)),StateType != L
+TriggerAll = Random = [500,999]
+TriggerAll = FVar(33) > 70;余分に多いのは無駄使いさせない為
+TriggerAll = stateno != 210 && stateno != 310 
+Trigger1 = MoveHit
+Trigger1 = var(1)
+Trigger2 = (stateno = [200,299]) || (stateno = [300,399]) || stateno = 401
+Trigger2 = stateno != 440 ;[Statedef 440]（足払いのステート）ではない時
+Trigger2 = movecontact
+Trigger2 = palno  = 12
+
+
+[State -3, 博麗拳術『顎崩し』]
+type = ChangeState
+value = 1020
+TriggerAll =!  isHelper
+TriggerAll = Var(59) = 1
+TriggerAll = StateType != A
+TriggerAll = P2BodyDist X-Ceil(Vel X)-Ceil(EnemyNear(Var(55)),Vel X) <= 125
+TriggerAll =  Random<=var(57)*20
+TriggerAll = EnemyNear(var(55)),StateType != L
+TriggerAll = FVar(33) > 20
+TriggerAll = BackEdgeBodyDist >= 120
+Trigger1 = MoveHit
+Trigger1 = (stateno = 1000) && time > 66
+
+[State -3, 博麗拳術『顎崩し』]
+type = ChangeState
+value = 1020
+TriggerAll =!  isHelper
+TriggerAll = Var(59) = 1
+TriggerAll = StateType != A
+TriggerAll = P2BodyDist X-Ceil(Vel X)-Ceil(EnemyNear(Var(55)),Vel X) <= 35
+TriggerAll =  Random<=var(57)*10
+TriggerAll = EnemyNear(var(55)),StateType != L
+TriggerAll = FVar(33) > 20
+TriggerAll = stateno != 210 && stateno != 310 
+Trigger1 = MoveHit
+Trigger1 = var(1)
+Trigger2 = (stateno = [200,299]) || (stateno = [300,399]) || stateno = 401
+Trigger2 = stateno != 440 ;[Statedef 440]（足払いのステート）ではない時
+Trigger2 = movecontact
+Trigger2 = palno  = 12
+
+
+
+[State -3, 博麗拳術『腸潰し』]
+type = ChangeState
+value = 1000
+TriggerAll =!  isHelper
+TriggerAll = Var(59) = 1
+TriggerAll = StateType != A
+TriggerAll = P2BodyDist X-Ceil(Vel X)-Ceil(EnemyNear(Var(55)),Vel X) = [-90,90]
+TriggerAll = Random<=var(57)*40
+TriggerAll = FVar(33) > 20
+TriggerAll = stateno != 210 && stateno != 310 
+TriggerAll = Random = [0,499] 
+Trigger1 = MoveHit
+Trigger1 = var(1)
+Trigger2 = (stateno = [200,299]) || (stateno = [300,399]) || stateno = 401
+Trigger2 = stateno != 440 ;[Statedef 440]（足払いのステート）ではない時
+Trigger2 = movecontact
+Trigger2 = palno  = 12
+
+[State -3, 博麗拳術『疾風撃ち』]
+type = ChangeState
+value = 1090
+TriggerAll =!  isHelper
+TriggerAll = Var(59) = 1
+TriggerAll = StateType != A
+TriggerAll = P2BodyDist X-Ceil(Vel X)-Ceil(EnemyNear(Var(55)),Vel X) = [-90,90]
+TriggerAll =  Random<=var(57)*40
+TriggerAll = EnemyNear(var(55)),StateType != L
+TriggerAll = FVar(33) > 20
+TriggerAll = stateno != 210 && stateno != 310
+TriggerAll = power >= 1000
+TriggerAll =  Random = [500,999] 
+Trigger1 = MoveHit
+Trigger1 = var(1)
+Trigger2 = (stateno = [200,299]) || (stateno = [300,399]) || stateno = 401
+Trigger2 = stateno != 440 ;[Statedef 440]（足払いのステート）ではない時
+Trigger2 = movecontact
+Trigger2 = palno  = 12
+
+[State -3, 博麗拳術『座者抜き』]
+type = ChangeState
+value = 1110
+TriggerAll =!  isHelper
+TriggerAll = Var(59) = 1
+TriggerAll = StateType != A
+TriggerAll = P2BodyDist X-Ceil(Vel X)-Ceil(EnemyNear(Var(55)),Vel X) = [-80,80]
+TriggerAll =  Random<=var(57)*40
+TriggerAll = EnemyNear(var(55)),StateType != L
+TriggerAll = FVar(33) > 30
+TriggerAll = stateno != 210 && stateno != 310
+TriggerAll =  Random = [500,999] 
+Trigger1 = MoveHit
+Trigger1 = var(1)
+Trigger2 = (stateno = [200,299]) || (stateno = [300,399]) || stateno = 401
+Trigger2 = stateno != 440 ;[Statedef 440]（足払いのステート）ではない時
+Trigger2 = movecontact
+Trigger2 = palno  = 12
+
+[State -3, 博麗拳術『彼方送り』]
+type = ChangeState
+value = 1100
+TriggerAll =!  isHelper
+TriggerAll = Var(59) = 1
+TriggerAll = StateType != A
+TriggerAll =  Random<=var(57)*40
+TriggerAll = FVar(33) > 20
+TriggerAll =  Random = [0,499] 
+Trigger1 = (stateno = 1111) && time > 25
+
+[State -3, 博麗拳術『霊圧飛ばし』]
+type = ChangeState
+value = 1120
+TriggerAll =!  isHelper
+TriggerAll = Var(59) = 1
+TriggerAll = StateType != A
+TriggerAll =  Random<=var(57)*40
+TriggerAll = FVar(33) > 20
+TriggerAll =  Random = [500,999] 
+Trigger1 = (stateno = 1111) && time > 25
+
+[State -3, しゃがみ強]
+type = ChangeState
+value = 310
+TriggerAll =!  isHelper
+TriggerAll = Var(59) = 1
+TriggerAll = StateType != A
+TriggerAll =  Random<=var(57)*40
+Trigger1 = (stateno = 1111) && time > 25
+
+
+
+;---------------------------------------------------------------------------
+;防御系
+;---------------------------------------------------------------------------
+
+
+
+[state -3,飛び道具ガード] 
+Type = ChangeState 
+Value = 120
+TriggerAll =!  isHelper
+TriggerAll = Var(59) = 1
+TriggerAll = StateType != A
+TriggerAll = Ctrl || (stateno = 100 && animelemtime(2) > 1) || stateno = 19 || stateno = 105
+TriggerAll = Pos y = 0
+TriggerAll = inguarddist
+Trigger1 = EnemyNear,NumHelper >Var(58)
+Trigger2 = EnemyNear,NumProj > 0
+
+
+
+
+[state -3,飛び道具立ちガード] 
+Type = ChangeState 
+Value = 130
+TriggerAll =!  isHelper
+TriggerAll = Var(59) = 1
+TriggerAll = StateType != A
+TriggerAll = Ctrl || (stateno = 100 && animelemtime(2) > 1) || stateno = 19 || stateno = 105
+TriggerAll = Pos y = 0
+TriggerAll = inguarddist
+Trigger1 = EnemyNear,NumHelper >Var(58)
+Trigger2 = EnemyNear,NumProj > 0
+
+
+
+
+
+[state -3,飛び道具空中ガード] 
+Type = ChangeState 
+Value = 132
+TriggerAll =!  isHelper
+TriggerAll = Var(59) = 1
+TriggerAll = StateType = A
+TriggerAll = Ctrl || (stateno = 100 && animelemtime(2) > 1) || stateno = 19 || stateno = 105
+TriggerAll = Pos y < 0
+TriggerAll = inguarddist
+Trigger1 = EnemyNear,NumHelper >Var(58)
+Trigger2 = EnemyNear,NumProj > 0
+
+
+
+
+
+
+
+
+[state -3,ガード] 
+Type = ChangeState 
+Value = 120
+TriggerAll =!  isHelper
+TriggerAll = Var(59) = 1
+TriggerAll = palno  = [1,12]
+TriggerAll = StateType != A
+TriggerAll = StateNo!=[120,159]
+TriggerAll = Ctrl || (stateno = 100 && animelemtime(2) > 1) || stateno = 19 || stateno = 105
+TriggerAll = enemynear,HitDefAttr != SC, NT,ST,HT
+TriggerAll = inguarddist
+TriggerAll = Pos y = 0
+TriggerAll = EnemyNear(var(55)),HitDefAttr != ,NT
+TriggerAll = P2MoveType = A
+Trigger1 = InGuardDist || P2BodyDist X-Ceil(Vel X)-Ceil(EnemyNear(Var(55)),Vel X) = [-40,40]
+Trigger1 = EnemyNear,HitDefAttr = SA,AA,AP
+Trigger1 = random <= 600
+Trigger2 = EnemyNear,NumProj > 0
+Trigger3 = InGuardDist 
+Trigger3 = EnemyNear,HitDefAttr != SCA,NT,ST,HT 
+Trigger3 = P2BodyDist X-Ceil(Vel X)-Ceil(EnemyNear(Var(55)),Vel X) < 0
+Trigger4 = InGuardDist || EnemyNear,MoveType = A
+Trigger4 = EnemyNear,Vel X > 0
+Trigger4 = EnemyNear,HitDefAttr = S,AA
+Trigger5 = InGuardDist || (EnemyNear,MoveType = A && (EnemyNear,P2BodyDist X = [-20,120])) 
+Trigger5 = Enemy,NumHelper > 0 
+Trigger6 = InguardDist || P2MoveType = A
+Trigger6 = P2BodyDist X-Ceil(Vel X)-Ceil(EnemyNear(Var(55)),Vel X) >= 0
+Trigger6 = EnemyNear,HitDefAttr = SA,AA,AP
+Trigger6 = random <= 500
+Trigger7 = InGuardDist
+Trigger7 = P2BodyDist X-Ceil(Vel X)-Ceil(EnemyNear(Var(55)),Vel X) <= 70
+Trigger7 = EnemyNear,Vel X >= 0
+Trigger8 = InguardDist
+Trigger8 = EnemyNear,MoveType = A
+Trigger8 = Enemy,NumHelper > 0 || Enemy,NumProj > 0
+Trigger9 = P2MoveType = A
+Trigger9 = P2BodyDist X-Ceil(Vel X)-Ceil(EnemyNear(Var(55)),Vel X) = [-10,30]
+Trigger10 = Enemy,HitDefAttr = ,NP,SP,HP
+Trigger10 = Enemy,NumHelper >Var(53) || Enemy,NumHelper >Var(54)
+Trigger11 = EnemyNear,HitDefAttr = ,NP,SP,HP
+Trigger11 = EnemyNear,NumHelper >Var(54) || Enemy,NumHelper >Var(53)
+Trigger12 = var(56) > 0
+Trigger12 = Ctrl || stateno = 19 || stateno = 20
+
+
+
+
+
+[State -3, 空中ガード]
+Type = ChangeState
+Value = 132
+TriggerAll =!  isHelper
+TriggerAll = var(59) !=0
+TriggerAll = palno  = [1,12]
+TriggerAll= StateType = A
+TriggerAll = StateNo!=[120,159]
+TriggerAll= Ctrl || stateno = 50 || stateno = [40,41]
+TriggerAll= inguarddist
+TriggerAll= EnemyNear,hitdefattr != C, NA,SA,HA 
+TriggerAll = pos y < 0
+TriggerAll = p2StateNo != [150,153]
+TriggerAll = StateNo != [120,155]
+Trigger1 = Random<=var(59)*75||var(59)>9
+Trigger2 = P2BodyDist X-Ceil(Vel X)-Ceil(EnemyNear(Var(55)),Vel X)>90||EnemyNear,Time>50
+Trigger2 = Random<=var(59)*160
+Trigger3 = Enemy, NumHelper > 0 || Enemy, Numproj > 0
+Trigger3 = inguarddist
+Trigger3 = Random <= var(57)*300 
+Trigger4 =! EnemyNear,HitDefAttr = ,NT,ST,HT
+Trigger4 = Random <= var(57)*300
+Trigger5 = Enemy,NumHelper > 0
+Trigger5 = Enemy,NumHelper >Var(54)
+Trigger5 = inguarddist
+Trigger5 = Random <= var(57)*300
+Trigger6 = var(56) > 0
+Trigger6 = P2BodyDist X-Ceil(Vel X)-Ceil(EnemyNear(Var(55)),Vel X) = [0,60]
+Trigger7 = Enemy,HitDefAttr = ,NP,SP,HP
+Trigger7 = Enemy,NumHelper >Var(53) || Enemy,NumHelper >Var(54)
+Trigger8 = EnemyNear,HitDefAttr = ,NP,SP,HP
+Trigger8 = EnemyNear,NumHelper >Var(54) || Enemy,NumHelper >Var(53)
+Trigger9 = var(56) > 0
+
+
+
+
+
+
+
+
+
+
+[State -3, しゃがみガード]
+type = ChangeState
+value = 131
+TriggerAll =!  isHelper
+TriggerAll = Var(59) = 1
+TriggerAll = palno  = [1,12]
+TriggerAll = stateType != A
+TriggerAll = Pos y = 0
+TriggerAll = StateNo!=[120,159]
+TriggerAll = Ctrl || stateno = 19 
+TriggerAll = p2StateNo != [150,153]
+TriggerAll = inguarddist
+TriggerAll = EnemyNear(var(55)),HitDefAttr != ,NT
+TriggerAll = EnemyNear,hitdefattr = C, NA,SA,HA
+TriggerAll = P2MoveType = A
+Trigger1 = statetype != A
+Trigger1 = inguarddist
+Trigger2 = P2MoveType = A || inguarddist
+Trigger2 = P2BodyDist X-Ceil(Vel X)-Ceil(EnemyNear(Var(55)),Vel X) = [-5,20]
+Trigger3 = P2BodyDist X-Ceil(Vel X)-Ceil(EnemyNear(Var(55)),Vel X) = [-10,20]
+Trigger3 = inguarddist
+Trigger4 = random <= 500
+Trigger4 = inguarddist
+Trigger5 = EnemyNear,HitDefAttr = C,AA,AP
+Trigger5 = random <= 500
+Trigger6 = EnemyNear,Time < 2
+Trigger6 = inguarddist
+Trigger6 = random <= 500
+Trigger7 = EnemyNear,HitDefAttr = C,AA || EnemyNear,HitDefAttr = C,AP
+Trigger7 = P2BodyDist X-Ceil(Vel X)-Ceil(EnemyNear(Var(55)),Vel X) = [-10,60]
+Trigger7 = random <= 500
+Trigger8 = var(56) > 0
+Trigger8 = root,palno  != 12
+Trigger8 = P2BodyDist X-Ceil(Vel X)-Ceil(EnemyNear(Var(55)),Vel X) = [-20,60]
+Trigger9 = Enemy,HitDefAttr = ,NP,SP,HP
+Trigger9 = Enemy,NumHelper >Var(53) || Enemy,NumHelper >Var(54)
+Trigger10 = EnemyNear,HitDefAttr = ,NP,SP,HP
+Trigger10 = EnemyNear,NumHelper >Var(54) || Enemy,NumHelper >Var(53)
+Trigger11 = var(56) > 0
+Trigger11 = Ctrl || stateno = 19 || stateno = 20
+
+
+
+[State -3, ガード]
+Type = ChangeState
+Value = 130
+TriggerAll =!  isHelper
+TriggerAll = var(59) !=0
+TriggerAll = palno  = [1,12]
+TriggerAll = StateType != A
+TriggerAll = RoundState = 2
+TriggerAll = p2movetype = A
+TriggerAll = Pos y = 0
+TriggerAll = StateNo!=[120,159]
+TriggerAll = Ctrl || stateno = 19|| stateno = 20
+TriggerAll = inguarddist
+TriggerAll = EnemyNear,hitdefattr != C, NA,SA,HA 
+TriggerAll = inguarddist
+TriggerAll = EnemyNear(var(55)),HitDefAttr != ,NT
+TriggerAll = P2MoveType = A
+Trigger1 = Random<=var(57)*75||var(57)>9
+Trigger2 = P2BodyDist X-Ceil(Vel X)-Ceil(EnemyNear(Var(55)),Vel X)>90||EnemyNear,Time>50
+Trigger2 = Random<=var(57)*160
+Trigger3 = Enemy, NumHelper > 0 || Enemy, Numproj > 0
+Trigger3 = inguarddist
+Trigger3 = Random <= var(57)*300 
+Trigger4 =! EnemyNear,HitDefAttr = ,NT,ST,HT
+Trigger4 = Random <= var(57)*300
+Trigger5 = Enemy,NumHelper > 0
+Trigger5 = Enemy,NumHelper >Var(54)
+Trigger5 = inguarddist
+Trigger5 = Random <= var(57)*300
+Trigger6 = var(56) > 0
+Trigger6 = root,palno  != 12
+Trigger6 = P2BodyDist X-Ceil(Vel X)-Ceil(EnemyNear(Var(55)),Vel X) = [0,60]
+Trigger7 = var(56) > 0
+Trigger7 = root,palno  != 12
+Trigger7 = P2BodyDist X-Ceil(Vel X)-Ceil(EnemyNear(Var(55)),Vel X) = [-20,60]
+Trigger8 = Enemy,NumHelper > 0
+Trigger8 = Enemy,NumHelper >Var(54)
+Trigger9 = Enemy,HitDefAttr = ,NP,SP,HP
+Trigger9 = Enemy,NumHelper >Var(53) || Enemy,NumHelper >Var(54)
+Trigger10 = EnemyNear,HitDefAttr = ,NP,SP,HP
+Trigger10 = EnemyNear,NumHelper >Var(54) || Enemy,NumHelper >Var(53)
+Trigger11 = var(56) > 0
+Trigger11 = Ctrl || stateno = 19 || stateno = 20
+
+
+
+;---------------------------------------------------------------------------
+;単体系
+;---------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+;---------------------------------------------------------------------------
+;空中系
+;--------------------------------------------------------------------------
+
+
+[State -3, 博麗拳術『鷹堕とし』]
+type = ChangeState
+value = 1500
+TriggerAll =!  isHelper
+TriggerAll = Var(59) = 1
+TriggerAll = FVar(33) > 15
+TriggerAll = StateType = A
+Trigger1 = (stateno = 1020) && time > 30
+
+[State -3, 博麗蹴術『右左離し』]
+type = ChangeState
+value = 1510
+TriggerAll =!  isHelper
+TriggerAll = Var(59) = 1
+TriggerAll = FVar(33) > 10
+TriggerAll = StateType = A
+Trigger1 = (stateno = 1501) && time > 63
+
+[State -3, 博麗拳術『神裁』]
+type = ChangeState
+value = 2500
+TriggerAll =!  isHelper
+TriggerAll = Var(59) = 1
+TriggerAll = FVar(33) > 50
+TriggerAll = StateType = A
+Trigger1 = MoveHit
+Trigger1 = (stateno = 1510) && time > 25
+
+
+[State -3, 博麗拳術『天裁』]
+type = ChangeState
+value = 1520
+TriggerAll =!  isHelper
+TriggerAll = Var(59) = 1
+TriggerAll = FVar(33) > 10
+TriggerAll = StateType = A
+Trigger1 = MoveHit
+Trigger1 = (stateno = 1510) && time > 25
+
+
+
+[State -3, ジャンプ弱]
+type = ChangeState
+value = 400
+TriggerAll =!  isHelper
+TriggerAll = Var(59) = 1
+TriggerAll = StateType = A
+TriggerAll = EnemyNear(var(55)),StateType != L
+TriggerAll = P2stateno != [5020,5071]
+TriggerAll = P2stateno != [120,150]
+TriggerAll = pos Y <= -40
+TriggerAll = P2MoveType = A
+Trigger1   = Ctrl
+Trigger1   = P2BodyDist X > 50
+Trigger1   = Random<=var(57)*15
+
+
+
+
+[State -3, ジャンプ強]
+type = ChangeState
+value = 410
+TriggerAll =!  isHelper
+TriggerAll = Var(59) = 1
+TriggerAll = StateType = A
+TriggerAll = EnemyNear(var(55)),StateType != L
+TriggerAll = P2stateno != [5020,5071]
+TriggerAll = P2stateno != [120,150]
+TriggerAll = pos Y <= -40
+Trigger1   = Ctrl
+Trigger1   = P2BodyDist X > 50
+Trigger1   = P2BodyDist X < 100
+Trigger1   = Random<=var(57)*8
+Trigger1   = P2BodyDist Y = [-40,5]
+Trigger2 = P2StateType = A
+Trigger2 = P2BodyDist X > 50
+Trigger2 = ctrl
+
+
+
+[State -3, ぶっぱジャンプ弱]
+type = ChangeState
+value = 410
+TriggerAll =!  isHelper
+TriggerAll = Var(59) = 1
+TriggerAll = StateType = A
+TriggerAll = EnemyNear(var(55)),StateType != L
+TriggerAll = pos Y <= -40
+Trigger1   = Ctrl
+Trigger1   = Random<=var(57)*5
+
+
+
+
+;---------------------------------------------------------------------------
+;混線用
+;---------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+[State -3, 博麗拳術『背面取り』]
+type = SelfState
+value = 1050
+TriggerAll = Var(59) > 0
+TriggerAll =!  isHelper
+TriggerAll = Life != 0
+TriggerAll = RoundState = [1,2]
+TriggerAll = FVar(33) > 20
+TriggerAll = StateType = S
+TriggerAll = EnemyNear(Var(55)),StateType != L
+Trigger1 = root,Var(40) != 0
+Trigger2 = root,stateno = 49999
+
+
+
+
+
+
+

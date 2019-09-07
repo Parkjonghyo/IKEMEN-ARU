@@ -1,0 +1,511 @@
+;コンフィグ
+;---------------------------------------------------------------------------
+; Initialize (at the start of the round)
+[Statedef 5900]
+type = U
+
+[State 5900, 1] ;Clear all int variables
+type = VarRangeSet
+trigger1 = roundsexisted = 0
+value = 0
+first = 1
+last = 12
+
+[State 5900, 1] ;Clear all int variables
+type = VarRangeSet
+trigger1 = roundsexisted = 0
+value = 0
+first = 15
+last = 58
+
+[State 5900, 2] ;Clear all float variables
+type = VarRangeSet
+trigger1 = roundsexisted = 0
+fvalue = 0
+;---------------------------------------------------------------------------
+;ここから下の部分を自分の好みで設定できます
+;※「Value = Var(?)」の後の()の中の数字をいじってください
+;---------------------------------------------------------------------------
+;開幕前行動の設定
+[State 5900, 0]
+Type = VarSet
+Trigger1 = RoundState = 0
+V = 56
+Value = Var(56)-(0)      ;0が行動可(デフォルト)、1が行動不可
+
+;特殊KOBGMの設定
+[State 5900, 0]
+Type = VarSet
+Trigger1 = palno != 12
+Trigger1 = RoundState = 0
+V = 54
+Value = 6		  ;0が『Big Bang Age(短縮Ver)』、1が『BigBangAge(インスト)』、2がファイナルアーク専用BGM『Light Colors』
+               		  ;3がアストラルアーク専用BGM『Dash! to truth』、4が『MELTY BLOOD』
+			　;5が『Burning Destiny』、6が『Burning Destiny(短縮Ver)』(デフォルト)
+             		  ;Random%7がBGMランダム
+             		  ;ifelse(Random%2=0,5,6)がBurning Destinyランダム
+			  ;99でBGM演出なし
+
+;特殊KOBGMの設定(12P固定用)
+[State 5900, 0]
+Type = VarSet
+Trigger1 = palno = 12
+Trigger1 = RoundState = 0
+V = 54
+Value = 2
+
+;開幕覚醒の設定
+[state -2]
+Type = varset
+Trigger1 = Palno != 12
+triggerAll = roundno = 1
+trigger1 = roundstate = 0
+V = 42
+value = 0	;0で開幕覚醒しない、1で開幕覚醒する
+
+;エフェクト表示の設定
+[State 5900, 0]
+Type = VarSet
+Trigger1 = Var(0)%10 = 0
+V = 0
+Value = Var(0)+(0)       ;0が通常(デフォルト)、1が簡易(ヒットエフェクト、EXエフェクト
+　　　　　　　　　　　   ;の簡易化、一部エフェクトを無表示化)
+
+;システムメッセージと勝利メッセージ表示の設定
+[State 5900, 0]
+Type = VarSet
+Trigger1 = Var(0)/10%10 = 0
+V = 0
+Value = Var(0)+(0)*10    ;0が表示あり(デフォルト)、1が表示なし
+
+;ゲージ表示の設定
+[State 5900, 0]
+Type = VarSet
+Trigger1 = Var(0)/1000%10 = 0
+V = 0
+Value = Var(0)+(0)*1000  ;0が表示あり(デフォルト)、1が表示なし
+
+
+;ゲージY座標の設定
+[State 5900, 0]
+Type = VarSet
+Trigger1 = Var(0)/100000%10 = 0
+V = 0
+Value = Var(0)+(0)*100000;0がデフォルト、
+　　　　　　　　　　　　 ;＋が上方向、－が下方向(0を基準)
+
+
+;投げ、強制開放(サーキットスパーク)コマンドの設定
+[State 5900, 0]
+Type = VarSet
+Trigger1 = Var(0)/100%10 = 0
+V = 0
+Value = Var(0)+(0)*100   ;0がActCadenza(デフォルト)、1がReAct
+　　　　　　　　　　　　 ;ACでは投げが[ForB, a+z]、強制開放が[a+b+c]
+　　　　　　　　　　　　 ;Reでは投げが[ForB, c]、強制開放が[D,D,D, z]となります
+
+;ダメージ表示の設定
+[State 5900, 0]
+Type = VarSet
+Trigger1 = Var(0)/10000%10 = 0
+V = 0
+Value = Var(0)+(0)*10000 ;0が表示あり(デフォルト)、1が表示なし
+;---------------------------------------------------------------------------
+;ここまで(下に続きあり）
+;---------------------------------------------------------------------------
+[State 5900, 0]
+Type = null;VarSet
+Trigger1 = Var(0)/1000%10 = 0
+Trigger1 = NumPartner > 0
+Trigger1 = Partner,ID < ID
+V = 0
+Value = Var(0)+1000
+
+[State 5900, 0]
+Type = VarSet
+TriggerAll = Var(26) = 0
+TriggerAll = Var(0)/1000%10 = 0
+TriggerAll = RoundState = 0
+TriggerAll = NumHelper(24000) = 0
+Trigger1 = RoundNo = 1
+Trigger2 = TeamMode = Turns
+Trigger2 = RoundsExisted = 0
+V = 26
+Value = IfElse(Random%4=0,0,IfElse(Random%4=1,1,IfElse(Random%4=2,2,3)))
+IgnoreHitPause = 1
+SuperMoveTime = 9999
+PauseMoveTime = 9999
+
+[State 5900, 3] ;Intro
+type = ChangeState
+Trigger1 = RoundNo = 1
+Trigger2 = TeamMode = Turns
+Trigger2 = RoundsExisted = 0
+value = 190
+
+[State 5900, 3] ;Intro
+type = ChangeState
+Trigger1 = RoundNo > 1
+value = 0
+
+
+;コンフィグの続き
+;---------------------------------------------------------------------------
+; Initialize (at the start of the round)
+[Statedef 5901]
+type = U
+anim = 9976
+
+;イントロの設定
+[State 5900, 0]
+Type = null;VarSet
+Trigger1 = 1
+V = 26
+Value = 0		;0で通常イントロ
+			;1で覚醒状態的イントロ
+
+;覚醒の設定
+[State 5900, 0]
+Type = VarSet
+TriggerAll = palNo != 12
+Trigger1 = 1;RoundState = 0
+V = 42
+Value = 0		;0が覚醒なし、1がFA発動条件満たした状態で強制開放演出変更
+			;2が3ラウンドで覚醒、3が一度敗北で覚醒
+
+[State 5900, 0]
+Type = parentVarSet
+TriggerAll = palno != 12
+Trigger1 = var(42) = 1
+Trigger1 = parent,var(42) = 0
+Trigger1 = parent,var(47) > 1
+Trigger1 = roundno > 2 || Helper(5901),var(47) = 1
+V = 42
+Value = 2
+
+[State 5900, 0]
+Type = parentVarSet
+Trigger1 = var(42) = 2
+Trigger1 = Roundno = 3
+V = 42
+Value = 1
+
+[State 5900, 0]
+Type = parentVarSet
+TriggerAll = palno != 12
+Trigger1 = var(42) = 3
+Trigger1 = parent,var(42) = 0
+Trigger1 = lose && RoundState != 2
+V = 42
+Value = 1
+
+[State 5900, 0]
+Type = parentVarSet
+TriggerAll = palno != 12
+Trigger1 = parent,var(42) = 3
+V = 42
+Value = 3
+
+[State 5900, 0]
+Type = VarSet
+;TriggerAll = palno != 12
+Trigger1 = parent,var(42) = 3
+V = 25
+Value = 1
+
+[State 5900, 0]
+Type = VarSet
+Trigger1 = var(25) = 1
+Trigger1 = parent,var(42) != 3
+V = 42
+Value = 3
+
+;覚醒FA発動前演出以外での覚醒のゲージ設定
+[State 5900, 0]
+Type = VarSet
+TriggerAll = palNo != 12
+TriggerAll = var(42) = 2 || var(42) = 3
+Trigger1 = 1;RoundState = 0
+V = 24
+Value = 1		;0で開幕のみBH、1で開幕でBH後常時ゲージ増加
+			;2で常時BH
+
+;ファイナルアークの設定(ラウンド)
+[State 5900, 0]
+Type = VarSet
+Trigger1 = 1;RoundState = 0
+V = 47
+Value = 0		;0がデフォルトで３ラウンド目から、1で１ラウンド目から
+
+
+;12P時にタイムが停止するのを解除
+[State 5900, 0]
+Type = VarSet
+Trigger1 = Parent,PalNo = 12
+FV = 0
+Value = 0		;0でOFF、1でON
+
+
+；以下12Ｐ専用おまけ強化スイッチ
+;12P専用AI(ONにすると以下の設定が可能になります)
+[State 5900, 0]
+Type = VarSet
+Trigger1 = 1;RoundState = 0
+V = 51
+Value = 1		;0でOFF、1でON
+
+
+;12P専用サキスパ強化スイッチ(空中サキスパが追加され、すべて自動で発動する）
+[State 5900, 0]
+Type = VarSet
+Trigger1 = 1;RoundState = 0
+V = 52
+Value = 0		;0でOFF、1でON
+
+;12P専用サキスパ強化スイッチ(サーキットブレイクしなくなる）
+[State 5900, 0]
+Type = VarSet
+Trigger1 = 1;RoundState = 0
+V = 53
+Value = 0		;0でOFF、1でON
+
+
+;12P専用サキスパ強化スイッチ(ほぼすべての攻撃からサキスパで抜け出す)
+[State 5900, 0]
+Type = VarSet
+Trigger1 = 1;RoundState = 0
+V = 54
+Value = 0		;0でOFF、1でON
+
+;12PAI用一撃必殺制限スイッチ
+[State 5900, 0]
+Type = VarSet
+Trigger1 = 1;RoundState = 0
+V = 55
+Value = 0		;0でいつでも、1で３ラウンドから
+
+;---------------------------------------------------------------------
+;管理
+[State 5900, 0]
+Type = VarSet
+Trigger1 = parent,stateno = 3050
+FV = 38
+Value = parent,Fvar(38)
+
+[State 5900, 0]
+Type = ParentVarSet
+Trigger1 = Parent,StateNo = 3061
+;Trigger1 = Parent,animtime = 0
+FV = 38
+Value = Fvar(38)
+
+;---------------------------------------------------------------------
+;AI用
+[State 5900, 0]
+Type = VarSet
+Trigger1 = P2movetype != H
+V = 0
+Value = 0
+
+[State 5900, 0]
+Type = VarSet
+Trigger1 = parent,stateno = 230
+Trigger2 = parent,stateno = 2200
+V = 0
+Value = 1
+
+[State 5900, 0]
+Type = VarSet
+Trigger1 = P2movetype != H
+V = 1
+Value = 0
+
+[State 5900, 0]
+Type = Varrandom
+Trigger1 = p2movetype = H
+Trigger1 = var(1) = 0
+V = 1
+Range = 0,2
+IgnoreHitPause = 1
+SuperMoveTime = 9999
+PauseMoveTime = 9999
+
+[State 5900, 0]
+Type = VarSet
+Trigger1 = P2movetype != H
+V = 2
+Value = 0
+
+[State 5900, 0]
+Type = Varrandom
+TriggerAll = var(2) = 0
+Trigger1 = parent,StateNo = 1001
+Trigger2 = parent,StateNo = 1051
+V = 2
+Range = 0,5
+IgnoreHitPause = 1
+SuperMoveTime = 9999
+PauseMoveTime = 9999
+
+[State 5900, 0]
+Type = VarSet
+Trigger1 = P2movetype != H
+V = 3
+Value = 0
+
+[State 5900, 0]
+Type = Varrandom
+Trigger1 = P2movetype = H
+Trigger1 = var(3) = 0
+V = 3
+Range = 0,5
+IgnoreHitPause = 1
+SuperMoveTime = 9999
+PauseMoveTime = 9999
+
+[State 5900, 0]
+Type = VarSet
+Trigger1 = P2movetype != H
+V = 4
+Value = 0
+
+[State 5900, 0]
+Type = Varrandom
+Trigger1 = P2movetype = H
+Trigger1 = var(4) = 0
+V = 4
+Range = 0,5
+IgnoreHitPause = 1
+SuperMoveTime = 9999
+PauseMoveTime = 9999
+
+[State 5900, 0]
+Type = VarSet
+Trigger1 = P2movetype = H
+Trigger1 = parent,stateno = 2200
+Trigger1 = var(4) = 1
+V = 4
+Value = 0
+
+[State 5900, 0]
+Type = VarSet
+Trigger1 = P2movetype != H
+V = 5
+Value = 0
+
+[State 5900, 0]
+Type = VarSet
+Trigger1 = P2movetype = H
+Trigger1 = parent,stateno = [200,420]
+V = 5
+Value = 1
+
+[State 5900, 0]
+Type = VarSet
+Trigger1 = P2movetype != H
+V = 6
+Value = 0
+
+[State 5900, 0]
+Type = VarSet
+TriggerAll = P2movetype = H
+Trigger1 = parent,stateno = 3061
+Trigger2 = parent,stateno = 3010
+Trigger3 = parent,stateno = 1001
+Trigger4 = parent,StateNo = 1051
+Trigger5 = parent,StateNo = 906
+V = 6
+Value = 1
+
+[State 5900, 0]
+Type = VarSet
+Trigger1 = P2movetype != H
+Trigger2 = parent,stateno = 210
+V = 7
+Value = 0
+
+[State 5900, 0]
+Type = VarSet
+;TriggerAll = P2movetype = H
+Trigger1 = parent,stateno = 925
+V = 7
+Value = 1
+
+[State 5900, 0]
+Type = VarSet
+Trigger1 = P2movetype != H
+V = 8
+Value = 0
+
+[State 5900, 0]
+Type = Varrandom
+Trigger1 = P2movetype = H
+Trigger1 = parent,stateno = 810
+Trigger1 = var(8) = 0
+V = 8
+Range = 0,2
+IgnoreHitPause = 1
+SuperMoveTime = 9999
+PauseMoveTime = 9999
+
+[State 5900, 0]
+Type = VarSet
+Trigger1 = Parent,Var(13) != -1
+Trigger2 = power <= 500
+V = 9
+Value = 0
+
+[State 5900, 0]
+Type = Varrandom
+Trigger1 = var(9) = 0
+Trigger1 = Parent,Var(13) = -1
+Trigger1 = power > 500
+V = 9
+Range = 0,2
+IgnoreHitPause = 1
+SuperMoveTime = 9999
+PauseMoveTime = 9999
+
+[State 5900, 0]
+Type = VarSet
+Trigger1 = Parent,Var(13) != -1
+V = 10
+Value = 0
+
+[State 5900, 0]
+Type = Varrandom
+Trigger1 = var(10) = 0
+Trigger1 = Parent,StateNo = [900,919]
+V = 10
+Range = 0,2
+IgnoreHitPause = 1
+SuperMoveTime = 9999
+PauseMoveTime = 9999
+
+[State 5900, 0]
+Type = VarSet
+Trigger1 = Parent,StateNo = 915
+V = 11
+Value = P2StateNo
+
+[State 5900, 0]
+Type = VarSet
+Trigger1 = P2Stateno != var(11)
+V = 12
+Value = 0
+
+[State 5900, 0]
+Type = VarSet
+Trigger1 = parent,stateno = 915
+V = 12
+Value = 1
+
+[State 5900, 0]
+Type = Varrandom
+Trigger1 = RoundState = 2
+Trigger1 = Var(13) = 0
+V = 13
+Range = 0,2
+IgnoreHitPause = 1
+SuperMoveTime = 9999
+PauseMoveTime = 9999

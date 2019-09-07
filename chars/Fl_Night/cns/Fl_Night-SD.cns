@@ -1,0 +1,863 @@
+;最終ステートファイル。 主にstatedef -2,-3を記述。
+
+;---------------------------------------------------------------------------
+[statedef -2]
+
+[State 0, DisplayToClipboard]
+type = DisplayToClipboard
+trigger1 = 1
+text = "enemynear,stateno = %d"
+params = enemynear,stateno;),vel x
+ignorehitpause = 1
+
+;---------------------当身キラー関連;------------------------
+
+[State 1]
+type = Helper
+trigger1 = numhelper(7060) = 0
+trigger1 = var(17) = 1
+helpertype = player
+name = "screen"
+stateno = 7060
+pos = 0, 0
+postype = right
+facing = 1
+stateno = 7060
+keyctrl = 0
+ownpal = 1
+supermovetime = 999999999999999
+pausemovetime = 999999999999999
+
+[state ]
+type=AssertSpecial
+flag = noko
+trigger1 = var(17)
+
+[state ]
+type = AssertSpecial
+trigger1 = var(17)
+flag = invisible
+
+[state ]
+type=selfstate
+trigger1 = ishelper
+value=7060
+[state ];もし当身キラーで護身状態でも試合が動かなければ1000Fで解除
+type=selfstate
+trigger1 = !ishelper
+trigger1 = var(17)>1000
+value=808
+ctrl=0
+
+[state ];当身キラーで100F経過しても相手が護身してたら5Fで抜け
+type=selfstate
+trigger1 = var(17) & time=100
+trigger2 = var(18)=5
+triggerall = !ishelper
+value=806
+ctrl=0
+
+[state ];当身キラー制限時間終えてもキラーできなかったら射撃以外無敵化
+trigger1 =var(19)
+type = NotHitBy
+time=999
+value = SCA,AA,AT
+
+[state ]
+type=varset
+triggerall = numhelper(3501)
+trigger1 = helper(3501),MoveReversed=1
+trigger2 = helper(3501),movehit=1 & enemynear,movetype!=H
+var(19)=0
+
+;---------------------当身キラー関連;------------------------
+
+[state ]
+type=varadd
+trigger1 = var(17)
+trigger1 = stateno!=806
+trigger1 = stateno!=807
+var(18)=1
+
+[State -2, コンボ補正]
+type = AttackMulSet
+trigger1 = 1
+triggerall = !ishelper
+trigger1 = palno!= 12
+value = 1*fvar(0);fvar(0)の数だけ補正をかけるよ　攻撃力下げるよ
+ignorehitpause = 1
+
+[state ]
+type=veladd
+triggerall = var(50) && !ishelper
+triggerall = enemy,movetype=H
+triggerall = movetype=A
+triggerall = stateno = 3012
+trigger1 = time=1
+x = 2
+
+[State -2];補正
+type = Varset
+triggerall = !ishelper
+trigger1 = palno!= 12
+trigger1 = fvar(0) < 0.0002 ;fvar(0)が0より下にならないようにしてるよ
+fvar(0) = 0.0002
+ignorehitpause = 1
+
+
+[State -2];補正を元にもどすよ
+type = Varset
+triggerall = !ishelper
+trigger1 = palno!= 12
+trigger1 = enemy,movetype != H ;相手が食らってない時だよ
+trigger2 = enemy,stateno = [120,155] ;相手がガードモーションの時だよ
+trigger3 = var(50)
+fvar(0) = 1   ;補正をもとに戻すよ
+ignorehitpause = 1   ;ヒット硬直の時も機能するよ
+
+[State -2];補正
+type = Varset
+triggerall = !ishelper
+trigger1 = palno!= 12
+trigger1 = stateno = prevstateno
+trigger1 = var(50)
+fvar(0) = 0.5
+ignorehitpause = 1
+
+[State -2, 補正]
+type = VarAdd
+triggerall = !ishelper
+trigger1 = palno != 12
+trigger1= movehit =1
+fvar(0) = -0.0028	
+persistent = 0
+ignorehitpause = 1
+
+[state ]
+type=varset
+trigger1 = enemynear,stateno=10002
+fvar(10)=enemy,vel x
+
+[State , ヒットエフェクト表示];火炎エフェクト
+type = Explod
+ownpal = 1
+triggerall = time%2=0
+trigger1 = numtarget(3001)
+trigger1 = stateno=3000
+trigger2 = numtarget(715)
+trigger2 = stateno=715
+trigger3 = numtarget(3010)
+trigger3 = stateno=3010
+triggerall = enemynear,stateno!=10003
+triggerall = enemynear,stateno!=10004
+triggerall = enemynear,stateno!=5120
+triggerall = enemynear,stateno!=5100
+triggerall = enemynear,stateno!=5101
+triggerall = enemynear,stateno!=5102
+triggerall = enemynear,stateno!=5110
+triggerall = enemynear,stateno!=[5000,5150]
+triggerall = enemynear,time>0
+anim = 7052
+facing = ifelse(enemy,facing=1,-1,1)
+bindtime = 6
+ID = 3001
+pos = 0,-25
+random=80,50
+postype=p2
+scale = 0.8,0.8
+removeongethit = 0
+ supermovetime = 300
+ pausemovetime = 300
+ownpal = 1
+persistent=0
+ignorehitpause = 1
+sprpriority = 0
+
+[State , ヒットエフェクト表示];火炎エフェクト
+type = Explod
+ownpal = 1
+triggerall = time%5=0
+trigger1 = stateno=3012
+trigger1 = time>110
+trigger1 = time<230
+anim = 7052
+bindtime = 6
+ID = 3001
+pos = 0,20
+random=70,50
+postype=p1
+scale = 0.8,0.8
+removeongethit = 0
+ supermovetime = 300
+ pausemovetime = 300
+ownpal = 1
+persistent=0
+ignorehitpause = 1
+sprpriority = 0
+
+[state ];火炎ライフ減少
+type=targetlifeadd
+trigger1 = time%3=0
+trigger1 = numtarget(3001)
+trigger1 = numexplod(3001)
+trigger2 = time%5=0
+trigger2 = numtarget(715)
+trigger2 = numexplod(3001)
+trigger1 = time%3=0
+trigger3 = numexplod(3012)
+trigger3 = numexplod(3001)
+value = -3
+kill = 0
+
+[State 1]
+type = Helper
+trigger1 = numhelper(30000) = 0
+trigger1 = var(12) = 1
+trigger1 = enemynear,stateno=6011
+helpertype = normal
+name = "screen"
+ID = 30000
+pos = 0, 0
+postype = left
+facing = 1
+stateno = 30000
+keyctrl = 0
+ownpal = 1
+supermovetime = 999999999999999
+pausemovetime = 999999999999999
+size.xscale = 1
+size.yscale = 1
+size.ground.back = 0
+size.ground.front = 0
+size.air.back = 0
+size.air.front = 0
+size.height = 0
+size.head.pos = 0, 0
+size.mid.pos = 0, 0
+size.shadowoffset = 0
+
+[State 1]
+type = Helper
+trigger1 = numhelper(30001) = 0
+trigger1 = var(12) = 1
+trigger1 = enemynear,stateno=6011
+helpertype = normal
+name = "screen"
+ID = 30001
+pos = 0, 0
+postype = right
+facing = 1
+stateno = 30000
+keyctrl = 0
+ownpal = 1
+supermovetime = 999999999999999
+pausemovetime = 999999999999999
+size.xscale = 1
+size.yscale = 1
+size.ground.back = 0
+size.ground.front = 0
+size.air.back = 0
+size.air.front = 0
+size.height = 0
+size.head.pos = 0, 0
+size.mid.pos = 0, 0
+size.shadowoffset = 0
+
+;**************************************************
+[State 202, 相手ステート変更]
+Type = TargetState
+trigger1 = var(12)
+Trigger1 = MoveHit=1
+Value = 6010
+IgnoreHitPause = 1
+;Persistent = 10
+
+[state ]
+type=selfstate
+triggerall = stateno=3500
+triggerall = numhelper(3501)
+trigger1 = MoveReversed=1
+trigger2 = movehit=1 & enemynear,movetype!=H
+trigger3 = helper(3501),MoveReversed=1
+trigger4 = helper(3501),movehit=1 & enemynear,movetype!=H
+value = 805
+
+[state ]
+type=powerset
+trigger1 = roundno = 1
+trigger1 = roundstate=[0,1]
+value = 1000
+
+[state ]
+type=powerset
+trigger1 = numhelper(3501)
+trigger1 = helper(3501),movehit=1
+value = 500
+
+[State -2, コンボ補正]
+type = AttackMulSet
+trigger1 = 1
+value = 1*fvar(0);fvar(0)の数だけ補正をかけるよ　攻撃力下げるよ
+ignorehitpause = 1
+
+[State -2];補正
+type = Varset
+trigger1 = fvar(0) < 0 ;fvar(0)が0より下にならないようにしてるよ
+fvar(0) = 0
+ignorehitpause = 1
+
+[State -2];補正を元にもどすよ
+type = Varset
+trigger1 = enemy,movetype != H ;相手が食らってない時だよ
+trigger2 = enemy,stateno = [120,155] ;相手がガードモーションの時だよ
+fvar(0) = 1   ;補正をもとに戻すよ
+ignorehitpause = 1   ;ヒット硬直の時も機能するよ
+[State -2];JC命中判定のリセットを行う
+type = Varset
+trigger1 = enemy,movetype != H ;相手が食らってない時だよ
+trigger2 = enemy,stateno = [120,155] ;相手がガードモーションの時だよ
+trigger3 = var(58)>=1000
+var(12) = 0   ;補正をもとに戻すよ
+ignorehitpause = 1   ;ヒット硬直の時も機能するよ
+[State -2];JC命中判定のリセットを行う
+type = Varset
+trigger1 = enemy,movetype != H ;相手が食らってない時だよ
+trigger2 = enemy,stateno = [120,155] ;相手がガードモーションの時だよ
+var(13) = 0   ;補正をもとに戻すよ
+ignorehitpause = 1   ;ヒット硬直の時も機能するよ
+[State -2];JC命中判定のリセットを行う
+type = Varset
+trigger1 = enemy,movetype != H ;相手が食らってない時だよ
+trigger2 = enemy,stateno = [120,155] ;相手がガードモーションの時だよ
+var(15) = 0   ;補正をもとに戻すよ
+ignorehitpause = 1   ;ヒット硬直の時も機能するよ
+[State -2];JC命中判定のリセットを行う
+type = Varset
+trigger1 = enemy,movetype != H ;相手が食らってない時だよ
+trigger2 = enemy,stateno = [120,155] ;相手がガードモーションの時だよ
+var(16) = 0   ;補正をもとに戻すよ
+ignorehitpause = 1   ;ヒット硬直の時も機能するよ
+
+[State -2, 補正]
+type = VarAdd
+trigger1= movehit
+trigger1=!ishelper
+fvar(0) = -0.002	
+persistent = 0
+ignorehitpause = 1
+
+[state ];空中ジャンプ回数
+type = varset
+trigger1 = pos y = 0
+var(2)=0
+
+
+[State -2];補正修正(リミッター値)
+type = Varset
+trigger1 = enemy,movetype != H ;相手が食らってない時だよ
+trigger2 = enemy,stateno = [120,155] ;相手がガードモーションの時だよ
+var(58) = 0 
+ignorehitpause = 1   ;ヒット硬直の時も機能するよ
+
+[State -2];補正修正(リミッター解除補正値の修正)
+type = Varset
+trigger1 = enemy,movetype != H ;相手が食らってない時だよ
+trigger2 = enemy,stateno = [120,155] ;相手がガードモーションの時だよ
+var(57) = 0   
+ignorehitpause = 1   ;ヒット硬直の時も機能するよ
+
+[State -2];補正修正(1コンボ中のリミッター解除修正)
+type = Varset
+trigger1 = enemy,movetype != H ;相手が食らってない時だよ
+trigger2 = enemy,stateno = [120,155] ;相手がガードモーションの時だよ
+var(56) = 0   
+ignorehitpause = 1   ;ヒット硬直の時も機能するよ
+
+[State -2];補正修正（1コンボ中のJA、JB回数)
+type = Varset
+trigger1 = enemy,movetype != H ;相手が食らってない時だよ
+trigger2 = enemy,stateno = [120,155] ;相手がガードモーションの時だよ
+var(10) = 0   
+ignorehitpause = 1   ;ヒット硬直の時も機能するよ
+
+[State -2];補正修正（ファイナルアタック用)
+type = Varset
+trigger1 = enemy,movetype != H ;相手が食らってない時だよ
+trigger2 = enemy,stateno = [120,155] ;相手がガードモーションの時だよ
+var(11) = 0   
+ignorehitpause = 1   ;ヒット硬直の時も機能するよ
+[State -2];補正修正（JC)
+type = Varset
+trigger1 = enemy,movetype != H ;相手が食らってない時だよ
+trigger2 = enemy,stateno = [120,155] ;相手がガードモーションの時だよ
+var(13) = 0   
+ignorehitpause = 1   ;ヒット硬直の時も機能するよ
+[State -2];補正修正（ファイナルアタックダメージ用)
+type = Varset
+trigger1 = enemy,movetype != H ;相手が食らってない時だよ
+trigger2 = enemy,stateno = [120,155] ;相手がガードモーションの時だよ
+var(14) = 0   
+ignorehitpause = 1   ;ヒット硬直の時も機能するよ
+
+
+[State 1007, Helper];ファイナルアタックヘルパー
+type = Helper
+trigger1 = var(57)=1000
+trigger1 = Numhelper(25000) = 0
+trigger1 = var(11)=0
+;trigger1 = stateno=605
+ID = 25000
+pos = 0,0
+postype = P1
+stateno = 25000
+helpertype = normal
+keyctrl = 0
+ownpal = 1
+supermovetime = 1
+persistent = 0
+supermovetime = 999
+pausemovetime = 999
+
+;**************************************************
+[State 202, 相手ステート変更]
+Type = TargetState
+trigger1 = !var(12)
+Trigger1 = NumTarget
+trigger1 = var(58)>=1000
+Trigger1 = (MoveHit = 1)
+trigger1 = enemynear,alive = 1
+trigger1 = stateno != 200
+trigger1 = stateno != 210
+trigger1 = stateno != 620
+trigger1 = stateno != 625
+trigger1 = stateno != 400
+trigger1 = stateno != 410
+trigger1 = stateno != 430
+trigger1 = stateno != 215
+trigger1 = stateno != 3000
+trigger1 = stateno != 3012
+Value = 10002
+IgnoreHitPause = 1
+Persistent = 10
+
+[State 1018, PlaySnd]
+type = PlaySnd
+trigger1 = P2stateno = 6011
+trigger1 = P2movetype = H
+trigger1 = enemynear,time = 1
+trigger1 = NumExplod(10040) = 0
+trigger1 = stateno!=3000
+value = S200,12
+
+[State 1018, PlaySnd];236X壁直撃音
+type = PlaySnd
+trigger1 = P2stateno = 10003
+trigger1 = P2movetype = H
+trigger1 = enemynear,time = 1
+trigger1 = NumExplod(3001)
+value = S1000,1
+[State 1018, PlaySnd];236X壁直撃振動
+type = EnvShake
+trigger1 = P2stateno = 10003
+trigger1 = P2movetype = H
+trigger1 = enemynear,time = 1
+trigger1 = NumExplod(3001)
+time = 20
+freq = 120
+ampl = -9
+phase = 0
+
+[State 500, 画面揺らし]
+type = EnvShake
+trigger1 = P2stateno = 6011
+trigger1 = P2movetype = H
+trigger1 = enemynear,time = 1
+trigger1 = NumExplod(10040) = 0
+time = 13
+freq = 120
+ampl = -8
+phase = 0
+
+;-------------壁張り付きエフェクト
+[State -2, Explod]
+type = Explod
+ownpal = 1
+trigger1 = P2stateno = 6011
+trigger1 = P2movetype = H
+trigger1 = enemynear,time = 1
+trigger1 = NumExplod(10040) = 0
+anim = 7045
+ID = 10040
+pos = 0, -60
+postype = p2
+facing = 1
+vfacing = 1
+bindtime = -1
+removetime = -2
+supermovetime = 17
+pausemovetime = 17
+scale = 2,2
+sprpriority = 5
+removeongethit = 0
+IgnoreHitPause = 0
+;-------------壁張り付きエフェクト
+[State -2, Explod]
+type = Explod
+ownpal = 1
+trigger1 = P2stateno = 6011
+trigger1 = P2movetype = H
+trigger1 = enemynear,time = 1
+trigger1 = NumExplod(10041) = 0
+anim = 7047
+ID = 10041
+pos = 0, -60
+postype = p2
+facing = 1
+vfacing = 1
+bindtime = -1
+removetime = -2
+supermovetime = 17
+pausemovetime = 17
+scale = 0.75,0.75
+sprpriority = 5
+removeongethit = 0
+IgnoreHitPause = 0
+
+;-------------壁張り付きエフェクト
+[State -2, Explod]
+type = Explod
+ownpal = 1
+trigger1 = P2stateno = 10003
+trigger1 = P2movetype = H
+trigger1 = enemynear,time = 1
+trigger1 = NumExplod(10041) = 0
+anim = 7045
+ID = 10041
+pos = -10, -60
+postype = p2
+facing = -1
+vfacing = 1
+bindtime = 1
+removetime = -2
+scale = 1.5,1.5
+sprpriority = 6
+ontop = 1
+ownpal = 0
+removeongethit = 0
+IgnoreHitPause = 0
+
+[state ]
+type=playsnd
+trigger1 = P2stateno = 10006
+trigger1 = P2movetype = H
+trigger1 = enemynear,time = 1
+trigger1 = NumExplod(7060) = 0
+value = 70,7
+channel = 4
+freqmul = 0.95
+[state ]
+type=playsnd
+trigger1 = P2stateno = 10006
+trigger1 = P2movetype = H
+trigger1 = enemynear,time = 1
+trigger1 = NumExplod(7060) = 0
+value = 200,11
+channel = 5
+freqmul = 0.95
+
+;-------------床叩きつけエフェクト
+[State -2, Explod]
+type = Explod
+ownpal = 1
+trigger1 = P2stateno = 10006
+trigger1 = P2movetype = H
+trigger1 = enemynear,time = 1
+trigger1 = NumExplod(7060) = 0
+anim = 7060
+ID = 7060
+pos = 0, 0
+postype = p2
+facing = 1
+vfacing = 1
+bindtime = 1
+removetime = -2
+scale = 0.75,0.75
+sprpriority = 5
+removeongethit = 0
+IgnoreHitPause = 0
+
+
+;---------------------------------------------------------------------------
+;StateNo 5900について
+;
+;5900番のステートは、2試合目以降のラウンドコール前に呼び出されます。
+;このステートでVarやFVarを初期化しています。
+;なのでTurn Modeでは、初登場でも2試合目なのでイントロがありません。
+
+
+[State -2, 二人目のイントロ]
+type = ChangeState             ;二人目でもイントロを作る
+value = 190                    ;イントロへ
+triggerall = RoundsExisted = 0 ;自分が初参戦時
+triggerall = TeamMode = Turns  ;ターンモード
+trigger1 = stateno = 5900      ;5900番
+
+
+;---------------------------------------------------------------------------
+;勝利ポーズ時に歩くことが出来るバグについて
+;
+;WinMUGEN, MUGEN1.0ともに存在するバグへの対策です。
+;相手をKOした時、吹き飛んだ相手をジャンプなどで飛び越えて着地した場合に
+;方向キーを横に入れたままにすると歩き出してしまうので、
+;CtrlSetを使って強制的に制御不能にさせます。
+
+[State -2, 勝利バグ解消]
+type = CtrlSet                 ;歩きバグ対策
+trigger1 = RoundState = 4      ;勝利ポーズ時
+trigger1 = Win && Ctrl = 1     ;動ける場合
+value = 0                      ;制御不能に
+
+
+;---------------------------------------------------------------------------
+;AfterImage（残像）消去
+;
+;残像を表示させたい行動以外の状態に移行したとき、
+;すぐに残像を消去するためのステートです。
+
+[State -2]
+type = AfterImageTime
+trigger1 = MoveType = H  ;攻撃を受けた場合
+trigger2 = stateno != (40,60)
+trigger2 = stateno != [1000,1500)
+trigger2 = stateno != [2300,2330]
+trigger2 = stateno != [3000,3500)
+trigger2 = stateno != [2000,2100]
+trigger3 = stateno != [2000,2100]
+trigger3 = MoveType = I  ;攻撃以外の落下時、着地直前
+trigger3 = (Vel y > 0) && (Pos y > -20)
+time = 0
+
+;---------------------------------------------------------------------------
+;ゲージ枠(後ろの枠）　
+[State -2];あとに書くほど上に来る？
+type = Helper
+trigger1 = Numhelper(10006) = 0
+stateno = 20006
+ID = 10006
+pos = 0,0
+postype = left
+helpertype = normal
+name = "gauge3"
+keyctrl = 0
+ownpal = 1
+supermovetime = 300
+pausemovetime = 300
+
+;---------------------------------------------------------------------------
+;ゲージ
+[State -2]
+type = Helper
+trigger1 = Numhelper(10000) = 0
+stateno = 20000
+ID = 10000
+pos = 0,0
+postype = left
+helpertype = normal
+name = "gauge"
+keyctrl = 0
+ownpal = 1
+sprpriority = 2
+supermovetime = 300
+pausemovetime = 300
+
+[state -2 , 特殊ゲージ・最低値]
+type = VarSet
+trigger1 = var(58) < 1
+var(58) = 0
+[state -2 , 特殊ゲージ・最大値]
+type = VarSet
+trigger1 = var(58) > 1000
+var(58) = 1000
+
+;---------------------------------------------------------------------------
+;ゲージ枠（赤くする）
+[State -2];現状使わない
+type = null;Helper
+trigger1 = Numhelper(10007) = 0
+stateno = 20002
+ID = 10007
+pos = 0,0
+postype = left
+helpertype = normal
+name = "gauge5"
+keyctrl = 0
+ownpal = 1
+supermovetime = 300
+pausemovetime = 300
+
+;---------------------------------------------------------------------------
+;ゲージ枠
+[State -2]
+type = Helper
+trigger1 = Numhelper(10005) = 0
+stateno = 20005
+ID = 10005
+pos = 0,0
+postype = left
+helpertype = normal
+name = "gauge2"
+keyctrl = 0
+ownpal = 1
+supermovetime = 300
+pausemovetime = 300
+
+;---------------------------------------------------------------------------
+;ゲージ枠
+[State -2]
+type = Helper
+trigger1 = Numhelper(10001) = 0
+stateno = 20001
+ID = 10001
+pos = 0,0
+postype = left
+helpertype = normal
+name = "gauge4"
+keyctrl = 0
+ownpal = 1
+supermovetime = 300
+pausemovetime = 300
+
+;---------------------------------------------------------------------------
+;ゲージ枠
+[state -2 , 特殊ゲージ・最低値]
+type = VarSet
+trigger1 = var(57) < 1
+var(57) = 0
+[state -2 , 特殊ゲージ・最大値]
+type = VarSet
+trigger1 = var(57) > 1000
+var(57) = 1000
+
+;---------------------------------------------------------------------------
+;リミット魔法陣展開
+[State 300, Helper]
+type = Helper
+trigger1 = var(58)=1000
+trigger1 = enemynear,movetype = H
+trigger1 = Numhelper(15000) = 0
+trigger1 = enemynear,stateno!=5150
+helpertype = normal ;player
+name = "魔法陣" ;””が必須
+ID = 15000 ;ヘルパーのID　他のステートとかぶっちゃだめよ
+stateno = 15000 ;弾をどういうステートで処理するかという内容を作る
+pos = 0,-50 ;場所を指定。
+postype = p2    ;p2,front,back,left,right　;どこで出すか。p1はプレイヤーを基準
+facing = 1 ;ヘルパーの向き。１で前、ー１で逆。postype（上の）が2なら１で敵の向き、ー１で逆
+keyctrl = 0 ;コントロール　基本はいじらないほうがいい
+ownpal = 1 ;親のカラーパレットから参照するかどうか　0だと親が赤くなるとヘルパーも赤くなる
+ supermovetime = 300
+ pausemovetime = 300
+size.xscale = 0.5;;1.2;横縮尺 (float)
+size.yscale = 0.5;1.2;0.54;縮尺 (float)
+
+[State 300, Helper]
+type = Helper
+trigger1 = var(58)=1000
+trigger1 = enemynear,movetype = H
+trigger1 = Numhelper(15002) = 0
+trigger1 = enemynear,stateno!=5150
+helpertype = normal ;player
+name = "魔法陣" ;””が必須
+ID = 15002 ;ヘルパーのID　他のステートとかぶっちゃだめよ
+stateno = 15002 ;弾をどういうステートで処理するかという内容を作る
+pos = 0,-50 ;場所を指定。
+postype = p2    ;p2,front,back,left,right　;どこで出すか。p1はプレイヤーを基準
+facing = 1 ;ヘルパーの向き。１で前、ー１で逆。postype（上の）が2なら１で敵の向き、ー１で逆
+keyctrl = 0 ;コントロール　基本はいじらないほうがいい
+ownpal = 1 ;親のカラーパレットから参照するかどうか　0だと親が赤くなるとヘルパーも赤くなる
+ supermovetime = 300
+ pausemovetime = 300
+size.xscale = 0.55;;1.2;横縮尺 (float)
+size.yscale = 0.55;1.2;0.54;縮尺 (float)
+
+[State 4000, PalFX]
+type = PalFX
+trigger1 = !ishelper
+trigger1 = time%2=0
+trigger1 = var(50)
+time = 1
+add = 80,80,155
+
+
+[state ]
+type=varadd
+trigger1 = var(50)
+var(50)=-1
+[state ]
+type=varset
+trigger1 = var(50)<0
+var(50)=0
+[state ]
+type=varadd
+trigger1 = var(50)
+trigger1 = var(58)>10
+var(58)=-10
+ignorehitpause = 1
+[state ]
+type=varset
+trigger1 = var(50)
+var(13)=0
+ignorehitpause = 1
+[state ]
+type=varset
+trigger1 = var(50)<0
+var(58)=0
+ignorehitpause = 1
+;---------------------------------------------------------------------------
+[Statedef -3]
+
+
+[State -3, 着地音]
+type = PlaySnd
+triggerall = Time = 1
+trigger1 = stateno = 52
+trigger2 = stateno = 106
+value = 0, 0
+
+[State -3, 高速ジャンプエフェクト]
+type = Explod
+ownpal = 1
+triggerall = Var(1) && stateno = 40
+trigger1 = Time = 2
+anim = F62
+sprpriority = 3
+
+
+
+;---------------------------------------------------------------------------
+;カボイス
+;
+;以下のいくつかの項目は、大部分のボイスを設定しています。
+;SNDファイルの指定のアドレスにボイスを追加することで利用出来ます。
+
+[State -3, ダメージボイス]
+type = PlaySnd
+triggerall = Time = 1
+triggerall = Alive && GameTime % 3 = 0                  ;生きている時＆3Fに一回の確率で
+trigger1 = stateno=5000 || stateno=5010 || stateno=5020 ;ダメージの瞬間
+trigger2 = stateno = 5070 || stateno = 5080             ;ダメージの瞬間
+value = 50,random/250                                   ;50,0～50,3までをランダムに決定
+channel = 0 ;チャンネルを決定しています。同じチャンネルの音は重なりません。
+
+[State -3, ガードボイス]
+type = PlaySnd
+triggerall = Time = 1
+triggerall = Alive && GameTime % 4 = 0               ;%は割ったあまりを求める
+trigger1 = stateno=151 || stateno=153 || stateno=155 ;ガードのノックバック時
+trigger2 = stateno = 702                             ;シールド成功時
+value = 60,random/334                                ;60,0～60,2までをランダムに決定
+channel = 0 ;例えば4チャンネルの音が新たに鳴った場合、現在の4chの音は消えます。
+
+
+
+

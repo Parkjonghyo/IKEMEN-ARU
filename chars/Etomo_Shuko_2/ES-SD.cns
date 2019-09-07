@@ -1,0 +1,685 @@
+;最終ステートファイル。 主にstatedef -2,-3を記述。
+
+;-----------------------------------------------------------------------------
+
+;---------------------------------------------------------------------------
+[statedef -2]
+
+;一拳落着勝利用
+[State 3201, End]
+type = ChangeState
+trigger1 = fvar(2) != 0
+trigger1 = stateno != [3430,3450]
+trigger1 = stateno != [180,189]
+value = 3450
+
+;KO時集中線
+[State -1]
+Type = Helper
+trigger1 = WinKo && var(40) = 1
+trigger1 = fvar(2) != 1
+StateNo = 21000
+postype = left
+pos = 0,-220
+ID = 21000
+ontop = 1
+Ownpal = 1
+SprPriority = 4
+PauseMoveTime = 9999
+supermovetime = 9999
+ignorehitpause = 1
+
+[State -2, KO]
+type = playsnd
+trigger1 = WinKo && var(40) = 1
+trigger1 = fvar(2) != 1
+value = s6,8
+ignorehitpause = 1
+
+;KO時判定
+[State -2,KO]
+type = VarAdd
+trigger1 = roundstate = 3
+ignorehitpause = 1
+var(40) = 1
+
+[State -2,KO]
+type = VarSet
+trigger1 = roundstate != 3
+ignorehitpause = 1
+var(40) = 0 
+
+;---------------------------------------------------------------------------
+;被ダメージヒートゲージ増加
+
+;ダメージを受けてない時はvar(24)をライフと同じ数字にする
+[State -2, リセット]
+Type = VarSet
+triggerall = var(23) = 0
+Trigger1 = movetype != H
+trigger2 = var(24)-life !=0
+trigger2 = time = 2
+var(24) = life
+
+;var(24)から現在のライフを引いた数が0よりも大きい時、ヒートゲージにvar(24)からHPを引いた数から2を割った数を足す
+[State -2]
+type = Varadd
+triggerall = var(22) < 1000
+triggerall = var(23) = 0
+trigger1 = var(24)-life>0
+trigger1 = time = 1
+var(22) = ceil((var(24)-life)/2)
+
+;ヒートゲージが1000を超えたら1000にする
+[State -2 ヒートゲージ上昇]
+Type = varset
+triggerall = var(22) >= 1000
+trigger1 = var(23) = 0
+var(22) = 1000
+persistent = 0
+ignorehitpause = 1
+
+;-----------------------------------------------------------------------------
+
+;オーバーヒート中ヒートゲージ減少
+[State -2]
+type = Varadd
+triggerall = !ishelper
+triggerall = alive
+triggerall = var(23) = 1
+triggerall = stateno != 3550
+trigger1 = gametime%1 = 0
+var(22) = -1
+
+;---------------------------------------------------------------------------
+
+[State -1];画面停止検知用変数
+type = varset
+trigger1 = 1
+var(27) = gametime
+
+;---------------------------------------------------------------------------
+;投げ抜け可否フラグ(鰐さん製)
+
+[state -2, 投げ抜け不可状態認識リセット]
+type = varset
+triggerall = var(15) != 0
+trigger1 = P2stateno = 0 || (P2stateno = [10,12]) || P2stateno = 20
+trigger2 = P2stateno = 120 || (P2stateno = [130,132]) || P2stateno = 140
+var(15) = 0
+
+[state -2, 投げ抜け不可状態認識]
+type = varset
+triggerall = var(15) = 0
+trigger1 = P2stateno != 0 && (P2stateno != [10,12]) && P2stateno != 20
+trigger1 = P2stateno != 120 && (P2stateno != [130,132]) && P2stateno != 140
+trigger1 = P2stateno != 820 && P2stateno != 821
+var(15) = 1
+
+;---------------------------------------------------------------------------
+;イントロ後開幕前認識用
+
+;イントロではvar(25)を1に
+[State -2]
+Type = VarSet
+TriggerAll = RoundState = 0       ;イントロ
+TriggerAll = StateNo != 5900      ;リセット用ステート以外
+Trigger1 = var(25) = 0
+V = 25
+Value = 1
+
+;勝利ポーズではvar(25)を1に
+[State -2]
+Type = VarSet
+TriggerAll = stateno = 180       ;勝利ポーズ
+Trigger1 = var(25) = 0
+V = 25
+Value = 1
+
+;イントロと操作可能までの間はvar(25)を2に
+[State -2]
+Type = VarSet
+Trigger1 = var(25) = 1
+Trigger1 = RoundState = 2       ;お互いのイントロ終了
+V = 25
+Value = 2
+
+;操作可能になったらvar(25)を0に
+[State -2]
+Type = VarSet
+TriggerAll = var(25) = 2
+TriggerAll = RoundState = 2
+Trigger1 = Ctrl              ;ラウンドコール後(開幕)
+Trigger2 = MoveType != I
+V = 25
+Value = 0
+
+;---------------------------------------------------------------------------
+
+;タメとか
+;滅多からのキャンセル
+[State -2,変数初期化]
+type = VarSet
+trigger1 = stateno != [3000,3001]
+trigger1 = stateno != [800,811]
+var(2) = 0
+
+;火噴掌最速派生用
+[State -2,変数初期化]
+type = VarSet
+trigger1 = stateno != 1100
+var(10) = 0
+
+;猛打
+[State -2,変数初期化]
+type = VarRangeSet
+triggerall = movetype != A
+trigger1 = stateno != [1000,1021]
+value = 0
+first = 5
+last = 6
+
+;オフェンシブブロック
+[State -2,変数初期化]
+type = VarSet
+triggerall = movetype != A
+trigger1 = stateno != [3900,3950]
+var(4) = 0
+
+;空中ダッシュ
+[State -2,変数初期化]
+type = VarSet
+trigger1 = statetype != A
+var(11) = 0
+
+;同技補正
+
+;J2Z
+[State -2]
+type = Varset
+trigger1 = enemy,movetype != H
+trigger2 = enemy,stateno = [120,155]
+v = 8
+value = 0
+ignorehitpause = 1
+
+;文花砕
+[State -2]
+type = Varset
+trigger1 = enemy,movetype != H
+trigger2 = enemy,stateno = [120,155]
+v = 14
+value = 0
+ignorehitpause = 1
+
+
+;---------------------------------------------------------------------------
+
+
+
+
+
+;---------------------------------------------------------------------------
+
+;---------------------------------------------------------------------------
+
+
+
+;---------------------------------------------------------------------------
+
+
+
+
+
+
+
+;ゲージ管理ヘルパー
+[State -2]
+Type = Helper
+trigger1 = numhelper(12500) = 0 && (!numhelper(12500)||(roundstate=0&&time&&numhelper(12500)))
+StateNo = 12500
+PosType = Left
+Pos = 0, 0
+Ownpal = 1
+IgnoreHitPause = 1
+SuperMoveTime = 99999999
+PauseMoveTime = 99999999
+SprPriority = 0
+ID = 12500
+
+;先行入力用ヘルパー
+[State -2]
+type = helper
+trigger1 = numhelper(99999) = 0 && (!numhelper(99999)||(roundstate=0&&time&&numhelper(99999)))
+helpertype = normal
+name = "senkou"
+stateno = 99999
+ID = 99999
+pos = 0,0
+keyctrl = 1
+pausemovetime=99999999
+supermovetime=99999999
+ignorehitpause = 1
+
+[state -3,]
+type = changestate
+trigger1 = ishelper(99999)
+value = 99999
+ignorehitpause = 1
+
+
+;---------------------------------------------------------------------------
+;ディゾルブの炎エフェ削除
+
+
+[State -2, エフェクト消去]
+type = RemoveExplod
+triggerall = numexplod(3510) =1
+trigger1 = stateno !=[3500,3503]
+ID = 3510
+
+
+[State -2, エフェクト消去]
+type = RemoveExplod
+triggerall = numexplod(3610) =1
+trigger1 = stateno !=3600
+ID = 3610
+
+[State -2, エフェクト消去]
+type = RemoveExplod
+triggerall = numexplod(3640) =1
+trigger1 = stateno != 3630
+ID = 3640
+
+[State -2, エフェクト消去]
+type = RemoveExplod
+triggerall = numexplod(3641) =1
+trigger1 = stateno != 3630
+ID = 3641
+
+[State -2, エフェクト消去]
+type = RemoveExplod
+triggerall = numexplod(3670) =1
+trigger1 = stateno != 3660
+ID = 3670
+
+[State -2, エフェクト消去]
+type = RemoveExplod
+triggerall = numexplod(3645) =1
+trigger1 = stateno != 3630
+ID = 3645
+
+[State -2, エフェクト消去]
+type = RemoveExplod
+triggerall = numexplod(3710) =1
+trigger1 = stateno != 3700
+ID = 3710
+
+[State -2, エフェクト消去]
+type = RemoveExplod
+triggerall = numexplod(6366) =1
+trigger1 = stateno != 3012
+ID = 6366
+
+[State -2, エフェクト消去]
+type = RemoveExplod
+triggerall = numexplod(6368) =1
+trigger1 = stateno != 4012
+ID = 6368
+
+[State -2, エフェクト消去]
+type = RemoveExplod
+triggerall = numexplod(6310) =1
+trigger1 = stateno != [810, 811]
+ID = 6310
+
+;一撃下のモザイク消去
+
+[State -2, エフェクト消去]
+type = RemoveExplod
+triggerall = numexplod(4030) =1
+trigger1 = fvar(2) = 0
+ID = 4030
+
+
+;---------------------------------------------------------------------------
+
+[state -2];インテンスヒート色
+type = PalFX
+triggerall = !ishelper
+triggerall = alive
+triggerall = var(3) = 1
+trigger1 = stateno != [180,189]
+trigger1 = stateno != 5150
+time = 2
+add = 211,92,-28
+mul = 256,256,256
+color = 0
+pausemovetime = 9999
+supermovetime = 9999
+IgnoreHitPause = 1
+
+;インテンス解除
+[State 1055, varSet]
+type = Varset
+trigger1 = stateno = [180,189]
+trigger2 = stateno = 5150
+trigger3 =Numhelper(12003)=0
+var(3) = 0
+
+[state -2];オーバーヒート色
+type = PalFX
+triggerall = !ishelper
+triggerall = alive
+triggerall = var(23) = 1
+triggerall = gametime%5 = 0
+trigger1 = stateno != [180,189]
+trigger1 = stateno != 5150
+trigger1 = stateno != 3550
+time = 1
+add = 256,-34,-29
+mul = 256,256,256;256,256
+color = 0
+pausemovetime = 9999
+supermovetime = 9999
+IgnoreHitPause = 1
+
+;オーバーヒート終了と同時にヒートゲージを0に
+[State -2]
+type = Varset
+triggerall = var(23) = 1
+trigger1 = stateno = [180,189]
+trigger2 = stateno = 5150
+var(22) = 0
+
+;オーバー解除
+[State 1055, varSet]
+type = Varset
+trigger1 = stateno = [180,189]
+trigger2 = stateno = 5150
+trigger3 = var(22) = 0
+var(23) = 0
+
+;12p
+[State -2]
+type = Varset
+trigger1 = palno=12
+var(22) = 1000
+
+[State -2,残像]
+type = AfterImage
+triggerall = !ishelper
+triggerall = alive
+triggerall = var(23) = 1
+trigger1 = time = 0
+trigger1 = stateno != [180,189]
+trigger1 = stateno != 5150
+trigger1 = stateno != 3550
+time = -1
+length = 15
+palcolor = 128
+palinvertall = 0
+palbright = 168,30,30
+palcontrast = 220,20,20
+palpostbright = 0,0,0
+timegap = 1
+framegap = 5
+trans = add1
+
+[State -2,残像]
+type = AfterImagetime
+triggerall = 1
+trigger1 = var(23) = 1
+time = 2
+
+
+
+;---------------------------------------------------------------------------
+;勝利ポーズ時に歩くことが出来るバグについて
+;
+;WinMUGEN, MUGEN1.0ともに存在するバグへの対策です。
+;相手をKOした時、吹き飛んだ相手をジャンプなどで飛び越えて着地した場合に
+;方向キーを横に入れたままにすると歩き出してしまうので、
+;CtrlSetを使って強制的に制御不能にさせます。
+
+[State -2, 勝利バグ解消]
+type = CtrlSet                 ;歩きバグ対策
+trigger1 = RoundState = 4      ;勝利ポーズ時
+trigger1 = Win && Ctrl = 1     ;動ける場合
+value = 0                      ;制御不能に
+
+;---------------------------------------------------------------------------
+
+;コンボ補正
+
+
+
+[State -2];補正
+type = Varset
+trigger1 = fvar(1) < 0
+fv = 1
+value = 0
+ignorehitpause = 1
+
+[State -2];補正リセット
+type = Varset
+trigger1 = enemy,movetype != H
+trigger2 = enemy,stateno = [120,155]
+fv = 1
+value = 1
+ignorehitpause = 1
+
+;---------------------------------------------------------------------------
+;壁バウンド
+
+[State -2];壁バウンドは一回のコンボに一回
+type = Varset
+trigger1 = enemy,movetype != H
+trigger2 = enemy,stateno = [120,155]
+v = 9
+value = 0
+ignorehitpause = 1
+;---------------------------------------------------------------------------
+;以下、特殊対応用
+
+;---------------------------------------------------------------------------
+;東方仗助対応
+
+[State ]
+type=PlaySnd
+trigger1=stateno=17003500&&movetype=H&&anim=195&&animelemtime(2)=1
+value=s5,249
+channel=0
+
+;----------------------------------------------------------------------------
+;右代宮縁寿 他「メタ返し＆メタ再反論」対応ステート
+
+[state ];メタ返し＆メタ再反論～パワーゲージ消費×2
+type=Poweradd
+triggerall=alive&&!numexplod(19864)&&!numexplod(19865)
+trigger1=numenemy&&!numpartner
+trigger1=enemy,var(56)=19861004&&enemy,Authorname="YU-TOHARU"&&(enemy,stateno=2910||enemy,stateno=2930)&&enemy,time=2
+trigger2=numenemy&&numpartner
+trigger2=enemy,var(56)=19861004&&enemy,Authorname="YU-TOHARU"&&(enemy,stateno=2910||enemy,stateno=2930)&&enemy,time=2&&(ID<Partner,ID||(ID>Partner,ID&&partner,numexplod(19864)=0&&partner,numexplod(19865)=0))
+trigger3=numenemy>=2&&!numpartner
+trigger3=enemy(1),var(56)=19861004&&enemy(1),Authorname="YU-TOHARU"&&(enemy(1),stateno=2910||enemy(1),stateno=2930)&&enemy(1),time=2
+trigger4=numenemy>=2&&numpartner
+trigger4=enemy(1),var(56)=19861004&&enemy(1),Authorname="YU-TOHARU"&&(enemy(1),stateno=2910||enemy(1),stateno=2930)&&enemy(1),time=2&&(ID<Partner,ID||(ID>Partner,ID&&partner,numexplod(19864)=0&&partner,numexplod(19865)=0))
+value=-2000
+ignorehitpause=1
+
+[state ];メタ返し～ボイス
+type=PlaySnd
+triggerall=alive&&!numexplod(19864)
+trigger1=numenemy
+trigger1=enemy,var(56)=19861004&&enemy,Authorname="YU-TOHARU"&&enemy,stateno=2910&&enemy,time=2
+trigger2=numenemy>=2
+trigger2=enemy(1),var(56)=19861004&&enemy(1),Authorname="YU-TOHARU"&&enemy(1),stateno=2910&&enemy(1),time=2
+value=s5,255
+ignorehitpause=1
+
+[state ];メタ返し～カットイン（右向き）
+type=Explod
+triggerall=alive&&!numexplod(19864)
+trigger1=numenemy
+trigger1=enemy,var(56)=19861004&&enemy,Authorname="YU-TOHARU"&&enemy,stateno=2910&&enemy,time=2&&enemy,facing=-1
+trigger2=numenemy>=2
+trigger2=enemy(1),var(56)=19861004&&enemy(1),Authorname="YU-TOHARU"&&enemy(1),stateno=2910&&enemy(1),time=2&&enemy(1),facing=-1
+anim=19864
+ID=19864
+postype=left
+pos=0,240
+scale=0.5,0.5
+ownpal=1
+bindtime=-1
+sprpriority=50
+pausemovetime=100
+supermovetime=100
+ignorehitpause=1
+
+[state ];メタ返し～カットイン（左向き）
+type=Explod
+triggerall=alive&&!numexplod(19864)
+trigger1=numenemy
+trigger1=enemy,var(56)=19861004&&enemy,Authorname="YU-TOHARU"&&enemy,stateno=2910&&enemy,time=2&&enemy,facing=1
+trigger2=numenemy>=2
+trigger2=enemy(1),var(56)=19861004&&enemy(1),Authorname="YU-TOHARU"&&enemy(1),stateno=2910&&enemy(1),time=2&&enemy(1),facing=1
+anim=19864
+ID=19864
+postype=right
+pos=0,240
+facing=-1
+scale=0.5,0.5
+ownpal=1
+bindtime=-1
+sprpriority=50
+pausemovetime=100
+supermovetime=100
+ignorehitpause=1
+
+[state ];メタ再反論～ボイス
+type=PlaySnd
+triggerall=alive&&!numexplod(19865)
+trigger1=numenemy
+trigger1=enemy,var(56)=19861004&&enemy,Authorname="YU-TOHARU"&&enemy,stateno=2930&&enemy,time=2
+trigger2=numenemy>=2
+trigger2=enemy(1),var(56)=19861004&&enemy(1),Authorname="YU-TOHARU"&&enemy(1),stateno=2930&&enemy(1),time=2
+value=s5,256
+ignorehitpause=1
+
+
+[state ];メタ再反論～カットイン（右向き）
+type=Explod
+triggerall=alive&&!numexplod(19865)
+trigger1=numenemy
+trigger1=enemy,var(56)=19861004&&enemy,Authorname="YU-TOHARU"&&enemy,stateno=2930&&enemy,time=2&&enemy,facing=-1
+trigger2=numenemy>=2
+trigger2=enemy(1),var(56)=19861004&&enemy(1),Authorname="YU-TOHARU"&&enemy(1),stateno=2930&&enemy(1),time=2&&enemy(1),facing=-1
+anim=19865
+ID=19865
+postype=left
+pos=0,240
+scale=0.5,0.5
+ownpal=1
+bindtime=-1
+sprpriority=50
+pausemovetime=100
+supermovetime=100
+ignorehitpause=1
+
+[state ];メタ再反論～カットイン（左向き）
+type=Explod
+triggerall=alive&&!numexplod(19865)
+trigger1=numenemy
+trigger1=enemy,var(56)=19861004&&enemy,Authorname="YU-TOHARU"&&enemy,stateno=2930&&enemy,time=2&&enemy,facing=1
+trigger2=numenemy>=2
+trigger2=enemy(1),var(56)=19861004&&enemy(1),Authorname="YU-TOHARU"&&enemy(1),stateno=2930&&enemy(1),time=2&&enemy(1),facing=1
+anim=19865
+ID=19865
+postype=right
+pos=0,240
+facing=-1
+scale=0.5,0.5
+ownpal=1
+bindtime=-1
+sprpriority=50
+pausemovetime=100
+supermovetime=100
+ignorehitpause=1
+
+
+;---------------------------------------------------------------------------
+[Statedef -3]
+
+
+[State -3, 着地音]
+type = PlaySnd
+triggerall = Time = 1
+trigger1 = stateno = 52
+trigger2 = stateno = 106
+value = 40, 0
+
+[State -3, 砂埃]
+type = Explod
+triggerall = Time = 1
+trigger1 = stateno = 52
+anim = 6000
+sprpriority = 5
+bindtime = 1
+supermove = 1
+
+
+;---------------------------------------------------------------------------
+
+
+
+;---------------------------------------------------------------------------
+
+
+[state -3,]
+type = changestate
+trigger1 = ishelper(99999)
+value = 99999
+ignorehitpause = 1
+
+[State -3, ダメージボイス]
+type = PlaySnd
+triggerall = Time = 1
+triggerall = Alive && GameTime % 3 = 0                  ;生きている時＆3Fに一回の確率で
+trigger1 = stateno=5000 || stateno=5010 || stateno=5020 ;ダメージの瞬間
+trigger2 = stateno = 5070 || stateno = 5080             ;ダメージの瞬間
+value = 50,random/250                                   ;50,0～50,3までをランダムに決定
+channel = 0 ;チャンネルを決定しています。同じチャンネルの音は重なりません。
+
+[State -3, ガードボイス]
+type = PlaySnd
+triggerall = Time = 1
+triggerall = Alive && GameTime % 6 = 0               ;%は割ったあまりを求める
+trigger1 = stateno=151 || stateno=153 || stateno=155 ;ガードのノックバック時
+trigger2 = stateno = 702                             ;シールド成功時
+value = 60,0;random/334                                ;60,0～60,2までをランダムに決定
+channel = 0 ;例えば4チャンネルの音が新たに鳴った場合、現在の4chの音は消えます。
+
+[State -3, 受身ボイス]
+type = PlaySnd
+triggerall = Time = 1
+triggerall = Alive && GameTime % 3 = 0      ;GameTimeを3で割ったあまりが0の時
+trigger1 = stateno = 5200 || stateno = 5210 ;受身直後
+value = 70,random/334
+channel = 0 ;そのおかげで、各ボイスが同時に発せられることがなくなります。
+
+[State -3, 起き上がりボイス]
+type = PlaySnd
+triggerall = Time = 1
+triggerall = Alive && GameTime % 3 = 0
+trigger1 = stateno = 5120              ;起き上がり時
+value = 80,random/334
+channel = 0 ;キャラボイスは0chを推奨
+
+
+;--------------------------------------------------------------------------
+
+
+
+
+

@@ -1,0 +1,260 @@
+;\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+;---------------------------------------------------------------------------
+;---------------------------------------------------------------------------
+;常時管理ステート
+;---------------------------------------------------------------------------
+;---------------------------------------------------------------------------
+;---------------------------------------------------------------------------
+[Statedef -2]
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;残像の消去
+;//////////////////////////////////////////////////////////////////////////
+[state a];残像消去
+type = afterimagetime
+trigger1 = prevstateno = [500,599]
+time = 20
+
+[state a];残像消去
+type = afterimagetime
+trigger1 = prevstateno = 501
+time = 0
+
+;ダメージ時の残像の消去
+[state a];
+type = afterimagetime
+trigger1 = MoveType = H
+time = 0
+
+;///////////////////////////////////////////////////////////////////////
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;コンボによるダメージ補正
+;//////////////////////////////////////////////////////////////////////////
+; 
+; 
+;---------------------[連続技補正（俺調査）]
+[state a]
+type = varset
+trigger1 = enemy,gethitvar(hitcount) = 0
+trigger2 = enemy,gethitvar(hitcount) = 1
+fvar(5) = 1.0
+
+[state a]
+type = varset
+trigger1 = enemy,gethitvar(hitcount) = 2
+fvar(5) = 0.6
+
+[state a]
+type = varset
+trigger1 = enemy,gethitvar(hitcount) = 3
+fvar(5) = 0.6
+
+[state a]
+type = varset
+trigger1 = enemy,gethitvar(hitcount) = 4
+fvar(5) = 0.55
+
+[state a]
+type = varset
+trigger1 = enemy,gethitvar(hitcount) = 5
+fvar(5) = 0.65
+
+[state a]
+type = varset
+trigger1 = enemy,gethitvar(hitcount) = 6
+fvar(5) = 0.525
+
+[state a]
+type = varset
+trigger1 = enemy,gethitvar(hitcount) = 7
+fvar(5) = 0.475
+
+[state a]
+type = varset
+trigger1 = enemy,gethitvar(hitcount) = 8
+fvar(5) = 0.475
+
+[state a]
+type = varset
+trigger1 = enemy,gethitvar(hitcount) = 9
+fvar(5) = 0.45
+
+[state a]
+type = varset
+trigger1 = enemy,gethitvar(hitcount) = 10
+fvar(5) = 0.45
+
+[state a]
+type = varset
+trigger1 = enemy,gethitvar(hitcount) = 11
+fvar(5) = 0.425
+
+[state a]
+type = varset
+trigger1 = enemy,gethitvar(hitcount) = 12
+fvar(5) = 0.4
+
+[state a]
+type = varset
+trigger1 = enemy,gethitvar(hitcount) = 13
+fvar(5) = 0.375
+
+[state a]
+type = varset
+trigger1 = enemy,gethitvar(hitcount) = 14
+fvar(5) = 0.375
+
+[state a]
+type = varset
+trigger1 = enemy,gethitvar(hitcount) = 15
+fvar(5) = 0.35
+
+
+[state a]
+type = varset
+trigger1 = enemy,gethitvar(hitcount) >= 16
+fvar(5) = 0.3
+;---------------------[]
+[state a]
+type = varset
+trigger1 = enemy,movetype != H
+fvar(5) = 1.0
+
+;ネバリ補正関係
+[state a];第一段階
+type = null;varset
+trigger1 = enemy,life >= 400
+v = 26
+value = 0
+
+[state a];第二段階
+type = null;varset
+trigger1 = enemy,life <= 399 && enemy,life >= 150
+v = 26
+value = 1
+
+[state a];第三段階
+type = null;varset
+trigger1 = enemy,life <= 149
+v = 26
+value = 2
+
+
+[state a]
+type = varset
+trigger1 = 1
+fvar(0) = 1.0
+
+[state a]
+type = varset
+trigger1 = 1
+fvar(2) = 0.0
+
+[state a]
+type = varset
+trigger1 = var(14) >= 1
+fvar(2) = 0.1
+
+[state a];補正
+type = varset
+trigger1 = enemy,movetype = H
+trigger1 = enemy,gethitvar(hitcount) > 1
+fvar(0) = fvar(5);((100.0-(25.0+(enemy,gethitvar(hitcount)/2.0)*5.0))/100.0)
+
+[state a]
+type = attackmulset
+trigger1 = 1;var(26) = 0
+value = fvar(0) + fvar(2) + var(3)*0.01
+
+[state a]
+type = null;attackmulset
+trigger1 = var(26) = 1
+value = (fvar(0) + fvar(2))*0.75
+
+[state a]
+type = null;attackmulset
+trigger1 = var(26) = 2
+value = (fvar(0) + fvar(2))*0.5
+
+
+[state a]
+type = DefenceMulSet
+trigger1 = var(14) = 1
+value = 1
+
+;---------------------------------------------------------------------------
+; ここから下は-3のステートを書いてください、ここに書いたものはゲーム中
+; に条件が成立すればいつでも開始するステートです。
+;---------------------------------------------------------------------------
+
+[Statedef -3]
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;
+;//////////////////////////////////////////////////////////////////////////
+;
+;ゲーム中に常にいつでも開始したいステート、ここでは「着地音」に使用しています
+;下の条件は「52か106のステートに移動して１フレーム目に」と言う事です。
+;52と106はバックステップとジャンプの着地のステートです。
+[State -3, Landing Sound]
+type = PlaySnd
+triggerall = Time = 1
+trigger1 = stateno = 52 
+trigger2 = stateno = 106 
+value = 40, 0
+
+;※※※※※※※※※※※※※※※※※※※※ハイジャンプ
+;理論は簡単
+;ハイジャンプコマンドを入れた「瞬間」、varスイッチを１にする
+;でハイジャンプのコマンドは最後がU、つまりジャンプする
+;そしてジャンプステート５０の時にvarスイッチが１ならveladdで加速します
+;varスイッチを０にするトリガーは「ステート５０の２フレーム目」です。
+
+[State 821, 1] ;←コマンドを入れたらVarをON
+type = varset
+trigger1 = command = "jump"
+trigger1 = ctrl = 1
+trigger1 = statetype = s
+v = 1
+value = 1
+
+[State 821, 1] ;←varをOFFにするステート
+type = varset
+trigger1 = stateno = 50
+trigger1 = time = 2
+v = 1
+value = 0
+
+[State 821, 1] ;←ジャンプ力にveladdを使って加速
+type = veladd
+trigger1 = var(1) = 1
+trigger1 = stateno = 50
+y = -1.5
+
+[State 821, 1] ;←前にボタンを押してたら前にも加速
+type = veladd
+trigger1 = var(1) = 1
+trigger1 = stateno = 50
+trigger1 = command = "holdfwd"
+x = 1.3
+
+[State 821, 1] ;←後ろなら後ろに加速
+type = veladd
+trigger1 = var(1) = 1
+trigger1 = stateno = 50
+trigger1 = command = "holdback"
+x = -0.5
+
+[State 50, 4];←成功したときの残像
+type = AfterImage
+trigger1 = var(1) = 1
+trigger1 = stateno = 50
+time = 20
+trans = add1
+timegap = 1
+framegap = 2
+length = 8
+palbright = 12,12,12
+palcontrast = 225,225,225
+palpostbright = 0,0,0
+paladd = 0,0,0
+palmul = 1,1,1

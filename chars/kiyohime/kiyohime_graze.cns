@@ -1,0 +1,182 @@
+;===========================================================================
+; グレイズ多重化ステート
+;---------------------------------------------------------------------------
+;◆めも
+;　StateNo 118：スペカ用。カード送り、ゲージ回復等が不可
+;　StateNo 119：汎用。
+;===========================================================================
+
+[Statedef 119]
+Type = U ;
+MoveType= U ; 元のステートの状態を引き継ぐ
+Physics = U ;
+
+;DB
+
+
+[State 00]
+type = varadd
+trigger1 = prevstateno = 230
+trigger1 = AnimElem = 1
+var(2) = -25
+
+[State 00]
+type = varset
+trigger1 = prevstateno = 230
+trigger1 = time = [0,40]
+trigger1 = var(3) < 60
+var(3) = 60
+
+[State 00];上段無敵
+type = PlayerPush
+trigger1 = prevstateno = 230
+value = 0
+
+[State 16092]
+Type     = VarRandom
+trigger1 = prevstateno = 230
+Trigger1 = Time = 0
+V        = 0
+Range    = 0,9
+
+[State 00]
+type = PlaySnd
+trigger1 = prevstateno = 230
+trigger1 = Time = 0
+trigger1 = Var(0) = 0
+value = s3, 12
+
+[State 00]
+type = HitDef
+trigger1 = prevstateno = 230
+trigger1 = AnimElem = 2
+attr = S, NA
+animtype  = Medium
+damage    = ceil(fvar(1)*45),0
+guardflag = HA
+pausetime = 9,9
+sparkno = s20110
+sparkxy = -10,-50
+hitsound   = s1,2
+guardsound = s4,2
+ground.type = High
+ground.slidetime = 22
+ground.hittime  = 22
+air.hittime = 22
+ground.velocity = 1,-6
+air.velocity = 0.2,-0.6
+fall = 1
+fall.recovertime = 200
+fall.yvelocity = -5
+
+[State 補正]
+Type = VarSet
+trigger1 = prevstateno = 230
+Trigger1 = MoveHit
+fvar(1) = fvar(1) * 0.90
+Persistent = 0
+IgnoreHitPause = 1
+
+[State 00, ステート変更]
+type = null;ChangeState
+trigger1 = prevstateno = 230
+trigger1 = AnimTime = 0
+value = 0
+ctrl = 1
+
+
+
+
+
+
+;アパカ
+
+[State 00]
+type = Velset
+trigger1 = prevstateno = 1060
+trigger1 = AnimElem = 3
+x = 3
+y = -8
+
+[State 00]
+type = Velset
+trigger1 = prevstateno = 1060
+trigger1 = AnimElem = 8
+x = 0
+
+[State 00]
+type = PlaySnd
+trigger1 = prevstateno = 1060
+trigger1 = AnimElem = 3
+value = s0, 2
+
+[State 00]
+type = StateTypeSet
+trigger1 = prevstateno = 1060
+trigger1 = AnimElem = 3
+statetype = A
+movetype = A
+physics = A
+
+[State 00];煙
+Type = Explod
+trigger1 = prevstateno = 1060
+trigger1 = AnimElem = 3
+Anim = 10160
+ID = 10160
+Pos = 25,20
+PosType = P1
+Scale = 0.4,0.4
+Ownpal = 1
+SprPriority = 4
+IgnoreHitPause = 1
+;removetime = 20
+
+[State 00]
+type = HitDef
+triggerall = prevstateno = 1060
+trigger1 = 1
+attr = A, SA
+animtype  = Hard
+damage    = ceil(fvar(1)*(60+var(47)*5)), ceil(fvar(1)*4)
+priority  = 4
+guardflag = M
+hitflag = MAF
+pausetime = 8,11
+guard.pausetime = 8,11
+sparkno = s20210
+sparkxy = -30,-50
+hitsound   = s1,6
+guardsound = s4,2
+ground.type = High
+ground.slidetime = 22
+ground.hittime  = 22
+ground.velocity = -0.6,-9
+guard.velocity = -5
+air.velocity = -0.1,-7
+fall = 1
+fall.recovertime = 2000
+persistent = 12
+
+[State 00, 補正]
+Type = ParentVarSet
+Trigger1 = MoveHit
+fvar(1) = fvar(1) * 0.9
+Persistent = 0
+IgnoreHitPause = 1
+
+[State -3, グレイズフラグ消去]
+Type = Varset
+trigger1 = var(47) < 4
+trigger1 = prevstateno = 1060
+Trigger1 = Time >= 21
+IgnoreHitPause = 1
+var(1) = 0
+
+[State 119];ダミーステコン
+type = ChangeState
+trigger1 = 0
+value = 0
+ctrl = 1
+
+

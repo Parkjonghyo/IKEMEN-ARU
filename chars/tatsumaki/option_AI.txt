@@ -1,0 +1,776 @@
+;果たして必要なのかどうかすごい微妙なオプション項目です
+;今後の更新で項目が増えていくかも
+
+
+[Statedef -2]
+
+;バリアアーマー使用回数
+[State 0, VarSet]
+type = VarSet
+trigger1 = 1
+var(15)  =               (1);この数字の回数分だけバリアアーマーが使えます
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+;--------------------------------------------------------------------------
+
+
+[State 0, RemoveExplod]
+type = RemoveExplod
+trigger1 = stateno != 100
+id = 4105
+;ignorehitpause = 
+;persistent = 
+
+[State 0, RemoveExplod]
+type = RemoveExplod
+trigger1 = stateno != 105
+id = 4106
+;ignorehitpause = 
+;persistent = 
+
+
+
+;-----------------------------------
+;ここは「パワー溜め」のステートで発生させた「Explod」のエフェクト画像を
+;特定の条件が有効になれば消す、という処理をしています。
+
+[State -2, エフェクトを消す];パワー溜めステート用
+type = RemoveExplod
+triggerall = NumExplod(130) > 0
+                          ;↑はＩＤナンバー「130」のExplodの画面中の数が0よりも多い、
+                          ;つまり１枚以上表示されている時
+trigger1 = StateNo != 700 ;ステートが７００（パワー溜め）以外の時
+trigger2 = MoveType != I  ;MoveTypeが「I（何もしてない）」以外の時
+ID = 130                  ;消すExplodの特定のＩＤナンバーを指定
+
+;-----------------------------------
+[State -2, クリップボード]
+type = DisplayToClipboard
+trigger1 = 1
+text = "Cancel=%d, Throw=%d, Button=%d, Body-Distance X=%d,Y=%d \n"
+params = var(1),var(2),var(5),floor(P2BodyDist X),floor(P2BodyDist Y)
+
+[State -2, クリップボード（追加専用）]
+type = AppendToClipboard
+trigger1 = 1
+text = "Position X=%d,Y=%d, Velocity X=%f,Y=%f, Hit=%d \n"
+params = floor(Pos X),floor(Pos Y),(Vel X),(Vel Y),(MoveHit)
+
+;★★★★★★★★★★★★★★★★★★★★★★★★★
+;空中ダッシュ回数管理
+
+[state 110]
+type=varset
+triggerall = statetype !=A
+trigger1 = time = 0
+v = 4
+value = 4
+
+[state 101, afterimagetime]
+type = AfterImagetime
+trigger1 = stateno != [100,115] 
+trigger1 = stateno != [40,50]
+trigger1 = stateno != [2000,2305]
+trigger1 = stateno != [180,185]
+time = 1
+
+
+;※※※※※※※※※※※※※※※※※※※※ハイジャンプ
+;理論は簡単
+;ハイジャンプコマンドを入れた「瞬間」、varスイッチを１にする
+;でハイジャンプのコマンドは最後がU、つまりジャンプする
+;そしてジャンプステート５０の時にvarスイッチが１ならveladdで加速します
+;varスイッチを０にするトリガーは「ステート５０の２フレーム目」です。
+
+[State 821, 1] ;←コマンドを入れたらVarをON
+type = varset
+;add_start
+triggerall = var(59) = 0
+;add_end
+trigger1 = command = "hijump"
+trigger1 = ctrl = 1
+trigger1 = statetype != A
+v = 1
+value = 1
+
+[State 821, 1] ;←varをOFFにするステート
+type = varset
+trigger1 = stateno = 50
+trigger1 = time = 2
+v = 1
+value = 0
+
+[State 821, 1] ;←ジャンプ力にveladdを使って加速
+type = veladd
+trigger1 = var(1) 
+trigger1 = stateno = 50
+y = -3.25
+
+
+[State 821, 1] ;←前にボタンを押してたら前にも加速
+type = veladd
+;add_start
+triggerall = var(59) > 0
+;add_end
+trigger1 = var(1) = 1
+trigger1 = stateno = 50
+x = 1.3
+
+
+
+[State 821, 1] ;←前にボタンを押してたら前にも加速
+type = veladd
+;add_start
+triggerall = var(59) = 0
+;add_end
+trigger1 = var(1) = 1
+trigger1 = stateno = 50
+trigger1 = command = "holdfwd"
+x = 1.3
+
+[State 821, 1] ;←後ろなら後ろに加速
+type = veladd
+;add_start
+triggerall = var(59) = 0
+;add_end
+trigger1 = var(1) = 1
+trigger1 = stateno = 50
+trigger1 = command = "holdback"
+x = -2.5
+
+[State 50, 4];←成功したときの残像
+type = AfterImage
+trigger1 = var(1) = 1
+trigger1 = stateno = 50
+;trigger1 = var(9) = 1
+;trigger1 = stateno = 50
+time = 20
+trans = add
+timegap = 1
+framegap = 2
+length = 8
+palbright = 0,0,0
+palcontrast = 0,200,0
+palpostbright = 0,0,0
+paladd = 0,0,0
+palmul = 1,1,1
+;★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+
+[State -3, 5];
+type = varset
+;add_start
+triggerall = var(59) = 0
+;add_end
+triggerall = stateno = 40
+trigger1 = prevstateno = 410
+v = 2
+value = 1
+
+;add_start
+[State -3, 5];
+type = varset
+triggerall = var(59) > 0
+triggerall = stateno = 42
+trigger1 = prevstateno = 410
+v = 2
+value = 1
+;add_end
+
+
+[State -3, 5];
+type = varset
+;add_start
+triggerall = var(59) = 0
+;add_end
+trigger1 = enemy,movetype != H
+trigger2 = prevstateno != 410 && stateno = 40
+v = 2
+value = 0
+
+;add_start
+[State -3, 5];
+type = varset
+trigger1 = enemy,movetype != H
+trigger2 = prevstateno != 410 && stateno = 42
+v = 2
+value = 0
+;add_end
+
+
+[state 250];ヒット管理
+type = null;varset
+trigger1 = enemy,movetype != H
+var(8) = 0
+
+[state 250];ジャンプキャンセル管理
+type = varset
+trigger1 = enemy,movetype != H
+;trigger2 = enemy,vel y > 0 && enemy,movetype = H
+var(3) = 0
+
+
+
+[State -3, 5];
+type = varset
+trigger1 = stateno = 52
+trigger2 = stateno = 45
+v = 2
+value = 0
+
+[state a];
+type = velset
+trigger1 = stateno = 50
+trigger1 = time = 1
+trigger1 = var(2) = 1
+y = -9.0
+
+[State 0, VelMul]
+type = VelMul
+triggerall = enemy,pos y < 0
+triggerall = vel y < 1.1
+trigger1 = var(2) = 1
+trigger1 = vel y > 0
+y = 0.81
+;ignorehitpause = 
+;persistent = 
+
+
+[State 50, 4];←成功したときの残像
+type = AfterImage
+trigger1 = var(2) = 1
+trigger1 = stateno = 40
+;add_start
+trigger2 = var(59) > 0
+trigger2 = var(2) = 1
+trigger2 = stateno = 42
+;add_end
+time = 20
+trans = add
+timegap = 1
+framegap = 2
+length = 8
+palbright = 0,0,0
+palcontrast = 0,200,0
+palpostbright = 0,0,0
+paladd = 0,0,0
+palmul = 1,1,1
+
+[State -3, 5];
+type = null;veladd
+trigger1 = movecontact = 1
+trigger1 = var(2) = 1
+trigger1 = statetype = A
+y = -0.2
+
+
+[state 250];ジャンプキャンセル管理
+type = null;varset
+trigger1 = enemy,movetype != H
+;trigger2 = enemy,vel y > 0 && enemy,movetype = H
+var(3) = 0
+
+
+;---------------------------------
+;壁バウンド管理
+
+[State 0, VarSet]
+type = VarSet
+trigger1 = stateno = 220
+trigger1 = p2stateno = 225
+v = 6    ;fv = 10
+value = 1
+;ignorehitpause = 
+;persistent = 
+
+[State 0, VarSet]
+type = VarSet
+trigger1 = enemy,movetype != H
+v = 6    ;fv = 10
+value = 0
+;ignorehitpause = 
+;persistent = 
+
+[State 0, VarSet]
+type = VarSet
+trigger1 = stateno = 1300
+trigger1 = p2stateno = 225
+v = 8   ;fv = 10
+value = 1
+;ignorehitpause = 
+;persistent = 
+
+[State 0, VarSet]
+type = VarSet
+trigger1 = enemy,movetype != H
+v = 8    ;fv = 10
+value = 0
+;ignorehitpause = 
+;persistent = 
+
+[State 0, VarSet]
+type = VarSet
+trigger1 = stateno = 1500
+trigger1 = p2stateno = 225
+v = 8   ;fv = 10
+value = 1
+;ignorehitpause = 
+;persistent = 
+
+[State 0, VarSet]
+type = VarSet
+trigger1 = enemy,movetype != H
+v = 8    ;fv = 10
+value = 0
+;ignorehitpause = 
+;persistent = 
+
+
+[state -2];右ステージ端
+type=null;Helper
+triggerall=!ishelper
+trigger1=!numhelper(30000)
+name="right_edge"
+ID=30000
+pos=0, 0
+postype=right
+facing=1
+stateno=30000
+ownpal=1
+supermovetime=99999
+pausemovetime=99999
+
+
+[state -2];左ステージ端
+type=null;Helper
+triggerall=!ishelper
+trigger1=!numhelper(30010)
+name="left_edge"
+ID=30010
+pos=0, 0
+postype=right
+facing=1
+stateno=30010
+ownpal=1
+supermovetime=99999
+pausemovetime=99999
+
+
+
+;----------------------------アーマー記述
+[State -2, アーマーヘルパー呼び出し]
+type = Helper
+triggerall = !NumHelper(9000) && MoveType != H
+trigger1 = numhelper(2001) = 1
+trigger1 = helper(2001),anim != 2002
+name = "Armor"
+stateno = 9000
+ID = 9000
+size.xscale = 1
+size.yscale = 1
+postype = p1
+pos = 0,0
+ownpal = 1
+supermovetime = 99999
+pausemovetime = 99999
+
+[State -2, アーマー中の投げ以外無敵]
+type = NotHitBy
+trigger1 = NumHelper(9000)
+value2 = ,AA,AP,AT
+time = 2
+
+[State -2, アーマー中に被弾した時の無敵時間延長（２重被弾抑制処置）]
+type = NotHitBy
+trigger1 = NumHelper(9000)
+trigger1 = Helper(9000),GetHitVar(damage)
+value = SCA
+time = Helper(9000),GetHitVar(hitshaketime)+5
+
+[State -2, アーマー受けした時の点滅]
+type = null;PalFX
+trigger1 = NumHelper(9000)
+trigger1 = Helper(9000),GetHitVar(damage)
+time = 5
+add = 256,256,10
+
+[State -2, アーマー受けした時のライフ減少]
+type = LifeAdd
+trigger1 = NumHelper(9000)
+trigger1 = Helper(9000),GetHitVar(damage)
+value = -0.4*Helper(9000),GetHitVar(damage)
+absolute = 1
+ignorehitpause = 1
+
+
+
+
+;------------------------------
+[state a]
+type = RemoveExplod
+trigger1 = stateno != [2100,2101]
+ID = 2130
+
+[state a]
+type = RemoveExplod
+trigger1 = stateno != [2100,2101]
+ID = 2131
+
+[state a]
+type = RemoveExplod
+trigger1 = stateno != [2100,2101]
+ID = 2132
+
+[state a]
+type = RemoveExplod
+trigger1 = stateno != [2100,2101]
+ID = 2133
+
+[state a]
+type = RemoveExplod
+trigger1 = stateno != [2100,2101]
+ID = 2134
+
+[state a]
+type = RemoveExplod
+trigger1 = stateno != [2100,2101]
+ID = 2135
+
+[state a]
+type = RemoveExplod
+trigger1 = stateno != [2100,2101]
+ID = 2136
+
+[state a]
+type = RemoveExplod
+trigger1 = stateno != 1000
+ID = 1050
+
+[state a]
+type = RemoveExplod
+trigger1 = stateno != 1100
+ID = 1101
+
+[state a]
+type = RemoveExplod
+trigger1 = stateno != 1300
+ID = 1310
+
+[state a]
+type = RemoveExplod
+trigger1 = stateno != 1500
+ID = 1510
+;------------------------------
+;スーパーキャンセル管理
+[State 0, VarSet]
+type = VarSet
+trigger1 = movetype != A
+trigger2 = p2movetype != H 
+trigger3 = stateno != 220 &&stateno != 1000 && stateno != 1100 && stateno != 1300
+v = 10    ;fv = 10
+value = 0
+;ignorehitpause = 
+;persistent = 
+
+
+
+
+[State 0, VarSet]
+type = VarSet
+trigger1 = statetype != A
+v = 11    ;fv = 10
+value = 0
+;ignorehitpause = 
+;persistent = 
+
+[State 0, VarSet]
+type = VarSet
+trigger1 = p2movetype != H 
+trigger2 = stateno != 420
+trigger3 = p2stateno = [5100,5150]
+trigger4 = movetype != A
+v = 13    ;fv = 10
+value = 0
+;ignorehitpause = 
+;persistent = 
+
+[State 0, VarSet]
+type = VarSet
+trigger1 = p2movetype != H 
+trigger2 = movetype != A
+v = 16    ;fv = 10
+value = 0
+;ignorehitpause = 
+;persistent = 
+
+[State 0, VarSet]
+type = null;VarSet
+trigger1 = time = 0
+v = 12    ;fv = 10
+value = 0
+;ignorehitpause = 
+;persistent = 
+
+;----------------------根性値
+
+[State -2, 0]
+type = DefenceMulSet
+trigger1 = Life <= 600 && Life >= 401
+value = 0.95
+
+[State -2, 0]
+type = DefenceMulSet
+trigger1 = Life <= 500 && Life >= 401
+value = 0.8
+
+[State -2, 0]
+type = DefenceMulSet
+trigger1 = Life <= 400 && Life >= 301
+value = 0.75
+
+[State -2, 0]
+type = DefenceMulSet
+trigger1 = Life <= 300 && Life >= 201
+value = 0.7
+
+[State -2, 0]
+type = DefenceMulSet
+trigger1 = Life <= 200 && Life >= 101
+value = 0.65
+
+
+;----------------------補正
+
+[State 0, VarSet]
+type = VarSet
+trigger1 = enemy,movetype != H
+;trigger1 = gametime%2
+trigger2 = enemy,gethitvar(hitcount) = 1
+;trigger3 = enemy,stateno = [5100,5120]
+fvar(2)= 1
+;ignorehitpause = 1
+;persistent = 
+
+[State 0, VarSet]
+type = VarSet
+trigger1 = enemy,gethitvar(hitcount) >= 2
+trigger1 = enemy,gethitvar(hitcount) <= 3
+fvar(2)= 0.7
+;ignorehitpause = 
+;persistent = 
+
+[State 0, VarSet]
+type = VarSet
+trigger1 = enemy,gethitvar(hitcount) >= 4
+trigger1 = enemy,gethitvar(hitcount) <= 5
+fvar(2)= 0.6
+;ignorehitpause = 
+;persistent = 
+
+[State 0, VarSet]
+type = VarSet
+trigger1 = enemy,gethitvar(hitcount) >= 6
+trigger1 = enemy,gethitvar(hitcount) <= 7
+fvar(2)= 0.45
+;ignorehitpause = 
+;persistent = 
+
+[State 0, VarSet]
+type = VarSet
+trigger1 = enemy,gethitvar(hitcount) >= 8
+trigger1 = enemy,gethitvar(hitcount) <= 9
+fvar(2)= 0.38
+;ignorehitpause = 
+;persistent = 
+
+[State 0, VarSet]
+type = VarSet
+trigger1 = enemy,gethitvar(hitcount) >= 10
+trigger1 = enemy,gethitvar(hitcount) <= 11
+fvar(2)= 0.33
+;ignorehitpause = 
+;persistent = 
+
+[State 0, VarSet]
+type = VarSet
+trigger1 = enemy,gethitvar(hitcount) >= 12
+trigger1 = enemy,gethitvar(hitcount) <= 13
+fvar(2)= 0.3
+;ignorehitpause = 
+;persistent = 
+
+[State 0, VarSet]
+type = VarSet
+trigger1 = enemy,gethitvar(hitcount) >=14
+fvar(2)= 0.26
+;ignorehitpause = 
+;persistent = 
+
+
+
+
+;------------------------------
+
+[State 0, VarSet]
+type = VarSet
+trigger1 = enemy,movetype != H
+;trigger1 = gametime%2
+fvar(3)= 1
+;ignorehitpause = 
+;persistent = 
+
+[State 0, VarSet]
+type = VarSet
+trigger1 = enemy,gethitvar(hitcount) >= 2
+trigger1 = enemy,gethitvar(hitcount) <= 3
+fvar(3)= 0.95
+;ignorehitpause = 
+;persistent = 
+
+[State 0, VarSet]
+type = VarSet
+trigger1 = enemy,gethitvar(hitcount) >= 4
+trigger1 = enemy,gethitvar(hitcount) <= 5
+fvar(3)= 0.85
+;ignorehitpause = 
+;persistent = 
+
+[State 0, VarSet]
+type = VarSet
+trigger1 = enemy,gethitvar(hitcount) >= 6
+trigger1 = enemy,gethitvar(hitcount) <= 7
+fvar(3)= 0.75
+;ignorehitpause = 
+;persistent = 
+
+[State 0, VarSet]
+type = VarSet
+trigger1 = enemy,gethitvar(hitcount) >= 8
+trigger1 = enemy,gethitvar(hitcount) <= 9
+fvar(3)= 0.65
+;ignorehitpause = 
+;persistent = 
+
+[State 0, VarSet]
+type = VarSet
+trigger1 = enemy,gethitvar(hitcount) >= 10
+trigger1 = enemy,gethitvar(hitcount) <= 11
+fvar(3)= 0.55
+;ignorehitpause = 
+;persistent = 
+
+[State 0, VarSet]
+type = VarSet
+trigger1 = enemy,gethitvar(hitcount) >= 12
+trigger1 = enemy,gethitvar(hitcount) <= 13
+fvar(3)= 0.5
+;ignorehitpause = 
+;persistent = 
+
+[State 0, VarSet]
+type = VarSet
+trigger1 = enemy,gethitvar(hitcount) >=14
+fvar(3)= 0.4
+;ignorehitpause = 
+;persistent = 
+
+;----------------------
+
+[State 0, Helper]
+type = Helper
+trigger1 = stateno =[150,155]
+trigger1 = numhelper(4120) = 0
+trigger1 = numhelper(2001) = 0
+name = "kabe"
+ID = 4120
+stateno = 4120
+pos = 0,0
+postype = p1    ;p2,front,back,left,right
+facing = 1
+keyctrl = 0
+ownpal = 0
+supermovetime = 0
+pausemovetime = 0
+size.xscale = 0.75
+size.yscale = 0.75
+
+
+;--------------------------------
+[State 0, AssertSpecial]
+type = AssertSpecial
+trigger1 = p2name = "Akiko Minase"  
+trigger1 = anim = 5555
+trigger2 = p4name = "Akiko Minase"  
+trigger2 = anim = 5555
+flag = noshadow
+
+;===========================================================================
+; 準常時監視ステート（‐３）
+;===========================================================================
+;---------------------------------------------------------------------------
+; こちらは通常の食らい状態以外の「P2StateNo」や「TargetState」等で制御された、
+; 作成者が任意に指定した相手側の食らいステートに限り、
+; 登録したステートコントローラが有効にはなりません。
+; ‐１や‐２と上手く使い分けて行きましょう。
+;---------------------------------------------------------------------------
+
+[Statedef -3]
+
+;-----------------------------------
+;ここは「ジャンプ」か「バックステップ」をした後に
+;着地する音を鳴らす設定をしています。
+
+[State -3, 音を鳴らす]
+type = null;PlaySnd
+triggerall = Time = 1
+trigger1 = stateno = 52  ;着地ステート
+trigger2 = stateno = 106 ;バックステップ後の着地ステート
+value = 40, 0
+
+[State 0, VarSet]
+type = VarSet
+triggerall = movetype != A
+trigger1 = enemy,movetype != H
+;trigger3 = enemy,stateno = [5100,5120]
+fvar(2)= 1
+;ignorehitpause = 1
+;persistent = 
+
+
+[State 0, VarSet]
+type = VarSet
+triggerall = movetype != A
+trigger1 = enemy,movetype != H
+fvar(3)= 1
+;ignorehitpause = 
+;persistent = 
+;---------------------------------------------------------------------------
+;---------------------------------------------------------------------------
+;---------------------------------------------------------------------------
+; ■最後に『コモンステート』について■
+; コモンステートとは、全キャラ共通の基本動作のステートです。
+; 通常は特に変更しない限り、M.U.G.E.N本体のdataフォルダにある
+;「common1.cns（コモンステートファイル）」を使います。
+;
+; しかし、もしもあなたのキャラのステートファイルでcommon1.cnsと同じ番号の
+; 基本動作のステートを作った場合は処理が上書きされ、
+; common1.cns側の同じ番号のステートは無効になります。
+;
+; common1.cnsのプログラム優先度は最低に属しているので、
+; ステートの作成には番号に注意しないといけません。
+;---------------------------------------------------------------------------
+;---------------------------------------------------------------------------
+;---------------------------------------------------------------------------
+
+

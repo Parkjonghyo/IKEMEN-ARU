@@ -1,0 +1,1812 @@
+
+
+;右側ヘルパー30000（suparpause,pause無視）
+;var(58):動き確認スイッチ
+;var(56):地上中段＆空中下段学習用
+;var(53)~var(55):地上中段学習用
+;var(49)~var(51):空中下段学習用
+;var(59)&var(47)~var(48):相手の動作時間。計算結果はvar(47)
+;var(46):ガード用変数
+;var(45):juggle計算等、キャラ別
+;var(44):juggle計算等、キャラ別
+;var(43):割り込み等用
+;var(42):各キャラ別
+;var(41)~var(40):こちらが攻撃しない間、何回ガードしたか（連続ガード除く）
+;var(39):対空反応用
+;var(38):タッグ用。１なら前、２なら後ろ、３はその中間
+;var(37):相手のhitshaketime-1もしくは0
+;var(36):相手の起き上がり(5120以上)の時間
+;var(35):ガードレベル設定
+;var(34):ガード反応用
+;var(33)~var(32):相手無敵判断
+
+
+;ＡＩ起動用ヘルパー
+;var(59)：ＡＩ起動用
+;フラグたったら消える。
+
+[Statedef 30000]
+type=A
+movetype=I
+physics=N
+ctrl=0
+anim=9999
+sprpriority=0
+
+
+[State 30000]
+type=velset
+trigger1=time=0
+trigger1=prevstateno!=30002
+x=10
+y=0
+
+[State 9741, Safety]
+type=selfstate
+trigger1=!ishelper
+value=0
+
+[State -2]
+type=Nothitby
+trigger1=1
+value=SCA
+
+
+[State 30000]
+type=ScreenBound
+trigger1=1
+value=0
+movecamera=0,0
+
+[State 30000]
+type=Projectile
+trigger1=time=0
+trigger1=prevstateno!=30002
+projID=30001
+projanim=9999
+velocity=10, 0
+projpriority=4
+projsprpriority=2
+projstagebound=0
+projedgebound=99999
+offset=0, 0
+postype=right
+supermovetime=99999
+pausemovetime=99999
+projremovetime=-1
+
+[State -2]
+type=assertspecial
+trigger1=1
+flag=noshadow
+flag2=invisible
+ignorehitpause=1
+
+[State -2]
+type=velset
+trigger1=!(root,numprojID(30001))
+x=0
+y=0
+
+[State -2];確認用スイッチ
+type=varset
+trigger1=root,var(59)<=0
+trigger1=prevstateno!=30002
+trigger1=!time
+var(58)=0
+ignorehitpause=1
+
+
+[State -2];確認用スイッチ
+type=poweradd
+trigger1=var(58)
+trigger1=root,command="start"
+value=-500
+
+[State -2];確認用スイッチ
+type=varset
+trigger1=root,var(59)>0
+trigger2=root,command="start"&&root,command="y"
+var(58)=0
+ignorehitpause=1
+
+
+[State -2];暗転等含む、相手動作時間
+type=varset
+trigger1=playerID(root,var(57)),Stateno!=var(48)
+trigger1=playerID(root,var(57)),ctrl||(var(59)=[0,10])||playerID(root,var(57)),stateno<200
+trigger1=var(46)
+trigger2=roundstate!=2
+trigger3=var(48)=-1
+var(47)=-1
+
+
+[State -2];暗転等含む、相手動作時間
+type=varadd
+trigger1=1
+var(47)=1
+
+
+[State -2];直前の相手ステート番号
+type=varset
+trigger1=1
+var(48)=ifelse(playerID(root,var(57)),ctrl,-1,playerID(root,var(57)),stateno)
+ignorehitpause=1
+
+[State -2]
+type=varset
+trigger1=1
+var(59)=playerID(root,var(57)),movecontact
+
+
+[State -2];地上中段＆空中下段学習用
+type=varset
+trigger1=root,stateno=131||(root,stateno=[152,153])
+var(56)=1
+ignorehitpause=1
+
+[State -2];地上中段＆空中下段学習用
+type=varset
+trigger1=root,stateno=130||(root,stateno=[150,151])
+var(56)=-1
+ignorehitpause=1
+
+[State -2];地上中段＆空中下段学習用
+type=varset
+trigger1=!((root,stateno=[130,131])||(root,stateno=[150,153]))
+trigger1=root,time >=2
+var(56)=0
+ignorehitpause=1
+
+[State -2];地上中段学習用
+type=varset
+trigger1=var(56)=1
+trigger1=!var(55)
+trigger1=root,movetype=H
+trigger1=root,stateno > 200
+trigger1=playerID(root,var(57)),Statetype !=A
+trigger1=playerID(root,var(57)),Movetype=A
+var(55)=playerID(root,var(57)),Stateno
+ignorehitpause=1
+
+[State -2];地上中段学習用
+type=varset
+trigger1=var(56)=-1
+trigger1=var(55)=playerID(root,var(57)),Stateno
+trigger1=root,movetype=H
+trigger1=root,stateno > 200
+trigger1=playerID(root,var(57)),Statetype !=A
+trigger1=playerID(root,var(57)),Movetype=A
+var(55)=0
+ignorehitpause=1
+
+[State -2];地上中段学習用
+type=varset
+trigger1=var(56)=1
+trigger1=var(55)!=playerID(root,var(57)),Stateno
+trigger1=root,movetype=H
+trigger1=root,stateno > 200
+trigger1=playerID(root,var(57)),Statetype !=A
+trigger1=playerID(root,var(57)),Movetype=A
+var(54)=playerID(root,var(57)),Stateno
+ignorehitpause=1
+
+[State -2];地上中段学習用
+type=varset
+trigger1=var(56)=-1
+trigger1=var(54)=playerID(root,var(57)),Stateno
+trigger1=root,movetype=H
+trigger1=root,stateno > 200
+trigger1=playerID(root,var(57)),Statetype !=A
+trigger1=playerID(root,var(57)),Movetype=A
+var(54)=0
+ignorehitpause=1
+
+
+[State -2];地上中段学習用
+type=varset
+trigger1=var(56)=1
+trigger1=var(55)!=playerID(root,var(57)),Stateno
+trigger1=var(54)!=root,P2Stateno
+trigger1=root,movetype=H
+trigger1=root,stateno > 200
+trigger1=playerID(root,var(57)),Statetype !=A
+trigger1=playerID(root,var(57)),Movetype=A
+var(53)=playerID(root,var(57)),Stateno
+ignorehitpause=1
+
+[State -2];地上中段学習用
+type=varset
+trigger1=var(56)=-1
+trigger1=var(53)=playerID(root,var(57)),Stateno
+trigger1=root,movetype=H
+trigger1=root,stateno > 200
+trigger1=playerID(root,var(57)),Statetype !=A
+trigger1=playerID(root,var(57)),Movetype=A
+var(53)=0
+ignorehitpause=1
+
+
+
+
+[State -2];空中下段学習用
+type=varset
+trigger1=var(56)=-1
+trigger1=!var(51)
+trigger1=root,movetype=H
+trigger1=root,stateno > 200
+trigger1=playerID(root,var(57)),Statetype=A
+trigger1=playerID(root,var(57)),Movetype=A
+var(51)=playerID(root,var(57)),Stateno
+ignorehitpause=1
+
+[State -2];空中下段学習用
+type=varset
+trigger1=var(56)=1
+trigger1=var(51)=playerID(root,var(57)),Stateno
+trigger1=root,movetype=H
+trigger1=root,stateno > 200
+trigger1=playerID(root,var(57)),Statetype=A
+trigger1=playerID(root,var(57)),Movetype=A
+var(51)=0
+ignorehitpause=1
+
+[State -2];空中下段学習用
+type=varset
+trigger1=var(56)=-1
+trigger1=var(51)!=playerID(root,var(57)),Stateno
+trigger1=root,movetype=H
+trigger1=root,stateno > 200
+trigger1=playerID(root,var(57)),Statetype=A
+trigger1=playerID(root,var(57)),Movetype=A
+var(50)=playerID(root,var(57)),Stateno
+ignorehitpause=1
+
+[State -2];空中下段学習用
+type=varset
+trigger1=var(56)=1
+trigger1=var(50)=playerID(root,var(57)),Stateno
+trigger1=root,movetype=H
+trigger1=root,stateno > 200
+trigger1=playerID(root,var(57)),Statetype=A
+trigger1=playerID(root,var(57)),Movetype=A
+var(50)=0
+ignorehitpause=1
+
+
+[State -2];空中下段学習用
+type=varset
+trigger1=var(56)=-1
+trigger1=var(51)!=playerID(root,var(57)),Stateno
+trigger1=var(50)!=root,P2Stateno
+trigger1=root,movetype=H
+trigger1=root,stateno > 200
+trigger1=playerID(root,var(57)),Statetype=A
+trigger1=playerID(root,var(57)),Movetype=A
+var(49)=playerID(root,var(57)),Stateno
+ignorehitpause=1
+
+[State -2];空中下段学習用
+type=varset
+trigger1=var(56)=1
+trigger1=var(49)=playerID(root,var(57)),Stateno
+trigger1=root,movetype=H
+trigger1=root,stateno > 200
+trigger1=playerID(root,var(57)),Statetype=A
+trigger1=playerID(root,var(57)),Movetype=A
+var(49)=0
+ignorehitpause=1
+
+
+
+
+[State -3];ガード等用の変数
+type=VarSet
+trigger1=1
+var(46)=4
+IgNoreHitPause=1
+
+
+[State -3];下段ガード用
+type=VarSet
+TriggerAll=NumEnemy
+trigger1=playerID(root,var(57)),Name="eddie"||playerID(root,var(57)),Name="jam"
+trigger1=playerID(root,var(57)),stateno=210
+trigger2=playerID(root,var(57)),Name="eddie"
+trigger2=playerID(root,var(57)),stateno=1800||playerID(root,var(57)),stateno=1850
+trigger3=playerID(root,var(57)),Name="millia"
+trigger3=playerID(root,var(57)),stateno=1500
+Trigger4=playerID(root,var(57)),Name="eddie"
+Trigger4=playerID(root,var(57)),stateno=1000||playerID(root,var(57)),stateno=1050||playerID(root,var(57)),NumHelper(1002);||playerID(root,var(57)),NumHelper(1001)
+Trigger5=playerID(root,var(57)),stateno=var(51)
+Trigger6=playerID(root,var(57)),stateno=var(50)
+Trigger7=playerID(root,var(57)),stateno=var(49)
+var(46)=1
+IgNoreHitPause=1
+
+[State -3];中段ガード用
+type=VarSet
+trigger1=playerID(root,var(57)),AutHorName="muteki"||playerID(root,var(57)),AutHorName="Akutagawa"
+trigger1=playerID(root,var(57)),stateno=240
+trigger2=playerID(root,var(57)),AutHorName="Cannon Musume"
+trigger2=playerID(root,var(57)),stateno=230
+trigger3=playerID(root,var(57)),Name="testament"
+trigger3=playerID(root,var(57)),stateno=205
+Trigger4=playerID(root,var(57)),Name="millia"||playerID(root,var(57)),Name="BRIDGET"||playerID(root,var(57)),Name="eddie"
+Trigger4=playerID(root,var(57)),stateno=215
+Trigger5=playerID(root,var(57)),Name="faust"
+Trigger5=playerID(root,var(57)),stateno=235
+Trigger6=playerID(root,var(57)),Name="johnny"
+Trigger6=playerID(root,var(57)),stateno=1500||playerID(root,var(57)),stateno=[3500,3501]
+Trigger7=playerID(root,var(57)),Name="order-Sol=Badguy"
+Trigger7=playerID(root,var(57)),stateno=432
+Trigger8=playerID(root,var(57)),Name="eddie"
+Trigger8=0;NumHelper(1600)
+Trigger9=playerID(root,var(57)),Name="jam"
+Trigger9=playerID(root,var(57)),stateno=215
+Trigger10=playerID(root,var(57)),Name="Sion_Eltnam_Atlasia"
+Trigger10=playerID(root,var(57)),stateno=[240,241]
+Trigger11=playerID(root,var(57)),Name="Reimu_Hakurei"
+Trigger11=playerID(root,var(57)),stateno=240
+Trigger12=playerID(root,var(57)),Name="SHIN"||playerID(root,var(57)),Name="THOUTHER"||playerID(root,var(57)),Name="REI"
+Trigger12=playerID(root,var(57)),stateno=250
+Trigger13=playerID(root,var(57)),Name="TOKI-(NERICYA)"||playerID(root,var(57)),Name="AMIBA"
+Trigger13=playerID(root,var(57)),stateno=900
+Trigger14=playerID(root,var(57)),Name="Geese Howard"
+Trigger14=playerID(root,var(57)),AutHorName="Cannon Musume"
+Trigger14=playerID(root,var(57)),stateno=230
+Trigger15=playerID(root,var(57)),Name="Ky=kiske"
+Trigger15=playerID(root,var(57)),stateno=10240 || playerID(root,var(57)),stateno=240
+trigger16=playerID(root,var(57)),Name="justice"
+trigger16=playerID(root,var(57)),stateno=[205,206]
+trigger17=playerID(root,var(57)),Name="maori"
+trigger17=playerID(root,var(57)),stateno=1200
+trigger18=playerID(root,var(57)),Name="potemkin"
+trigger18=playerID(root,var(57)),stateno=215
+trigger19=playerID(root,var(57)),Name="blackpolnareff"
+trigger19=playerID(root,var(57)),stateno=1260
+trigger20=playerID(root,var(57)),Name="Anji Mito"
+trigger20=playerID(root,var(57)),stateno=1002 || playerID(root,var(57)),stateno=207 || playerID(root,var(57)),stateno=850
+Trigger21=playerID(root,var(57)),stateno=var(55)
+Trigger22=playerID(root,var(57)),stateno=var(54)
+Trigger23=playerID(root,var(57)),stateno=var(53)
+trigger24=playerID(root,var(57)),Name="THOUTHER" 
+trigger24=playerID(root,var(57)),stateno=2200
+var(46)=2
+IgNoreHitPause=1
+
+[State -3];ガード不能用(投げ)
+type=VarSet
+trigger1=playerID(root,var(57)),HitDefAttr=,AT
+trigger2=playerID(root,var(57)),AutHorName="muteki"||AutHorName="Akutagawa"||playerID(root,var(57)),AutHorName="Warusaki3"
+trigger2=playerID(root,var(57)),stateno=800
+trigger3=playerID(root,var(57)),Name="eddie"
+trigger3=playerID(root,var(57)),stateno=1300;
+Trigger4=playerID(root,var(57)),Name="SLAYER"
+Trigger4=playerID(root,var(57)),stateno=1200||playerID(root,var(57)),stateno=1300
+Trigger5=playerID(root,var(57)),Name="order-Sol=Badguy"
+Trigger5=playerID(root,var(57)),stateno=1500
+Trigger6=playerID(root,var(57)),Name="jam"
+Trigger6=playerID(root,var(57)),stateno=2500
+Trigger7=playerID(root,var(57)),Name="faust"
+Trigger7=playerID(root,var(57)),stateno=1500
+Trigger8=playerID(root,var(57)),Name="johnny"
+Trigger8=playerID(root,var(57)),var(49)
+Trigger8=playerID(root,var(57)),stateno=[1000,1099]
+Trigger9=playerID(root,var(57)),stateno=[7600,7601]
+Trigger9=playerID(root,var(57)),Name="wind"
+Trigger10=playerID(root,var(57)),stateno=4000
+Trigger10=playerID(root,var(57)),Name="Shin Gouki"||playerID(root,var(57)),Name="Ryu"||playerID(root,var(57)),Name="Morrigan Aensland"||playerID(root,var(57)),Name="Sakura Kasugano"
+Trigger11=playerID(root,var(57)),stateno=3300
+Trigger11=playerID(root,var(57)),Name="Yuri Sakazaki"||playerID(root,var(57)),Name="cvsgouki"||playerID(root,var(57)),Name="cvsryu"||playerID(root,var(57)),Name="cvssakura"
+Trigger12=playerID(root,var(57)),stateno=3200||playerID(root,var(57)),stateno=1700
+Trigger12=playerID(root,var(57)),Name="cvsg_rugal"||playerID(root,var(57)),Name="cvsrugal"
+Trigger13=playerID(root,var(57)),stateno=3600
+Trigger13=playerID(root,var(57)),Name="Gouki"
+Trigger14=playerID(root,var(57)),stateno=20080||playerID(root,var(57)),stateno=20060
+Trigger14=playerID(root,var(57)),Name="Kaori Misaka"
+Trigger15=playerID(root,var(57)),stateno=3890
+Trigger15=playerID(root,var(57)),Name="Evil Ken"
+Trigger16=playerID(root,var(57)),Name="Kohaku"
+Trigger16=playerID(root,var(57)),stateno=[2050,2051]
+Trigger17=playerID(root,var(57)),Name="Omega Goenitz"
+Trigger17=playerID(root,var(57)),stateno=3150
+Trigger18=playerID(root,var(57)),Name="RUGAL"
+Trigger18=playerID(root,var(57)),stateno=2550||playerID(root,var(57)),stateno=2500
+Trigger19=playerID(root,var(57)),Name="chipp_arrange"|| playerID(root,var(57)),Name="chipp"
+Trigger19=playerID(root,var(57)),stateno=1400
+Trigger20=playerID(root,var(57)),Name="chipp_arrange"
+Trigger20=playerID(root,var(57)),stateno=3200
+Trigger21=playerID(root,var(57)),Name="sol"
+Trigger21=playerID(root,var(57)),stateno=1600
+var(46)=3
+IgNoreHitPause=1
+
+
+[State -3];相手無敵Time
+type=VarSet
+TriggerAll=NumEnemy
+trigger1=playerID(root,var(57)),Name="chipp_arrange" || playerID(root,var(57)),Name="chipp"
+trigger1=playerID(root,var(57)),stateno=[3100,3104]
+trigger1=Statetype !=A
+trigger2=AutHorName="Warusaki3"
+trigger2=playerID(root,var(57)),stateno=800
+trigger3=playerID(root,var(57)),Name="cvsrugal"||playerID(root,var(57)),Name="cvsg_rugal"
+trigger3=playerID(root,var(57)),stateno=1800
+Trigger4=playerID(root,var(57)),Name="cvsgouki"||playerID(root,var(57)),Name="cvsgouki_ex"||playerID(root,var(57)),Name="cvsgouki_normal"
+Trigger4=playerID(root,var(57)),stateno=1500
+Trigger5=playerID(root,var(57)),Name="cvsryu"||playerID(root,var(57)),Name="cvsryu_ex"||playerID(root,var(57)),Name="cvsryu_normal"||playerID(root,var(57)),Name="Shin Gouki"||playerID(root,var(57)),Name="Ryu"
+Trigger5=playerID(root,var(57)),stateno=1400
+Trigger6=playerID(root,var(57)),Name="Evil Ken"||playerID(root,var(57)),Name="Evil Ryu"||playerID(root,var(57)),Name="Evil Dan"
+Trigger6=playerID(root,var(57)),stateno=[3960,3971]
+Trigger7=playerID(root,var(57)),Name="Konoha"
+Trigger7=playerID(root,var(57)),stateno=1200||playerID(root,var(57)),stateno=1220||playerID(root,var(57)),stateno=1610
+Trigger8=AutHorName="⑨"
+Trigger8=playerID(root,var(57)),stateno=[900,930]
+Trigger9=playerID(root,var(57)),Name="jam"
+Trigger9=playerID(root,var(57)),stateno=[1310,1311]
+Trigger10=playerID(root,var(57)),Name="eddie"
+Trigger10=playerID(root,var(57)),stateno=1101
+Trigger11=playerID(root,var(57)),Name="testa"
+Trigger11=playerID(root,var(57)),stateno=1300
+Trigger12=playerID(root,var(57)),Name="justice"
+Trigger12=playerID(root,var(57)),stateno=1100
+Trigger13=playerID(root,var(57)),Name="TOKI-(NERICYA)"
+Trigger13=(playerID(root,var(57)),stateno=[1210,1250])||(playerID(root,var(57)),stateno=[1300,1600])
+Trigger14=playerID(root,var(57)),Name="OGRE"
+Trigger14=playerID(root,var(57)),stateno=[980,991]
+Trigger15=playerID(root,var(57)),Name="cvsgeese"
+Trigger15=playerID(root,var(57)),stateno=1300||playerID(root,var(57)),stateno=1400||playerID(root,var(57)),stateno=1500
+Trigger16=playerID(root,var(57)),Name="cvsrock"
+Trigger16=playerID(root,var(57)),stateno=1300
+Trigger17=playerID(root,var(57)),Name="Oswald"||playerID(root,var(57)),Name="Oniwarud"
+Trigger17=playerID(root,var(57)),stateno=1500
+Trigger18=playerID(root,var(57)),Name="joseph"
+Trigger18=playerID(root,var(57)),stateno=1020
+Trigger19=playerID(root,var(57)),Name="Ella"
+Trigger19=(playerID(root,var(57)),stateno=[10001,10008])||playerID(root,var(57)),stateno=10090
+Trigger20=playerID(root,var(57)),Name="Abe"
+Trigger20=playerID(root,var(57)),stateno=1100
+Trigger21=playerID(root,var(57)),Name="dio"
+Trigger21=playerID(root,var(57)),stateno=1400
+Trigger22=playerID(root,var(57)),Name="cvsingrid"
+Trigger22=playerID(root,var(57)),stateno=1300||playerID(root,var(57)),stateno=1350
+Trigger23=playerID(root,var(57)),Name="Geese Howard"
+Trigger23=playerID(root,var(57)),AutHorName="Cannon Musume"
+Trigger23=playerID(root,var(57)),stateno=1400||playerID(root,var(57)),stateno=1450||playerID(root,var(57)),stateno=1500
+Trigger24=playerID(root,var(57)),Name="Dhalsim with clones"
+Trigger24=playerID(root,var(57)),stateno=1600
+Trigger25=playerID(root,var(57)),Name="Dragon Claw"
+Trigger25=playerID(root,var(57)),stateno=[1300,1320]
+Trigger26=playerID(root,var(57)),AutHorName="Toma & Raien Makoto"
+Trigger26=playerID(root,var(57)),Name="Aoko Aozaki"||playerID(root,var(57)),Name="Shiki_Nanaya"
+Trigger26=(playerID(root,var(57)),stateno=[900,920])||(playerID(root,var(57)),stateno=[950,960])||playerID(root,var(57)),stateno=1253
+Trigger27=playerID(root,var(57)),Name="General"
+Trigger27=playerID(root,var(57)),stateno=[1000,1012]
+Trigger28=playerID(root,var(57)),Name="Omega Goenitz"
+Trigger28=playerID(root,var(57)),stateno=900||playerID(root,var(57)),stateno=1000||playerID(root,var(57)),stateno=3100
+Trigger29=playerID(root,var(57)),Name="Reimu_Hakurei"
+Trigger29=playerID(root,var(57)),stateno=3021||playerID(root,var(57)),stateno=3026
+Trigger30=playerID(root,var(57)),AutHorName="muteki"
+Trigger30=playerID(root,var(57)),stateno=750||(playerID(root,var(57)),stateno=5090&&playerID(root,var(57)),vel y<=0)
+Trigger31=playerID(root,var(57)),Name="SHIN"
+Trigger31=playerID(root,var(57)),stateno=2400||playerID(root,var(57)),stateno=2050||(playerID(root,var(57)),stateno=2000&&var(47)<99)
+Trigger32=playerID(root,var(57)),Name="Reimu_Hakurei"
+Trigger32=playerID(root,var(57)),stateno=3041 || playerID(root,var(57)),stateno=3051
+Trigger33=playerID(root,var(57)),Name="Magaki"
+Trigger33=playerID(root,var(57)),stateno=3000
+Trigger34=playerID(root,var(57)),Name="ZERO"
+Trigger34=playerID(root,var(57)),stateno=3100||playerID(root,var(57)),stateno=3110||playerID(root,var(57)),stateno=3200||playerID(root,var(57)),stateno=3210
+Trigger35=playerID(root,var(57)),Name="ORIGINAL ZERO"
+trigger35=playerID(root,var(57)),stateno=3100||playerID(root,var(57)),stateno=3110
+trigger36=playerID(root,var(57)),Name="Patchouli"
+trigger36=playerID(root,var(57)),stateno=1150||playerID(root,var(57)),stateno=1160
+trigger37=playerID(root,var(57)),Name="Yukari_Yakumo"
+trigger37=playerID(root,var(57)),stateno=3000||playerID(root,var(57)),stateno=[3100,3101]
+trigger37=playerID(root,var(57)),movetype=A
+trigger38=var(33)=-1
+var(46)=0
+IgNoreHitPause=1
+
+
+;v46=0=相手無敵Time
+;v46=1=下段
+;v46=2=中段
+;v46=3=ガード不能(投げ)
+
+
+[State -3];ガード等用の変数
+type=VarSet
+trigger1=var(46)=4
+var(46)=ifelse(playerID(root,var(57)),statetype=A,2,1)
+IgNoreHitPause=1
+
+
+
+
+[State -3];juggle計算
+type=VarSet
+triggerall=root,name="Nocturne"||root,name="Kung Fu Man"
+trigger1=root,P2Movetype !=H
+trigger2=root,P2Stateno < 200
+trigger3=!playerID(root,var(57)),gethitvar(fall)
+var(45)=root,Const(data.airjuggle)
+IgNoreHitPause=1
+
+
+[State -3];juggle計算
+Type=Varset
+trigger1=root,name="Nocturne"
+trigger1=(root,stateno!=[1200,1210])&&root,stateno!=1510
+var(44)=1
+
+[State -3];juggle計算
+type=Varadd
+triggerall=root,name="Nocturne"
+triggerall=root,time >=1
+Triggerall=root,movehit=1
+Triggerall=playerID(root,var(57)),Statetype=A
+Triggerall=!playerID(root,var(57)),hitshakeover
+Triggerall=playerID(root,var(57)),time=1
+Triggerall=playerID(root,var(57)),gethitvar(fall)
+trigger1=root,stateno=200
+var(45)=-1
+Ignorehitpause=1
+
+[State -3];juggle計算
+type=Varadd
+triggerall=root,name="Nocturne"
+triggerall=root,time>=1
+Triggerall=root,movehit=1
+Triggerall=playerID(root,var(57)),Statetype=A
+Triggerall=!playerID(root,var(57)),hitshakeover
+Triggerall=playerID(root,var(57)),time=1
+Triggerall=playerID(root,var(57)),gethitvar(fall)
+trigger1=root,stateno=210 || root,stateno=230
+trigger2=root,stateno=610||root,stateno=640
+trigger3=root,stateno=1000
+trigger4=(root,stateno=[1200,1210])
+trigger4=var(44)
+trigger5=root,stateno=[1400,1450]
+trigger6=root,stateno=500
+var(45)=-4
+
+
+[State -3];juggle計算
+type=Varadd
+triggerall=root,name="Nocturne"
+triggerall=root,time>=1
+Triggerall=root,movehit=1
+Triggerall=playerID(root,var(57)),Statetype=A
+Triggerall=!playerID(root,var(57)),hitshakeover
+Triggerall=playerID(root,var(57)),time=1
+Triggerall=playerID(root,var(57)),gethitvar(fall)
+trigger1=root,stateno=3500
+trigger2=root,stateno=3600
+trigger3=root,stateno=1010
+var(45)=-8
+
+
+[State -3];juggle計算
+type=Varadd
+triggerall=root,name="Nocturne"
+triggerall=root,time >=1
+Triggerall=root,movehit=1
+Triggerall=playerID(root,var(57)),Statetype=A
+Triggerall=!playerID(root,var(57)),hitshakeover
+Triggerall=playerID(root,var(57)),time=1
+Triggerall=playerID(root,var(57)),gethitvar(fall)
+trigger1=root,stateno=630
+var(45)=-3
+
+[State -3];juggle計算
+type=Varadd
+triggerall=root,name="Nocturne"
+triggerall=root,time >=1
+Triggerall=root,movehit=1
+Triggerall=playerID(root,var(57)),Statetype=A
+Triggerall=!playerID(root,var(57)),hitshakeover
+Triggerall=playerID(root,var(57)),time=1
+Triggerall=playerID(root,var(57)),gethitvar(fall)
+trigger1=root,stateno=600
+var(45)=-2
+
+[State -3];juggle計算
+type=Varadd
+triggerall=root,name="Nocturne"
+triggerall=root,time >=1
+Triggerall=root,movehit=1
+Triggerall=playerID(root,var(57)),Statetype=A
+Triggerall=!playerID(root,var(57)),hitshakeover
+Triggerall=playerID(root,var(57)),time=1
+Triggerall=playerID(root,var(57)),gethitvar(fall)
+trigger1=root,stateno=240
+trigger2=root,stateno=400 || root,stateno=430
+var(45)=-5
+
+[State -3];juggle計算
+type=Varadd
+triggerall=root,name="Nocturne"
+triggerall=root,time >=1
+Triggerall=root,movehit=1
+Triggerall=playerID(root,var(57)),Statetype=A
+Triggerall=!playerID(root,var(57)),hitshakeover
+Triggerall=playerID(root,var(57)),time=1
+Triggerall=playerID(root,var(57)),gethitvar(fall)
+trigger1=root,stateno=410
+var(45)=-6
+
+[State -3];juggle計算
+type=Varadd
+triggerall=root,Name="Nocturne"
+triggerall=root,time >=1
+Triggerall=root,movehit=1
+Triggerall=playerID(root,var(57)),Statetype=A
+Triggerall=!playerID(root,var(57)),hitshakeover
+Triggerall=playerID(root,var(57)),time=1
+Triggerall=playerID(root,var(57)),gethitvar(fall)
+trigger1=root,stateno=440
+var(45)=-7
+
+
+
+
+
+
+[State -3];juggle計算
+Type=Varset
+trigger1=root,name="Nocturne"
+trigger1=(root,stateno=[1200,1210])||root,stateno=1510
+trigger1=root,movehit
+var(44)=0
+
+
+[State -2];カウント
+type=varadd
+trigger1=var(43) < 0
+var(43)=1
+
+
+[State -2];カウント
+type=varadd
+trigger1=var(43) > 0
+var(43)=-1
+
+[State -2];割り込みなど
+type=varset
+triggerall=root,P2BodyDist x <=100
+trigger1=root,stateno=[150,159]
+trigger2=root,stateno=[2110,2111]
+trigger3=root,stateno=5201 || root,stateno=5210
+trigger4=root,stateno=5120
+var(43)=-5
+
+
+[State -2];暴れつぶしなど
+type=varset
+triggerall=root,P2BodyDist x <=160
+trigger1=playerID(root,var(57)),stateno=[150,159]
+trigger2=playerID(root,var(57)),stateno=5120
+var(43)=5
+
+
+
+[State -2];
+type=varadd
+trigger1=root,stateno=150 || root,stateno=152 || root,stateno=154
+trigger1=root,prevstateno !=[150,159]
+trigger1=root,time=1
+trigger1=root,P2bodydist x <=120
+var(41)=1
+
+
+[State -2];
+type=varadd
+triggerall=var(41) > 0
+triggerall=playerID(root,var(57)),movetype !=H
+triggerall=root,movetype!=H
+trigger1=root,movetype=A
+trigger1=root,prevstateno < 200
+trigger1=root,time=1
+trigger2=gametime % 600=0
+var(41)=-1
+
+[State -2];
+type=varset
+trigger1=var(39)>0
+trigger1=playerID(root,var(57)),statetype!=A
+var(39)=0
+
+[State -2];
+type=varset
+trigger1=var(39)<0
+trigger1=playerID(root,var(57)),statetype=A
+var(39)=0
+
+[State -2];
+type=varadd
+trigger1=playerID(root,var(57)),statetype!=A
+var(39)=-1
+
+[State -2];
+type=varadd
+trigger1=playerID(root,var(57)),statetype=A
+var(39)=1
+
+
+
+[State -2];
+type=varset
+triggerall=numpartner
+triggerall=partner,alive
+trigger1=root,name="Nocturne"||root,name="Jimmy"
+trigger1=partner,name="chipp_arrange"||partner,name="Morrigan Aensland"||partner,name="ky"||partner,name="Lucario"||partner,name="dizzy"||partner,name="Hong Meirin"||partner,name="Date Masamune"||partner,name="millia"
+trigger1=partner,numhelper(30000)
+trigger1=partner,var(59)>0
+trigger2=root,name="Nocturne"||root,name="Jimmy"
+trigger2=partner,name="Alice Margatroid"
+var(38)=2
+
+
+
+[State -2];
+type=varset
+triggerall=numpartner
+triggerall=partner,alive
+trigger1=root,name="millia"
+trigger1=partner,name="justice"||partner,name="Nocturne"||partner,name="Jimmy"||partner,name="Kaede"||partner,name="Katakura Kojuro"
+trigger1=root,life-partner,life<=300
+trigger1=partner,numhelper(30000)
+trigger1=partner,var(59)>0
+trigger2=root,name="millia"
+trigger2=partner,name="chipp_arrange"||partner,name="Morrigan Aensland"||partner,name="ky"||partner,name="Lucario"||partner,name="Kung Fu Man"||partner,name="Date Masamune"||partner,name="millia"
+trigger2=root,life-partner,life<-300
+trigger2=partner,numhelper(30000)
+trigger2=partner,var(59)>0
+var(38)=1
+
+
+[State -2];
+type=varset
+triggerall=numpartner
+triggerall=partner,alive
+trigger1=root,name="millia"
+trigger1=partner,name="chipp_arrange"||partner,name="Morrigan Aensland"||partner,name="ky"||partner,name="Lucario"||partner,name="Kung Fu Man"||partner,name="Date Masamune"||partner,name="millia"
+trigger1=partner,numhelper(30000)
+trigger1=root,life-partner,life>300
+trigger1=partner,var(59)>0
+trigger2=root,name="millia"
+trigger2=partner,name="Alice Margatroid"
+trigger3=root,name="millia"
+trigger3=partner,name="dizzy"||partner,name="Hong Meirin"
+trigger3=partner,numhelper(30000)
+trigger3=partner,var(59)>0
+trigger4=root,name="millia"
+trigger4=partner,name="justice"||partner,name="Nocturne"||partner,name="Jimmy"||partner,name="Kaede"||partner,name="Katakura Kojuro"||partner,name="Sanada Yukimura"
+trigger4=root,life-partner,life>300
+trigger4=partner,numhelper(30000)
+trigger4=partner,var(59)>0
+var(38)=2
+
+
+
+[State -2];
+type=varset
+triggerall=numpartner
+triggerall=partner,alive
+trigger1=var(38)!=[1,2]
+trigger2=root,name="millia"
+trigger2=root,life-partner,life=[-300,300]
+trigger2=partner,name="Morrigan Aensland"||partner,name="ky"||partner,name="Kung Fu Man"||partner,name="chipp_arrange"||partner,name="Lucario"||partner,name="Date Masamune"||partner,name="millia"
+trigger2=partner,numhelper(30000)
+trigger2=partner,var(59)>0
+var(38)=3
+
+
+[State -2];
+type=varset
+trigger1=var(38)>=1
+trigger1=!(partner,alive)
+var(38)=-1
+
+
+[State -2];相手ヒットストップ関係
+type=varset
+trigger1=playerID(root,var(57)),gethitvar(hitshaketime)
+var(37)=playerID(root,var(57)),gethitvar(hitshaketime)-1
+
+
+[State -2];相手ヒットストップ関係
+type=varset
+trigger1=!playerID(root,var(57)),gethitvar(hitshaketime)
+var(37)=0
+
+
+[State -2];相手起き上がり時間
+type=varset
+trigger1=!time
+trigger1=prevstateno!=30002
+var(36)=-1
+
+[State -2];相手起き上がり時間
+type=varset
+trigger1=playerID(root,var(57)),statetype=L
+trigger1=playerID(root,var(57)),stateno>=5120
+trigger1=playerID(root,var(57)),time=1
+var(36)=-playerID(root,var(57)),Animtime+1
+
+
+[State -2];着地予測しゃがみガード
+type=varadd
+trigger1=var(34)>=-50
+var(34)=-1
+
+[State -2];着地予測しゃがみガード
+type=null
+triggerall=var(34)<0
+triggerall=var(35)<10
+triggerall=!playerID(root,var(57)),hitpausetime
+triggerall=playerID(root,var(57)),vel y>1
+triggerall=playerID(root,var(57)),statetype=A
+trigger1=var(34):=ceil(5+(10-var(35))*(1+random/1000.0)/2)
+trigger1=playerID(root,var(57)),pos y+(playerID(root,var(57)),vel y+playerID(root,var(57)),Const(movement.yaccel)*(var(34)-3)*0.5)*(var(34)-3)>0
+trigger1=random<200
+trigger1=var(39):=0||1
+
+[State 30000]
+type=Changestate
+trigger1=1
+value=30002
+
+
+;左側ヘルパー30010（suparpause,pauseの影響を受ける）
+
+;var(0):のけぞり時間計算
+;var(1):無敵時間計算
+;var(2):ダウン追い討ち判断用
+;var(3):相手傾向判断。距離
+;var(4):相手傾向判断。行動距離
+;var(5)＆fvar(0):相手傾向判断。移動
+;var(6):自分無敵時間
+;var(7):自分投げ無敵時間
+;var(8):相手の起き上がり時間(stateno=5120)
+;var(9)~var(23):相手硬直時間学習。技５つ分。var(23)がAnimtimeの代わりになる
+;var(24),var(25):各キャラ別
+;var(26)~var(29):のけぞり時間計算
+;var(30)~var(31):ヒットポーズ判定
+
+[Statedef 30010]
+type=A
+movetype=I
+physics=N
+ctrl=0
+anim=9999
+sprpriority=0
+
+[State 30010]
+type=velset
+trigger1=time=0
+trigger1=prevstateno!=30012
+x=10
+y=0
+
+[State 9741, Safety]
+type=selfstate
+trigger1=!ishelper
+value=0
+
+
+
+[State 30000]
+type=ScreenBound
+trigger1=1
+value=0
+movecamera=0,0
+
+[State 30000]
+type=Projectile
+trigger1=time=0
+trigger1=prevstateno!=30012
+projID=30011
+projanim=9999
+velocity=10, 0
+projpriority=4
+projsprpriority=2
+projedgebound=99999
+projstagebound=0
+offset=0, 0
+postype=left
+supermovetime=99999
+pausemovetime=99999
+projremovetime=-1
+
+[State -2]
+type=assertspecial
+trigger1=1
+flag=noshadow
+flag2=invisible
+ignorehitpause=1
+
+[State -2]
+type=Nothitby
+trigger1=1
+value=SCA
+
+
+[State -2]
+type=velset
+trigger1=!(root,numprojID(30011))
+x=0
+y=0
+
+
+[State -2];相手無敵判断用
+type=varset
+trigger1=playerID(root,var(57)),movetype=H
+trigger2=playerID(root,var(57)),Statetype=L
+trigger3=playerID(root,var(57)),stateno=[5000,5070]
+var(1)=12
+
+
+[State -2];相手無敵判断用
+type=varadd
+trigger1=playerID(root,var(57)),movetype!=H
+trigger1=playerID(root,var(57)),Statetype!=L
+trigger1=var(1)>0
+var(1)=-1
+
+
+[State -2];相手無敵判断用
+type=varadd
+trigger1=var(1)<0
+var(1)=1
+
+
+
+[State -2];相手無敵判断用
+type=varset
+trigger1=playerID(root,var(57)),stateno=5210
+trigger1=playerID(root,var(57)),time=1
+var(1)=-14
+
+
+[State 30010]
+type=varadd
+trigger1=var(27)>0
+var(27)=-1
+
+[State 30010]
+type=varadd
+trigger1=var(29)>0
+var(29)=-1
+
+[State -2];ガード硬直
+type=varset
+triggerall=playerIDExist(var(26))
+triggerall=playerID(var(26)),Movetype=H
+triggerall=playerID(var(26)),stateno < 200
+triggerall=playerID(var(26)),Statetype=A
+triggerall=!playerID(var(26)),gethitvar(fall)
+trigger1=!(playerID(var(26)),hitshakeover)
+trigger1=playerID(var(26)),time=1
+var(27)=playerID(var(26)),gethitvar(ctrltime)+playerID(var(26)),gethitvar(hitshaketime)+1
+ignorehitpause=1
+
+[State -2];ガード硬直
+type=varset
+triggerall=playerIDExist(var(26))
+triggerall=playerID(var(26)),Movetype=H
+triggerall=playerID(var(26)),stateno < 200
+triggerall=playerID(var(26)),Statetype=A
+triggerall=!playerID(var(26)),gethitvar(fall)
+trigger1=playerID(var(26)),stateno=155
+trigger1=playerID(var(26)),time=1
+trigger1=!var(30)
+var(27)=playerID(var(26)),gethitvar(ctrltime)+2
+ignorehitpause=1
+
+[State -2];ガード硬直
+type=varset
+triggerall=playerIDExist(var(26))
+triggerall=playerID(var(26)),Movetype=H
+triggerall=playerID(var(26)),stateno < 200
+triggerall=playerID(var(26)),Statetype!=A
+trigger1=!playerID(var(26)),gethitvar(fall)
+trigger1=!(playerID(var(26)),hitshakeover)
+trigger1=playerID(var(26)),time=1 || var(27)=0
+var(27)=ifelse(playerID(var(26)),gethitvar(ctrltime)<playerID(var(26)),gethitvar(hittime),playerID(var(26)),gethitvar(ctrltime),playerID(var(26)),gethitvar(hittime))+playerID(var(26)),gethitvar(hitshaketime)+1
+ignorehitpause=1
+
+[State -2];ガード硬直
+type=varset
+triggerall=playerIDExist(var(26))
+triggerall=playerID(var(26)),Movetype=H
+triggerall=playerID(var(26)),stateno < 200
+triggerall=playerID(var(26)),Statetype!=A
+trigger1=!playerID(var(26)),gethitvar(fall)
+trigger1=playerID(var(26)),stateno=151||playerID(var(26)),stateno=153
+trigger1=playerID(var(26)),time=1
+trigger1=!var(30)
+var(27)=ifelse(playerID(var(26)),gethitvar(ctrltime)<playerID(var(26)),gethitvar(hittime),playerID(var(26)),gethitvar(ctrltime),playerID(var(26)),gethitvar(hittime))+2
+ignorehitpause=1
+
+[State -2];のけぞり時間
+type=varset
+triggerall=playerIDExist(var(26))
+triggerall=playerID(var(26)),Movetype=H
+triggerall=playerID(var(26)),stateno > 199
+trigger1=!playerID(var(26)),gethitvar(fall)
+trigger1=!(playerID(var(26)),hitshakeover)
+trigger1=playerID(var(26)),time=1
+var(27)=playerID(var(26)),gethitvar(hittime)+playerID(var(26)),gethitvar(hitshaketime)+1
+ignorehitpause=1
+
+[State -2];のけぞり時間
+type=varset
+triggerall=playerIDExist(var(26))
+triggerall=playerID(var(26)),Movetype=H
+triggerall=playerID(var(26)),stateno > 199
+trigger1=!playerID(var(26)),gethitvar(fall)
+trigger1=playerID(var(26)),stateno=5001
+trigger1=playerID(var(26)),time=1
+trigger1=!var(30)
+var(27)=playerID(var(26)),gethitvar(hittime)+2
+ignorehitpause=1
+
+[State -2];受身不能時間
+type=varset
+triggerall=playerIDExist(var(26))
+triggerall=playerID(var(26)),stateno > 199
+triggerall=playerID(var(26)),Movetype=H
+triggerall=playerID(var(26)),statetype!=L
+trigger1=playerID(var(26)),gethitvar(fall)
+trigger1=!(playerID(var(26)),hitshakeover)
+trigger1=playerID(var(26)),time=1
+var(27)=playerID(var(26)),gethitvar(fall.recovertime)-1
+ignorehitpause=1
+
+[State -2];受身不能時間
+type=varset
+triggerall=playerIDExist(var(26))
+triggerall=playerID(var(26)),stateno > 199
+triggerall=playerID(var(26)),Movetype=H
+triggerall=playerID(var(26)),statetype!=L
+trigger1=playerID(var(26)),gethitvar(fall)
+trigger1=playerID(var(26)),stateno=5030
+trigger1=playerID(var(26)),time=1
+trigger1=!var(30)
+var(27)=playerID(var(26)),gethitvar(fall.recovertime)-1
+ignorehitpause=1
+
+
+[State -2];ガード硬直
+type=varset
+triggerall=playerIDExist(var(28))
+triggerall=playerID(var(28)),Movetype=H
+triggerall=playerID(var(28)),stateno < 200
+triggerall=playerID(var(28)),Statetype=A
+triggerall=!playerID(var(28)),gethitvar(fall)
+trigger1=!(playerID(var(28)),hitshakeover)
+trigger1=playerID(var(28)),time=1
+var(29)=playerID(var(28)),gethitvar(ctrltime)+playerID(var(28)),gethitvar(hitshaketime)+1
+ignorehitpause=1
+
+[State -2];ガード硬直
+type=varset
+triggerall=playerIDExist(var(28))
+triggerall=playerID(var(28)),Movetype=H
+triggerall=playerID(var(28)),stateno < 200
+triggerall=playerID(var(28)),Statetype=A
+triggerall=!playerID(var(28)),gethitvar(fall)
+trigger1=playerID(var(28)),stateno=155
+trigger1=playerID(var(28)),time=1
+trigger1=!var(31)
+var(29)=playerID(var(28)),gethitvar(ctrltime)+2
+ignorehitpause=1
+
+[State -2];ガード硬直
+type=varset
+triggerall=playerIDExist(var(28))
+triggerall=playerID(var(28)),Movetype=H
+triggerall=playerID(var(28)),stateno < 200
+triggerall=playerID(var(28)),Statetype!=A
+trigger1=!playerID(var(28)),gethitvar(fall)
+trigger1=!(playerID(var(28)),hitshakeover)
+trigger1=playerID(var(28)),time=1 || var(29)=0
+var(29)=ifelse(playerID(var(28)),gethitvar(ctrltime)<playerID(var(28)),gethitvar(hittime),playerID(var(28)),gethitvar(ctrltime),playerID(var(28)),gethitvar(hittime))+playerID(var(28)),gethitvar(hitshaketime)+1
+ignorehitpause=1
+
+[State -2];ガード硬直
+type=varset
+triggerall=playerIDExist(var(28))
+triggerall=playerID(var(28)),Movetype=H
+triggerall=playerID(var(28)),stateno < 200
+triggerall=playerID(var(28)),Statetype!=A
+trigger1=!playerID(var(28)),gethitvar(fall)
+trigger1=playerID(var(28)),stateno=151||playerID(var(28)),stateno=153
+trigger1=playerID(var(28)),time=1
+trigger1=!var(31)
+var(29)=ifelse(playerID(var(28)),gethitvar(ctrltime)<playerID(var(28)),gethitvar(hittime),playerID(var(28)),gethitvar(ctrltime),playerID(var(28)),gethitvar(hittime))+2
+ignorehitpause=1
+
+[State -2];のけぞり時間
+type=varset
+triggerall=playerIDExist(var(28))
+triggerall=playerID(var(28)),Movetype=H
+triggerall=playerID(var(28)),stateno > 199
+trigger1=!playerID(var(28)),gethitvar(fall)
+trigger1=!(playerID(var(28)),hitshakeover)
+trigger1=playerID(var(28)),time=1
+var(29)=playerID(var(28)),gethitvar(hittime)+playerID(var(28)),gethitvar(hitshaketime)+1
+ignorehitpause=1
+
+[State -2];のけぞり時間
+type=varset
+triggerall=playerIDExist(var(28))
+triggerall=playerID(var(28)),Movetype=H
+triggerall=playerID(var(28)),stateno > 199
+trigger1=!playerID(var(28)),gethitvar(fall)
+trigger1=playerID(var(28)),stateno=5001
+trigger1=playerID(var(28)),time=1
+trigger1=!var(31)
+var(29)=playerID(var(28)),gethitvar(hittime)+2
+ignorehitpause=1
+
+[State -2];受身不能時間
+type=varset
+triggerall=playerIDExist(var(28))
+triggerall=playerID(var(28)),stateno > 199
+triggerall=playerID(var(28)),Movetype=H
+triggerall=playerID(var(28)),statetype!=L
+trigger1=playerID(var(28)),gethitvar(fall)
+trigger1=!(playerID(var(28)),hitshakeover)
+trigger1=playerID(var(28)),time=1
+var(29)=playerID(var(28)),gethitvar(fall.recovertime)-1
+ignorehitpause=1
+
+[State -2];受身不能時間
+type=varset
+triggerall=playerIDExist(var(28))
+triggerall=playerID(var(28)),stateno > 199
+triggerall=playerID(var(28)),Movetype=H
+triggerall=playerID(var(28)),statetype!=L
+trigger1=playerID(var(28)),gethitvar(fall)
+trigger1=playerID(var(28)),stateno=5030
+trigger1=playerID(var(28)),time=1
+trigger1=!var(31)
+var(29)=playerID(var(28)),gethitvar(fall.recovertime)-1
+ignorehitpause=1
+
+[State 30010]
+type=null
+trigger1=time=0
+trigger1=prevstateno!=30012
+trigger1=var(26):=-1
+trigger1=var(28):=-1
+trigger2=!playerIDExist(var(26))
+trigger2=var(26):=-1
+trigger3=playerID(var(26)),ishelper
+trigger3=var(26):=-1
+trigger4=!playerIDExist(var(28))
+trigger4=var(28):=-1
+trigger5=playerID(var(28)),ishelper
+trigger5=var(28):=-1
+
+
+[State 30010]
+type=varset
+triggerall=var(26)=-1
+trigger1=!playerID(root,var(57)),ishelper
+var(26)=root,var(57)
+
+
+[State 30010]
+type=varset
+triggerall=var(28)=-1
+triggerall=numenemy>=2
+trigger1=!playerID(root,var(57)),ishelper
+trigger1=root,var(57)!=var(26)
+var(28)=root,var(57)
+
+[State 30010]
+type=null
+trigger1=var(28)=root,var(57)
+trigger1=var(0):=var(29)
+trigger2=var(0):=var(27)
+
+
+
+[State 30010]
+type=null
+trigger1=var(30)>0
+trigger1=var(30):=var(30)-1
+trigger1=0
+trigger2=var(31)>0
+trigger2=var(31):=var(31)-1
+trigger2=0
+trigger3=playerIDExist(var(26))
+trigger3=playerID(var(26)),gethitvar(hitshaketime)>0
+trigger3=var(30):=playerID(var(26)),gethitvar(hitshaketime)+1
+trigger3=0
+trigger4=playerIDExist(var(28))
+trigger4=playerID(var(28)),gethitvar(hitshaketime)>0
+trigger4=var(31):=playerID(var(28)),gethitvar(hitshaketime)+1
+trigger4=0
+trigger5=var(30)<0
+trigger5=var(30):=0
+trigger5=0
+trigger6=var(31)<0
+trigger6=var(31):=0
+trigger6=0
+
+
+[State -2];受身不能時間
+type=varset
+triggerall=numpartner
+triggerall=partner,name="Date Masamune"
+triggerall=playerID(root,var(57)),stateno > 199
+triggerall=playerID(root,var(57)),Movetype=H
+triggerall=playerID(root,var(57)),statetype!=L
+trigger1=playerID(root,var(57)),stateno=[555,558]
+var(0)=999
+
+[State -2];受身不能時間
+type=varset
+triggerall=numpartner
+triggerall=partner,name="Date Masamune"||partner,name="Katakura Kojuro"||partner,name="Sanada Yukimura"
+triggerall=playerID(root,var(57)),stateno=[820,821]
+triggerall=playerID(root,var(57)),Movetype=H
+triggerall=playerID(root,var(57)),statetype!=L
+trigger1=partner,stateno=810
+var(0)=999
+
+[State -2];受身不能時間
+type=varset
+triggerall=playerID(root,var(57)),stateno > 199
+triggerall=playerID(root,var(57)),Movetype=H
+triggerall=playerID(root,var(57)),statetype!=L
+trigger1=!playerID(root,var(57)),gethitvar(fall.recover)
+trigger1=playerID(root,var(57)),gethitvar(fall)
+trigger2=playerID(root,var(57)),stateno=5070
+var(0)=999
+ignorehitpause=1
+
+
+
+[State -2];ダウン追い討ち判断
+type=varset
+triggerall=var(2)
+trigger1=playerID(root,var(57)),Movetype=H
+trigger1=playerID(root,var(57)),Statetype=L
+trigger1=root,movetype=A
+var(2)=0
+
+[State -2];ダウン追い討ち判断
+type=varset
+trigger1=playerID(root,var(57)),Movetype!=H
+var(2)=1
+
+
+
+[State -2];相手傾向判断。距離
+type=varset
+trigger1=var(3)>100
+trigger2=var(3)<-100
+var(3)=0
+ignorehitpause=1
+
+
+[State -2];相手傾向判断。距離
+type=varadd
+triggerall=abs(root,P2Dist y)<100
+triggerall=root,movetype!=H
+triggerall=root,statetype!=L
+trigger1=root,P2BodyDist x <=120
+trigger1=root,name="chipp_arrange"
+trigger2=roundstate !=2
+trigger3=root,P2BodyDist x <=50+(!root,inguarddist)*50
+trigger3=root,name="Nocturne"
+trigger4=root,P2BodyDist x <=30+(!root,inguarddist)*40||root,stateno=1200
+trigger4=root,name="justice"
+trigger5=root,name="ky"
+trigger5=root,P2BodyDist x <=50+(!root,inguarddist)*50
+var(3)=-1
+ignorehitpause=1
+
+[State -2];相手傾向判断。距離
+type=varadd
+trigger1=root,P2BodyDist x > 120|| abs(root,P2BodyDist y)>=100
+trigger1=root,name="chipp_arrange"
+trigger2=root,P2BodyDist x > 50+(!root,inguarddist)*50 || abs(root,P2BodyDist y)>=100
+trigger2=root,name="Nocturne"
+trigger3=root,P2BodyDist x > 30+(!root,inguarddist)*50 || abs(root,P2BodyDist y)>=100
+trigger3=root,name="justice"
+trigger4=root,P2BodyDist x > 50+(!root,inguarddist)*50 || abs(root,P2BodyDist y)>=100
+trigger4=root,name="ky"
+triggerall=playerID(root,var(57)),Statetype!=L
+triggerall=playerID(root,var(57)),movetype!=H
+triggerall=roundstate=2
+triggerall=root,statetype!=L
+var(3)=1
+ignorehitpause=1
+
+[State -2];相手傾向判断。行動距離
+type=varset
+trigger1=var(4)<=-3
+trigger2=var(4)>=3
+var(4)=0
+ignorehitpause=1
+
+[State -2];相手傾向判断。行動距離
+type=varadd
+triggerall=playerID(root,var(57)),Statetype!=L
+triggerall=playerID(root,var(57)),movetype!=H
+triggerall=root,movetype!=H||root,stateno<=200
+triggerall=roundstate=2
+triggerall=root,statetype!=L
+triggerall=playerID(root,var(57)),movetype=A||!playerID(root,var(57)),ctrl&&playerID(root,var(57)),stateno>=200
+triggerall=helper(30000),var(47)=1
+trigger1=abs(root,pos x-playerID(root,var(57)),pos x)<80
+trigger1=root,name="chipp_arrange"
+var(4)=-1
+ignorehitpause=1
+
+
+[State -2];相手傾向判断。行動距離
+type=varadd
+triggerall=playerID(root,var(57)),Statetype!=L
+triggerall=playerID(root,var(57)),movetype!=H
+triggerall=root,movetype!=H||root,stateno<=200
+triggerall=roundstate=2
+triggerall=playerID(root,var(57)),movetype=A||!playerID(root,var(57)),ctrl&&playerID(root,var(57)),stateno>=200
+triggerall=helper(30000),var(47)=1
+trigger1=abs(root,pos x-playerID(root,var(57)),pos x)>=120
+trigger1=root,name="chipp_arrange"
+var(4)=1
+ignorehitpause=1
+
+[State -2];相手傾向判断。行動距離
+type=varadd
+triggerall=playerID(root,var(57)),Statetype!=L
+triggerall=playerID(root,var(57)),movetype!=H
+triggerall=root,movetype!=H||root,stateno<=200
+triggerall=roundstate=2
+triggerall=playerID(root,var(57)),movetype=A||!playerID(root,var(57)),ctrl&&playerID(root,var(57)),stateno>=200
+triggerall=helper(30000),var(47)=1
+trigger1=abs(root,pos x-playerID(root,var(57)),pos x)>=180
+trigger1=root,name="chipp_arrange"
+var(4)=1
+ignorehitpause=1
+
+[State -2];相手傾向判断。移動
+type=varset
+trigger1=var(5)>100
+trigger2=var(5)<-100
+var(5)=0
+ignorehitpause=1
+
+[State -2];相手傾向判断。移動
+type=varadd
+triggerall=playerID(root,var(57)),movetype!=H
+triggerall=root,movetype!=H||root,stateno<=200||root,statetype=L
+trigger1=1
+var(5)=floor(ifelse(playerID(root,var(57)),facing*playerID(root,var(57)),P2Dist x>0,1,-1)*(playerID(root,var(57)),pos x-pos x-fvar(0)))
+ignorehitpause=1
+
+
+[State -2];相手傾向判断。移動
+type=varset
+trigger1=1
+fvar(0)=playerID(root,var(57)),pos x-pos x
+ignorehitpause=1
+
+
+
+[State -2];自分無敵時間
+type=varset
+trigger1=root,stateno=5120
+var(6)=3
+
+
+[State -2];自分無敵時間
+type=varset
+trigger1=root,stateno=5210
+var(6)=3
+
+[State -2];自分無敵時間
+type=varadd
+trigger1=root,stateno !=5120
+trigger1=var(6) > 0
+var(6)=-1
+
+
+
+[State -2];自分投げ無敵時間
+type=varadd
+trigger1=root,movetype!=H
+trigger1=root,Statetype!=L
+trigger1=var(7)>0
+var(7)=-1
+
+
+
+[State -2];自分投げ無敵時間
+type=varset
+trigger1=root,movetype=H
+trigger2=root,Statetype=L
+trigger3=root,stateno=[5200,5270]
+var(7)=12
+
+
+
+[State -2];相手起き上がり時間
+type=varset
+trigger1=!time
+var(8)=-1
+
+
+[State -2];相手起き上がり時間
+type=varset
+trigger1=playerID(root,var(57)),Stateno=5120
+trigger1=playerID(root,var(57)),time=1
+var(8)=-playerID(root,var(57)),Animtime+1
+
+
+
+[State -2];硬直時間
+type=varset
+trigger1=!time
+var(12)=13
+
+[State 30000];硬直時間学習
+type=varset
+triggerall=!playerID(root,var(57)),ctrl
+triggerall=!var(9)
+triggerall=playerID(root,var(57)),movetype!=H
+triggerall=playerID(root,var(57)),Stateno=[1000,1999]
+triggerall=playerID(root,var(57)),time>=30
+triggerall=playerID(root,var(57)),Stateno!=var(13)&&playerID(root,var(57)),Stateno!=var(15)&&playerID(root,var(57)),Stateno!=var(17)
+triggerall=playerID(root,var(57)),Stateno!=var(19)&&playerID(root,var(57)),Stateno!=var(21)
+trigger1=playerID(root,var(57)),Animtime>0
+trigger2=playerID(root,var(57)),Animtime<var(10)+1
+var(9)=playerID(root,var(57)),Stateno
+
+
+[State -2];硬直時間
+type=varset
+trigger1=1
+var(10)=playerID(root,var(57)),Animtime
+
+
+[State -2];硬直時間
+type=varset
+trigger1=var(9)
+trigger1=var(9)=playerID(root,var(57)),Stateno
+var(11)=playerID(root,var(57)),time
+
+
+
+[State -2];硬直時間
+type=varadd
+trigger1=var(9)
+trigger1=var(9)!=playerID(root,var(57)),Stateno
+trigger1=helper(30000),var(47)>0
+trigger1=!playerID(root,var(57)),hitpausetime
+var(11)=1
+
+
+[State -2];硬直時間
+type=varset
+trigger1=!helper(30000),var(47)
+trigger1=var(9)
+trigger1=var(11)
+trigger1=var(var(12)):=var(9)
+trigger1=var(var(12)+1):=var(11)
+trigger1=var(9):=0||1
+trigger1=var(11):=0||1
+var(12)=ifelse(var(12)>=21,13,var(12)+2)
+
+
+[State -2];硬直時間
+type=null;
+trigger1=playerID(root,var(57)),stateno=var(13)
+trigger1=var(23):=-var(14)+playerID(root,var(57)),time
+trigger2=playerID(root,var(57)),stateno=var(15)
+trigger2=var(23):=-var(16)+playerID(root,var(57)),time
+trigger3=playerID(root,var(57)),stateno=var(17)
+trigger3=var(23):=-var(18)+playerID(root,var(57)),time
+trigger4=playerID(root,var(57)),stateno=var(19)
+trigger4=var(23):=-var(20)+playerID(root,var(57)),time
+trigger5=playerID(root,var(57)),stateno=var(21)
+trigger5=var(23):=-var(22)+playerID(root,var(57)),time
+trigger6=var(23):=playerID(root,var(57)),Animtime
+
+
+[State 30020]
+type=varset
+trigger1=root,name="justice"
+trigger1=root,stateno=200||root,stateno=205||root,stateno=400||root,stateno=1100
+trigger1=root,time=2
+var(24)=1
+
+
+[State 30020]
+type=varset
+trigger1=root,name="justice"
+trigger1=!root,numhelper(1350)
+var(24)=0
+
+
+[State -2]
+type=Nothitby
+trigger1=1
+value=SCA
+
+
+[State 30000]
+type=ScreenBound
+trigger1=1
+value=0
+movecamera=0,0
+
+
+
+[State -2]
+type=assertspecial
+trigger1=1
+flag=noshadow
+flag2=invisible
+ignorehitpause=1
+
+
+[State 30000]
+type=Changestate
+trigger1=1
+value=30012
+
+
+;飛び道具対策ヘルパー30020（suparpause,pause無視）
+;var(0):飛び道具対策変数１　相手攻撃判断＆カウントダウン用
+;var(1):飛び道具対策変数２　反応までのカウントアップ用
+;var(2):飛び道具の後ろ側をガードするための変数
+;var(3)~var(53):ヘルパーリダイレクト用
+;var(54):最大ループ回数設定
+;var(55):30020,30029ループカウント用
+;var(56):30022ループカウント用
+;var(57):リダイレクト変数のうち、現在の最高の値
+;var(58):結果から状況判断
+;var(59):対策テスト用
+
+;fvar(0)~fvar(x):ｘ速度など。確率変動に使う
+
+[Statedef 30020]
+ctrl=0
+
+[State -2];ループ回数設定
+type=varset
+trigger1=!var(54)
+var(54)=40
+
+[State -2]
+type=ChangeState
+triggerall=!numhelper(30021)
+trigger1=var(56)!=-1||prevstateno=30029
+trigger1=!playerIDexist(var(3+var(55)))
+value=30022
+
+[State -2]
+type=assertspecial
+trigger1=1
+flag=noshadow
+flag2=invisible
+ignorehitpause=1
+
+[State -2]
+type=Nothitby
+trigger1=1
+value=SCA
+
+[State -2]
+type=posset
+trigger1=1
+x=(root,pos x+playerID(root,var(57)),pos x)/2.0
+
+[State -2]
+type=turn
+trigger1=facing!=root,facing
+
+[State 30020]
+type=varset
+trigger1=var(57)<var(3+var(55))
+var(57)=var(3+var(55))
+
+[State 30020]
+type=Changestate
+trigger1=!numhelper(30021)
+trigger1=var(56)!=-1
+trigger1=var(55)<var(54)
+trigger1=var(55):=var(55)+1||1
+value=30020
+
+
+[State -2];カウンタ初期化
+type=VarSet
+trigger1=1
+var(55)=0
+
+[State -2]
+type=VarAdd
+trigger1=var(0)>0
+var(0)=-1
+
+[State -2]
+type=VarSet
+trigger1=!playerID(root,var(57)),ctrl&&playerID(root,var(57)),stateno>=200&&playerID(root,var(57)),movetype!=H
+trigger2=inguarddist
+trigger3=root,inguarddist
+var(0)=15
+
+[State -2]
+type=VarAdd
+trigger1=var(0)
+var(1)=1
+
+[State -2]
+type=Varset
+trigger1=!var(0)
+var(1)=0
+
+
+[State -2]
+type=Varadd
+trigger1=var(2)>0
+var(2)=-1
+
+[State -2]
+type=posset
+trigger1=1
+x=root,pos x-facing*80
+
+[State -2]
+type=varset
+trigger1=inguarddist
+var(2)=5
+
+
+[State 30020 対策テスト]
+type=varset
+trigger1=1
+var(59)=1
+
+[State -2]
+type=ChangeState
+trigger1=1
+value=30029
+
+
+[Statedef 30021]
+anim=9999
+ctrl=0
+
+[State 30021]
+type=destroyself
+trigger1=1
+
+
+[Statedef 30022]
+ctrl=0
+
+
+[State -2]
+type=varset
+trigger1=prevstateno!=30022
+var(3+var(55))=var(57)+1
+
+[State -2]
+type=varadd
+var(56)=1
+trigger1=var(56)!=-1
+
+[State -2]
+type=Varset
+trigger1=prevstateno!=30022
+var(56)=0
+
+[State -2]
+type=varadd
+trigger1=!playerIDExist(var(3+var(55)))
+trigger2=playerID(var(3+var(55))),movetype!=A||!(playerID(var(3+var(55))),hitdefattr=SCA,AA,AP,AT)
+trigger2=playerID(var(3+var(55))),time>200-var(55)*10
+trigger3=abs(playerID(var(3+var(55))),Screenpos x)>500
+trigger4=abs(playerID(var(3+var(55))),pos y)>500
+trigger5=teamside=playerID(var(3+var(55))),teamside
+var(3+var(55))=1
+
+[state -2];id確認用。１０回繰り返して当たりがこなかったら、中止して次に備える
+type=Helper
+trigger1=var(56)>10
+trigger1=var(56):=-1
+trigger1=!numhelper(30021)
+helpertype=normal
+name="id_check"
+ID=30021
+pos=0, 0
+postype=right
+facing=1
+stateno=30021
+ownpal=1
+supermovetime=99999
+pausemovetime=99999
+
+[State -2]
+type=varset
+trigger1=var(56)=-1
+trigger1=numhelper(30021)
+var(3+var(55))=helper(30021),id
+
+[State -2]
+type=ChangeState
+value=30022
+triggerall=var(56)!=-1
+trigger1=!playerIDExist(var(3+var(55)))
+trigger2=playerID(var(3+var(55))),movetype!=A||!(playerID(var(3+var(55))),hitdefattr=SCA,AA,AP,AT)
+trigger2=playerID(var(3+var(55))),time>200-var(55)*10
+trigger3=abs(playerID(var(3+var(55))),Screenpos x)>500
+trigger4=abs(playerID(var(3+var(55))),pos y)>500
+trigger5=teamside=playerID(var(3+var(55))),teamside
+
+
+[State -2]
+type=ChangeState
+value=30020
+trigger1=1
+
+
+
+;---------------------------------------------------------------------
+
+[Statedef 10000]
+anim=9999
+ctrl=0
+
+[State 10000, 間違いで本体が来たら立ちへ移行]
+type=selfstate
+trigger1=!ishelper
+value=0
+
+[State 10000, プレイヤー判定]
+type=varset
+trigger1=command="up" && root,command="up"
+trigger2=command="down" && root,command="down"
+trigger3=command="back" && root,command="back"
+trigger4=command="fwd" && root,command="fwd"
+trigger5=command="a" && root,command="a"
+trigger6=command="b" && root,command="b"
+trigger7=command="c" && root,command="c"
+trigger8=command="x" && root,command="x"
+trigger9=command="y" && root,command="y"
+trigger10=command="z" && root,command="z"
+trigger11=command="start" && root,command="start"
+var(59)=-1
+
+[State 10000, 立ったら消失]
+type=DestroySelf
+triggerAll=isHelper
+trigger1=root,var(59)&&var(59)=-1
+
+
+[State 10000, ﾌﾗｸﾞON]
+type=varset
+triggerall=var(59) !=-1
+trigger1=command !="up" && root,command="up"&&(roundstate=2&&root,ctrl)
+trigger2=command !="down" && root,command="down"&&(roundstate=2&&root,ctrl)
+trigger3=command !="back" && root,command="back"&&(roundstate=2&&root,ctrl)
+trigger4=command !="fwd" && root,command="fwd"&&(roundstate=2&&root,ctrl)
+trigger5=command !="a" && root,command="a"
+trigger6=command !="b" && root,command="b"
+trigger7=command !="c" && root,command="c"
+trigger8=command !="x" && root,command="x"
+trigger9=command !="y" && root,command="y"
+trigger10=command !="z" && root,command="z"
+trigger11=command !="start" && root,command="start"
+var(59)=1

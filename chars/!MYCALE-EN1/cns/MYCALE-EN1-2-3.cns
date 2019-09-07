@@ -1,0 +1,775 @@
+[Statedef -2]
+
+;===============================================================================
+;デバッグ用変数表示
+;===============================================================================
+[State -2, DisplayToClipboard]
+type = DisplayToClipboard
+trigger1 = 1
+text = "Var(13)=%d, Var(14)=%d, Var(12)=%d, Var(25)=%d,Var(26)=%d\n"
+params = Var(13),Var(14),Var(12),Var(25),Var(26)
+
+[State -2, AppendToClipboard]
+type = AppendToClipboard
+trigger1 = 1
+text = "Var(22)=%d,Var(31)=%d, fVar(11)=%f,fVar(12)=%f,fVar(13)=%f \n"
+params = Var(22),Var(31),fVar(11),fVar(12),fVar(13)
+
+;===============================================================================
+;先行入力認識用ヘルパー暴走防止
+;===============================================================================
+[state -2, StateReset]
+type = changestate
+trigger1 = ishelper(50000)
+value = 50000
+ignorehitpause = 1
+
+;===============================================================================
+;常駐ヘルパー呼び出し
+;===============================================================================
+;----常駐ヘルパー呼び出し---------
+[State -2, BaceHelper]
+type = Helper
+trigger1 = NumHelper(46000) = 0
+StateNo = 46000
+ID = 46000
+keyctrl = 0
+postype = p1
+supermovetime = 99999999
+pausemovetime = 99999999
+ownpal = 1
+IgnoreHitPause = 1
+persistent = 0
+
+;----ガードゲージヘルパー呼び出し-
+[State -2, Guardhelper]
+type = Helper
+triggerAll = TeamMode = single
+trigger1 = NumHelper(16100) = 0
+trigger1 = !ishelper
+trigger1 = RoundState = 2
+helpertype = normal
+name = "GPhelper"
+StateNo = 16100
+ID = 16100
+keyctrl = 0
+postype = p1
+pausemovetime = 9999999
+supermovetime = 9999999
+ownpal = 1
+IgnoreHitPause = 1
+persistent = 0
+
+;===============================================================================
+;オプション
+;===============================================================================
+[State -2, 勝利演出の有無]
+type = VarSet
+trigger1 = RoundsExisted = 0
+trigger1 = RoundState = 0
+var(50) = 2
+;var(50) = 0にすると勝利時の演出が消えます
+;var(50) = 2の場合、1ラウンド目はKO演出、2ラウンド目以降は勝利演出に入ります
+;var(50) = 4なら、1~3ラウンド目はKO演出、4ラウンド目以降は勝利演出に入ります
+;要は数字のラウンド以降は勝利画面が流れるということです。MUGENの設定に合わせてお使い下さい
+
+[State -2, ガードクラッシュON/OFF]
+type = VarSet
+trigger1 = RoundsExisted = 0
+trigger1 = RoundState = 0
+var(52) = 1
+;var(52) = 0でガードクラッシュが無効になります
+;また、タッグモード時は強制的にガードクラッシュが無効になります
+
+[State -2, ガードゲージX座標]
+type = VarSet
+trigger1 = RoundsExisted = 0
+trigger1 = RoundState = 0
+var(53) = 200
+;ガードゲージのX座標を設定します
+;ガードクラッシュを無効にしている場合には意味の無い項目です
+
+[State -2, ガードゲージY座標]
+type = VarSet
+trigger1 = RoundsExisted = 0
+trigger1 = RoundState = 0
+var(54) = 30
+;ガードゲージのY座標を設定します
+;ガードクラッシュを無効にしている場合には意味の無い項目です
+
+[State -2, 完全世界演出変更]
+type = VarSet
+trigger1 = RoundsExisted = 0
+trigger1 = RoundState = 0
+var(55) = 1
+;完全世界の演出を設定します
+;var(55) = 0で通常版、var(55) = 1で音楽が変更されなくなります。
+;var(55) = 2で一切の演出が無くなります。
+
+;===============================================================================
+;変数の初期化
+;===============================================================================
+;----空中ジャンプ制御初期化-------
+[State -2, Reset Air Jump]
+type = VarSet
+triggerAll = var(3) != 0
+trigger1 = StateNo != 50 && StateNo != 45
+var(3) = 0
+
+;----キャンセル制御初期化---------
+[State -2, VarSet]
+type = VarSet
+trigger1 = var(4) != 0
+trigger1 = Movetype != A
+var(4) = 0
+
+;----受身制御初期化---------------
+[State -2, VarSet]
+type = VarSet
+trigger1 = var(9) != 0
+trigger1 = Movetype != H
+var(9) = 0
+
+;----ヒット数初期化---------------
+[State -2, VarSet]
+type = VarSet
+triggerAll = var(13) != 0
+trigger1 = P2movetype != H
+var(13) = 0
+
+;----空中ヒット数初期化-----------
+[State -2, Reset Air Combo Revise]
+type = VarSet
+triggerAll = var(14) != 0
+trigger1 = enemynear,movetype != H
+var(14) = 0
+
+;----連続ガード数初期化-----------
+[State -2, VarSet]
+type = VarSet
+triggerAll = var(15) != 0
+trigger1 = P2movetype != H
+var(15) = 0
+
+;----リバーサルフラグ初期化-------
+[State -2, VarSet]
+type = Varset
+triggerAll = var(17) != 0
+trigger1 = movetype = A
+trigger2 = (stateno != 5120 || stateno != 4001) && movetype = H
+var(17) = 0
+
+;----散華フラグ初期化-------------
+[State -2, VarSet]
+type = VarSet
+triggerAll = var(18) != 0
+trigger1 = var(18) != 0
+trigger1 = Movetype != A
+var(18) = 0
+
+;----世界発動不可フラグ初期化-----
+[State -2, VarSet]
+type = VarSet
+triggerAll = var(22) != 0
+trigger1 = Movetype != A
+var(22) = 0
+
+;----汎用変数初期化1--------------
+[State -2, VarSet]
+type = VarRangeSet
+triggerAll = StateNo != 45
+triggerAll = StateNo != 50
+triggerAll = StateNo != 180
+triggerAll = StateNo != 190
+triggerAll = StateNo != 191
+triggerAll = StateNo != [3000,3030]
+trigger1 = movetype != A
+value = 0
+first = 0
+last = 2
+
+;----汎用変数初期化2--------------
+[State -2, VarSet]
+type = VarRangeSet
+triggerAll = StateNo != 45
+triggerAll = StateNo != 50
+triggerAll = StateNo != 180
+triggerAll = StateNo != 190
+triggerAll = StateNo != 191
+triggerAll = StateNo != [3000,3030]
+trigger1 = movetype != A
+fvalue = 0
+first = 0
+last = 2
+
+;===============================================================================
+;タメ技コマンド関連
+;===============================================================================
+;----横タメ用処理-----------------
+[State -2, Time B]
+type = VarAdd
+trigger1 = command = "holdback"
+var(5) = 1
+ignorehitpause = 1
+
+[State -2, Time Reset]
+type = VarSet
+triggerAll = var(5) != 0
+trigger1 = command != "holdback"
+var(5) = 0
+ignorehitpause = 1
+
+[State -2, Flag ON]
+type = VarSet
+trigger1 = var(5) >= ifelse(palno = 12,10,30)
+var(6) = 10
+ignorehitpause = 1
+
+[State -2, Flag Reset]
+type = VarAdd
+triggerAll = var(6) != 0
+triggerAll = MoveContact = 0
+trigger1 = command != "holdback"
+var(6) = -1
+ignorehitpause = 0
+
+;----下タメ用処理-----------------
+[State -2, Time D]
+type = VarAdd
+trigger1 = command = "holddown"
+var(7) = 1
+ignorehitpause = 1
+
+[State -2, Time Reset]
+type = VarSet
+triggerAll = var(7) != 0
+trigger1 = command != "holddown"
+var(7) = 0
+ignorehitpause = 1
+
+[State -2, Flag ON]
+type = VarSet
+trigger1 = var(7) >= ifelse(palno = 12,10,30)
+var(8) = 10
+ignorehitpause = 1
+
+[State -2, Flag Reset]
+type = VarAdd
+triggerAll = var(8) != 0
+triggerAll = MoveContact = 0
+trigger1 = command != "holddown"
+var(8) = -1
+ignorehitpause = 0
+
+;===============================================================================
+;ガードゲージ関連
+;===============================================================================
+;----初期値設定------------------
+[State -2, VarSet]
+type = VarSet
+trigger1 = RoundState = 0
+var(25) = 1000
+
+;----最大&最小値監視-------------
+[State -2, MAX]
+type = VarSet
+trigger1 = var(25) > 1000
+var(25) = 1000
+
+[State -2, LOW]
+type = VarSet
+trigger1 = var(25) < 0
+var(25) = 0
+
+;----ゲージ自動回復--------------
+[State -2, Regenate]
+type = VarAdd
+triggerAll = var(26) = 0
+trigger1 = var(25) < 1000
+trigger1 = time%3 = 0
+var(25) = 1
+ignorehitpause = 0
+
+;----クラッシュ回復--------------
+[State -2, Regenate]
+type = VarSet
+trigger1 = var(26) != 0
+trigger1 = EnemyNear,MoveType != H
+var(25) = 1000
+
+[State -2, Flag Reset]
+type = VarSet
+trigger1 = var(26) != 0
+trigger1 = EnemyNear,MoveType != H
+var(26) = 0
+
+;===============================================================================
+;完全世界関連
+;===============================================================================
+;----発動中フラグON--------------
+[State -2, PW Flag]
+type = VarSet
+triggerAll = var(20) > 0
+trigger1 = var(21) != 50
+var(21) = 1
+
+;----世界発動時体力回復----------
+[State -2, LIFE Reganate]
+type = LifeAdd
+triggerAll = RoundState = 2
+triggerAll = Alive
+triggerAll = var(21) = 1
+trigger1 = Time%5 = 0
+value = 1
+absolute = 1
+
+;----世界発動時ゲージ減少--------
+[State -2, Nomal PW]
+type = VarAdd
+triggerAll = RoundState = 2
+triggerAll = Alive
+triggerAll = var(20) = 1
+triggerAll = var(21) = 1
+trigger1 = var(23) > 0
+var(23) = -2
+
+[State -2, Damage PW]
+type = VarAdd
+triggerAll = RoundState = 2
+triggerAll = Alive
+triggerAll = var(20) = 2
+triggerAll = var(21) = 1
+trigger1 = var(23) > 0
+var(23) = -3
+
+[State -2, PW END]
+type = VarSet
+trigger1 = RoundState != 2
+trigger2 = !Alive
+var(23) = 0
+
+;----発動終了時------------------
+[State -2, VarSet]
+type = VarSet
+triggerAll = var(20) > 0
+trigger1 = var(23) <= 0
+var(21) = 50
+
+[State -2, Power0]
+type = PowerSet
+triggerAll = RoundState = 2
+triggerAll = Alive
+triggerAll = StateNo != 4500
+triggerAll = StateNo != 4510
+trigger1 = var(21) != 0
+value = 0
+
+;===============================================================================
+;受身関連
+;===============================================================================
+;----受身失敗処理-----------------
+[State -2, VarSet]
+type = VarSet
+triggerAll = var(9) = 0
+triggerAll = Movetype = H
+triggerAll = StateNo != 5100
+trigger1 = (command = "a")
+trigger2 = (command = "b")
+trigger3 = (command = "c")
+trigger4 = (command = "x")
+trigger5 = (command = "y")
+trigger6 = (command = "z")
+var(9) = 1
+
+;===============================================================================
+;相対&背面攻撃関連
+;===============================================================================
+;----相対攻撃フラグON-------------
+[State -2, Flag ON]
+type = VarSet
+triggerAll = !ishelper
+triggerAll = StateNo != [3000,3030]
+triggerAll = StateNo != 4500
+trigger1 = P2MoveType = A
+trigger1 = MoveType = A
+var(11) = 1
+
+;----背面攻撃フラグON-------------
+[State -2, Back Attack Revise]
+type = VarSet
+triggerAll = !ishelper
+triggerAll = StateNo != 4500
+Trigger1 = (Facing = enemynear,Facing)
+Trigger1 = P2BodyDist X >= 0
+var(11) = 2
+
+;----相対&背面攻撃フラグ初期化----
+[State -2, Flag Reset]
+type = VarSet
+triggerAll = StateNo != 810 || StateNo != 860
+triggerAll = var(11) != 0
+trigger1 = var(13) != 0
+trigger2 = ctrl && var(11) = 1
+trigger3 = P2MoveType != A && var(11) = 1
+trigger4 = EnemyNear,ctrl && var(11) = 1
+Trigger5 = (Facing != enemynear,Facing) && var(11) = 2
+var(11) = 0
+
+;===============================================================================
+;相手状態判別用処理
+;===============================================================================
+[State -2, S]
+type = VarSet
+trigger1 = P2StateType = S
+var(12) = 1
+
+[State -2, C]
+type = VarSet
+trigger1 = P2StateType = C
+var(12) = 10
+
+[State -2, A]
+type = VarSet
+trigger1 = P2StateType = A
+var(12) = 20
+
+[State -2, L]
+type = VarSet
+trigger1 = P2StateType = L
+var(12) = 30
+
+[State -2, Wall]
+type = VarSet
+trigger1 = P2StateNo = 6110 || P2StateNo = 6120 || P2StateNo = 6130
+var(12) = 40
+
+;===============================================================================
+;補正関連
+;===============================================================================
+;----ヒット数補正-----------------
+[State -2, Combo Revise 1]
+type = VarSet
+trigger1 = var(13) = 1
+fVar(3) = 0.75
+
+[State -2, Combo Revise 2]
+type = VarSet
+trigger1 = var(13) = 2
+fVar(3) = 0.50
+
+[State -2, Combo Revise 3]
+type = VarSet
+trigger1 = var(13) >= 3
+fVar(3) = 0.25
+
+;----相対攻撃補正-----------------
+[State -2, Counter Revise]
+type = VarSet
+trigger1 = var(11) = 1
+fVar(4) = 1.25
+
+;----背面攻撃補正-----------------
+[State -2, Back Attack Revise]
+type = VarSet
+trigger1 = var(11) = 2
+fVar(4) = 1.50
+
+;----態勢補正---------------------
+[State -2, Posture Revise S]
+type = VarSet
+trigger1 = var(12) = 1
+trigger2 = var(13) = 0
+fVar(5) = 1.00
+
+[State -2, Posture Revise C]
+type = VarSet
+trigger1 = var(12) = 10
+fVar(5) = 1.05
+
+[State -2, Posture Revise A]
+type = VarSet
+trigger1 = var(12) = 20
+fVar(5) = 1.10
+
+;----ゲージ量補正-----------------
+[State -2, Power Revise 0]
+type = VarSet
+TriggerAll = var(21) = 0 || var(21) = 50
+trigger1 = power < 1000
+fVar(6) = 1.00
+
+[State -2, Power Revise 1]
+type = VarSet
+TriggerAll = var(21) = 0 || var(21) = 50
+trigger1 = power >= 1000
+fVar(6) = 1.05
+
+[State -2, Power Revise 2]
+type = VarSet
+TriggerAll = var(21) = 0 || var(21) = 50
+trigger1 = power >= 2000
+fVar(6) = 1.10
+
+[State -2, Power Revise 3]
+type = VarSet
+TriggerAll = var(21) = 0 || var(21) = 50
+trigger1 = power >= 3000
+fVar(6) = 1.15
+
+[State -2, Power Revise PW]
+type = VarSet
+Trigger1 = var(21) = 1
+fVar(6) = 1.20
+
+;----壁やられ補正-----------------
+[State -2, Wall Damage Revise]
+type = VarSet
+trigger1 = var(12) = 40
+fVar(7) = 1.25
+
+;----浮き補正---------------------
+[State -2, Float Revise]
+type = varset
+trigger1 = Var(14) != 0
+fVar(8) = 0.28 * var(14)
+
+;----連続ガード補正---------------
+[State -2, Succession Guard Revise 1]
+type = VarSet
+trigger1 = var(15) = 1
+fVar(10) = 0.75
+
+[State -2, Succession Guard Revise 2]
+type = VarSet
+trigger1 = var(15) = 2
+fVar(10) = 0.5
+
+[State -2, Succession Guard Revise 3]
+type = VarSet
+trigger1 = var(15) >= 3
+fVar(10) = 0.25
+
+;----ガード態勢補正---------------
+[State -2, Guard Posture Revise S]
+type = VarSet
+trigger1 = var(12) = 1
+fVar(11) = 1.00
+
+[State -2, Guard Posture Revise C]
+type = VarSet
+trigger1 = var(12) = 10
+fVar(11) = 1.25
+
+[State -2, Guard Posture Revise A]
+type = VarSet
+trigger1 = var(12) = 20
+fVar(11) = 2.00
+
+;----補正リセット-----------------
+[State -2, Reset Combo Revise]
+type = varset
+triggerAll = fVar(3) != 1
+trigger1 = P2MoveType != H
+fVar(3) = 1.00
+
+[State -2, Reset Counter Revise]
+type = varset
+triggerAll = fVar(4) != 1
+trigger1 = var(11) = 0
+fVar(4) = 1.00
+
+[State -2, Reset Back Attack Revise]
+type = varset
+triggerAll = fVar(4) != 1
+trigger1 = var(11) = 0
+fVar(4) = 1.00
+
+[State -2, Reset Wall Damage Revise]
+type = VarSet
+trigger1 = var(12) != 40
+fVar(7) = 1.00
+
+[State -2, Reset Float Revise]
+type = varset
+triggerAll = fVar(8) != 0
+trigger1 = P2MoveType != H
+fVar(8) = 0
+
+[State -2, Reset Succession Guard Revise]
+type = varset
+triggerAll = fVar(10) != 1
+trigger1 = P2MoveType != H
+fVar(10) = 1
+
+;===============================================================================
+;自分防禦関係
+;===============================================================================
+;----根性補正--------------------
+[State -2, DefenceMulSet]
+type = DefenceMulSet
+trigger1 = Life <= 250
+value = 0.5 + (Life / 500)
+
+;===============================================================================
+;ダメージボイス再生用処理
+;===============================================================================
+;----小ダメージ-------------------
+[State -2, Damage Voice]
+Type = PlaySnd
+triggerAll = Alive = 1
+triggerAll = Time = 1
+triggerAll = (StateNo = 5000 || StateNo = 5010 || StateNo = 5020)
+trigger1 = Anim = 5000 || Anim = 5010 || Anim = 5020
+Value = s5000, 0
+channel = 1
+persistent = 0
+ignorehitpause = 1
+
+;----中ダメージ-------------------
+[State -2, Damage Voice]
+Type = PlaySnd
+triggerAll = Alive = 1
+triggerAll = Time = 1
+triggerAll = (StateNo = 5000 || StateNo = 5010 || StateNo = 5020)
+trigger1 = Anim = 5001 || Anim = 5011 || Anim = 5021
+Value = s5000, 1
+channel = 1
+persistent = 0
+ignorehitpause = 1
+
+;----大ダメージ------------------
+[State -2, Damage Voice]
+Type = PlaySnd
+triggerAll = Alive = 1
+triggerAll = Time = 1
+trigger1 = (StateNo = 5000 || StateNo = 5010 || StateNo = 5020)
+trigger1 = Anim = 5002 || Anim = 5012 || Anim = 5022
+trigger2 = (StateNo = 5000 || StateNo = 5010 || StateNo = 5020)
+trigger2 = Anim = 5030
+Value = s5000, 2
+channel = 1
+persistent = 0
+ignorehitpause = 1
+
+;===============================================================================
+;飛び道具ゲージ回収用処理
+;===============================================================================
+[State -2, PowerAdd]
+type = PowerAdd
+trigger1 = var(16) != 0
+value = var(16)
+
+[State -2, VarSet]
+type = VarSet
+trigger1 = var(16) != 0
+var(16) = 0
+
+;===============================================================================
+;エフェクト消し
+;===============================================================================
+[State -2, 236X]
+type = RemoveExplod
+trigger1 = Stateno != 1100
+ID = 1101
+
+[State -2, 236Y]
+type = RemoveExplod
+trigger1 = Stateno != 1110
+ID = 1111
+
+[State -2, 236Z]
+type = RemoveExplod
+trigger1 = Stateno != 1120
+ID = 1121
+
+[State -2, 236Z]
+type = RemoveExplod
+trigger1 = Stateno != 1120
+ID = 1122
+
+[State -2, 22Z]
+type = RemoveExplod
+trigger1 = Stateno != [1221,1222]
+ID = 1225
+
+[State -2, 214XYZ]
+type = RemoveExplod
+trigger1 = Stateno != 1400
+trigger2 = Stateno != 1410
+trigger3 = Stateno != 1420
+ID = 1402
+
+[State -2, 214Z]
+type = RemoveExplod
+trigger1 = Stateno != 1420
+ID = 1401
+
+[State -2, 214Z]
+type = RemoveExplod
+trigger1 = Stateno != 1421
+ID = 1425
+
+
+[Statedef -3]
+;===============================================================================
+;先行入力認識用ヘルパー暴走防止&呼び出し
+;===============================================================================
+[state -3, StateReset]
+type = changestate
+trigger1 = ishelper(50000)
+value = 50000
+ignorehitpause = 1
+
+;----先行入力ヘルパー呼び出し-----
+[State -3, Helper]
+type = Helper
+trigger1 = NumHelper(50000) = 0
+trigger1 = !ishelper
+helpertype = normal
+name = "commandhelper"
+stateno = 50000
+ID = 50000
+postype = p1
+pos = 0,9999
+keyctrl = 1
+pausemovetime = 9999999
+supermovetime = 9999999
+IgnoreHitPause = 1
+persistent = 0
+
+;===============================================================================
+;試合開始時
+;===============================================================================
+;----特攻ゲージ初期値-------------
+[State -3, Start Power]
+Type = PowerSet
+trigger1 = RoundsExisted = 0
+trigger1 = RoundState = 0
+value = ceil(PowerMax * 0.5)
+ignorehitpause = 1
+
+
+;===============================================================================
+;特殊カラー用処理
+;===============================================================================
+
+;=========================11P(黒カラー)==========================
+;----特攻ゲージ常時MAX------------
+[State -3, Power MAX]
+Type = PowerSet
+triggerAll = palno = 11
+trigger1 = alive
+value = PowerMax
+ignorehitpause = 1
+
+;=========================12P(金カラー)==========================
+
+;----特攻ゲージ自動増加-----------
+[State -2, PowerAdd]
+Type = PowerAdd
+triggerAll = palno = 12
+triggerAll = RoundState = 2
+trigger1 = alive
+trigger1 = (GameTime%3 = 0)
+value = 5
+ignorehitpause = 1

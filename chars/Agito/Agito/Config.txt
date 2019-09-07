@@ -1,0 +1,123 @@
+;コンフィグ
+;---------------------------------------------------------------------------
+; Initialize (at the start of the round)
+[Statedef 5900]
+type = U
+
+[State 5900, 1] ;Clear all int variables
+type = VarRangeSet
+trigger1 = roundsexisted = 0
+value = 0
+first = 1
+last = 12
+
+[State 5900, 1] ;Clear all int variables
+type = VarRangeSet
+trigger1 = roundsexisted = 0
+value = 0
+first = 15
+last = 58
+
+[State 5900, 2] ;Clear all float variables
+type = VarRangeSet
+trigger1 = roundsexisted = 0
+fvalue = 0
+first = 0
+last = 1
+
+[State 5900, 2] ;Clear all float variables
+type = VarRangeSet
+trigger1 = roundsexisted = 0
+fvalue = 0
+first = 3
+last = 39
+;---------------------------------------------------------------------------
+;ここから下の部分を自分の好みで設定できます
+;※「Value = Var(0)」の後の()の中の数字をいじってください
+;---------------------------------------------------------------------------
+;エフェクト表示の設定
+[State 5900, 0]
+Type = VarSet
+Trigger1 = Var(0)%10 = 0
+V = 0
+Value = Var(0)+(0)       ;0が通常(デフォルト)、1が簡易(ヒットエフェクト、
+　　　　　　　　　　　   ;BPA&BBBエフェクトの簡易化、一部エフェクトを無表示化)
+
+;システムメッセージと勝利メッセージ表示の設定
+[State 5900, 0]
+Type = VarSet
+Trigger1 = Var(0)/10%10 = 0
+V = 0
+Value = Var(0)+(0)*10    ;0が表示あり(デフォルト)、1が表示なし
+
+;ゲージ表示の設定
+[State 5900, 0]
+Type = VarSet
+Trigger1 = Var(0)/100%10 = 0
+V = 0
+Value = Var(0)+(0)*100   ;0が表示あり(デフォルト)、1が表示なし
+
+;ゲージY座標の設定
+[State 5900, 0]
+Type = VarSet
+Trigger1 = Var(0)/10000%10 = 0
+V = 0
+Value = Var(0)+(0)*10000 ;0がデフォルト、
+　　　　　　　　　　　　 ;＋が上方向、－が下方向(0を基準)
+
+;ダメージ表示の設定
+[State 5900, 0]
+Type = VarSet
+Trigger1 = Var(0)/1000%10 = 0
+V = 0
+Value = Var(0)+(0)*1000  ;0が表示あり(デフォルト)、1が表示なし
+
+;次ラウンドのライフ継続設定
+[State 5900, 0]
+Type = VarSet
+Trigger1 = Var(13) > 0
+V = 13
+Value = Var(13)-Var(13)*(0);0がライフ継続(デフォルト)、1がライフ継続無し
+　　　　　　　　　　　     ;(次ラウンドで必ずライフマックス)
+;---------------------------------------------------------------------------
+;ここまで
+;---------------------------------------------------------------------------
+[State 5900, 0]
+Type = VarSet
+Trigger1 = Var(0)/100%10 = 0
+Trigger1 = NumPartner > 0
+Trigger1 = Partner,ID < ID
+V = 0
+Value = Var(0)+100
+
+[State -1]
+Type = VarSet
+Trigger1 = RoundNo = 1
+Trigger2 = RoundNo > 1
+Trigger2 = Var(13) = -1
+Trigger3 = TeamMode = Turns
+Trigger3 = Var(13) = 0
+V = 14
+Value = 258
+IgnoreHitPause = 1
+SuperMoveTime = 9999
+PauseMoveTime = 9999
+
+[State 5900, 3] ;Intro
+type = ChangeState
+Trigger1 = RoundNo > 1
+Trigger1 = Var(13) = -1
+value = 189
+
+[State 5900, 3] ;Intro
+type = ChangeState
+Trigger1 = RoundNo = 1
+Trigger2 = TeamMode = Turns
+Trigger2 = RoundsExisted = 0
+value = 190
+
+[State 5900, 3] ;Intro
+type = ChangeState
+Trigger1 = RoundNo > 1
+Trigger1 = Var(13) != -1
+value = 0

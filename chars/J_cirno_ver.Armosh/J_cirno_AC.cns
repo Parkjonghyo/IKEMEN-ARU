@@ -1,0 +1,542 @@
+
+
+
+
+;===========================================================================
+; コジマステート
+;===========================================================================
+
+
+
+[Statedef 40000];アサルトアーマー
+type    = S
+movetype= A
+physics = S
+juggle  = 1
+velset = 0,0
+ctrl = 0
+anim = 40000
+sprpriority = 2
+facep2 = 1
+
+
+[State -1];パワーゲージ消費　時間凍結　無
+type = poweradd
+TriggerAll = Var(14) = 0
+TriggerAll = Var(15) = 0
+Trigger1 = time = 0 
+value = -1000
+
+
+
+[State -1, EnvColor]
+type = Bgpalfx
+TriggerAll = Var(14) != 0
+TriggerAll = Var(15) != 0
+trigger1 = 1
+time = 1
+invertall = 1
+color = 0
+
+[State -1, 無敵]
+type = NotHitBy
+TriggerAll = Var(14) != 0
+TriggerAll = Var(15) != 0
+trigger1 = 1
+value = , NA,SA,HA,NP,SP,HP,NT,ST,HT
+
+[State -1, AssertSpecial]
+type = AssertSpecial
+TriggerAll = Var(14) != 0
+TriggerAll = Var(15) != 0
+trigger1 = 1
+flag = UnGuardable
+flag2 = NoMusic
+flag3 = NoJuggleCheck
+
+[State -1, 時間停止]
+type = Pause
+TriggerAll = Var(14) != 0
+TriggerAll = Var(15) != 0
+trigger1 = 1
+anim = -1       
+pos = 0, 0    
+sound = -1
+time = 2
+movetime = 2
+
+
+
+[State 40000, 超必殺技暗転時間停止]
+type = SuperPause
+trigger1 = AnimElem = 1
+anim = s11090       ;超必エフェクトのアクションナンバー。通常は「fightfx.air」のアニメを使うが、
+                 ;左に「s」を付ければ「自分のairファイル」のアクションナンバーが使える。
+pos = 0, -65    ;超必エフェクトの座標（Ｘ軸,Ｙ軸）
+sound = s4, 6    ;超必発動サウンド。通常は「common.snd」の音を使うが、
+                 ;左に「s」を付ければ「自分のsndファイル」の音が使える。
+time = 47
+movetime = 47
+
+
+
+
+[State 40000, ヘルパー召喚];カットイン　チルノ
+type = Helper
+trigger1 = Time = 0
+ID = 9999
+pos = 40, 0 
+postype = p1
+facing = 1
+stateno = 9999
+SuperMoveTime  = 9999
+PauseMoveTime  = 9999
+
+
+
+
+
+[State 40000, エフェクト画像];爆発１
+type = Explod
+trigger1 = AnimElem = 6
+anim = 11130
+pos = 0, -5
+postype = p1
+scale = 1,1
+ontop = 1
+bindtime = -1
+removetime = 39
+sprpriority = 1
+ownpal = 1
+pausemovetime = 9999999
+
+
+[State 40000, エフェクト画像];爆発２
+type = Explod
+trigger1 = AnimElem = 6
+anim = 11130
+pos = 0, -5
+postype = p1
+scale = 0.7,0.7
+ontop = 1
+bindtime = -1
+removetime = 39
+sprpriority = 1
+ownpal = 1
+pausemovetime = 9999999
+
+
+[State 40000, エフェクト画像];爆発３
+type = Explod
+trigger1 = AnimElem = 6
+anim = 11130
+pos = 0, -5
+postype = p1
+scale = 1.2,1.2
+ontop = 1
+bindtime = -1
+removetime = 39
+sprpriority = 1
+ownpal = 1
+pausemovetime = 9999999
+
+
+[State 40000, エフェクト画像];爆発４
+type = Explod
+trigger1 = AnimElem = 6
+anim = 11000
+pos = 0, 10
+postype = p1
+scale = 1.9,1.9
+ontop = 0
+bindtime = -1
+removetime = 39
+sprpriority = 1
+ownpal = 1
+pausemovetime = 9999999
+
+
+[State 40000, 真白]
+type = envcolor
+trigger1 = AnimElem = 6
+value = 250,250,250
+time = 3
+undar = 1
+
+
+
+[State 40000, 震動];衝撃 揺れ
+type = envshake
+trigger1 = AnimElem = 6
+time = 50
+freq = 130
+ampl = 30
+phase = 140
+
+
+
+[State 40000, 音を鳴らす1]
+type = PlaySnd
+trigger1 = AnimElem = 6
+value = 60, 5
+
+
+
+[State 40000, 音を鳴らす2]
+type = PlaySnd
+trigger1 = AnimElem = 6
+value = 60, 7
+
+
+[State 40000, 音を鳴らす3]
+type = PlaySnd
+trigger1 = AnimElem = 6
+value = 60, 8
+
+[State 40000, 音を鳴らす4]
+type = PlaySnd
+trigger1 = AnimElem = 6
+value = 60, 9
+
+
+
+[State 40000, ヒット定義]
+type = HitDef
+TriggerAll = Var(14) = 0
+TriggerAll = Var(15) = 0
+trigger1 = AnimElem = 6
+attr = S, SA 
+damage = 300, 100
+animtype = High
+guardflag = M
+hitflag = MAF
+priority = 3, Hit
+pausetime = 2, 10
+sparkno = -1
+sparkxy = -10, -76
+hitsound = s2, 5
+guardsound = s2, 4
+ground.type = Low
+ground.slidetime = 17
+ground.hittime  = 17
+ground.velocity = -6,-12
+airguard.velocity = -1.9,-.8
+air.type = High
+air.velocity = -6,-12
+air.hittime = 14
+air.fall = 1
+fall = 1
+palfx.add = 250,250,250
+palfx.time = 30
+
+
+[State 40000, ヒット定義]
+type = HitDef
+TriggerAll = Var(14) != 0
+TriggerAll = Var(15) != 0
+trigger1 = AnimElem = 6
+attr = S, SA 
+damage = 300, 100
+animtype = High
+guardflag = M
+hitflag = MAF
+priority = 3, Hit
+pausetime = 0, 0
+sparkno = -1
+sparkxy = -10, -76
+hitsound = s2, 5
+guardsound = s2, 4
+ground.type = Low
+ground.slidetime = 17
+ground.hittime  = 17
+ground.velocity = -6,-12
+airguard.velocity = -1.9,-.8
+air.type = High
+air.velocity = -6,-12
+air.hittime = 14
+air.fall = 1
+fall = 1
+palfx.add = 250,250,250
+palfx.time = 30
+kill = 0
+guard.kill = 0
+fall.kill = 0
+
+
+
+[State 40000, ステート変更]
+type = ChangeState
+trigger1 = AnimTime = 0
+value = 0
+ctrl = 1
+
+
+
+;--------------------------------------------------------------------------
+;--------------------------------------------------------------------------
+
+
+
+[Statedef 40010];ジャック・Ｏ
+type    = S
+movetype= A
+physics = S
+juggle  = 1
+velset = 0,0
+ctrl = 0
+anim = 50010 ;使い回し
+poweradd = -2000
+sprpriority = 2
+facep2 = 1
+
+
+
+
+
+[State 40010, 超必殺技暗転時間停止]
+type = SuperPause
+trigger1 = AnimElem = 1
+anim = s11090       ;超必エフェクトのアクションナンバー。通常は「fightfx.air」のアニメを使うが、
+                 ;左に「s」を付ければ「自分のairファイル」のアクションナンバーが使える。
+pos = 0, -65    ;超必エフェクトの座標（Ｘ軸,Ｙ軸）
+sound = s4, 6    ;超必発動サウンド。通常は「common.snd」の音を使うが、
+                 ;左に「s」を付ければ「自分のsndファイル」の音が使える。
+time = 47
+
+
+[State 40010, ヘルパー召喚];カットイン　チルノ
+type = Helper
+trigger1 = Time = 0
+ID = 9999
+pos = 40, 0 
+postype = p1
+facing = 1
+stateno = 9999
+SuperMoveTime  = 9999
+PauseMoveTime  = 9999
+
+
+
+
+
+[State 40010, ヘルパー召喚];ヘルパー
+type = Helper
+trigger1 = time = 10
+ID = 21000
+pos = 55, -307 
+postype = p1
+facing = 1
+stateno = 40011
+ontop = 1
+size.xscale  = 0.75
+size.yscale  = 0.75
+
+[State 40010, ステート変更]
+type = ChangeState
+trigger1 = AnimTime = 0
+value = 0
+ctrl = 1
+
+
+
+
+
+;--------------------------------------------------------------------------
+;--------------------------------------------------------------------------
+
+
+
+
+
+[Statedef 40020];ナインボールフライト
+type    = S
+movetype= A
+physics = S
+juggle  = 1
+velset = 0,0
+ctrl = 0
+anim = 40020
+poweradd = -2000
+sprpriority = 2
+facep2 = 1
+
+
+
+
+
+[State 40020, 超必殺技暗転時間停止]
+type = SuperPause
+trigger1 = AnimElem = 1
+anim = s11090       ;超必エフェクトのアクションナンバー。通常は「fightfx.air」のアニメを使うが、
+                 ;左に「s」を付ければ「自分のairファイル」のアクションナンバーが使える。
+pos = 0, -65    ;超必エフェクトの座標（Ｘ軸,Ｙ軸）
+sound = s4, 6    ;超必発動サウンド。通常は「common.snd」の音を使うが、
+                 ;左に「s」を付ければ「自分のsndファイル」の音が使える。
+time = 47
+
+
+[State 40020, ヘルパー召喚];カットイン　チルノ
+type = Helper
+trigger1 = Time = 0
+ID = 9999
+pos = 40, 0 
+postype = p1
+facing = 1
+stateno = 9999
+SuperMoveTime  = 9999
+PauseMoveTime  = 9999
+
+
+[State 40020, 画面固定]
+type = screenbound
+trigger1 = 1
+value = 1
+movecamera = 0
+
+
+
+[State 40020, 移動];位置
+type = Posset
+trigger1 = AnimElem = 4
+x = -280
+y = -30
+
+
+[State 40020, 音を鳴らす]
+type = PlaySnd
+trigger1 = AnimElem = 3
+value = 0, 1
+
+
+
+[State 40020, ステート変更]
+type = ChangeState
+trigger1 = AnimTime = 0
+value = 40021
+
+
+;---------------------------------------
+
+
+
+[Statedef 40021];ナインボールフライト 突進
+type    = S
+movetype= A
+ctrl = 0
+anim = 20010
+sprpriority = 2
+facep2 = 1
+
+[State 40021, 移動];動く
+type = VelAdd
+trigger1 = 1
+x = 1.2
+
+
+[State 40021, 残像]
+type = Afterimage
+trigger1 =  Time = 0
+PalContrast =  200, 30, 30
+palbright = 30,30,0  ;(赤、緑、青)明るさ
+palmul = .80,.80,.80
+paladd = -10,-10,-10
+trans = Add
+time = 50
+TimeGap  = 2
+FrameGap = 2
+length = 9
+
+[State 40021, 音を鳴らす]
+type = PlaySnd
+trigger1 = time = 0
+value = 50, 0
+freqmul = -2.5
+
+[State 40021, 音を鳴らす]
+type = PlaySnd
+trigger1 = time = 0
+value = 60, 4
+freqmul = 1.5
+
+
+
+
+[State 40021, ヒット定義]
+type = HitDef
+trigger1 = AnimElem != 1
+attr = A, SA 
+damage = 500, 30
+animtype = High
+guardflag = HC
+hitflag = MAF
+priority = 3, Hit
+pausetime = 12, 10
+sparkno = s10030
+sparkxy = -10, -76
+hitsound = s2, 3
+guardsound = s2, 4
+ground.type = Low
+ground.slidetime = 17
+ground.hittime  = 17
+ground.velocity = -6,-20
+airguard.velocity = -1.9,-.8
+air.type = High
+air.velocity = -6,-20
+air.hittime = 14
+air.fall = 1
+fall = 1
+envshake.time = 17
+envshake.freq = 90
+envshake.ampl = 12
+envshake.phase = 120 
+
+
+
+
+
+[State 40021, ヘルパー消滅]
+type = ChangeState
+triggerAll =  time > 10
+trigger1 =  Facing = 1
+trigger1 =  pos x >= 140 && Vel x >= 0
+trigger2 =  Facing = -1
+trigger2 =  pos x <= -140 && Vel x >= 0
+value = 40022
+
+
+
+
+
+;---------------------------------------
+
+
+
+[Statedef 40022];ナインボールフライト 終了
+type    = A
+movetype= A
+physics = A
+juggle  = 1
+velset = 0,0
+ctrl = 0
+anim = 40022
+sprpriority = 2
+facep2 = 1
+
+
+
+[State 40022, 移動];位置
+type = Posset
+trigger1 = time = 0
+x = 0
+y = -250
+
+
+
+
+
+
+
+
+
+
+

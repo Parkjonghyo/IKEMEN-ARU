@@ -1,0 +1,78 @@
+;コンフィグ。キャラの設定変更などをここに記述。
+
+;---------------------------------------------------------------------------
+;ここは変更しない
+; Initialize (at the start of the round)
+[Statedef 5900]
+type = S
+
+[State 5900, 1] ;Clear all int variables
+type = VarRangeSet
+trigger1 = roundsexisted = 0
+value = 0
+
+[State 5900, 2] ;Clear all float variables
+type = VarRangeSet
+trigger1 = roundsexisted = 0
+fvalue = 0
+
+;-----------------------------------------------------------------------------
+;ここから下が変更可能項目
+;キャラクターのバランス調整等にお使いください。
+
+;ディゾルブの初期回数調節スイッチ
+;あくまで初期回数なので、リペルバーストや最終奥義を使った場合、ディゾルブはまたやり直しになります。悪しからず。
+[State 5900, varset]
+type = varset
+trigger1 = var(21) = 0
+trigger1 = RoundsExisted = 0
+var(21) = 0;ここの数字を0~3の間で調節してください。デフォルトは0です。
+
+;ヒートゲージの初期量調節スイッチ
+;あくまで初期量なので、使ったぶんは戻ってきません。
+[State 5900, varset]
+type = varset
+trigger1 = var(22) = 0
+trigger1 = RoundsExisted = 0
+var(22) = 0 ;ここの数字を0~1000の間で調節してください。デフォルトは0です。
+
+;先行入力のコマンド保持フレーム調整スイッチ
+;先行入力で入れたコマンドを何フレーム維持するかの調整ができます。
+[State 5900, varset]
+type = varset
+trigger1 = var(26) = 0
+trigger1 = RoundsExisted = 0
+var(26) = 10 ;ここの数字を適宜調節してください。デフォルトは10です。
+
+
+;ここまで
+;---------------------------------------------------------------------------
+;ここからは変更しない
+[State 191, 対サイモンイントロへ] 
+type = ChangeState
+trigger1 = roundno = 1
+trigger1 = P2Name="saimon"||P4Name ="saimon"
+trigger2 = TeamMode = turns
+trigger2 = P2Name="saimon"||P4Name ="saimon"
+value = 194
+
+[State 191, 対千春イントロへ] 
+type = ChangeState
+trigger1 = roundno = 1
+trigger1 = P2Name="Shishikai Chiharu"||P4Name ="Shishikai Chiharu"
+trigger2 = TeamMode = turns
+trigger2 = P2Name="Shishikai Chiharu"||P4Name ="Shishikai Chiharu"
+value = 190000
+
+[State 5900, 3] ;Intro for round 1
+type = ChangeState
+value = 190
+trigger1 = RoundNo = 1
+trigger2 = RoundsExisted = 0
+trigger2 = TeamMode = Turns
+trigger2 = RoundNo > 0 
+
+
+;---------------------------------------------------------------------------
+
+

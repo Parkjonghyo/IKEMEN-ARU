@@ -1,0 +1,1531 @@
+;=============================================================================
+;				フィルアップ
+;=============================================================================
+[StateDef 900]
+Type = S
+MoveType = A
+Physics  = S
+Ctrl = 0
+Anim = 900
+SprPriority = 2
+VelSet = 0, 0
+
+[State 向き]
+Type = Turn
+Trigger1 = Time = 0
+Trigger1 = P2Dist X < 0
+Trigger1 = PrevStateNo != [200,4999]
+
+[State ガード圏0]
+Type = AttackDist
+Trigger1 = 1
+Value = 0
+
+[State レベルアップ]
+Type = VarAdd
+Trigger1 = AnimElem = 4
+var(3) = 1
+
+[State エフェクト]
+Type = Helper
+Trigger1 = AnimElem = 4
+StateNo = 905
+
+[State 待機状態へ]
+Type = ChangeState
+Trigger1 = AnimTime = 0
+Value = 0
+Ctrl = 1
+
+;エフェクト----------------------------------------------------------------
+[StateDef 905]
+Type = S
+MoveType = I
+Ctrl = 0
+Anim = 905
+SprPriority = 3
+VelSet = 0, 0
+
+[State 影消し]
+Type = AssertSpecial
+Trigger1 = 1
+Flag = NoShadow
+
+[State ]
+Type = BindToRoot
+Trigger1 = 1
+Pos = 0, 0
+
+[State ]
+Type = AngleDraw
+Trigger1 = 1
+Scale = 1.0+0.01*(Time+1), 1.0+0.01*(Time+1)
+
+[State ]
+Type = Trans
+Trigger1 = 1
+Trans = AddAlpha
+Alpha = 256-16*(Time+1), 16*(Time+1)
+
+[State 消滅]
+Type = DestroySelf
+Trigger1 = Time = 15
+
+
+;=============================================================================
+;				必殺技
+;=============================================================================
+;波動----------------------------------------------------------------
+[StateDef 1000]
+Type = S
+MoveType = A
+Physics  = S
+Ctrl = 0
+Anim = 1000 +10*(Var(5)!=0)
+SprPriority = 2
+VelSet = 0, 0
+
+[State 向き]
+Type = Turn
+Trigger1 = Time = 0
+Trigger1 = P2Dist X < 0
+Trigger1 = PrevStateNo != [200,4999]
+
+[State ゲージ]
+Type = PowerAdd
+Trigger1 = Time = 1
+Value = Ceil(32*FVar(1))
+
+[State 声]
+Type = PlaySnd
+Trigger1 = AnimElem = 3
+Value = 1000, 0
+Channel = 0
+
+[State 弾]
+Type = Helper
+Trigger1 = AnimElem = 5
+Pos = 24, -70
+StateNo = 1005
+ID = 1000
+OwnPal = 1
+IgnoreHitPause = 1
+
+[State 被CH判定解除]
+Type = StateTypeSet
+Trigger1 = AnimElemTime(5) = 1
+MoveType = I
+
+[State 待機状態へ]
+Type = ChangeState
+Trigger1 = AnimTime = 0
+Value = 0
+Ctrl = 1
+
+;波動(飛び道具)--------------------------------------------------------------------
+[StateDef 1005]
+Type = S
+MoveType = A
+Physics = N
+Ctrl = 0
+Anim = 1005
+SprPriority = 4
+VelSet = 3, 0
+
+[State 外見]
+Type = Helper
+Trigger1 = Time = 0
+StateNo = 1015
+OwnPal = 0
+
+[State 強度変数]
+Type = VarSet
+Trigger1 = Time = 0
+var(0) = Root,Var(5)
+
+[State 粒子1]
+Type = Explod
+TriggerAll = Time%12 = 0
+TriggerAll = FVar(0) := PI*( 150 +(Random%60) )/180.0 || 1	;角度
+TriggerAll = FVar(1) := 0.25+0.01*(Random%16) || 1		;サイズ
+TriggerAll = FVar(2) := 1+0.1*(Random%16) || 1		;速度
+Trigger1 = Var(0) != 0
+Trigger2 = Time < 15
+Anim = 1008
+Pos = 30, 0
+Random = 20, 20
+Vel = Floor(FVar(2)*cos(FVar(0))*1000)/1000.0, -Floor(FVar(2)*sin(FVar(0))*1000)/1000.0
+BindTime = 1
+SprPriority = 5
+Scale = FVar(1), FVar(1)
+
+[State 粒子1]
+Type = Explod
+TriggerAll = Time%12 = 0
+TriggerAll = FVar(0) := PI*( 150 +(Random%60) )/180.0 || 1	;角度
+TriggerAll = FVar(1) := 0.25+0.01*(Random%16) || 1		;サイズ
+TriggerAll = FVar(2) := 1+0.1*(Random%16) || 1		;速度
+Trigger1 = Var(0) != 0
+Trigger2 = Time < 15
+Anim = 1008
+Pos = 30, 0
+Random = 20, 20
+Vel = Floor(FVar(2)*cos(FVar(0))*1000)/1000.0, -Floor(FVar(2)*sin(FVar(0))*1000)/1000.0
+BindTime = 1
+SprPriority = 5
+Scale = FVar(1), FVar(1)
+
+[State 粒子2]
+Type = Explod
+TriggerAll = Time%12 = 6
+TriggerAll = FVar(0) := PI*( 150 +(Random%60) )/180.0 || 1	;角度
+TriggerAll = FVar(1) := 0.25+0.01*(Random%16) || 1		;サイズ
+TriggerAll = FVar(2) := 1+0.1*(Random%16) || 1		;速度
+Trigger1 = Var(0) != 0
+Trigger2 = Time < 15
+Anim = 1009
+Pos = 30, 0
+Random = 20, 20
+Vel = Floor(FVar(2)*cos(FVar(0))*1000)/1000.0, -Floor(FVar(2)*sin(FVar(0))*1000)/1000.0
+BindTime = 1
+SprPriority = 5
+Scale = FVar(1), FVar(1)
+
+[State 粒子2]
+Type = Explod
+TriggerAll = Time%12 = 6
+TriggerAll = FVar(0) := PI*( 150 +(Random%60) )/180.0 || 1	;角度
+TriggerAll = FVar(1) := 0.25+0.01*(Random%16) || 1		;サイズ
+TriggerAll = FVar(2) := 1+0.1*(Random%16) || 1		;速度
+Trigger1 = Var(0) != 0
+Trigger2 = Time < 15
+Anim = 1009
+Pos = 30, 0
+Random = 20, 20
+Vel = Floor(FVar(2)*cos(FVar(0))*1000)/1000.0, -Floor(FVar(2)*sin(FVar(0))*1000)/1000.0
+BindTime = 1
+SprPriority = 5
+Scale = FVar(1), FVar(1)
+
+[State 粒子3]
+Type = Explod
+TriggerAll = Time%12 = 3
+TriggerAll = FVar(0) := PI*( 150 +(Random%60) )/180.0 || 1	;角度
+TriggerAll = FVar(1) := 0.25+0.01*(Random%16) || 1		;サイズ
+TriggerAll = FVar(2) := 1+0.1*(Random%16) || 1		;速度
+Trigger1 = Var(0) = 1
+Trigger1 = Time >= 15
+Anim = 1008
+Pos = 30, 0
+Random = 20, 20
+Vel = Floor(FVar(2)*cos(FVar(0))*1000)/1000.0, -Floor(FVar(2)*sin(FVar(0))*1000)/1000.0
+BindTime = 1
+SprPriority = 5
+Scale = FVar(1), FVar(1)
+
+[State 粒子3]
+Type = Explod
+TriggerAll = Time%12 = 3
+TriggerAll = FVar(0) := PI*( 150 +(Random%60) )/180.0 || 1	;角度
+TriggerAll = FVar(1) := 0.25+0.01*(Random%16) || 1		;サイズ
+TriggerAll = FVar(2) := 1+0.1*(Random%16) || 1		;速度
+Trigger1 = Var(0) = 1
+Trigger1 = Time >= 15
+Anim = 1008
+Pos = 30, 0
+Random = 20, 20
+Vel = Floor(FVar(2)*cos(FVar(0))*1000)/1000.0, -Floor(FVar(2)*sin(FVar(0))*1000)/1000.0
+BindTime = 1
+SprPriority = 5
+Scale = FVar(1), FVar(1)
+
+[State 粒子4]
+Type = Explod
+TriggerAll = Time%12 = 9
+TriggerAll = FVar(0) := PI*( 150 +(Random%60) )/180.0 || 1	;角度
+TriggerAll = FVar(1) := 0.25+0.01*(Random%16) || 1		;サイズ
+TriggerAll = FVar(2) := 1+0.1*(Random%16) || 1		;速度
+Trigger1 = Var(0) = 1
+Trigger1 = Time >= 15
+Anim = 1009
+Pos = 30, 0
+Random = 20, 20
+Vel = Floor(FVar(2)*cos(FVar(0))*1000)/1000.0, -Floor(FVar(2)*sin(FVar(0))*1000)/1000.0
+BindTime = 1
+SprPriority = 5
+Scale = FVar(1), FVar(1)
+
+[State 粒子4]
+Type = Explod
+TriggerAll = Time%12 = 9
+TriggerAll = FVar(0) := PI*( 150 +(Random%60) )/180.0 || 1	;角度
+TriggerAll = FVar(1) := 0.25+0.01*(Random%16) || 1		;サイズ
+TriggerAll = FVar(2) := 1+0.1*(Random%16) || 1		;速度
+Trigger1 = Var(0) = 1
+Trigger1 = Time >= 15
+Anim = 1009
+Pos = 30, 0
+Random = 20, 20
+Vel = Floor(FVar(2)*cos(FVar(0))*1000)/1000.0, -Floor(FVar(2)*sin(FVar(0))*1000)/1000.0
+BindTime = 1
+SprPriority = 5
+Scale = FVar(1), FVar(1)
+
+[State 減速]
+Type = VelAdd
+Trigger1 = Var(0) = 0
+Trigger1 = Time >= 15
+Trigger1 = Vel X > 0
+X = -0.5
+
+[State 保険]
+Type = VelSet
+Trigger1 = Vel X < 0
+X = 0
+
+[State 加速]
+Type = VelAdd
+Trigger1 = Var(0) = 1
+Trigger1 = Time >= 15
+Trigger1 = Vel X < 10
+X = 0.5
+
+[State 相殺のみ]
+Type = HitBy
+Trigger1 = 1
+Value = SCA, AP
+Time = 1
+IgnoreHitPause = 1
+
+[State 相殺]
+Type = HitOverRide
+Trigger1 = 1
+StateNo = 1006
+Attr = SCA, AA, AP, AT
+IgnoreHitPause = 1
+
+[State 判定済みフラグリセット]
+Type = ParentVarSet
+TriggerAll = Root,Var(9) != 2
+Trigger1 = !MoveContact
+Trigger1 = !MoveReversed
+var(1) = Root,Var(1) -(Root,Var(1)&256)
+
+[State ヒット定義]
+Type = HitDef
+TriggerAll = Root,Var(9) != 2
+Trigger1 = !MoveContact
+Trigger1 = !MoveReversed
+Attr = S, SP
+HitFlag = MAF;HAF
+GuardFlag = M
+AnimType = H
+Priority = 5, Hit
+Damage = Ceil(64*Root,FVar(0)), Ceil(16*Root,FVar(0))
+GetPower = 0, 0
+GivePower = 0, 0
+PauseTime = 0, 13
+SparkNo = -1
+Guard.SparkNo = S6110
+SparkXY = 0, 0
+HitSound = S1000, 11
+GuardSound = S2, 1
+Ground.Type = Low
+Ground.SlideTime = 26
+Ground.HitTime = 16 +3*!!(Root,Var(1)&32)
+Guard.SlideTime = 23
+Guard.CtrlTime = 13
+Air.HitTime = 16 +3*!!(Root,Var(1)&32)
+Ground.Velocity = -10
+Guard.Velocity = -10
+Ground.CornerPush.VelOff = 0
+Air.Velocity = -3, -4 +Root,FVar(7)
+YAccel = 0.5
+Fall = 0
+Air.Fall = 1
+Fall.Recover = 0
+Guard.Dist = 130 +10*Var(0)
+
+[State ヒット/ガード時ゲージ増加]
+Type = PowerAdd
+Trigger1 = MoveContact
+Trigger1 = NumTarget
+Value = Ceil( IfElse( MoveHit, 64*Root,FVar(1), 32*Root,FVar(1) ) )
+IgnoreHitPause = 1
+Persistent = 0
+
+[State ヒット/ガード時相手ゲージ増加]
+Type = TargetPowerAdd
+Trigger1 = MoveContact
+Trigger1 = NumTarget
+Value = Ceil( IfElse( MoveHit, 64*Root,FVar(2), 32*Root,FVar(2) ) )
+IgnoreHitPause = 1
+Persistent = 0
+
+[State ヒット数]
+Type = ParentVarAdd
+Trigger1 = MoveHit = 1
+var(0) = 1
+IgnoreHitPause = 1
+Persistent = 0
+
+[State 浮き補正ヒット数]
+Type = ParentVarAdd
+TriggerAll = P2StateType = A
+Trigger1 = MoveHit = 1
+var(10) = 1
+IgnoreHitPause = 1
+Persistent = 0
+
+[State ヒットスパーク]
+Type = Helper
+Trigger1 = MoveHit = 1
+Trigger1 = NumTarget
+StateNo = 6000
+Pos = Const(Size.Ground.Front)+Ceil(P2BodyDist X), 0
+OwnPal = 1
+Persistent = 0
+Size.XScale = 0.85
+Size.YScale = 0.85
+IgnoreHitPause = 1
+
+[State 消滅]
+Type = ChangeState
+Trigger1 = MoveContact
+Trigger2 = FrontEdgeDist < -50
+Trigger3 = Var(0) = 0
+Trigger3 = Time >= 30
+;Trigger4 = Root,MoveType = H
+;Trigger4 = Root,StateNo != [120,159]
+Value = 1006
+
+;波動(飛び道具)(消滅伝達)-----------------------------------------------------------
+[StateDef 1006]
+Type = S
+MoveType = A
+Physics = N
+Ctrl = 0
+VelSet = 0,0
+MoveHitPersist = 1
+Anim = 10000
+
+[State ]
+Type = AttackDist
+Trigger1 = 1
+Value = 0
+
+[State 消滅]
+Type = DestroySelf
+Trigger1 = Time = 1
+
+;波動(飛び道具)(外見)-----------------------------------------------------------
+[StateDef 1015]
+Type = S
+MoveType = I
+Physics = N
+Ctrl = 0
+Anim = 1006
+VelSet = 0,0
+SprPriority = 5
+
+[State 音]
+Type = PlaySnd
+Trigger1 = Time = 0
+Value = 1000, 10
+
+[State 影消し]
+Type = AssertSpecial
+Trigger1 = 1
+Flag = NoShadow
+
+[State ]
+Type = BindToParent
+Trigger1 = 1
+Pos = 40, 0
+
+[State ]
+Type = AngleDraw
+Trigger1 = 1
+Scale = 0.5, 0.5
+
+[State ]
+Type = Trans
+Trigger1 = 1
+Trans = Sub
+
+[State 外見]
+Type = Explod
+Trigger1 = Time = 0
+Anim = 1007
+Pos = 0, 0
+ID = 1005
+OwnPal = 1
+BindTime = -1
+RemoveTime = -1
+SprPriority = 5
+Scale = 0.5, 0.5
+
+[State ]
+Type = ChangeState
+Trigger1 = Parent,StateNo != 1005
+Value = 1016
+
+;波動(飛び道具)(消滅アニメ)-----------------------------------------------------------
+[StateDef 1016]
+Type = S
+MoveType = I
+Physics = N
+Ctrl = 0
+VelSet = 0,0
+
+[State 影消し]
+Type = AssertSpecial
+Trigger1 = 1
+Flag = NoShadow
+
+[State ]
+Type = Trans
+Trigger1 = 1
+Trans = Sub
+
+[State ]
+Type = AngleDraw
+Trigger1 = Time >= 1
+Scale = 0.6+0.03*(Time-1), 0.6+0.03*(Time-1)
+
+[State ]
+Type = PalFX
+Trigger1 = 1
+Mul = 256-16*Time, 256-16*Time, 256-16*Time
+Time = 1
+
+[State 外見]
+Type = ModifyExplod
+Trigger1 = Time >= 1
+ID = 1005
+Trans = AddAlpha
+Alpha = 256-16*(Time-1), 256
+Scale = 0.6+0.03*(Time-1), 0.6+0.03*(Time-1)
+
+[State 外見削除]
+Type = RemoveExplod
+Trigger1 = Time = 16
+ID = 1005
+
+[State 消滅]
+Type = DestroySelf
+Trigger1 = Time = 16
+
+
+;A昇竜---------------------------------------------------------------------------------
+[StateDef 1100]
+Type = S
+MoveType = A
+Physics = N
+VelSet = 1,0
+Ctrl = 0
+Anim = 1100
+SprPriority = 2
+
+[State 向き]
+Type = Turn
+Trigger1 = Time = 0
+Trigger1 = P2Dist X < 0
+Trigger1 = PrevStateNo != [200,4999]
+
+[State ゲージ]
+Type = PowerAdd
+Trigger1 = Time = 1
+Value = Ceil( 44*FVar(1) )
+
+[State 声]
+Type = PlaySnd
+Trigger1 = AnimElem = 3
+Value = 1100, Random%2
+
+[State 上昇]
+Type = VelSet
+Trigger1 = AnimElem = 4
+Y = -8
+
+[State ]
+Type = StateTypeSet
+Trigger1 = AnimElem = 4
+StateType = A
+
+[State 抵抗]
+Type = VelMul
+Trigger1 = AnimElemTime(4) >= 0
+X = 0.9
+
+[State 重力]
+Type = VelAdd
+Trigger1 = AnimElemTime(5) >= 0
+Y = 0.8
+
+[State エフェクト]
+Type = Explod
+Trigger1 = AnimElem = 2
+Anim = 1105
+ID = 1100
+Pos = 0, -60
+BindTime = -AnimElemTime(9)
+SprPriority = 5
+Scale = 0.5, 0.5
+RemoveOnGetHit = 1
+IgnoreHitPause = 0
+
+[State 音]
+Type = PlaySnd
+Trigger1 = AnimElem = 4
+Value = 1100, 10
+
+[State ヒット定義]
+Type = HitDef
+TriggerAll = Var(9) != 2
+Trigger1 = !MoveContact
+Trigger1 = !MoveReversed
+Trigger1 = AnimElemNo(0) = [3,5]
+Trigger1 = Var(1) := Var(1) -(Var(1)&128)
+Attr = A, SA
+HitFlag = MAF
+GuardFlag = M
+AnimType = H
+Priority = 5, Hit
+Damage = Ceil(88*FVar(0)), Ceil(22*FVar(0))
+GetPower = Ceil(88*FVar(1)), Ceil(44*FVar(1))
+GivePower = Ceil(88*FVar(2)), Ceil(44*FVar(2))
+PauseTime = 16, 16
+SparkNo = -1
+Guard.SparkNo = S6110
+SparkXY = -10, -90
+HitSound = S1, 3 +2*!!(Var(1)&32)
+GuardSound = S2, 0
+Ground.Type = High
+Ground.SlideTime = 32
+Ground.HitTime = 22 +4*!!(Var(1)&32)
+Guard.SlideTime = 26
+Guard.CtrlTime = 16
+Ground.Velocity = -3, -11
+Guard.Velocity = -4
+Ground.CornerPush.VelOff = 0
+Air.Velocity = -3, -7.5 +FVar(7)
+YAccel = 0.5
+Fall = 1
+Fall.Recover = 0
+
+[State ヒットスパーク]
+Type = Helper
+Trigger1 = MoveHit = 1
+Trigger1 = NumTarget
+StateNo = 6000
+Pos = Const(Size.Ground.Front)+Ceil(P2BodyDist X)+10, -90
+OwnPal = 1
+Persistent = 0
+IgnoreHitPause = 1
+Size.XScale = 0.85
+Size.YScale = 0.85
+
+[State 着地]
+Type = ChangeState
+Trigger1 = Vel Y > 0
+Trigger1 = Pos Y >= 0
+Value = 1101
+
+;A昇竜着地---------------------------------------------------------------------------------
+[StateDef 1101]
+Type = S
+MoveType = I
+Physics = S
+Ctrl = 0
+Anim = 1101
+
+[State ]
+Type = PlaySnd
+Trigger1 = Time = 0
+Value = 52, 0
+
+[State ]
+Type = VelSet
+Trigger1 = Time = 0
+Y = 0
+
+[State ]
+Type = PosSet
+Trigger1 = Time = 0
+Y = 0
+
+[State ステート変更]
+Type = ChangeState
+Trigger1 = AnimTime = 0
+Value = 0
+Ctrl = 1
+
+;B昇竜---------------------------------------------------------------------------------
+[StateDef 1110]
+Type = S
+MoveType = A
+Physics = N
+VelSet = 4, 0
+Ctrl = 0
+Anim = 1110
+SprPriority = 2
+
+[State 向き]
+Type = Turn
+Trigger1 = Time = 0
+Trigger1 = P2Dist X < 0
+Trigger1 = PrevStateNo != [200,4999]
+
+[State ゲージ]
+Type = PowerAdd
+Trigger1 = Time = 1
+Value = Ceil( 56*FVar(1) )
+
+[State 無敵]
+Type = NotHitBy
+Trigger1 = AnimElemTime(3) <= 0
+Value = SCA
+
+[State 声]
+Type = PlaySnd
+Trigger1 = AnimElem = 3
+Value = 1100, Random%2
+
+[State エフェクト]
+Type = Explod
+Trigger1 = AnimElem = 2
+Anim = 1105
+ID = 1100
+Pos = 0, -60
+BindTime = -AnimElemTime(9)
+SprPriority = 5
+Scale = 0.5, 0.5
+RemoveOnGetHit = 1
+IgnoreHitPause = 0
+
+[State ヒット定義]
+Type = HitDef
+TriggerAll = Var(9) != 2
+Trigger1 = !MoveContact
+Trigger1 = !MoveReversed
+Trigger1 = AnimElemNo(0) = [3,5]
+Trigger1 = Var(1) := Var(1) -(Var(1)&128)
+Attr = S, SA
+HitFlag = MAF
+GuardFlag = M
+AnimType = H
+Priority = 5, Hit
+Damage = Ceil(56*FVar(0)), Ceil(14*FVar(0))
+GetPower = Ceil(56*FVar(1)), Ceil(28*FVar(1))
+GivePower = Ceil(56*FVar(2)), Ceil(28*FVar(2))
+PauseTime = 16, 16
+SparkNo = -1
+Guard.SparkNo = S6110
+SparkXY = -10, -90
+HitSound = S1, 3 +2*!!(Var(1)&32)
+GuardSound = S2, 0
+Ground.Type = High
+Ground.SlideTime = 32
+Ground.HitTime = 22 +4*!!(Var(1)&32)
+Guard.SlideTime = 26
+Guard.CtrlTime = 16
+Ground.Velocity = -2
+Guard.Velocity = -4
+Ground.CornerPush.VelOff = 0
+Air.Velocity = -3.5, -5 +FVar(7)
+YAccel = 0.5
+Fall = 0
+Air.Fall = 1
+Fall.Recover = 0
+
+[State ヒットスパーク]
+Type = Helper
+Trigger1 = MoveHit = 1
+Trigger1 = NumTarget
+StateNo = 6000
+Pos = Const(Size.Ground.Front)+Ceil(P2BodyDist X)+10, -90
+OwnPal = 1
+Persistent = 0
+IgnoreHitPause = 1
+Size.XScale = 0.85
+Size.YScale = 0.85
+
+[State 着地]
+Type = ChangeState
+Trigger1 = AnimElem = 4
+Value = 1111
+
+;B昇竜(続き)---------------------------------------------------------------------------------
+[StateDef 1111]
+Type = A
+MoveType = A
+Physics = N
+Ctrl = 0
+
+[State 上昇]
+Type = VelSet
+Trigger1 = AnimElem = 4
+Y = -11
+
+[State 抵抗]
+Type = VelMul
+Trigger1 = 1
+X = 0.9
+
+[State 重力]
+Type = VelAdd
+Trigger1 = AnimElemTime(5) >= 0
+Y = 0.8
+
+[State 音]
+Type = PlaySnd
+Trigger1 = AnimElem = 5
+Value = 1100, 10
+
+[State ヒット定義]
+Type = HitDef
+TriggerAll = Var(9) != 2
+Trigger1 = !MoveContact
+Trigger1 = !MoveReversed
+Trigger1 = AnimElemNo(0) = [3,5]
+Trigger1 = Var(1) := Var(1) -(Var(1)&128)
+Attr = A, SA
+HitFlag = MAF
+GuardFlag = M
+AnimType = H
+Priority = 5, Hit
+Damage = Ceil(56*FVar(0)), Ceil(14*FVar(0))
+GetPower = Ceil(56*FVar(1)), Ceil(28*FVar(1))
+GivePower = Ceil(56*FVar(2)), Ceil(28*FVar(2))
+PauseTime = 16, 16
+SparkNo = -1
+Guard.SparkNo = S6110
+SparkXY = -10, -90
+HitSound = S1, 3 +2*!!(Var(1)&32)
+GuardSound = S2, 0
+Ground.Type = High
+Ground.SlideTime = 32
+Ground.HitTime = 22 +4*!!(Var(1)&32)
+Guard.SlideTime = 26
+Guard.CtrlTime = 16
+Ground.Velocity = -3.5, -13.5
+Guard.Velocity = -4
+Ground.CornerPush.VelOff = 0
+Air.Velocity = -3.5, -10 +FVar(7)
+YAccel = 0.5
+Fall = 1
+Fall.Recover = 0
+
+[State ヒットスパーク]
+Type = Helper
+Trigger1 = MoveHit = 1
+Trigger1 = NumTarget
+StateNo = 6000
+Pos = Const(Size.Ground.Front)+Ceil(P2BodyDist X)+10, -90
+OwnPal = 1
+Persistent = 0
+IgnoreHitPause = 1
+Size.XScale = 0.85
+Size.YScale = 0.85
+
+[State 着地]
+Type = ChangeState
+Trigger1 = Vel Y > 0
+Trigger1 = Pos Y >= 0
+Value = 1112
+
+;B昇竜着地---------------------------------------------------------------------------------
+[StateDef 1112]
+Type = S
+MoveType = I
+Physics = S
+Ctrl = 0
+Anim = 1111
+
+[State ]
+Type = PlaySnd
+Trigger1 = Time = 0
+Value = 52, 0
+
+[State ]
+Type = VelSet
+Trigger1 = Time = 0
+Y = 0
+
+[State ]
+Type = PosSet
+Trigger1 = Time = 0
+Y = 0
+
+[State ステート変更]
+Type = ChangeState
+Trigger1 = AnimTime = 0
+Value = 0
+Ctrl = 1
+
+;C昇竜---------------------------------------------------------------------------------
+[StateDef 1120]
+Type = S
+MoveType = A
+Physics = N
+VelSet = 8,0
+Ctrl = 0
+Anim = 1120
+SprPriority = 2
+
+[State 向き]
+Type = Turn
+Trigger1 = Time = 0
+Trigger1 = P2Dist X < 0
+Trigger1 = PrevStateNo != [200,4999]
+
+[State ゲージ]
+Type = PowerAdd
+Trigger1 = Time = 1
+Value = Ceil( 54*FVar(1) )
+
+[State 声]
+Type = PlaySnd
+Trigger1 = AnimElem = 3
+Value = 1100, Random%2
+
+[State 上昇]
+Type = VelSet
+Trigger1 = AnimElem = 4
+Y = -13
+
+[State ]
+Type = StateTypeSet
+Trigger1 = AnimElem = 4
+StateType = A
+
+[State 抵抗]
+Type = VelMul
+Trigger1 = AnimElemTime(4) >= 0
+X = 0.9
+
+[State 重力]
+Type = VelAdd
+Trigger1 = AnimElemTime(5) >= 0
+Y = 0.8
+
+[State エフェクト]
+Type = Explod
+Trigger1 = AnimElem = 2
+Anim = 1105
+ID = 1100
+Pos = 0, -60
+BindTime = -AnimElemTime(9)
+SprPriority = 5
+Scale = 0.5, 0.5
+RemoveOnGetHit = 1
+IgnoreHitPause = 0
+
+[State 音]
+Type = PlaySnd
+Trigger1 = AnimElem = 4
+Value = 1100, 10
+
+[State ヒット定義]
+Type = HitDef
+TriggerAll = Var(9) != 2
+Trigger1 = !MoveContact
+Trigger1 = !MoveReversed
+Trigger1 = AnimElemNo(0) = [3,5]
+Trigger1 = Var(1) := Var(1) -(Var(1)&128)
+Attr = A, SA
+HitFlag = MAF
+GuardFlag = M
+AnimType = H
+Priority = 6, Hit
+Damage = Ceil(108*FVar(0)), Ceil(27*FVar(0))
+GetPower = Ceil(108*FVar(1)), Ceil(54*FVar(1))
+GivePower = Ceil(108*FVar(2)), Ceil(54*FVar(2))
+PauseTime = 16, 16
+SparkNo = -1
+Guard.SparkNo = S6110
+SparkXY = -10, -90
+HitSound = S1, 3 +2*!!(Var(1)&32)
+GuardSound = S2, 0
+Ground.Type = High
+Ground.SlideTime = 32
+Ground.HitTime = 22 +4*!!(Var(1)&32)
+Guard.SlideTime = 26
+Guard.CtrlTime = 16
+Ground.Velocity = -4, -16
+Guard.Velocity = -4
+Ground.CornerPush.VelOff = 0
+Air.Velocity = -4, -11 +FVar(7)
+YAccel = 0.5
+Fall = 1
+Fall.Recover = 0
+
+[State ヒットスパーク]
+Type = Helper
+Trigger1 = MoveHit = 1
+Trigger1 = NumTarget
+StateNo = 6000
+Pos = Const(Size.Ground.Front)+Ceil(P2BodyDist X)+10, -90
+OwnPal = 1
+Persistent = 0
+IgnoreHitPause = 1
+Size.XScale = 0.85
+Size.YScale = 0.85
+
+[State 着地]
+Type = ChangeState
+Trigger1 = Vel Y > 0
+Trigger1 = Pos Y >= 0
+Value = 1121
+
+;C昇竜着地---------------------------------------------------------------------------------
+[StateDef 1121]
+Type = S
+MoveType = I
+Physics = S
+Ctrl = 0
+Anim = 1121
+
+[State ]
+Type = PlaySnd
+Trigger1 = Time = 0
+Value = 52, 0
+
+[State ]
+Type = VelSet
+Trigger1 = Time = 0
+Y = 0
+
+[State ]
+Type = PosSet
+Trigger1 = Time = 0
+Y = 0
+
+[State ステート変更]
+Type = ChangeState
+Trigger1 = AnimTime = 0
+Value = 0
+Ctrl = 1
+
+;設置----------------------------------------------------------------
+[StateDef 1200]
+Type = S
+MoveType = A
+Physics  = S
+Ctrl = 0
+Anim = 1200
+SprPriority = 2
+VelSet = 0, 0
+
+[State 向き]
+Type = Turn
+Trigger1 = Time = 0
+Trigger1 = P2Dist X < 0
+Trigger1 = PrevStateNo != [200,4999]
+
+[State ゲージ]
+Type = PowerAdd
+Trigger1 = Time = 1
+Value = Ceil(40*FVar(1))
+
+[State ガード圏]
+Type = AttackDist
+Trigger1 = 1
+Value = 0
+
+[State 声]
+Type = PlaySnd
+Trigger1 = AnimElem = 3
+Value = 1200, 0
+Channel = 0
+
+[State 弾]
+Type = Helper
+Trigger1 = AnimElem = 3
+Pos = 50, 0
+StateNo = 1205
+ID = 1200
+OwnPal = 1
+IgnoreHitPause = 1
+Size.XScale = 0.5
+Size.YScale = 0.5
+
+[State 被CH判定解除]
+Type = StateTypeSet
+Trigger1 = AnimElem = 14
+MoveType = I
+
+[State 待機状態へ]
+Type = ChangeState
+Trigger1 = AnimTime = 0
+Value = 0
+Ctrl = 1
+
+;設置(出現)--------------------------------------------------------------------
+[StateDef 1205]
+Type = S
+MoveType = A
+Physics = N
+Ctrl = 0
+Anim = 1205
+SprPriority = 4
+VelSet = 0, 0
+
+[State 強度変数]
+Type = VarSet
+Trigger1 = Time = 0
+var(0) = Root,Var(5)
+
+[State 影消し]
+Type = AssertSpecial
+Trigger1 = 1
+Flag = NoShadow
+
+[State 2枚重ね]
+Type = Explod
+Trigger1 = Time = 0
+Anim = 1210
+ID = 1210
+Pos = 0, 0
+BindTime = -1
+SprPriority = 3
+RemoveTime = -1
+Scale = Const(Size.XScale), Const(Size.YScale)
+
+[State 収束]
+Type = Helper
+Trigger1 = Time = 0
+StateNo = 1215
+OwnPal = 1
+
+[State 念のため]
+Type = NotHitBy
+Trigger1 = 1
+Value = SCA, AA, AT, AP
+Time = 1
+
+[State ガード圏]
+Type = AttackDist
+Trigger1 = 1
+Value = 0
+
+[State ]
+Type = Trans
+Trigger1 = 1
+Trans = Sub
+
+[State ]
+Type = AngleDraw
+Trigger1 = Time >= 1
+Scale = 0.2+0.05*(Time-1), 0.2+0.05*(Time-1)
+
+[State ]
+Type = PalFX
+Trigger1 = 1
+Mul = 16*Time, 16*Time, 16*Time
+Time = 1
+
+[State もう1枚]
+Type = ModifyExplod
+Trigger1 = Time >= 1
+ID = 1210
+Trans = AddAlpha
+Alpha = 16*(Time-1), 256
+Scale = Const(Size.XScale)*( 0.2+0.05*(Time-1) ), Const(Size.YScale)*( 0.2+0.05*(Time-1) )
+SprPriority = 3
+
+[State ]
+Type = AngleDraw
+Trigger1 = AnimTime = 0
+Scale = 1, 1
+
+[State もう1枚]
+Type = ModifyExplod
+Trigger1 = AnimTime = 0
+ID = 1210
+Trans = Add
+Scale = Const(Size.XScale), Const(Size.YScale)
+SprPriority = 3
+
+[State 消滅]
+Type = ChangeState
+Trigger1 = Root,MoveType = H
+Value = 1208
+
+[State 次へ]
+Type = ChangeState
+Trigger1 = AnimTime = 0
+Value = 1206
+
+;設置(移動)--------------------------------------------------------------------
+[StateDef 1206]
+Type = S
+MoveType = A
+Physics = N
+Ctrl = 0
+Anim = 1206
+SprPriority = 4
+VelSet = 1.1*Var(0), 0;0.8*Var(0), 0
+
+[State 後ろガード圏]
+Type = Helper
+Trigger1 = Time = 0
+StateNo = 1209
+
+[State 影消し]
+Type = AssertSpecial
+Trigger1 = 1
+Flag = NoShadow
+
+[State 無敵]
+Type = NotHitBy
+Trigger1 = 1
+Value = SCA, AA, AT, AP
+Time = 1
+IgnoreHitPause = 1
+
+[State ガード圏]
+Type = AttackDist
+Trigger1 = 1
+Value = 56
+
+[State 粒子1]
+Type = Explod
+TriggerAll = Time%14 = 0
+Trigger1 = FVar(0) := PI*( 60 +(Random%60) )/180.0 || 1	;角度
+Trigger1 = FVar(1) := 0.25+0.01*(Random%16) || 1		;サイズ
+Trigger1 = FVar(2) := 0.5+0.1*(Random%16) || 1		;速度
+Anim = 1208
+Pos = 0, -5
+Random = 30, 10
+Vel = Floor(FVar(2)*cos(FVar(0))*1000)/1000.0, -Floor(FVar(2)*sin(FVar(0))*1000)/1000.0
+BindTime = 1
+SprPriority = 5
+Scale = FVar(1), FVar(1)
+
+[State 粒子2]
+Type = Explod
+TriggerAll = Time%14 = 7
+Trigger1 = FVar(0) := PI*( 60 +(Random%60) )/180.0 || 1	;角度
+Trigger1 = FVar(1) := 0.25+0.01*(Random%16) || 1		;サイズ
+Trigger1 = FVar(2) := 0.5+0.1*(Random%16) || 1		;速度
+Anim = 1209
+Pos = 0, -5
+Random = 30, 10
+Vel = Floor(FVar(2)*cos(FVar(0))*1000)/1000.0, -Floor(FVar(2)*sin(FVar(0))*1000)/1000.0
+BindTime = 1
+SprPriority = 5
+Scale = FVar(1), FVar(1)
+
+[State 消滅]
+Type = ChangeState
+Trigger1 = FrontEdgeDist < -64
+;Trigger2 = Root,MoveType = H
+;Trigger2 = Root,StateNo != [120,159]
+Value = 1208
+
+[State 爆発]
+Type = ChangeState
+Trigger1 = AnimTime = 0
+Value = 1207
+
+;設置(爆発)--------------------------------------------------------------------
+[StateDef 1207]
+Type = S
+MoveType = A
+Physics = N
+Ctrl = 0
+Anim = 1207
+SprPriority = 4
+VelSet = 0, 0
+
+[State 音]
+Type = PlaySnd
+Trigger1 = Time = 0
+Value = 1200, 10
+
+[State 爆風]
+Type = Explod
+Trigger1 = Time = 0
+Anim = 1220
+Pos = 0, 0
+BindTime = -1
+SprPriority = 5
+Scale = 0.6, 0.6
+IgnoreHitPause = 0
+
+[State 2枚重ね]
+Type = Explod
+Trigger1 = Time = 0
+Anim = 1221
+Pos = 0, 0
+BindTime = -1
+SprPriority = 6
+Scale = 0.5, 0.5
+IgnoreHitPause = 0
+
+[State 影消し]
+Type = AssertSpecial
+Trigger1 = 1
+Flag = NoShadow
+
+[State 無敵]
+Type = NotHitBy
+Trigger1 = 1
+Value = SCA, AA, AT, AP
+Time = 1
+IgnoreHitPause = 1
+
+[State ガード圏]
+Type = AttackDist
+Trigger1 = 1
+Value = 56
+IgnoreHitPause = 1
+
+[State ]
+Type = Trans
+Trigger1 = 1
+Trans = Sub
+IgnoreHitPause = 1
+
+[State ]
+Type = AngleDraw
+Trigger1 = Time >= 1
+Scale = 1+0.05*(Time-1), 1+0.05*(Time-1)
+IgnoreHitPause = 1
+
+[State ]
+Type = PalFX
+Trigger1 = 1
+Mul = 256-16*Time, 256-16*Time, 256-16*Time
+Time = 1
+IgnoreHitPause = 1
+
+[State もう1枚]
+Type = ModifyExplod
+Trigger1 = Time >= 1
+ID = 1210
+Trans = AddAlpha
+Alpha = 256-16*(Time-1), 256
+Scale = Const(Size.XScale)*( 1+0.05*(Time-1) ), Const(Size.YScale)*( 1+0.05*(Time-1) )
+SprPriority = 3
+IgnoreHitPause = 1
+
+[State 判定済みフラグリセット]
+Type = ParentVarSet
+TriggerAll = Root,Var(9) != 2
+Trigger1 = !MoveContact
+Trigger1 = !MoveReversed
+var(1) = Root,Var(1) -(Root,Var(1)&512)
+
+[State ヒット定義]
+Type = HitDef
+TriggerAll = Root,Var(9) != 2
+Trigger1 = !MoveContact
+Trigger1 = !MoveReversed
+Attr = S, SP
+HitFlag = MAF
+GuardFlag = M
+AnimType = H
+Priority = 5, Hit
+Damage = Ceil(80*Root,FVar(0)), Ceil(20*Root,FVar(0))
+GetPower = 0, 0
+GivePower = 0, 0
+PauseTime = 0, 14
+SparkNo = -1
+Guard.SparkNo = S6110
+SparkXY = 0, -60
+HitSound = S1000, 11
+GuardSound = S2, 1
+SprPriority = 4
+Ground.Type = Low
+Ground.SlideTime = 28
+Ground.HitTime = 18 +3*!!(Root,Var(1)&32)
+Guard.SlideTime = 24
+Guard.CtrlTime = 14
+Air.HitTime = 18 +3*!!(Root,Var(1)&32)
+Ground.Velocity = 0, -8;-5*IfElse(P2Dist X<0, -1, 1), 0
+Guard.Velocity = -5*IfElse(P2Dist X<0, -1, 1)
+Ground.CornerPush.VelOff = 0
+Air.Velocity = -1*IfElse(P2Dist X<0, -1, 1), -7 +Root,FVar(7)
+YAccel = 0.5
+Fall = 1;0
+Air.Fall = 1
+Fall.Recover = 0
+
+[State ヒット/ガード時ゲージ増加]
+Type = PowerAdd
+Trigger1 = MoveContact
+Trigger1 = NumTarget
+Value = Ceil( IfElse( MoveHit, 80*Root,FVar(1), 40*Root,FVar(1) ) )
+IgnoreHitPause = 1
+Persistent = 0
+
+[State ヒット/ガード時相手ゲージ増加]
+Type = TargetPowerAdd
+Trigger1 = MoveContact
+Trigger1 = NumTarget
+Value = Ceil( IfElse( MoveHit, 80*Root,FVar(2), 40*Root,FVar(2) ) )
+IgnoreHitPause = 1
+Persistent = 0
+
+[State ヒット数]
+Type = ParentVarAdd
+Trigger1 = MoveHit = 1
+var(0) = 1
+IgnoreHitPause = 1
+Persistent = 0
+
+[State 浮き補正ヒット数]
+Type = ParentVarAdd
+TriggerAll = P2StateType = A
+Trigger1 = MoveHit = 1
+var(10) = 1
+IgnoreHitPause = 1
+Persistent = 0
+
+[State ヒットスパーク]
+Type = Helper
+Trigger1 = MoveHit = 1
+Trigger1 = NumTarget
+StateNo = 6000
+Pos = Const(Size.Ground.Front)+Ceil(P2BodyDist X), -60
+OwnPal = 1
+Persistent = 0
+IgnoreHitPause = 1
+Size.XScale = 0.85
+Size.YScale = 0.85
+
+[State 2枚重ね削除]
+Type = RemoveExplod
+Trigger1 = Time = 16
+ID = 1210
+
+[State 消滅]
+Type = DestroySelf
+Trigger1 = Time = 16
+
+;設置(消滅)--------------------------------------------------------------------
+[StateDef 1208]
+Type = S
+MoveType = I
+Physics = N
+Ctrl = 0
+SprPriority = 4
+VelSet = 0, 0
+
+[State 無敵]
+Type = NotHitBy
+Trigger1 = 1
+Value = SCA, AA, AT, AP
+Time = 1
+
+[State 影消し]
+Type = AssertSpecial
+Trigger1 = 1
+Flag = NoShadow
+
+[State ]
+Type = Trans
+Trigger1 = 1
+Trans = Sub
+
+[State ]
+Type = AngleDraw
+Trigger1 = Time >= 1
+Scale = 1+0.05*(Time-1), 1+0.05*(Time-1)
+
+[State ]
+Type = PalFX
+Trigger1 = 1
+Mul = 256-16*Time, 256-16*Time, 256-16*Time
+Time = 1
+
+[State 外見]
+Type = ModifyExplod
+Trigger1 = Time >= 1
+ID = 1210
+Trans = AddAlpha
+Alpha = 256-16*(Time-1), 256
+Scale = Const(Size.XScale)*( 1+0.05*(Time-1) ), Const(Size.YScale)*( 1+0.05*(Time-1) )
+SprPriority = 3
+
+[State 2枚重ね削除]
+Type = RemoveExplod
+Trigger1 = Time = 16
+ID = 1210
+
+[State 消滅]
+Type = DestroySelf
+Trigger1 = Time = 16
+
+;設置(後ろガード圏)--------------------------------------------------------------------
+[StateDef 1209]
+Type = S
+MoveType = A
+Physics = N
+Ctrl = 0
+SprPriority = 4
+VelSet = 0, 0
+Anim = 10000
+
+[State ガード圏]
+Type = AttackDist
+Trigger1 = 1
+Value = 48
+
+[State 消滅]
+Type = DestroySelf
+Trigger1 = !NumHelper(1200)
+
+[State 追尾]
+Type = BindToParent
+Trigger1 = NumHelper(1200)
+Pos = 0, 0
+Facing = -1
+
+;設置(収束エフェクト)--------------------------------------------------------------------
+[StateDef 1215]
+Type = S
+MoveType = I
+Physics = N
+Ctrl = 0
+Anim = 1216
+SprPriority = 6
+VelSet = 0, 0
+
+[State 影消し]
+Type = AssertSpecial
+Trigger1 = 1
+Flag = NoShadow
+
+[State 2枚重ね]
+Type = Explod
+Trigger1 = Time = 0
+Anim = 1215
+Pos = 0, 0
+BindTime = -1
+SprPriority = 5
+Scale = 0.6, 0.6
+
+[State 念のため]
+Type = NotHitBy
+Trigger1 = 1
+Value = SCA, AA, AT, AP
+Time = 1
+
+[State ]
+Type = Trans
+Trigger1 = 1
+Trans = Sub
+
+[State ]
+Type = PalFX
+Trigger1 = AnimElemTime(9) >= 0
+Mul = 256-32*AnimElemTime(9), 256-32*AnimElemTime(9), 256-32*AnimElemTime(9)
+Time = 1
+
+[State 消滅]
+Type = DestroySelf
+Trigger1 = AnimTime = 0

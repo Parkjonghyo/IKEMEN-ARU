@@ -1,0 +1,210 @@
+
+;===========================================================================
+; 準常時監視ステート（－３）
+;===========================================================================
+;---------------------------------------------------------------------------
+; こちらは通常の食らい状態以外の「P2StateNo」や「TargetState」等で制御された、
+; 作成者が任意に指定した相手側の食らいステートに限り、
+; 登録したステートコントローラが有効にはなりません。
+; －１や－２と上手く使い分けて行きましょう。
+;---------------------------------------------------------------------------
+
+[Statedef -3]
+
+[State -3, NotHitby];飛び道具すり抜け
+type = NotHitBy
+triggerall = var(43) != 1
+trigger1 = var(1) = 1
+value = ,AP
+slot = 2
+
+[State -3, グレイズフラグ消去]
+Type = Varset
+Trigger1 = stateno != 40;ジャンプ中は引継ぐ
+Trigger1 = stateno != 50
+Trigger1 = stateno != 60
+Trigger1 = stateno != 70
+Trigger1 = stateno != 80
+Trigger1 = stateno != [100,119]
+IgnoreHitPause = 1
+var(1) = 0
+
+
+;空中射撃の速度制御
+
+[State -3, 速度制御上]
+type = null;Velset
+triggerall = movetype != H
+triggerall = Vel Y  > 0.8
+trigger1 = Stateno = 700 || Stateno = 701
+trigger2 = Stateno = 710 || Stateno = 711
+trigger3 = Stateno = 720 || Stateno = 721
+trigger4 = Stateno = 730 || Stateno = 731
+trigger5 = Stateno = [1005,1007]
+trigger6 = Stateno = [1015,1016]
+trigger7 = Stateno = [1055,1056]
+trigger8 = Stateno = [1065,1066]
+trigger9 = Stateno = [1105,1106]
+trigger10 = Stateno = [1155,1156]
+trigger11 = Stateno = [1165,1166]
+Y = 0.6
+
+[State -3, 速度制御下]
+type = null;Velset
+triggerall = movetype != H
+triggerall = Vel Y  < -0.8
+trigger1 = Stateno = 700 || Stateno = 701
+trigger2 = Stateno = 710 || Stateno = 711
+trigger3 = Stateno = 720 || Stateno = 721
+trigger4 = Stateno = 730 || Stateno = 731
+trigger5 = Stateno = [1005,1007]
+trigger6 = Stateno = [1015,1016]
+trigger7 = Stateno = [1055,1056]
+trigger8 = Stateno = [1065,1066]
+trigger9 = Stateno = [1105,1106]
+trigger10 = Stateno = [1155,1156]
+trigger11 = Stateno = [1165,1166]
+Y = -0.6
+
+[State -3, 速度制御前]
+type = null;Velset
+triggerall = movetype != H
+triggerall = Vel X  > 1
+trigger1 = Stateno = 700 || Stateno = 701
+trigger2 = Stateno = 710 || Stateno = 711
+trigger3 = Stateno = 720 || Stateno = 721
+trigger4 = Stateno = 730 || Stateno = 731
+trigger5 = Stateno = [1005,1007]
+trigger6 = Stateno = [1015,1016]
+trigger7 = Stateno = [1055,1056]
+trigger8 = Stateno = [1065,1066]
+trigger9 = Stateno = [1105,1106]
+trigger10 = Stateno = [1155,1156]
+trigger11 = Stateno = [1165,1166]
+X = 0.8
+
+[State -3, 速度制御後]
+type = null;Velset
+triggerall = movetype != H
+triggerall = Vel X  < -1
+trigger1 = Stateno = 700 || Stateno = 701
+trigger2 = Stateno = 710 || Stateno = 711
+trigger3 = Stateno = 720 || Stateno = 721
+trigger4 = Stateno = 730 || Stateno = 731
+trigger5 = Stateno = [1005,1007]
+trigger6 = Stateno = [1015,1016]
+trigger7 = Stateno = [1055,1056]
+trigger8 = Stateno = [1065,1066]
+trigger9 = Stateno = [1105,1106]
+trigger10 = Stateno = [1155,1156]
+trigger11 = Stateno = [1165,1166]
+X = -0.8
+
+[State -3, 着地]
+type = null;changestate
+triggerall = movetype != H
+triggerall = Pos Y >= -5
+trigger1 = Stateno = 700 || Stateno = 701
+trigger2 = Stateno = 710 || Stateno = 711
+trigger3 = Stateno = 720 || Stateno = 721
+trigger4 = Stateno = 730 || Stateno = 731
+trigger5 = Stateno = [1005,1007]
+trigger6 = Stateno = [1015,1016]
+trigger7 = Stateno = [1055,1056]
+trigger8 = Stateno = [1065,1066]
+trigger9 = Stateno = [1105,1106]
+trigger10 = Stateno = [1155,1156]
+trigger11 = Stateno = [1165,1166]
+value = 52
+;ctrl = 1
+
+[State -3, 着地しない]
+type = null;Velset
+triggerall = Pos Y >= -5
+trigger1 = Stateno = 700
+trigger2 = Stateno = 701
+trigger3 = Stateno = 710
+trigger4 = Stateno = 711
+trigger5 = Stateno = 715
+trigger6 = Stateno = 720
+trigger7 = Stateno = 730
+trigger8 = Stateno = [1005,1007]
+trigger9 = Stateno = [1015,1016]
+trigger10 = Stateno = [1055,1056]
+trigger11 = Stateno = [1065,1066]
+trigger12 = Stateno = [1105,1106]
+trigger13 = Stateno = [1155,1156]
+trigger14 = Stateno = [1165,1166]
+Y = 0
+
+
+;---------------------↑消しちゃダメゾーン---------------------z
+
+;以下、ご自由に…
+
+
+[State -3, ＡＩ起動]
+type = null;VarSet
+triggerall =!ishelper
+triggerall = var(39) = 0
+triggerall = RoundState = [1,2]
+trigger1 = Command = "AI0"
+trigger2 = Command = "AI1"
+trigger3 = Command = "AI2"
+trigger4 = Command = "AI3"
+trigger5 = Command = "AI4"
+trigger6 = Command = "AI5"
+trigger7 = Command = "AI6"
+trigger8 = Command = "AI7"
+trigger9 = Command = "AI8"
+trigger10 = Command = "AI9"
+trigger11 = Command = "AI10"
+trigger12 = Command = "AI11"
+trigger13 = Command = "AI12"
+trigger14 = Command = "AI13"
+trigger15 = Command = "AI14"
+trigger16 = Command = "AI15"
+trigger17 = Command = "AI16"
+trigger18 = Command = "AI17"
+trigger19 = Command = "AI18"
+trigger20 = Command = "AI19"
+trigger21 = Command = "AI20"
+trigger22 = Command = "AI21"
+trigger23 = Command = "AI22"
+trigger24 = Command = "AI23"
+trigger25 = Command = "AI24"
+trigger26 = Command = "AI25"
+trigger27 = Command = "AI26"
+trigger28 = Command = "AI27"
+trigger29 = Command = "AI28"
+trigger30 = Command = "AI29"
+trigger31 = Command = "AI30"
+trigger32 = Command = "AI31"
+trigger33 = Command = "AI32"
+trigger34 = Command = "AI33"
+trigger35 = Command = "AI34"
+trigger36 = Command = "AI35"
+trigger37 = Command = "AI36"
+trigger38 = Command = "AI37"
+trigger39 = Command = "AI38"
+trigger40 = Command = "AI39"
+trigger41 = Command = "AI40"
+trigger42 = Command = "AI41"
+trigger43 = Command = "AI42"
+trigger44 = Command = "AI43"
+trigger45 = Command = "AI44"
+trigger46 = Command = "AI45"
+trigger47 = Command = "AI46"
+trigger48 = Command = "AI47"
+trigger49 = Command = "AI48"
+trigger50 = Command = "AI49"
+trigger51 = Command = "AI50"
+;trigger52 = 1			;セミコロン削除で常時起動
+var(39)  = 1
+
+[State -3, ＡＩ起動時にデッキも不使用化]
+type = null;VarSet
+trigger1 = var(39) >= 1
+trigger1 = var(40) != 1
+var(40) = 1
+

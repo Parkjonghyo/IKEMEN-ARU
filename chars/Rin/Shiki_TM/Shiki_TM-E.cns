@@ -1,0 +1,366 @@
+;------------------------------------------------------------------
+; Blood Heat (強制開放)
+[Statedef 990]
+type = S
+movetype = A
+physics = S
+anim = 990
+velset = 0,0
+ctrl = 0
+
+[State var]
+type = varset
+trigger1 = time = 15
+var(45) = ifelse(var(45)=2,3,1)
+ignorehitpause = 1
+persistent=0
+
+[State helper]
+type = Helper
+trigger1 = time = 15
+name = "open"
+stateno = 994
+ID = 994
+ownpal = 1
+ignorehitpause = 1
+persistent=0
+[State helper]
+type = Helper
+trigger1 = time = 15
+stateno = 997
+ID = 997
+Pos = 20,-70
+ownpal = 1
+ignorehitpause = 1
+persistent=0
+
+[State pal]
+type = PalFX
+trigger1 = time = 6
+time = 13
+sinadd = 128,128,128,26
+ignorehitpause = 1
+
+[State hit]
+type = HitDef
+trigger1 = time = 0
+attr = S,HT
+animtype = up
+priority = 4,miss
+damage = 0
+pausetime = 4,12
+guard.sparkno = 41
+sparkxy = -10,-70
+hitsound = s1,2
+sparkno = S6030+random%5 
+guardsound = s8400,0
+ground.type = low
+ground.slidetime = 20
+ground.hittime = 20
+yaccel = .45
+ground.velocity = -10,-6
+guard.velocity = -4
+air.velocity = -10,-6
+airguard.velocity = -3,-4
+p2facing = 1
+fall = 1
+fall.yvelocity = -4
+fall.recovertime = 40
+hitonce = 1
+kill = 0
+envshake.time = 6
+persistent = 0
+
+[State target]
+type = TargetState
+trigger1 = movehit
+value = 1020
+persistent = 0
+ignorehitpause = 1
+[State 1200,]
+type = helper
+trigger1 = p2stateno = 1020
+trigger1 = movehit = 1
+name = "sound"
+id = 720
+bindtime = 0
+pos = 0,-16
+postype = p2
+stateno = 725
+helpertype = normal
+ownpal = 1
+keyctrl = 0
+persistent=0
+[State explod]
+type = Explod
+trigger1 = animelem = 3
+anim = f60
+sprpriority = -6
+ownpal = 1
+persistent=0
+
+[State sound]
+type = PlaySnd
+trigger1 = animelem = 3
+trigger1 = var(14) != 1
+value = 70,1
+
+[State sound]
+type = PlaySnd
+trigger1 = animelem = 3
+trigger1 = var(14) = 1
+value = 1010,0
+
+[State var]
+type = varset
+trigger1 = animelem = 4
+var(14) = 2
+ignorehitpause = 1
+persistent=0
+
+[State -1]
+Type = AfterImage
+Trigger1 = time = 16
+Trigger1 = var(45) = 3
+Time = 99999
+Trans = Add
+length   = 12
+timegap  = 1
+framegap = 1
+PalBright = 60 , 60 , 55
+PalContrast = 105 , 105 , 70
+PalAdd = 0 , 0 , 0
+PalMul = 0.75 , 0.75 , 0.7
+IgnoreHitPause = 1
+Peresistent = 1
+SuperMoveTime = 9999
+PauseMoveTime = 9999
+
+[State -1]
+Type = AfterImage
+Trigger1 = time = 16
+Trigger1 = var(45) = 1
+Time = 99999
+Trans = Add
+length   = 12
+timegap  = 1
+framegap = 1
+PalBright = 0 , 0 , 2
+PalContrast = 33 , 33 , 225
+PalAdd = 0 , 0 , 0
+PalMul = 0.7 , 0.7 , 0.7
+IgnoreHitPause = 1
+Peresistent = 1
+SuperMoveTime = 9999
+PauseMoveTime = 9999
+[State sound]
+type = PlaySnd
+trigger1 = animelem = 3
+value = 0,9
+
+[State 990]
+type = EnvShake
+trigger1 = animelem = 3
+time = 8
+ampl = -4
+
+[State type]
+type = StateTypeSet
+trigger1 = time = 20
+movetype = I
+
+[State end]
+type = ChangeState
+trigger1 = animtime = 0
+value = 0
+ctrl = 1
+
+;------------------------------------------------
+;ワイヤー吹っ飛び
+[Statedef 1020]
+type     = A
+movetype = H
+physics  = N
+velset   = 0,0
+
+[State 1020]
+type = Velset
+trigger1 = time >= 0
+;trigger1 = HitPauseTime = 0
+trigger1 = HitShakeOver = 1
+x = -11
+
+[State 1020]
+type = ChangeAnim2
+Trigger1 = Time = 0
+value = 1020
+
+[State 1020]
+type = ScreenBound
+trigger1 = 1
+value = 1
+movecamera = 1,0
+
+[State 1020]
+type = PlayerPush
+trigger1 = 1
+value = 0
+
+[State 1020]
+type = VelAdd
+trigger1 = time >= 5
+x = -0.5
+
+[State 1020, Change]
+type = ChangeState
+trigger1 = BackEdgeDist <= 5
+value = 1021
+
+;--------------------------------------------
+;ワイヤー吹っ飛び・壁衝突
+[Statedef 1021]
+type    = A
+movetype= H
+physics = N
+
+[State 1021, P2Anim]
+type = ChangeAnim2
+Trigger1 = Time = 0
+value = 5030
+
+[State 1021, Scroll]
+type = ScreenBound
+trigger1 = 1
+value = 1
+movecamera = 0,0
+
+[State 1021, Speed]
+type = posadd
+trigger1 = Time = 0
+x = -20
+
+[State 1021, Speed]
+type = VelSet
+trigger1 = Time >= 0
+x = 0
+y = 0
+
+[State 1021, Shake]
+type = EnvShake
+trigger1 = time = 0
+time  = 15
+ampl  = 6
+freq  = 100
+phase = 100
+
+[State 1021]
+type = PlaySnd
+Trigger1 = Time = 0
+value = f2,2
+
+[State 1021]
+type = ChangeState
+trigger1 = Time = 10
+value = 1022
+
+;--------------------------------------------
+;落下
+[Statedef 1022]
+type    = A
+movetype= H
+physics = N
+
+[State 5050, 4] ;Recover near ground
+type = selfstate
+triggerall = time >= 18
+triggerall = Vel Y > 0
+triggerall = Pos Y >= -20
+triggerall = alive
+triggerall = CanRecover
+trigger1 = Command = "recovery"
+value = 5200 ;HITFALL_RECOVER
+
+[State 5050, 5]; Recover in mid air
+type = selfstate
+triggerall = time >= 20
+triggerall = Vel Y > -1
+triggerall = alive
+triggerall = CanRecover
+trigger1 = Command = "recovery"
+value = 5210 ;HITFALL_AIRRECOVER
+
+[State 1022]
+type = turn
+trigger1 = time = 0
+
+[State 1022]
+type = ChangeAnim2
+trigger1 = Time = 0
+value = 1021
+
+[State 1022]
+type = VelSet
+trigger1 = time = 0
+x = -1.5
+y = -5
+
+[State 1022]
+type = VelAdd
+trigger1 = time >= 0
+y = 0.38
+
+[State 1022]
+type = SelfState
+trigger1 = ((Time > 0) && (Pos Y >= 0))
+value = 5100
+
+
+;--------------------------------------------------------
+;移動技 終了
+[Statedef 1310]
+type    = S
+movetype= I
+physics = N
+velset = 4,0
+juggle  = 1
+anim = 1310
+hitdefpersist = 1
+
+[State 1100]
+type = Varadd
+trigger1 = Time >= 0
+var(7) = 20
+
+[State 3000,00]
+type = Palfx
+trigger1 = time >= 0
+trigger1 = time <= 12
+add = var(7),var(7),var(7)
+time = 1
+
+[State 1300, 1]
+type = NotHitBy
+trigger1 = animelemtime(6) <= 0
+value = SCA
+time = 1
+
+[State 1105, 1]
+type = Veladd
+trigger1 = time <= 9
+x = -0.2
+
+[State 100,sound]
+type = PlaySnd
+trigger1 = AnimElem = 2
+value = 0, 5
+
+[State 1105, 3]
+type = Ctrlset
+trigger1 = animelem = 6
+value = 1
+
+[State 1105, 3]
+type = ChangeState
+trigger1 = animtime = 0
+value = 0
+ctrl = 1

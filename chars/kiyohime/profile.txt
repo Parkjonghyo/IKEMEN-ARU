@@ -1,0 +1,64 @@
+; 初期化設定
+[Statedef 5900]
+type = S
+
+;----------------------------
+;     その他コンフィグ
+;----------------------------
+[State 5900, グレイズしない？]
+type = VarSet
+trigger1 = 1
+var(43) = 1
+;１にすると相手の飛び道具をすり抜けなくなります。
+
+
+;----------------------------
+;     ここまで
+;----------------------------
+
+[State 5900, ストーリーモード]
+type = VarSet
+trigger1 = roundsexisted = 0
+var(30) = -1
+;　０：オン
+;－１：オフ
+;－２：１ラウンド目からモード突入
+
+[State 5900, 別モード有効パレット]
+type = VarSet
+trigger1 = 1 ;←ここを変更
+var(40) = 1
+;任意のカラーをカード不使用に出来ます。
+
+[State 5900, 0] ;持ち越さない変数リセット
+type = VarRangeSet
+trigger1 = roundsexisted = 0
+last = 29
+value = 0
+
+[State 5900, 0] ;持ち越さない変数リセット２
+type = VarRangeSet
+trigger1 = roundsexisted = 0
+last = 9
+fvalue = 0
+
+[State 5900, 初期カードシャッフル]
+type = VarRangeSet
+triggerall = roundsexisted = 0 ;試合開始時
+trigger1 = MatchNo = 1         ;一試合目
+trigger2 = var(42) = 0  ;変数リセット時（コンティニュー）
+first = 54
+last = 58
+value = -1
+
+[State 5900, 0] ;カードゲージ（パワー）持ち越し
+type = PowerSet
+trigger1 = MatchNo > 1
+trigger1 = var(45) > 0
+trigger1 = var(42) = 1
+value = var(45)
+
+[State 5900, 3] ;Intro for round 1
+type = ChangeState
+trigger1 = roundno = 1
+value = 190

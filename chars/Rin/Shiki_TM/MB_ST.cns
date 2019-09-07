@@ -1,0 +1,921 @@
+;---------------------------------------------------------------------------
+;StateDef-2
+[Statedef -2]
+;---------------------------------------------------------------------------
+;コンフィグ
+[State -2]
+type = varset
+trigger1 = PalNo >= 1
+v = 50
+value = 1	;0で体力消費無し
+		;1で脳神経の消耗
+
+;---------------------------------------------------------------------------
+;避け処理
+
+[State -2, varset] 
+type = varset
+triggerall = var(41) != 19 
+trigger1 = p2movetype = A
+trigger1 = command != "holdup"
+trigger1 = command != "holddown"
+trigger1 = command != "holdfwd"
+trigger1 = command != "holdback"
+trigger1 = stateno != 700
+trigger1 = stateno != 701
+v = 31
+value = 1
+
+[State -2, varset] 
+type = varset
+triggerall = var(41) != 19 
+trigger1 = p2movetype != A
+v = 31
+value = 0
+
+[State -2]
+type = varset
+trigger1 = time >= 1
+trigger1 = command = "holdback"
+trigger2 = stateno = 700
+var(31) = 0
+
+[State -2]
+type = null;varset
+triggerall = time = 0
+trigger1 = command = "holdback"
+var(31) = 1
+
+[State -2]
+type = null;varset
+trigger1 = command != "holdback"
+var(31) = 0
+
+;空中ダッシュ、二段ジャンプリセット
+[State -2, Air reset]
+type = VarSet
+trigger1 = Statetype != A
+trigger1 = Var(11) = 1
+v = 11
+value = 0
+IgnoreHitPause = 1
+
+[State -2, Air reset]
+type = VarSet
+trigger1 = Statetype != A
+trigger1 = Var(10) = 1
+v = 10
+value = 0
+IgnoreHitPause = 1
+
+[State -2, Air reset]
+type = VarSet
+trigger1 = Statetype != A
+trigger1 = Var(9) = 1
+v = 9
+value = 0
+IgnoreHitPause = 1
+
+[State -2, dash reset]
+type = VarSet
+triggerall = Var(8) = 1
+trigger1 = Statetype != A
+trigger1 = Stateno != 40
+v = 8
+value = 0
+IgnoreHitPause = 1
+
+
+;---------------------------------------------------------------------------
+
+;メルブラチェーンコンボシステム
+;（伊吹川さんのを参考にさせてもらってます）
+
+[State -2, L.Attack]
+type = VarSet
+trigger1 = StateNo = 200
+v = 17
+value = 1
+IgnoreHitPause = 1
+
+[State -2, M.Attack]
+type = VarSet
+trigger1 = StateNo = 210
+v = 18
+value = 1
+IgnoreHitPause = 1
+
+[State -2, H.Attack]
+type = VarSet
+trigger1 = StateNo = 220
+v = 19
+value = 1
+IgnoreHitPause = 1
+
+;***********************************
+[State -2, Crouch L.Attack]
+type = VarSet
+trigger1 = StateNo = 400
+v = 20
+value = 1
+IgnoreHitPause = 1
+
+[State -2, Crouch M.Attack]
+type = VarSet
+trigger1 = StateNo = 410
+v = 21
+value = 1
+IgnoreHitPause = 1
+
+[State -2, Crouch H.Attack]
+type = VarSet
+trigger1 = StateNo = 420
+v = 22
+value = 1
+IgnoreHitPause = 1
+
+;***********************************
+[State -2, Air L.Attack]
+type = VarSet
+trigger1 = StateNo = 600
+v = 23
+value = 1
+IgnoreHitPause = 1
+
+[State -2, Air M.Attack]
+type = VarSet
+trigger1 = StateNo = 610
+v = 24
+value = 1
+IgnoreHitPause = 1
+
+[State -2, Air H.Attack]
+type = VarSet
+trigger1 = StateNo = 620
+trigger2 = StateNo = 621
+v = 25
+value = 1
+IgnoreHitPause = 1
+;***********************************
+[State -2, Flag Reset]
+type = VarRangeSet
+trigger1 = MoveType != A
+trigger2 = StateType = A
+trigger3 = StateNo = 105
+trigger4 = StateNo = 0
+first = 17
+last = 22
+value = 0
+IgnoreHitPause = 1
+
+[State -2, Air Flag Reset-1]
+type = VarRangeSet
+trigger1 = MoveType != A
+trigger2 = StateType != A
+trigger3 = StateNo = 52
+trigger4 = StateNo = 115;108
+trigger5 = StateNo = 0
+first = 23
+last = 25
+value = 0
+IgnoreHitPause = 1
+
+;==========================================================================
+;--------------------------
+;対秋葉イントロ
+[State end]
+type = ChangeState
+triggerall = p2name="Akiha_Tohno"&&p2stateno=9903
+triggerall = enemy,stateno=9903 && enemy,var(59)=14
+trigger1 = stateno != 9901
+value = 9901
+
+[State end]
+type = ChangeState
+triggerall = p2name="Akiha_Tohno"&&p2stateno=9903
+triggerall = enemy,stateno=9903 && enemy,var(59)=11
+trigger1 = stateno != 9900 
+value = 9900
+
+[State end]
+type = ChangeState
+triggerall = p2name="Akiha_Tohno"&&p2stateno=9903
+triggerall = enemy,stateno=9903 && enemy,var(59)=12
+trigger1 = stateno != 9900 
+value = 9902
+
+[State 100,***]
+type = powerset
+triggerall = p2name="Akiha_Tohno"&&p2stateno=9903
+triggerall = enemy,stateno=9903 && enemy,var(59)=13
+trigger1 = stateno != 9900 
+value = 2500
+
+[State end]
+type = ChangeState
+triggerall = p2name="Akiha_Tohno"&&p2stateno=9903
+triggerall = enemy,stateno=9903 && enemy,var(59)=13
+trigger1 = stateno != 9900 
+value = 9900
+
+;------------------------------------------------------------------
+[State magic circuit]
+type = Helper
+trigger1 = numhelper(9100) = 0
+trigger1 = roundstate = 2
+name = "magic_circuit"
+stateno = 9100
+ID = 9100
+ownpal = 1
+supermovetime = 999999
+persistent = 0
+ignorehitpause = 1
+
+[State var]
+type = varset
+trigger1 = numhelper(9100) = 1
+var(45) = helper(9100),var(45)
+ignorehitpause = 1
+
+[State var]
+type = varset
+trigger1 = numhelper(9100) = 1
+fvar(10) = helper(9100),fvar(10)
+ignorehitpause = 1
+
+[State power]
+type = poweradd
+trigger1 = stateno != [190,199]
+trigger1 = var(45)= 3 && fvar(10) > 0
+value = -ifelse(var(45)=2,2,4)
+ignorehitpause = 1
+
+[State power]
+type = poweradd
+trigger1 = stateno != [190,199]
+trigger1 = var(45)!= 0 && fvar(10) > 0
+value = -ifelse(var(45)=2,2,4)
+ignorehitpause = 1
+
+[State var]
+type = varset
+trigger1 = var(45) = 0 && power = const(data.power)
+var(45) = 2
+ignorehitpause = 1
+
+[State var]
+type = varset
+trigger1 = numhelper(9110) = 1
+var(46) = helper(9110),var(46)
+ignorehitpause = 1
+
+[State var]
+type = varset
+trigger1 = numhelper(9110) = 1
+fvar(11) = helper(9110),fvar(11)
+ignorehitpause = 1
+
+[State life]
+type = lifeadd
+triggerall = fvar(11) > 0 && var(46) = 0
+trigger1 = gametime%2
+trigger1 = movetype!= H
+value = 2
+ignorehitpause = 1
+
+[State var]
+type = varadd
+triggerall = fvar(11) < 64 && time = [0,4]
+trigger1 = stateno = 42 || stateno = 100 || stateno = 102 || prevstateno = 951
+fvar(11) = -1.6
+
+[State var]
+type = varset
+triggerall = fvar(11)>= 1
+trigger1 = stateno = 42 || stateno = 100 || stateno = 102 || prevstateno = 951
+var(46) = 0
+
+[State -2, L.Attack]
+type = VarSet
+trigger1 = var(45) = 0
+v = 47
+value = 0
+
+[State -2, L.Attack]
+type = VarSet
+trigger1 = var(45) = 1 || var(45) = 2 
+v = 47
+value = 2
+
+[State -2, L.Attack]
+type = VarSet
+trigger1 = var(45) = 3
+v = 47
+value = 1
+
+;------------------------------------------------------------------
+[State explod]
+type = removeExplod
+trigger1 = stateno != 195
+id = 16050
+
+[State explod]
+type = removeExplod
+trigger1 = stateno != 195
+id = 16051
+;-------------------------------------------------------------------------
+;------------------------------------------------------------------
+;AIの動作とか
+
+[State 1000, 3]
+type = VarRandom
+trigger1 = time >= 0
+trigger1 = var(55) = 1
+trigger1 = gametime%10 = 0
+v = 56
+range = 0,5
+
+[State 1000, 3]
+type = Varset
+trigger1 = var(55) = 1
+trigger1 = roundstate != 2
+v = 55
+value = 0
+;AI VarSet
+
+;---------------------------------------------------------------------------
+;バンカー
+[State -1,]
+type = ChangeState
+value = 950
+triggerall = P2BodyDist X < 70
+trigger1 = var(55) = 1
+trigger1 = var(56) = 3
+trigger1 = statetype != A
+trigger1 = enemy,statetype != C
+trigger1 = enemy,movetype = A
+trigger1 = ctrl
+;Run Back
+
+;---------------------------------------------------------------------------
+;17分割
+[State -1]
+type = ChangeState
+value = 13006
+triggerall = var(55) = 1
+triggerall = var(45) = 3
+triggerall = statetype != A
+trigger1 = ctrl
+trigger1 = var(56) = 5
+trigger1 = P2BodyDist X > 80
+trigger1 = P2BodyDist X < 150
+trigger2 = stateno = 220
+trigger2 = movecontact
+trigger3 = enemy,stateno = [100,102]
+trigger3 = P2BodyDist X > 110
+trigger3 = ctrl
+trigger4 = enemy,movetype = A
+trigger4 = P2BodyDist X > 100
+trigger4 = ctrl
+trigger5 = P2BodyDist X < 130
+trigger5 = power <= 500
+trigger5 = ctrl
+trigger5 = var(56) <= 2
+trigger6 = stateno = [100,102]
+trigger6 = P2BodyDist X > 120
+trigger6 = time >= 6
+
+[State -1, Guard]
+type = ChangeState
+value = 120
+triggerAll = ctrl && movetype != A
+triggerAll = inguarddist
+triggerAll = var(55) = 1
+trigger1 = random < 500
+
+;七夜基本
+;弱攻撃
+[State -1, L.Attack]
+type = ChangeState
+value = 400
+triggerall = P2BodyDist X < 30
+triggerall = var(55) = 1
+triggerall = var(56) >= 3
+triggerall = enemy,stateno != 1020
+triggerall = enemy,stateno != [5100,5120]
+trigger1 = statetype != A
+trigger1 = roundstate = 2
+trigger1 = enemy,statetype != A
+trigger1 = ctrl = 1
+
+[State -1, L.Attack]
+type = ChangeState
+value = 200
+triggerall = P2BodyDist X < 30
+triggerall = var(55) = 1
+triggerall = var(56) <= 2
+triggerall = enemy,stateno != 1020
+triggerall = enemy,stateno != [5100,5120]
+trigger1 = roundstate = 2
+trigger1 = statetype != A
+trigger1 = enemy,statetype = A
+trigger1 = ctrl = 1
+
+;---------------------------------------------------------------------------
+;Kung Fu Throw
+;投げ
+[State -1, Throw]
+type = ChangeState
+value = 800
+triggerall = var(55) = 1
+triggerall = var(56) <= 1
+triggerall = statetype = S
+triggerall = ctrl
+triggerall = stateno != 100
+trigger1 = p2bodydist X < 3
+trigger1 = (p2statetype = S) || (p2statetype = C)
+trigger1 = p2movetype != H
+trigger2 = stateno = [100,102]
+
+;ナイフ基本コンボ
+;------------------------------------------------------------------------------
+;うかせ
+[State -1, L.Attack]
+type = ChangeState
+value = 210
+triggerall = P2BodyDist X < 40
+triggerall = var(55) = 1
+triggerall = var(56) <= 4
+triggerall = roundstate = 2
+triggerall = statetype != A
+trigger1 = ((var(18) = 0) && (StateNo = 420) && (MoveContact))
+trigger2 = ((var(18) = 0) && (StateNo = 220+5) && (MoveContact))
+
+;------------------------------------------------------------------------------
+;追い討ち
+[State -1, L.Attack]
+type = ChangeState
+value = 625
+triggerall = var(55) = 1
+trigger1 = statetype = A
+trigger1 = stateno = 50
+trigger1 = enemy,statetype = A
+trigger1 = enemy,movetype = H
+
+;眼鏡基本コンボ
+;------------------------------------------------------------------------------
+;弱攻撃
+[State -1, L.Attack]
+type = ChangeState
+value = 400
+triggerall = P2BodyDist X < 30
+triggerall = var(55) = 1
+triggerall = var(56) <= 2
+triggerall = enemy,stateno != 1020
+triggerall = enemy,stateno != [5100,5120]
+trigger1 = roundstate = 2
+trigger1 = statetype != A
+trigger1 = ctrl = 1
+
+;ナイフ基本コンボ
+
+;------------------------------------------------------------------------------
+;追撃A
+[State -1, L.Attack]
+type = ChangeState
+value = 210
+triggerall = P2BodyDist X < 60
+triggerall = var(55) = 1
+triggerall = enemy,stateno = 1020
+trigger1 = roundstate = 2
+trigger1 = statetype != A
+trigger1 = ctrl = 1
+
+;直死の魔眼・地面を殺す
+[State -1]
+type = ChangeState
+value = 14000
+triggerall = var(55) = 1
+triggerall =(var(45) = 1 || var(45) = 2)
+triggerall =var(41) != 20
+triggerall = statetype != A
+triggerall = var(56) <= 3
+trigger1 = ctrl
+trigger1 = P2BodyDist X > 130
+trigger1 = enemy,statetype != A
+
+;アナザー直死の魔眼・地面を殺す
+[State -1]
+type = ChangeState
+value = 14500
+triggerall = var(55) = 1
+triggerall =var(41) != 20
+triggerall =var(45) = 3
+triggerall = statetype != A
+triggerall = var(56) <= 4
+trigger1 = ctrl
+trigger1 = P2BodyDist X > 100
+trigger1 = enemy,statetype != A
+trigger1 = enemy,movetype != H
+
+[State Blood Heat (強制開放)]
+type = ChangeState
+value = 990
+triggerall = var(45) = 2 && power > 0
+triggerall = var(55) = 1 
+triggerall = roundstate = 2
+triggerall = var(56) <= 1
+trigger1 = statetype!= A && ctrl
+
+;------------------------------------------------------------------------------------
+
+;EX六兎
+[State -1]
+type = ChangeState
+value = 2200
+triggerall = power >= 1000 || Var(45) != 0
+triggerall = command = "六兎EX"
+triggerall = var(55) = 1
+triggerall = var(56) >= 4
+trigger1 = statetype != A
+trigger1 = ctrl
+trigger1 = P2BodyDist X < 50
+trigger1 = enemy,movetype = A
+trigger2 = stateno = [220,299]
+trigger2 = movecontact
+trigger3 = stateno = [100,102]
+trigger4 = stateno = 950
+trigger4 = animelemtime(4) >= 0
+trigger4 = movecontact
+
+;---------------------------------------------------------------------------
+
+;Run Back
+;後退ダッシュ
+[State -1, Run Back]
+type = ChangeState
+value = 105
+triggerall = var(55) = 1
+triggerall = var(56) >= 5
+trigger1 = statetype = S
+trigger1 = ctrl
+trigger1 = P2BodyDist X < 30
+trigger1 = enemy,movetype = A
+
+;Run Back
+;ダッシュ
+[State -1, Run Back]
+type = ChangeState
+value = 100
+triggerall = var(55) = 1
+triggerall = var(56) >= 3
+trigger1 = statetype = S
+trigger1 = ctrl
+trigger1 = P2BodyDist X > 140
+trigger1 = enemy,statetype = S
+
+;----------------------------------------------------------------------------
+;死の予感
+[State -1]
+type = ChangeState
+value = 4000
+triggerall = var(40) = 0
+triggerall = statetype != A
+triggerall = var(55) = 1
+triggerall = ctrl
+trigger1 = enemy,stateno >= 3000
+trigger1 = enemy,stateno <= 4900
+trigger1 = var(56) >= 2
+trigger1 = enemy,movetype = A
+trigger2 = life <= 400
+trigger2 = P2BodyDist X < 48
+trigger2 = var(56) >= 4
+trigger2 = enemy,movetype = A
+trigger3 = life <= 100
+trigger3 = enemy,movetype = A
+
+;---------------------------------------------------------------------------
+; KO時声管理
+[State -2,VarSet(11)]
+type = VarSet
+trigger1 = Alive
+var(4) = 0
+
+[State -2,VarSet(11)]
+type = VarSet
+trigger1 = !Alive && var(4) = 0
+var(4) = 1
+
+[State -2,PlaySnd]
+type = PlaySnd
+trigger1 = RoundState = 3
+trigger1 = !Alive && Var(4)=1
+value = 11,1
+channel = 15
+lowpriority = 1
+persistent = 0
+
+[State -2,VarSet(11)]
+type = VarSet
+trigger1 = var(4) = 1
+var(4) = -1
+
+
+;------------------------------------------------------------------
+;モード判定
+[State 0]
+type = varset
+triggerall = var(41) >= 1
+triggerall = var(41) <= 6
+trigger1 = RoundState = 0
+trigger2 = RoundState = 1
+v = 0
+value = 1
+
+[State 0]
+type = varset
+triggerall = var(41) = 7
+trigger1 = RoundState = 0
+trigger2 = RoundState = 1
+v = 0
+value = 2
+
+[State 0]
+type = varset
+triggerall = PalNo >= 1
+triggerall = PalNo <= 6
+triggerall = roundno = 1
+triggerall = var(41) != 19
+trigger1 = RoundState = 0
+v = 41
+value = 1
+
+[State 0]
+type = varset
+triggerall = PalNo >= 7
+triggerall = PalNo <= 12
+triggerall = roundno = 1
+triggerall = var(41) != 19
+trigger1 = RoundState = 0
+v = 41
+value = 20
+
+[State 0]
+type = varset
+triggerall = RoundState = 0
+trigger1 = var(41) = 20
+trigger2 = var(41) = 19
+v = 0
+value = 1
+[State 0]
+type = varset
+triggerall = var(41) = 5
+trigger1 = RoundState = 0
+trigger2 = RoundState = 1
+v = 0
+value = 0
+
+[State -2]
+Type = AfterImage
+Trigger1 = Power = 3000
+Time = 99999
+Trans = Add
+length = 12
+timegap  = 1
+framegap = 1
+PalBright = 0 , 0 , 2
+PalContrast = 33 , 33 , 225
+PalAdd = 0 , 0 , 0
+PalMul = 0.7 , 0.7 , 0.7
+IgnoreHitPause = 1
+Peresistent = 1
+SuperMoveTime = 9999
+PauseMoveTime = 9999
+
+[State -2]
+Type = AfterImageTime
+Trigger1 = Power <= 2999
+Trigger1 = Var(45) = 0
+Time = 1
+
+;---------------------------------------------------------------------
+[State 0]
+type = varset
+triggerall = PalNo >= 1
+trigger1 = teammode = turns
+v = 41
+value = 18
+
+[State 0]
+type = varset
+triggerall = PalNo >= 7
+trigger1 = teammode = turns
+v = 41
+value = 20
+
+[State 0]
+type = varset
+trigger1 = var(41) = 18
+trigger1 = teammode = turns
+trigger1 = PalNo >= 1
+v = 0
+value = 1
+
+[State 0]
+type = varset
+trigger1 = var(41) = 20
+trigger1 = teammode = turns
+trigger1 = PalNo >= 7
+v = 0
+value = 1
+
+[State 0]
+type = varset
+triggerall = var(41) = 21
+trigger1 = teammode = turns
+v = 0
+value = 2
+
+;--------------------------------------------------------------------------
+;クリティカル処理
+[State 0]
+type = varrandom
+trigger1 = 1
+v = 29
+range = 0,15
+
+[State 0]
+type = AttackMulSet
+trigger1 = var(29) != 1
+value = 1
+ignorhitpause = 0
+
+[State 0]
+type = AttackMulSet
+trigger1 = var(29) = 1
+value = 1.4
+ignorhitpause = 0
+
+[State 0]
+type = EnvColor
+trigger1 = var(29) = 1
+trigger1 = movehit = 1
+time = 1
+value = 500,0,0
+under = 0
+ignorhitpause = 1
+parsistent = 0
+
+;--------------------------------------------------------------------------
+;魔眼による脳神経の消耗
+
+[State 700]
+type = lifeadd
+Triggerall = Var(50) = 1
+triggerall = var(41) != 20
+triggerall = var(41) != 19
+triggerall = movetype != H
+triggerall = GameTime % 10 = 0
+triggerall = RoundState = 2
+trigger1 = stateno != 14100
+trigger2 = stateno != [13000,13500]
+value = -1
+kill = 0
+
+;--------------------------------------------------------------------------
+
+[State 700]
+type = RemoveExplod
+trigger1 = anim != 10410
+id = 16030
+
+[State 700]
+type = RemoveExplod
+trigger1 = anim != 11000
+id = 16010
+
+[State 700]
+type = RemoveExplod
+trigger1 = anim != 11010
+id = 16011
+
+;ランダムボイス
+
+[State 210, 1]
+type = PlaySnd
+trigger1 = anim = [5000,5100]
+trigger1 = time = 0
+channel = 0
+value = S20, random%9
+ignorehitpause = 1
+
+[State 210, 1]
+type = PlaySnd
+trigger1 = anim = 5300
+trigger1 = time = 0
+channel = 0
+value = s200, 0
+
+[State 210, 1]
+type = PlaySnd
+trigger1 = anim = 5300
+trigger1 = time = 0
+channel = 0
+value = s2020, 4
+
+;残像消し
+[State 1000,00]
+type = Afterimagetime
+triggerall = var(47) = 0
+triggerall = var(45) = 0
+trigger1 = stateno != [4000,4089]
+trigger1 = time = 0
+trigger2 = movetype = H
+trigger3 = stateno  = 0
+time = 0
+
+;------------------------------------------------------------------
+[Statedef -3]
+;味方が負ける
+[State -1]
+type = varset
+triggerall = TeamMode = simul
+trigger1 = partner,life = 0
+trigger1 = var(14) = 0
+var(14) = 1
+parsistent = 0
+
+[State -1]
+type = powerset
+triggerall = roundstate = 2
+trigger1 = statetype!= A
+trigger1 = var(14) = 1
+value = 10000
+parsistent = 0
+
+[State -1]
+type = ChangeState
+value = 990
+triggerall = var(14) = 1
+trigger1 = power >= 3000
+trigger1 = roundstate = 2
+trigger1 = statetype!= A 
+trigger1 = movetype = I
+;------------------------------------------------------------------
+[State -3]
+type = VarSet
+triggerall = RoundState = 2
+trigger1 = command = "AI"
+trigger2  = command = "AI1"
+trigger3  = command = "AI2"
+trigger4  = command = "AI3"
+trigger5  = command = "AI4"
+trigger6  = command = "AI5"
+trigger7  = command = "AI6"
+trigger8  = command = "AI7"
+trigger9  = command = "AI8"
+trigger10  = command = "AI9"
+trigger11  = command = "AI10"
+trigger12  = command = "AI11"
+trigger13  = command = "AI12"
+trigger14  = command = "AI13"
+trigger15  = command = "AI14"
+trigger16  = command = "AI15"
+trigger17  = command = "AI16"
+trigger18  = command = "AI17"
+trigger19  = command = "AI18"
+trigger20  = command = "AI19"
+trigger21  = command = "AI20"
+trigger22  = command = "AI21"
+trigger23  = command = "AI22"
+trigger24  = command = "AI23"
+trigger25  = command = "AI24"
+trigger26  = command = "AI25"
+trigger27  = command = "AI26"
+trigger28  = command = "AI27"
+trigger29  = command = "AI28"
+var(55) = 1
+;------------------------------------------------------------------
+[State end]
+type = ChangeState
+trigger1 = anim = 5
+trigger1 = animtime = 0
+value = 0
+
+[State end]
+type = ChangeState
+trigger1 = anim = 6
+trigger1 = animtime = 0
+value = 11
+
+[State var]
+type = varset
+trigger1 = teammode = turns
+trigger2 = enemy,teammode = turns
+var(52) = -1
+
+[State var]
+type = varset
+trigger1 = var(52)>= 0
+trigger1 = roundsexisted = 0
+var(52) = 0

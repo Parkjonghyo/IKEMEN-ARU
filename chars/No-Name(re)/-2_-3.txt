@@ -1,0 +1,802 @@
+
+;===========================================================================
+; 常時監視ステート（－２）
+;===========================================================================
+[Statedef -2]
+
+;---------------------------------------------------------------------------
+;設定
+;---------------------------------------------------------------------------
+[State -2,Option];逆境補正
+type = Varset
+trigger1 = 1
+var(50) = 1  ;ボイスのありなしを設定できます。
+             ;1であり。0でなし。
+
+
+[State -2,Option];逆境補正
+type = Varset
+trigger1 = 1
+var(51) = 0  ;逆境補正の攻撃力がかかるか設定できます。
+             ;1で補正あり。0で補正なし。
+
+[State -2,Option];逆境補正
+type = Varset
+trigger1 = 1
+var(52) = 0  ;逆境補正の防御力がかかるか設定できます。
+             ;1で補正あり。0で補正なし。
+
+
+[State -2,Option];ゲージ座標設定
+type = Varset
+trigger1 = 1
+var(54) = 55 ;システムゲージのY軸座標を設定できます．
+             ;デフォルトは55．[- Up] [+ Down]
+
+
+
+
+;---------------------------------------------------------------------------
+; ここまで
+;---------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+;---------------------------------------------------------------------------
+;補正関係
+;---------------------------------------------------------------------------
+[state -2];攻撃力補正12P--------------------------
+type = attackmulset
+triggerall = palno = 12
+trigger1 = 1
+value = 3
+
+
+
+[state -2];攻撃力補正--------------------------
+type = attackmulset
+triggerall = palno != 12
+triggerall = var(51) = 1
+triggerall = 1
+trigger1 = Life > 0 && Life < 100 
+value = 1.3
+
+[state -2]
+type = attackmulset
+triggerall = palno != 12
+triggerall = var(51) = 1
+triggerall = 1
+trigger1 = Life >= 100 && Life < 200 
+value = 1.2
+
+[state -2]
+type = attackmulset
+triggerall = palno != 12
+triggerall = var(51) = 1
+triggerall = 1
+trigger1 = Life >= 200 && Life < 300 
+value = 1.1
+
+[state -2]
+type = attackmulset
+triggerall = palno != 12
+triggerall = var(51) = 1
+triggerall = 1
+trigger1 = Life >= 300 && Life < 400 
+value = 1.05
+
+
+
+
+[state -2];防御力補正12P--------------------------
+type = Defencemulset
+triggerall = palno = 12
+trigger1 = 1
+value = 0.3
+
+
+[state -2];防御力補正--------------------------
+type = Defencemulset
+triggerall = palno != 12
+triggerall = var(52) = 1
+triggerall = 1
+trigger1 = Life > 0 && Life < 100 
+value = 0.75
+
+[state -2]
+type = Defencemulset
+triggerall = palno != 12
+triggerall = var(52) = 1
+triggerall = 1
+trigger1 = Life >= 100 && Life < 200 
+value = 0.80
+
+[state -2]
+type = Defencemulset
+triggerall = palno != 12
+triggerall = var(52) = 1
+triggerall = 1
+trigger1 = Life >= 200 && Life < 300 
+value = 0.85
+
+[state -2]
+type = Defencemulset
+triggerall = palno != 12
+triggerall = var(52) = 1
+triggerall = 1
+trigger1 = Life >= 300 && Life < 400 
+value = 0.95
+
+;---------------------------------------------------------------------------
+;補正関係
+;---------------------------------------------------------------------------
+;ヒット数カウント
+[State -2,ヒット数]
+type = VarAdd
+trigger1 = movehit = 1 || projhit = 1
+var(13) = 1
+
+[State -2,ヒット数初期化]
+type = VarSet
+triggerall = var(13) != 0
+trigger1 = enemy,movetype != H
+var(13) = 0
+
+[State -2,コンボ補正1]
+type = VarSet
+trigger1 = var(13) = 0
+fVar(10) = 1
+
+[State -2,コンボ補正1]
+type = VarSet
+trigger1 = var(13) = 1
+fVar(10) = 0.75
+
+[State -2,コンボ補正2]
+type = VarSet
+trigger1 = var(13) = 2
+fVar(10) = 0.5
+
+[State -2,コンボ補正3]
+type = VarSet
+trigger1 = var(13) >= 3
+fVar(10) = 0.25
+
+;浮き関連
+[State -2,浮き補正ヒット数]
+type = VarAdd
+triggerall = enemynear,StateType = A
+trigger1 = MoveHit = 1
+trigger2 = ProjHit = 1
+var(18) = 1
+
+[State -2,浮き補正ヒット数初期化]
+type = VarSet
+triggerall = var(18) != 0
+trigger1 = enemynear,movetype != H
+var(18) = 0
+
+[State -2,浮き補正]
+type = varset
+trigger1 = Var(18) >= 4
+fVar(20) = 0.50*(var(18))
+
+[State -2,浮き補正リセット]
+type = varset
+triggerall = enemynear,movetype != H
+trigger1 = var(18) = 0
+fVar(20) = 0
+
+[State -2, エフェクト消去]
+type = RemoveExplod
+trigger1 = Movetype != A
+ID = 3020
+
+[State -2,受身入力失敗]
+type = VarSet
+triggerall = var(19) = 0
+triggerall = stateno = [5020,5100]
+triggerall = Pos Y < -1
+trigger1 = command = "x" || command = "y" || command = "z"
+trigger2 = command = "a" || command = "b" || command = "c"
+var(19) = 1
+ignorehitpause = 1
+
+[State -2,受身リセット]
+type = VarSet
+trigger1 = var(19) != 0
+trigger1 = Movetype != H
+var(19) = 0
+ignorehitpause = 1
+
+;=============================
+;ジャグルかけない
+[State -2, Nojuggle]
+type = AssertSpecial
+trigger1 = 1
+flag = Nojugglecheck
+ignorehitpause = 1
+
+;=============================
+;ボスモード
+[State -2, BOSS]
+type = varset
+trigger1 = palno = [7,12]
+var(53) = 1
+
+;=============================
+;12Pモード
+[State -2, 12P]
+type = PowerAdd
+triggerall = palno = 12
+trigger1 = gametime%4 = 0
+value = 2
+
+[State -2, 12P]
+type = LifeAdd
+triggerall = palno = 12
+trigger1 = gametime%30 = 0
+value = 1
+
+;------------------------------------------------------------------------
+;------------------------------------------------------------------------
+;------------------------------------------------------------------------
+;ゲージ関連--------------------------------------------------------------
+;------------------------------------------------------------------------
+;------------------------------------------------------------------------
+;------------------------------------------------------------------------
+
+[state 10400, ゲージ枠]
+type = Explod
+triggerall = RoundState <= 2
+trigger1 = teamside = 1
+anim = 27000
+id = 27000
+removetime = 1
+sprpriority = 9
+postype = left
+pos = 85,var(54)
+ontop = 0
+bindtime = -1
+ownpal = 1
+IgnoreHitPause = 1
+SuperMoveTime = 9999
+PauseMoveTime = 9999
+scale = 0.5,0.5
+
+[state 10400, ゲージ枠]
+type = Explod
+;triggerall = palno != 12
+triggerall = RoundState <= 2
+trigger1 = teamside = 2
+anim = 27005
+id = 27000
+removetime = 1
+sprpriority = 9
+postype = right
+pos = -105,var(54)
+ontop = 0
+bindtime = -1
+ownpal = 1
+IgnoreHitPause = 1
+SuperMoveTime = 9999
+PauseMoveTime = 9999
+facing = 1
+scale = 0.5,0.5
+
+;---------------------------------------------------------------------------
+;---------------------------------------------------------------------------
+
+;自分防禦ゲージ
+[State -2,連続ガード補正リセット]
+type = VarSet
+trigger1 = MoveType != H
+fvar(24) = 1
+
+[State -2,ガードセット]
+type = VarSet
+triggerall = palno = 12
+trigger1 = 1
+var(24) = 0
+
+[State -2,立ちガークラゲージ蓄積]
+type = VarAdd
+triggerall = stateno = 150
+trigger1 = time = 0
+var(24) = floor(ifelse((enemy,hitdefattr=SCA,HA,HP),70,ifelse((enemy,hitdefattr=SCA,SA,SP),50,30))*fvar(24))
+ignorehitpause = 1
+
+[State -2,屈みガークラゲージ蓄積]
+type = VarAdd
+triggerall = stateno = 152
+trigger1 = time = 0
+var(24) = floor(ifelse((enemy,hitdefattr=SCA,HA,HP),70,ifelse((enemy,hitdefattr=SCA,SA,SP),50,30))*1.25*fvar(24))
+ignorehitpause = 1
+
+[State -2,空中ガークラゲージ蓄積]
+type = VarAdd
+triggerall = stateno = 154
+trigger1 = time = 0
+var(24) = floor(ifelse((enemy,hitdefattr=SCA,HA,HP),70,ifelse((enemy,hitdefattr=SCA,SA,SP),50,30))*2*fvar(24))
+ignorehitpause = 1
+
+[State -2, 防禦回復]
+Type = VarAdd
+triggerall = var(24) > 0
+triggerall = stateno != [760,761]
+trigger1 = (GameTime % 10 = 0)
+var(24) = -1
+ignorehitpause = 1
+
+[State -2,防禦崩壊]
+type = Changestate
+triggerall = roundstate = 2
+triggerall = stateno != [760,761]
+trigger1 = var(24) >= 700
+value = ifelse(StateType != A,760,761)
+
+[State -2, 防禦崩壊フラグON]
+Type = Varset
+triggerall = var(28) = 0
+trigger1 = stateno = [760,761]
+var(28) = 1
+ignorehitpause = 1
+
+[State -2, 防禦崩壊フラグOFF]
+Type = Varset
+triggerall = var(28) != 0
+trigger1 = stateno != [760,761]
+trigger1 = movetype != H
+var(28) = 0
+ignorehitpause = 1
+
+[State -2, 防禦ゲージリカバリ]
+Type = Varset
+trigger1 = var(28) != 0
+trigger2 = RoundState = [0,1]
+var(24) = 0
+ignorehitpause = 1
+
+;---------------------------------------------------------------------------
+;---------------------------------------------------------------------------
+[state 10400, 防禦ゲージ]
+type = Explod
+triggerall = palno = 12
+triggerall = RoundState <= 2
+trigger1 = teamside = 1
+anim = 27004
+id = 27004
+removetime = 1
+sprpriority = 8
+postype = left
+pos = 85,var(54)
+ontop = 0
+bindtime = -1
+ownpal = 1
+IgnoreHitPause = 1
+SuperMoveTime = 9999
+PauseMoveTime = 9999
+scale = 0.5,0.5
+
+[state 10400, 防禦ゲージ]
+type = Explod
+triggerall = palno = 12
+triggerall = RoundState <= 2
+trigger1 = teamside = 2
+anim = 27004
+id = 27004
+removetime = 1
+sprpriority = 8
+postype = left
+pos = 227,var(54)
+ontop = 0
+bindtime = -1
+ownpal = 1
+IgnoreHitPause = 1
+facing = -1
+SuperMoveTime = 9999
+PauseMoveTime = 9999
+scale = 0.5,0.5
+
+
+
+
+[state 10400, 防禦ゲージ]
+type = Explod
+triggerall = palno != 12
+triggerall = RoundState <= 2
+trigger1 = teamside = 1
+anim = 27002
+id = 27002
+removetime = 1
+sprpriority = 8
+postype = left
+pos = 85,var(54)
+ontop = 0
+bindtime = -1
+ownpal = 1
+IgnoreHitPause = 1
+SuperMoveTime = 9999
+PauseMoveTime = 9999
+scale = ((700-var(24))*0.001428)*0.5,0.5
+
+[state 10400, 防禦ゲージ]
+type = Explod
+triggerall = palno != 12
+triggerall = RoundState <= 2
+trigger1 = teamside = 2
+anim = 27002
+id = 27002
+removetime = 1
+sprpriority = 8
+postype = left
+pos = 227,var(54)
+ontop = 0
+bindtime = -1
+ownpal = 1
+IgnoreHitPause = 1
+facing = -1
+SuperMoveTime = 9999
+PauseMoveTime = 9999
+scale = ((700-var(24))*0.001428)*0.5,0.5
+
+;---------------------------------------------------------------------------
+;---------------------------------------------------------------------------
+[State -2, キャンセルゲージリカバリ]
+Type = Varset
+trigger1 = RoundState = [0,1]
+fvar(21) = 1
+ignorehitpause = 1
+
+[State -2,キャンセルゲージセット]
+type = VarSet
+triggerall = RoundState = 2
+trigger1 = fvar(21) > 1
+fvar(21) = 1
+
+[State -2,キャンセルゲージセット]
+type = VarSet
+triggerall = RoundState = 2
+trigger1 = fvar(21) < 0
+fvar(21) = 0
+
+[State -2,キャンセルゲージ増加]
+type = VarAdd
+triggerall = palno = 12
+triggerall = RoundState = 2
+triggerall = gametime%20 = 0
+triggerall = fvar(21) != 1
+trigger1 = 1
+fvar(21) = 0.01
+
+[State -2,キャンセルゲージ増加]
+type = VarAdd
+triggerall = palno != 12
+triggerall = var(53) = 1
+triggerall = RoundState = 2
+triggerall = gametime%40 = 0
+triggerall = fvar(21) != 1
+trigger1 = Enemy,Movetype != H
+fvar(21) = 0.01
+
+[State -2,キャンセルゲージ増加]
+type = VarAdd
+triggerall = palno != 12
+triggerall = var(53) != 1
+triggerall = RoundState = 2
+triggerall = gametime%80 = 0
+triggerall = fvar(21) != 1
+trigger1 = Enemy,Movetype != H
+fvar(21) = 0.01
+
+
+;---------------------------------------------------------------------------
+[state 10400, キャンセルゲージ]
+type = Explod
+;triggerall = palno != 12
+triggerall = RoundState <= 2
+trigger1 = teamside = 1
+anim = 27001
+id = 27001
+removetime = 1
+sprpriority = 8
+postype = left
+pos = 85,var(54)
+ontop = 0
+bindtime = -1
+ownpal = 1
+IgnoreHitPause = 1
+SuperMoveTime = 9999
+PauseMoveTime = 9999
+scale = fvar(21)*.5,0.5
+
+[state 10400, キャンセルゲージ]
+type = Explod
+;triggerall = palno != 12
+triggerall = RoundState <= 2
+trigger1 = teamside = 2
+anim = 27001
+id = 27001
+removetime = 1
+sprpriority = 8
+postype = left
+pos = 227,var(54)
+ontop = 0
+bindtime = -1
+ownpal = 1
+IgnoreHitPause = 1
+facing = -1
+SuperMoveTime = 9999
+PauseMoveTime = 9999
+scale = fvar(21)*.5,0.5
+
+
+;---------------------------------------------------------------------------
+;---------------------------------------------------------------------------
+[State -2, 喰らいぬけリカバリ]
+Type = Varset
+trigger1 = RoundState = [0,1]
+var(39) = 1
+ignorehitpause = 1
+
+
+;---------------------------------------------------------------------------
+[state 10400, キャンセルゲージ]
+type = Explod
+triggerall = var(39) = 1
+triggerall = RoundState <= 2
+trigger1 = teamside = 1
+anim = 27003
+id = 27003
+removetime = 1
+sprpriority = 8
+postype = left
+pos = 85,var(54)
+ontop = 0
+bindtime = -1
+ownpal = 1
+IgnoreHitPause = 1
+SuperMoveTime = 9999
+PauseMoveTime = 9999
+scale = .5,.5
+
+[state 10400, キャンセルゲージ]
+type = Explod
+triggerall = var(39) = 1
+triggerall = RoundState <= 2
+trigger1 = teamside = 2
+anim = 27003
+id = 27003
+removetime = 1
+sprpriority = 8
+postype = left
+pos = 318,var(54)
+ontop = 0
+bindtime = -1
+ownpal = 1
+IgnoreHitPause = 1
+facing = -1
+SuperMoveTime = 9999
+PauseMoveTime = 9999
+scale = .5,.5
+
+[State 8550, Explodを消す]
+type = RemoveExplod
+;triggerall = var(39) != 1
+;trigger1 = Root,StateNo = 770
+trigger1 = var(39) != 1
+ID = 27003
+
+
+;------------------------------------------------------------------------
+;------------------------------------------------------------------------
+;------------------------------------------------------------------------
+;------------------------------------------------------------------------
+
+
+
+
+;------------------------------------------------------------------------
+;フラグリセット----------------------------------------------------------
+;------------------------------------------------------------------------
+[State -2,空中ダッシュフラグリセット用]
+type = VarSet
+trigger1 = StateType != A
+v = 30
+value = 0
+IgnoreHitPause = 1
+
+[State -2,6Bフラグリセット用]
+type = VarSet
+trigger1 = Enemy,Movetype != H
+v = 31
+value = 0
+IgnoreHitPause = 1
+
+[State -2,2A4フラグリセット用]
+type = VarSet
+trigger1 = Enemy,Movetype != H
+v = 32
+value = 0
+IgnoreHitPause = 1
+
+[State -2,CCフラグリセット用]
+type = VarSet
+trigger1 = StateNo != 223
+v = 33
+value = 0
+IgnoreHitPause = 1
+
+[State -2,CCフラグリセット用]
+type = VarSet
+trigger1 = StateNo != 272
+v = 34
+value = 0
+IgnoreHitPause = 1
+
+[State -2,B突進フラグリセット用]
+type = VarSet
+trigger1 = Enemy,Movetype != H
+v = 35
+value = 0
+IgnoreHitPause = 1
+
+[State -2,飛び道具確認フラグリセット用]
+type = VarSet
+trigger1 = stateno != [1000,1050]
+v = 36
+value = 0
+IgnoreHitPause = 1
+
+[State -2,3ゲージ確認フラグリセット用]
+type = VarSet
+trigger1 = stateno != [3000,3050]
+v = 37
+value = 0
+IgnoreHitPause = 1
+
+[State -2,J攻撃フラグリセット用]
+type = VarSet
+trigger1 = Enemy,Movetype != H
+v = 38
+value = 0
+IgnoreHitPause = 1
+
+[State -2,強BEリセット用]
+type = VarSet
+trigger1 = Enemy,Movetype != H
+v = 29
+value = 0
+IgnoreHitPause = 1
+
+;-----------------------------------
+
+
+
+
+;===========================================================================
+; 準常時監視ステート（－３）
+;===========================================================================
+[Statedef -3]
+
+;---------------------------------------------------------------------
+;やられボイス
+;---------------------------------------------------------------------
+[State -3, やられ];喰らい弱
+type = PlaySnd
+triggerall = var(50) = 1
+triggerall = alive = 1
+triggerall = random <= 333
+trigger1 = Time = 1 && stateno = 5000 && (anim = 5000 || anim = 5010)
+trigger2 = Time = 1 && stateno = 5010 && (anim = 5020)
+trigger3 = Time = 1 && stateno = 5020 && (anim = 5000 || anim = 5010)
+value = 17,4
+channel = 1
+
+[State -3, やられ];喰らい中
+type = PlaySnd
+triggerall = var(50) = 1
+triggerall = alive = 1
+triggerall = random <= 300
+trigger1 = Time = 1 && stateno = 5000 && (anim = 5001 || anim = 5011)
+trigger2 = Time = 1 && stateno = 5011 && (anim = 5021)
+trigger3 = Time = 1 && stateno = 5020 && (anim = 5001 || anim = 5011)
+value = 19,0
+channel = 1
+
+[State -3, やられ];喰らい強
+type = PlaySnd
+triggerall = var(50) = 1
+triggerall = random <= 333
+trigger1 = Time = 1 && stateno = 5000 && (anim = 5002 || anim = 5012)
+trigger2 = Time = 1 && stateno = 5010 && (anim = 5022)
+trigger3 = Time = 1 && stateno = 5020 && (anim = 5002 || anim = 5012)
+trigger4 = Time = 1 && stateno = 5020 && (anim = 5030 || anim = 5012)
+trigger5 = Time = 1 && stateno = 5070 && (anim = 5070)
+value = 19,1
+channel = 1
+
+[State -3, やられ];敗北時
+type = PlaySnd
+triggerall = var(50) = 1
+triggerall = alive = 0
+trigger1 = MatchOver = 1
+trigger1 = time = 1
+value = 19,2
+
+[State -3, 音を止める]
+type = StopSnd
+trigger1 = !Alive
+Channel = 1
+
+[State -3, 音を鳴らす]
+type = PlaySnd
+triggerall = var(50) = 1
+triggerall = Time = 1
+triggerall = random <= 333
+trigger1 = stateno = 5120;起き上がり
+value = 18, 5
+
+[State -3, 音を鳴らす]
+type = PlaySnd
+triggerall = var(50) = 1
+triggerall = Time = 1
+trigger1 = stateno = 5210  ;空中受身
+trigger2 = stateno = 5201  ;地上寸前での空中受身
+trigger3 = stateno = 521   ;原作風の地上受身
+value = 17, 4
+
+[State -3, エフェクト]
+type = Explod
+triggerall = Time = 1
+trigger1 = stateno = 5210  ;空中受身
+trigger2 = stateno = 5201  ;地上寸前での空中受身
+trigger3 = stateno = 815  ;投げ回避
+anim = 10000
+facing = 1
+postype = p1
+pos = ifelse(stateno=815,30,0),-60
+sprpriority = 3
+ownpal = 1
+scale = .5,.5
+pausemovetime = 73640
+supermovetime = 73640
+supermove = 1
+bindtime = 1
+persistent = 0
+ignorehitpause = 1
+
+[State -3, 背景]
+type = BGPalFX
+triggerall = movehit = 1 || projhit = 1 || var(16) = 1 || var(17) = 1
+triggerall = StateNo != [800,870]
+triggerall = StateNo != [903,924]
+trigger1 = numexplod(7130) = 0
+trigger1 = fVar(11) = 1.25
+trigger2 = numexplod(7140) = 0
+trigger2 = fVar(12) = 1.5
+time = 2
+add = 254,0,0
+ignorehitpause = 1
+
+;---------------------------------------------------------------------------
+; システム
+;---------------------------------------------------------------------------

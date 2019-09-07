@@ -1,0 +1,220 @@
+[Statedef -2]
+
+
+
+;---------------------------------------------------------------------------
+;개인설정/personal settings
+;번역기 사용중이라면, 전부 믿지는 말것/if you use a translation program, don't believe it hardly.
+;---------------------------------------------------------------------------
+[state -2, 라운드 당 위상력 개방 횟수제한]
+type=varset
+trigger1=roundstate=0
+var(42)=1                       ;라운드 당 위상력 개방 사용가능횟수, 기본값은 1
+
+[state -2, 위상력 개방 시간]
+type = varset
+trigger1 = stateno=2900 && animelem = 11
+var(7) =1000                    ;위상력 개방 시간, 기본값은 1000
+
+[state -2, 통상 대미지]
+type=AttackMulset
+trigger1=1
+value=ifelse(var(7),1.5,1.0)    ;1.5 부분이 위상력 개방 시 대미지 배율
+                                ;1.0 부분이 통상적인 대미지 배율
+                                ;1같은 정수는 오작동, 1.0으로 소수점도 넣어야 합니다
+
+[state -2,지상 점프캔슬 횟수]
+type = varset
+trigger1 = enemy,movetype != H
+trigger2 = enemy,stateno = [120,155]
+v = 40
+value = 1                       ;한 콤보 당 지상에서의 점프캔슬 가능횟수, 기본값은 1
+ignorehitpause = 1
+
+
+[State -2, 공중 점프 횟수]
+type = VarSet
+trigger1 = roundstate=0
+trigger2 = (stateno=[52,53])
+var(41) = 1                     ;공중점프 가능횟수, 기본값은 1
+
+
+[state -2,통상 상태의 파워 회수]
+type = varset
+trigger1 = !var(7)
+var(6) = 25                     ;기본값은 25, 많은 양이 아니므로 줄이지 않음을 추천합니다
+
+[state -2,위상력 개방 중 파워 회수]
+type = varset
+trigger1 = var(7)
+var(6) = 13                     ;기본값은 13, 위상력 개방은 대미지가 증가하는 상태이기에 보정으로 값을 낮춘 상태입니다
+
+
+
+
+;===========================================================================
+;댥돷긘긚긡딯뢲 빾뛛
+;===========================================================================
+[State -2, 긏깏긞긵긤]
+type = DisplayToClipboard
+trigger1 = 1
+text = "fvar(0)=%f,fvar(1)=%f,fvar(11)=%f \n"
+params = fvar(0),fvar(1),fvar(11)
+
+[State -2, 긏깏긞긵긤걁믁돿먭뾭걂]
+	type = AppendToClipboard
+	TriggerAll = !IsHelper
+	trigger1 = 1
+	text = "Position X=%d,Y=%d, Velocity X=%f,Y=%f, Hit=%d \n"
+	params = floor(Pos X),floor(Pos Y),(Vel X),(Vel Y),(MoveHit)
+;---------------------------------------------------------------------------
+;대미지 보정
+;---------------------------------------------------------------------------
+[State -2];보정값이 음수가 될 경우 대미지 0으로 고정
+type = Varset
+trigger1 = fvar(0) < 0
+fv = 0
+value = 0
+ignorehitpause = 1
+
+[State -2,보정 초기화]
+type = Varset
+trigger1 = enemy,movetype != H
+trigger2 = enemy,stateno = [120,155]
+fv = 0
+value = 1
+ignorehitpause = 1
+
+[State -2]
+type = Varset
+triggerall = var(1) = 1
+trigger1 = movetype = H
+trigger2 =  var(5) = 0
+trigger2 = !numtarget
+var(1) = 0
+ignorehitpause = 1
+
+;---------------------------------------------------------------------------
+
+
+;---------------------------------------------------------------------------
+;위상력 개방 관리
+[State -2]
+type = Explod
+trigger1 = NumHelper(30000)
+trigger1 = NumExplod(2905)=0
+anim = 2905
+ID = 2905
+pos = 0, 15
+postype = p1
+bindtime=-1
+supermovetime = 9999
+pausemovetime = 9999
+sprpriority = 5
+ownpal = 1
+removetime = -1
+
+[State -2]
+type = Helper
+trigger1 = Numhelper(30000) = 0
+stateno = 30000
+ID = 30000
+pos = ifelse(teamside=1,8-Parent,Var(32),205+Parent,Var(32)), 217+Parent,Var(31)
+postype = left
+helpertype = normal
+name = "Seulbi"
+keyctrl = 0
+ownpal = 1
+pausemovetime = 9999
+supermovetime = 9999
+
+[state -2]
+type=removeexplod
+trigger1=var(7)=0
+id=2905
+
+[State -2, 暗黒残像]
+Type = AfterImage
+triggerall = var(7)
+trigger1 = !time
+Time = 1
+length = 13
+framegap = 4
+PalBright = 200,0,100
+PalContrast = 255,255,255
+PalPostBright = 0,0,0
+Paladd = 0,0,0
+PalMul = 2,2,2
+Trans = add1
+
+[State -2, 暗黒残像]
+Type = AfterImageTime
+trigger1 = var(7)
+Time = 2
+Ignorehitpause = 1
+
+[State -2];긒긙뚁귂뢯궢
+type = Helper
+triggerAll = !var(18)
+trigger1 = time = 1
+trigger1 = Numhelper(9999) = 0
+stateno = 9999
+ID = 9999
+pos = 0,0
+postype = left
+helpertype = normal
+name = "gauge"
+keyctrl = 0
+ownpal = 1
+pausemovetime = 9999
+supermovetime = 9999
+
+[State -2];긏긒긙돷뙽
+Type= Varset
+Trigger1= var(7) < 0
+var(7)=0
+
+[State -2];긒긙뙵룺
+Type= VarAdd
+TriggerAll= var(7)>0
+trigger1=1
+var(7)=-1
+
+[State -2]
+Type = RemoveExplod
+TriggerAll = NumExplod(30020) > 0
+Trigger1 = RoundState = [0,4]
+IgnoreHitPause = 1
+ID = 30020
+
+[State -2]
+Type = Explod
+TriggerAll = NumExplod(30020) = 0
+Trigger1 = TeamSide = 1
+Trigger1 = RoundState = [0,4]
+Anim = 30020+Var(47)
+PosType = Left
+ontop = 1
+Pos = 36-Parent,Var(32), 212+Parent,Var(31)
+Scale = 0.5,0.5
+BindTime = -1
+Ownpal = 1
+IgnoreHitPause = 1
+SprPriority = 4
+ID = 30020
+
+[State -2]
+Type = Explod
+TriggerAll = NumExplod(30020) = 0
+Trigger1 = TeamSide = 2
+Trigger1 = RoundState = [0,4]
+Anim = 30020+Var(47)
+PosType = Left
+ontop = 1
+Pos = 234+Parent,Var(32), 212+Parent,Var(31)
+Scale = 0.5,0.5
+BindTime = -1
+Ownpal = 1
+IgnoreHitPause = 1
+SprPriority = 4
+ID = 30020

@@ -1,0 +1,1150 @@
+;---------------------------------------------------------------------------
+;コンフィグのステ?ト 変更OK！
+;---------------------------------------------------------------------------
+[Statedef -2]
+;---------------------------------------------------------------------------
+;AI関連
+
+
+;---------------------------------------------------------------------------
+;初期設定
+;---------------------------------------------------------------------------
+[State -2, 電池制限設定]
+	type = VarSet
+	trigger1 = RoundsExisted = 0
+	var(18) = 0 ;ここの数字を変えることで設定可?
+				;0で電池制限あり、1で電池制限なし デフォルトは0
+	
+[State -2, 電池初期設定]
+	type = VarSet
+	triggerAll = !var(18)
+	triggerAll = RoundsExisted = 0
+	trigger1 = TeamMode = Single || TeamMode = simul
+	trigger1 = RoundState = 0
+	trigger2 = TeamMode = Turns
+	trigger2 = RoundState = 0 || RoundState = 1
+	var(3) = 1000	;ここの数字を変えることで設定可? 100で10％、1000で100％ デフォルトは1000
+					;0?9にするとバグるので最低値は10(1%)から
+
+[State -2,初期ゲ?ジ設定]
+	Type= PowerSet
+	trigger1 = roundsexisted = 0 && roundstate = 0 && roundno = 1;
+	value=1500 ; 0?6000で設定可? 1000単位で1? デフォルトは1500
+
+[State -2];電池ゲ?ジy軸
+	type = Varset
+	trigger1 = Numhelper(30000) = 0
+	var(31) = 0;デフォルトは0 -方向で上に
+
+[State -2];電池x軸
+	type = Varset
+	trigger1 = Numhelper(30000) = 0
+	var(32) = 0;デフォルトは0 -方向で中央に
+
+;===========================================================================
+;以下システ?記述 変更?
+;===========================================================================
+[State -2, クリップ??ド]
+type = DisplayToClipboard
+trigger1 = 1
+text = "fvar(0)=%f,fvar(1)=%f,fvar(11)=%f \n"
+params = fvar(0),fvar(1),fvar(11)
+
+[State -2, クリップ??ド（追加専用）]
+	type = AppendToClipboard
+	TriggerAll = !IsHelper
+	trigger1 = 1
+	text = "Position X=%d,Y=%d, Velocity X=%f,Y=%f, Hit=%d \n"
+	params = floor(Pos X),floor(Pos Y),(Vel X),(Vel Y),(MoveHit)
+
+;===========================================================================
+;初期化
+;===========================================================================
+
+	
+;===========================================================================
+;カラ?別
+;===========================================================================
+[State -2, コン?補正強化];7P
+	type = VarSet
+	triggerAll = PalNo >= 7
+ 	trigger1 = fvar(0) < 0.30
+ 	fv = 0
+ 	value = 0.30
+ 	ignorehitpause = 1
+
+[State -2, ノックバック上限追加];8P
+	type = VarSet
+	triggerAll = PalNo >= 8
+ 	trigger1 = fvar(11) > 25
+ 	fvar(11) = 25
+	ignorehitpause = 1
+
+[State -2, ゲジ?ユ];10P
+	type = PowerSet
+	trigger1 = PalNo >= 10
+	trigger1 = power != powermax
+	value = PowerMax
+	ignorehitpause = 1
+;===========================================================================
+;システ?
+;===========================================================================
+;---------------------------------------------------------------------------
+;キャンセル初期化
+;---------------------------------------------------------------------------
+[State -2]
+ 	type = Varset
+ 	triggerall = var(1) = 1
+ 	trigger1 = movetype = H
+ 	trigger2 =  var(5) = 0
+	trigger2 = !numtarget
+	var(1) = 0
+	ignorehitpause = 1
+	
+;---------------------------------------------------------------------------
+;?メ?ジ補正
+;---------------------------------------------------------------------------
+[State -2];補正
+ 	type = Varset
+ 	trigger1 = fvar(0) < 0
+ 	fv = 0
+ 	value = 0
+ 	ignorehitpause = 1
+
+[State -2];補正
+ 	type = Varset
+ 	trigger1 = enemy,movetype != H
+ 	trigger2 = enemy,stateno = [120,155]
+ 	fv = 0
+	value = 1
+	ignorehitpause = 1
+
+[State -2];補正
+ 	type = Varset
+ 	trigger1 = fvar(1) < 0
+ 	fv = 1
+ 	value = 0
+ 	ignorehitpause = 1
+
+[State -2];補正
+ 	type = Varset
+ 	trigger1 = enemy,movetype != H
+ 	trigger2 = enemy,stateno = [120,155]
+ 	fv = 1
+	value = 1
+	ignorehitpause = 1
+
+;---------------------------------------------------------------------------
+;ノックバック
+;---------------------------------------------------------------------------
+[State -2];ノックバック初期化
+ 	type = Varset
+ 	trigger1 = enemy,movetype != H
+ 	trigger2 = enemy,stateno = [120,155]
+ 	trigger3 = movetype = H
+ 	fvar(11)=0
+	ignorehitpause = 1
+
+;---------------------------------------------------------------------------
+;?速?電使用回数初期化
+;---------------------------------------------------------------------------
+[State -2];ル?プ
+ 	type = Varset
+ 	trigger1 = enemy,movetype != H
+ 	trigger2 = enemy,stateno = [120,155]
+ 	var(15)=0
+	ignorehitpause = 1
+
+;---------------------------------------------------------------------------
+;根性値
+;---------------------------------------------------------------------------
+[State -2,ガ?ド]
+Type     = VarSet
+Trigger1 = Ctrl && StateNo%2 && StateNo = [151,155]
+Trigger2 = PrevStateNo%2 = 0 && PrevStateNo = [150,154]
+Trigger2 = StateNo%2 = 0 && StateNo = [150,154]
+V        = 9
+Value    = 0
+Ignorehitpause = 1
+
+[State -2,ライフ反?]
+Type     = VarSet
+Trigger1 = MoveType != H
+V        = 9
+Value    = -Life
+Ignorehitpause = 1
+
+[State -2,一打目?メ?ジ軽減]
+Type     = LifeAdd
+Trigger1 = MoveType = H
+Trigger1 = Life && Alive
+Trigger1 = Life < Var(9)
+Value = Floor((Var(9)-Life)*FVar(9))
+Ignorehitpause = 1
+Absolute = 1
+
+[State -2,?メ?ジ軽減]
+Type     = DefenceMulSet
+Trigger1 = Var(9) >= -LifeMax
+Value    = 1-FVar(9)
+Ignorehitpause = 1
+
+[State -2,?ウン有効]
+Type     = VarSet
+Trigger1 = StateType = L || StateNo = 5070
+Trigger1 = Var(9) = 0
+V        = 9
+Value    = -1-LifeMax
+Ignorehitpause = 1
+
+[State -2,?ウン中?メ?ジ軽減]
+Type     = DefenceMulSet
+Trigger1 = Var(9) < -LifeMax
+Value    = (1-FVar(9))*Const(Data.Fall.Defence_Mul)
+Ignorehitpause = 1
+
+[State -2,一打終了]
+Type     = VarSet
+Trigger1 = MoveType = H
+Trigger1 = Life <= Var(9) && Var(9)
+V        = 9
+Value    = 0
+Ignorehitpause = 1
+
+[State -2,ライフ]
+Type     = VarSet
+Trigger1 = MoveType = H
+Trigger1 = Var(9) < 0 && Var(9) > -1-LifeMax
+V        = 9
+Value    = -Var(9)
+Ignorehitpause = 1
+
+;Valueが?メ?ジ軽減率です。Value = 0.4なら、?メ?ジが50%軽減されます。
+[State -2,根性値];BadLuck,UnLucky,HardLuck(黒)
+Type     = VarSet
+Trigger1 = 1
+FV       = 9
+Value    = ifelse((Life > 0.3*LifeMax), 0.0, 0.4)
+Ignorehitpause = 1
+
+
+;---------------------------------------------------------------------------
+;反射
+;---------------------------------------------------------------------------
+
+
+
+;---------------------------------------------------------------------------
+;カウン??
+;---------------------------------------------------------------------------
+[State -2]
+ 	type = Varset
+ 	trigger1 = enemynear,movetype = A
+	var(2) = 1
+	ignorehitpause = 1
+
+[State -2]
+	type = Varset
+	triggerall = stateno !=[6300,6350]
+	triggerall = stateno !=[6400,6425]
+	triggerall = stateno !=[800,950]
+	triggerall = movetype != H
+	triggerall = enemynear,movetype = H 
+	triggerall = var(2) = 1
+	trigger1 = movehit
+ 	
+	trigger2 = helper(10220),movehit;拳銃ヘルパ?
+	trigger3 = helper(241),movehit;散弾銃ヘルパ?
+ 	
+	trigger4 = helper(1005),movehit;
+	trigger5 = helper(1015),movehit;
+	trigger6 = helper(1025),movehit;
+	trigger7 = helper(1035),movehit;
+
+	trigger8 = helper(1105),movehit;
+	trigger9 = helper(1115),movehit;
+
+	trigger10= helper(1510),movehit;
+	
+	trigger11= helper(2010),movehit;
+	trigger12= helper(2020),movehit;
+	trigger13= helper(2030),movehit;
+
+	trigger14= helper(2110),movehit;
+	trigger15= helper(2120),movehit;
+	trigger16= helper(2130),movehit;
+
+	trigger17= helper(2310),movehit;
+
+	trigger18= helper(2510),movehit;
+
+	trigger19= helper(2610),movehit;
+
+	trigger20= helper(2710),movehit;
+
+	var(2) = 2
+	ignorehitpause = 1
+
+[State -2]
+ 	type = Varset
+ 	triggerall = var(2) = 1
+ 	trigger1 = enemynear,movetype = H
+	var(2) = 0
+	ignorehitpause = 1
+
+[State -2, カウン??ア?ック?イス]
+	type = PlaySnd
+	trigger1 = var(2)=2
+	value = 9999, 4
+	ignorehitpause = 1
+
+[State -2]
+	type = Explod
+	triggerall = numexplod(14000) = 0
+	trigger1 = var(2) = 2
+	trigger2 = var(2) = 3
+	anim = ifelse(var(2)=2,14000,14002)
+	ID = 14000
+	pos = ifelse(teamside=1,60,260),  60
+	postype = left
+	bindtime = -1
+	removetime = -1
+	supermovetime = 9999
+	pausemovetime = 9999
+	sprpriority = -1
+	scale = .5,.5
+	ontop = 0
+	ownpal = 1
+	ignorehitpause = 1
+
+[State -2]
+ 	type = Varset
+ 	trigger1 = var(2) = 2
+	var(2) = 3
+	ignorehitpause = 1
+
+[State -2]
+	type = RemoveExplod
+	trigger1 = enemynear,movetype = I
+	trigger2 = target,stateno =[5110,5120]
+	trigger3 = RoundState = 3
+	ID = 14000
+	ignorehitpause = 1
+	
+[State -2]
+	type = Explod
+	triggerall =var(2) != 0
+	triggerall =var(2) != 1
+	trigger1 = enemynear,movetype = I
+	trigger2 = target,stateno =[5110,5120]
+	trigger3 = RoundState = 3
+	anim = 14001
+	pos = ifelse(teamside=1,60,260),  60
+	postype = left
+	bindtime = -1
+	supermovetime = 9999
+	pausemovetime = 9999
+	sprpriority = 3
+	scale = .5,.5
+	ontop = 0
+	ownpal = 1
+	ignorehitpause = 1
+
+[State -2]
+ 	type = Varset
+	trigger1 = enemynear,movetype = I
+	trigger2 = target,stateno =[5110,5120]
+	trigger3 = RoundState = 3
+	var(2) = 0
+	ignorehitpause = 1
+
+;---------------------------------------------------------------------------
+;壁吹き飛ばし
+;---------------------------------------------------------------------------
+[State -2,壁吹き飛ばしエフェクト]
+	type = Explod
+	triggerAll =Target,Pos Y > -5
+	trigger1 = numTarget
+	trigger1 = Target,StateNo = 7010
+	trigger1 = Target,Time = 1
+	anim = 10060
+	pos = 100, 0
+	postype = p2
+	bindtime = -1
+	removetime = 80
+	supermovetime = 9999
+	pausemovetime = 9999
+	sprpriority = 9999
+	scale = 2,2
+	ontop = 1
+	ownpal = 1
+	facing =-1
+	ignorehitpause = 1
+	ID =13480
+
+[State -2,壁吹き飛ばしエフェクト消し]
+	type = RemoveExplod
+	trigger1 = numTarget
+	trigger1 = Target,StateNo = 7020
+	trigger1 = Target,Time = 1
+	trigger2 = numExplod(13480)
+	trigger2 = Target,StateNo != 7010
+	ID =13480
+
+[State -2,壁ぶつかりエフェクト]
+	type = Explod
+	trigger1 = numTarget
+	trigger1 = Target,StateNo = 7020
+	trigger1 = Target,Time = 1
+	anim = 12210
+	pos = -10, -70
+	postype = p2
+;	bindtime = -1
+	supermovetime = 9999
+	pausemovetime = 9999
+	sprpriority = 9999
+	scale = .5,.5
+	ontop = 1
+	ownpal = 1
+	facing =-1
+	ignorehitpause = 1
+
+
+[State -2,壁バウンド吹っ飛び]
+	type = TargetVelSet
+	trigger1 = numTarget
+	trigger1 = Target,StateNo = 7010
+	trigger1 = Target,Time = 1
+	x = -20
+
+[State -2,壁バウンド時ちょっと上昇]
+	type = Targetvelset
+	trigger1 = numTarget
+	trigger1 = Target,StateNo = 7020
+	trigger1 = Target,Time = 1
+	y = -1.5
+
+[State -2,重力加算]
+	type = Targetveladd
+	trigger1 = numTarget
+	trigger1 = Target,StateNo = 7020
+	trigger1 = Target,Time = 1
+	y = 0.25
+
+[State -2]
+	type = TargetVelSet
+	trigger1 = numTarget
+	trigger1 = Target,StateNo = 7030
+	trigger1 = Target,Time = 1
+	x = -.1
+	y = -6.3
+
+;---------------------------------------------------------------------------
+;床バウンド
+;---------------------------------------------------------------------------
+[State -2]
+	type = TargetVelSet
+	trigger1 = numTarget
+	trigger1 = Target,StateNo = 7060
+	trigger1 = Target,Time = 1
+	x = -12.75
+	y = 18
+
+[State -2,床ぶつかりエフェクト]
+	type = Explod
+	trigger1 = numTarget
+	trigger1 = Target,StateNo = 2891
+	trigger1 = Target,Time = 1
+	anim = 10080
+	pos = 0, -10
+	postype = p2
+;	bindtime = -1
+	supermovetime = 9999
+	pausemovetime = 9999
+	sprpriority = 9999
+	scale = 1.5,1.5
+	ontop = 1
+	ownpal = 1
+	facing =-1
+
+[State -2,床ぶつかりエフェクト]
+	type = Explod
+	trigger1 = numTarget
+	trigger1 = Target,StateNo = 2891
+	trigger1 = Target,Time = 1
+	anim = 10090
+	pos = 0, -10
+	postype = p2
+;	bindtime = -1
+	supermovetime = 9999
+	pausemovetime = 9999
+	sprpriority = 9999
+	scale = 1.5,1.5
+	ontop = 1
+	ownpal = 1
+	facing =-1
+	
+[State -2,床SE]
+type = PlaySnd
+	trigger1 = numTarget
+	trigger1 = Target,StateNo = 2891
+	trigger1 = Target,Time = 1
+value = 500,2
+volume = 255
+
+;===========================================================================
+;特殊システ?
+;===========================================================================
+;---------------------------------------------------------------------------
+;電池ゲ?ジ
+;---------------------------------------------------------------------------
+[State -2];電池上限
+	Type= Varset
+	triggerAll = !var(18)
+	Trigger1= var(3) >1000
+	var(3)=1000
+
+[State -2];電池下限
+	Type= Varset
+	triggerAll = !var(18)
+	Trigger1= var(3) < 0
+	var(3)=0
+
+[State -2,電池切れ?ウン移行]
+	Type=ChangeState
+	triggerAll = !var(18)
+	trigger1 = statetype != L
+	trigger1 = RoundState = 2
+	Trigger1 = var(3) = 0
+	Trigger1 = var(4) = 0
+	Trigger1 = var(4) := 1
+	value=6010
+	ignorehitpause = 1
+
+[State -2,?作不?]
+	type = CtrlSet
+	triggerAll = !var(18)
+	trigger1 = var(4)
+	value = 0
+
+[State -2];時間測定
+	Type= Varadd
+	triggerAll = !var(18)
+	Trigger1= var(4) = 2
+	Trigger1= GameTime%6 = 0
+	var(6) = 1
+
+[State -2];初期化
+	Type= Varset
+	triggerAll = !var(18)
+	Trigger1= var(4) = 2
+	Trigger1= var(6) = 50
+	trigger1 = var(3) := 300
+	trigger1 = var(6) := 0 || 1
+	var(4)=0
+
+[State -2];?ッグパ?トナ?判定
+	type = Varadd
+	triggerAll = !var(18)
+	trigger1 = Numhelper(30000) = 0
+	Trigger1 = P3Name = "Kamijo toma" || P3Name = "Accelerator"
+	Trigger1 = NumPartner
+	Trigger1 = Partner,ID < ID		;相手が前
+	var(31) = -20
+
+[State -2];ゲ?ジ呼び出し
+	type = Helper
+	triggerAll = !var(18)
+	trigger1 = time = 1
+	trigger1 = Numhelper(30000) = 0
+	stateno = 30000
+	ID = 30000
+	pos = 0,0
+	postype = left
+	helpertype = normal
+	name = "gauge"
+	keyctrl = 0
+	ownpal = 1
+	pausemovetime = 9999
+	supermovetime = 9999
+
+[State -3];電池減少
+	Type= VarAdd
+	triggerAll = !var(18)
+	TriggerAll= RoundState = 2
+	TriggerAll= statetype != L
+	TriggerAll= var(4) = 0
+	TriggerAll= var(3) =[1,1000]
+	TriggerAll= var(49) != -1
+	triggerAll = StateNo != [2000,3000];超必殺技中は減らない
+	triggerAll = StateNo != 810;投げ成功ステ?トは減らない
+	triggerAll = StateNo != 1205;血液逆流A成功ステ?トは減らない
+	triggerAll = StateNo != 1215;血液逆流A成功ステ?トは減らない
+	triggerAll = StateNo != 6020;?電ステ?トは減らない
+	Trigger1= GameTime%12 = 0; && fvar(11) <= 25
+;	Trigger2= fvar(11) > 25 && GameTime%2 = 0;ル?プ防?
+	var(3)=-1
+
+;===========================================================================
+;相打ち用ヒットエフェクト
+;===========================================================================
+	[State -2,200, 線?ヒットエフェ]
+		type = explod
+		trigger1 = Numexplod(13520) >= 0
+		trigger1 = PrevStateNo=200&&movetype=H
+		trigger1 = movehit=1
+		anim = 13520+random%10
+		id=13520
+		postype = p1
+		Pos = 45, -80
+		pausemovetime = 999
+		supermovetime = 999
+		ownpal = 1
+		scale = 0.5,0.5
+		sprpriority = 9
+		ignorehitpause = 1
+
+	[State -2,200, 拡散ヒットエフェ]
+		type = Explod
+		trigger1 = Numexplod(13100) = 0
+		trigger1 = PrevStateNo=200&&movetype=H
+		trigger1 = movehit=1
+		anim = 13100
+		id=13100
+		postype = p1
+		Pos = 45, -80
+		pausemovetime = 999
+		supermovetime = 999
+		ownpal = 1
+		scale = 0.6,0.6
+		sprpriority = 8
+		ignorehitpause = 1
+;------------------------------------------------------------------------------
+	[State -2, 210, 線?ヒットエフェ]
+		type = explod
+		trigger1 = Numexplod(13520) = 0
+		trigger1 = PrevStateNo=210&&movetype=H
+		trigger1 = movehit=1
+		anim = 13520+random%10
+		id=13520
+		postype = p1
+		Pos = 40, -20
+		pausemovetime = 999
+		supermovetime = 999
+		ownpal = 1
+		scale = 0.5,0.5
+		sprpriority = 9
+		ignorehitpause = 1
+
+	[State -2, 210, 拡散ヒットエフェ]
+		type = explod
+		trigger1 = Numexplod(13100) = 0
+		trigger1 = PrevStateNo=210&&movetype=H
+		trigger1 = movehit=1
+		anim = 13100
+		id=13100
+		postype = p1
+		Pos = 30, -20
+		pausemovetime = 999
+		supermovetime = 999
+		ownpal = 1
+		scale = 0.6,0.6
+		sprpriority = 8
+		ignorehitpause = 1
+;------------------------------------------------------------------------------
+	[State -2, 220, 線?ヒットエフェ]
+		type = explod
+		trigger1 = Numexplod(13520) = 0
+		trigger1 = PrevStateNo=220&&movetype=H
+		trigger1 = movehit=1
+		anim = 13520+random%10
+		id=13520
+		postype = p1
+		Pos = 40, -20
+		pausemovetime = 999
+		supermovetime = 999
+		ownpal = 1
+		scale = 0.5,0.5
+		sprpriority = 9
+		ignorehitpause = 1
+
+	[State -2, 220, 拡散ヒットエフェ]
+		type = explod
+		trigger1 = Numexplod(13100) = 0
+		trigger1 = PrevStateNo=220&&movetype=H
+		trigger1 = movehit=1
+		anim = 13100
+		id=13100
+		postype = p1
+		Pos = 30, -20
+		pausemovetime = 999
+		supermovetime = 999
+		ownpal = 1
+		scale = 0.6,0.6
+		sprpriority = 8
+		ignorehitpause = 1
+;------------------------------------------------------------------------------
+;------------------------------------------------------------------------------
+;------------------------------------------------------------------------------
+[State 10220, 線?ヒットエフェ]
+type = explod
+triggerAll = ProjHit(10222)=1
+trigger1 = StateNo=230
+trigger2 = PrevStateNo=230&&movetype=H
+anim = 13520+random%10
+id=13520
+postype = p2
+Pos = 0,-20
+pausemovetime = 999
+supermovetime = 999
+ownpal = 1
+scale = 0.5,0.5
+sprpriority = 9
+persistent = 0
+ignorehitpause = 1
+
+
+[State 10220, 拡散ヒットエフェ]
+type = Explod
+triggerAll = ProjHit(10222)=1
+trigger1 = StateNo=230
+trigger2 = PrevStateNo=230&&movetype=H
+anim = 13100
+id=13100
+postype = p2
+Pos = 0, -20
+pausemovetime = 999
+supermovetime = 999
+ownpal = 1
+scale = 0.6,0.6
+sprpriority = 8
+persistent = 0
+
+
+;------------------------------------------------------------------------------
+
+[State 240, 多段ヒットエフェ]
+		type = Explod
+		triggerAll = Numexplod(13520) < 3
+		triggerAll = ProjHit(243)=1, < 1
+		trigger1 = StateNo=240
+		trigger2 = PrevStateNo=240&&movetype=H
+		anim = 13520+random%10
+		id=13520
+		postype = p1
+		Pos = 90+random%40,-100+random%50 
+		pausemovetime = 999
+		supermovetime = 999
+		ownpal = 1
+		scale = 0.5,0.5
+		sprpriority = 8
+		persistent = 0
+		ignorehitpause = 1
+
+	[State 240, 拡散ヒットエフェ]
+		type = explod
+		triggerAll = Numexplod(13100) = 0
+		triggerAll = ProjHit(243)=1, < 1
+		trigger1 = StateNo=240
+		trigger2 = PrevStateNo=240&&movetype=H
+		anim = 13100
+		id=13100
+		postype = p1
+		Pos = 90+random%40,-100+random%50 
+		pausemovetime = 999
+		supermovetime = 999
+		ownpal = 1
+		scale = 0.6,0.6
+		sprpriority = 8
+
+;------------------------------------------------------------------------------
+	[State -2,400, 線?ヒットエフェ]
+		type = explod
+		trigger1 = Numexplod(13520) >= 0
+		trigger1 = PrevStateNo=400&&movetype=H
+		trigger1 = movehit=1
+		anim = 13520+random%10
+		id=13520
+		postype = p1
+		Pos = 70, -55
+		pausemovetime = 999
+		supermovetime = 999
+		ownpal = 1
+		scale = 0.5,0.5
+		sprpriority = 9
+		ignorehitpause = 1
+
+	[State -2,400, 拡散ヒットエフェ]
+		type = Explod
+		trigger1 = Numexplod(13100) = 0
+		trigger1 = PrevStateNo=400&&movetype=H
+		trigger1 = movehit=1
+		type = Explod
+		trigger1 = movehit
+		anim = 13100
+		id=13100
+		postype = p1
+		Pos = 70, -55
+		pausemovetime = 999
+		supermovetime = 999
+		ownpal = 1
+		scale = 0.6,0.6
+		sprpriority = 8
+		ignorehitpause = 1
+;------------------------------------------------------------------------------
+;------------------------------------------------------------------------------
+	[State -2, 410, 線?ヒットエフェ]
+		type = explod
+		trigger1 = Numexplod(13520) = 0
+		trigger1 = PrevStateNo=410&&movetype=H
+		trigger1 = movehit=1
+		anim = 13520+random%10
+		id=13520
+		postype = p1
+		Pos = 55, -40
+		pausemovetime = 999
+		supermovetime = 999
+		ownpal = 1
+		scale = 0.5,0.5
+		sprpriority = 9
+		ignorehitpause = 1
+
+	[State -2, 410, 拡散ヒットエフェ]
+		type = explod
+		trigger1 = Numexplod(13100) = 0
+		trigger1 = PrevStateNo=410&&movetype=H
+		trigger1 = movehit=1
+		anim = 13100
+		id=13100
+		postype = p1
+		Pos = 55, -40
+		pausemovetime = 999
+		supermovetime = 999
+		ownpal = 1
+		scale = 0.6,0.6
+		sprpriority = 8
+		ignorehitpause = 1
+;------------------------------------------------------------------------------
+	[State -2, 420, 線?ヒットエフェ]
+		type = explod
+		trigger1 = Numexplod(13520) = 0
+		trigger1 = PrevStateNo=420&&movetype=H
+		trigger1 = movehit=1
+		anim = 13520+random%10
+		id=13520
+		postype = p1
+		Pos = 60, -20
+		pausemovetime = 999
+		supermovetime = 999
+		ownpal = 1
+		scale = 0.5,0.5
+		sprpriority = 9
+		ignorehitpause = 1
+
+	[State -2, 420, 拡散ヒットエフェ]
+		type = explod
+		trigger1 = Numexplod(13100) = 0
+		trigger1 = PrevStateNo=420&&movetype=H
+		trigger1 = movehit=1
+		anim = 13100
+		id=13100
+		postype = p1
+		Pos = 60, -20
+		pausemovetime = 999
+		supermovetime = 999
+		ownpal = 1
+		scale = 0.6,0.6
+		sprpriority = 8
+		ignorehitpause = 1
+;------------------------------------------------------------------------------
+;------------------------------------------------------------------------------
+	[State -2,600, 線?ヒットエフェ]
+		type = explod
+		trigger1 = Numexplod(13520) >= 0
+		trigger1 = PrevStateNo=600&&movetype=H
+		trigger1 = movehit=1
+		anim = 13520+random%10
+		id=13520
+		postype = p1
+		Pos = 60, -50
+		pausemovetime = 999
+		supermovetime = 999
+		ownpal = 1
+		scale = 0.5,0.5
+		sprpriority = 9
+		ignorehitpause = 1
+
+	[State -2,600, 拡散ヒットエフェ]
+		type = Explod
+		trigger1 = Numexplod(13100) = 0
+		trigger1 = PrevStateNo=600&&movetype=H
+		trigger1 = movehit=1
+		type = Explod
+		trigger1 = movehit
+		anim = 13100
+		id=13100
+		postype = p1
+		Pos = 60, -50
+		pausemovetime = 999
+		supermovetime = 999
+		ownpal = 1
+		scale = 0.6,0.6
+		sprpriority = 8
+		ignorehitpause = 1
+;------------------------------------------------------------------------------
+;------------------------------------------------------------------------------
+	[State -2, 610, 線?ヒットエフェ]
+		type = explod
+		trigger1 = Numexplod(13520) = 0
+		trigger1 = PrevStateNo=610&&movetype=H
+		trigger1 = movehit=1
+		anim = 13520+random%10
+		id=13520
+		postype = p1
+		Pos = 40, -70
+		pausemovetime = 999
+		supermovetime = 999
+		ownpal = 1
+		scale = 0.5,0.5
+		sprpriority = 9
+		ignorehitpause = 1
+
+	[State -2, 610, 拡散ヒットエフェ]
+		type = explod
+		trigger1 = Numexplod(13100) = 0
+		trigger1 = PrevStateNo=610&&movetype=H
+		trigger1 = movehit=1
+		anim = 13100
+		id=13100
+		postype = p1
+		Pos = 40, -70
+		pausemovetime = 999
+		supermovetime = 999
+		ownpal = 1
+		scale = 0.6,0.6
+		sprpriority = 8
+		ignorehitpause = 1
+;------------------------------------------------------------------------------
+	[State -2, 620, 線?ヒットエフェ]
+		type = explod
+		trigger1 = Numexplod(13520) = 0
+		trigger1 = PrevStateNo=620&&movetype=H
+		trigger1 = movehit=1
+		anim = 13520+random%10
+		id=13520
+		postype = p1
+		Pos = 30, -40
+		pausemovetime = 999
+		supermovetime = 999
+		ownpal = 1
+		scale = 0.5,0.5
+		sprpriority = 9
+		ignorehitpause = 1
+
+	[State -2, 620, 拡散ヒットエフェ]
+		type = explod
+		trigger1 = Numexplod(13100) = 0
+		trigger1 = PrevStateNo=620&&movetype=H
+		trigger1 = movehit=1
+		anim = 13100
+		id=13100
+		postype = p1
+		Pos = 30, -40
+		pausemovetime = 999
+		supermovetime = 999
+		ownpal = 1
+		scale = 0.6,0.6
+		sprpriority = 8
+		ignorehitpause = 1
+;------------------------------------------------------------------------------
+
+	[State 1500,相手位置設定]
+		Type = VarSet
+		triggerAll = Projcontact(11303)=1
+		trigger1 = StateNo=1500
+		var(10) = abs(target(1500),pos x - pos x)
+
+	[State 1510,位置固定]
+		type = TargetBind
+		triggerAll = ProjHit(11303)=1
+		trigger1 = StateNo=1500
+		time = 1
+		pos = var(10),-65
+
+	[State 1510, 線?ヒットエフェ]
+		type = Explod
+		triggerAll = ProjHit(11303)=1
+		trigger1 = StateNo=1500
+		trigger2 = PrevStateNo=1500&&movetype=H
+		anim = 13520+random%10
+		id=13520
+		postype = p1
+		Pos = var(10),-65
+		pausemovetime = 999
+		supermovetime = 999
+		ownpal = 1
+		scale = 0.5,0.5
+		sprpriority = 9
+		ignorehitpause = 1
+
+	[State 1510, 拡散ヒットエフェ]
+		type = explod
+		triggerAll = ProjHit(11303)=1
+		trigger1 = StateNo=1500
+		trigger2 = PrevStateNo=1500&&movetype=H
+		anim = 13100
+		id=13100
+		postype = p1
+		Pos = var(10),-65
+		pausemovetime = 999
+		supermovetime = 999
+		ownpal = 1
+		scale = 0.6,0.6
+		sprpriority = 8
+		ignorehitpause = 1
+;------------------------------------------------------------------------------
+
+	[State 1500,相手位置設定]
+		Type = VarSet
+		triggerAll = Projcontact(1511)=1
+		trigger1 = StateNo=2300
+		var(10) = abs(target(2310),pos x - pos x)
+		ignorehitpause = 1
+
+
+	[State 2310,位置固定]
+		type = TargetBind
+		triggerAll = Projhit(1511)=1
+		trigger1 = StateNo=2300
+		trigger1 = var(1) := 1
+		time = 1
+		pos = var(10),-65
+		ignorehitpause = 1
+		persistent = 0
+
+	[State 2310, 線?ヒットエフェ]
+		type = Explod
+		triggerAll = Projhit(1511)=1
+		trigger1 = StateNo=2300
+		trigger2 = PrevStateNo=2300&&movetype=H
+		anim = 13520+random%10
+		id=13520
+		postype = p1
+		Pos = var(10),-65
+		pausemovetime = 999
+		supermovetime = 999
+		ownpal = 1
+		scale = 0.5,0.5
+		sprpriority = 9
+		ignorehitpause = 1
+		persistent=0
+
+	[State 2310, 拡散ヒットエフェ]
+		type = explod
+		triggerAll = Projhit(1511)=1
+		trigger1 = StateNo=2300
+		trigger2 = PrevStateNo=2300&&movetype=H
+		anim = 13100
+		id=13100
+		postype = p1
+		Pos = var(10),-65
+		pausemovetime = 999
+		supermovetime = 999
+		ownpal = 1
+		scale = 0.6,0.6
+		sprpriority = 8
+		persistent = 0
+		ignorehitpause = 1
+;------------------------------------------------------------------------------
+
+	[State -2,壁吹き飛ばし]
+		type = TargetState
+		triggerAll = Projhit(1525)=1
+		trigger1 = StateNo=2500
+		value = 7010
+
+	[State -2,向き直し]
+		type = TargetFacing
+		triggerAll = Projhit(1525)=1
+		trigger1 = StateNo=2500
+		trigger1 = numTarget(2510)
+		value = -1
+
+	[State 2510,燃焼エフェクト]
+		type = Explod
+		triggerAll = Projhit(1525)=1
+		trigger1 = StateNo=2500
+		trigger1 = numTarget(2510)
+		trigger1 = numexplod(11532) = 0
+		anim = 11532
+		pos = 0, 5
+		postype = p2
+		bindtime = -1
+		removetime = 125
+		supermovetime = 9999
+		pausemovetime = 9999
+		sprpriority = 9999
+		scale = 1,1
+		ontop = 1
+		ownpal = 1
+		ignorehitpause = 1
+		ID =11532
+
+;===========================================================================
+;ブリス
+;===========================================================================
+[state -2, ブリス]
+type=changeanim
+trigger1=numenemy
+trigger1=P2name="Demitri"&&enemynear,authorname="bad darkness"&&(stateno=[2021,2026])&&movetype=H
+value=9020
+elem= stateno - 2020
+;===========================================================================
+;音関連
+;===========================================================================
+;?イス
+[State -2, イントロスキップ]
+	type = StopSnd
+	TriggerAll = !IsHelper
+	Trigger1 = RoundState = 2
+	channel = 1
+
+;[State -2, 変数 KO?イス重複スイッ?初期化]
+;type = VarSet
+;trigger1 = var(43)
+;trigger1 = Alive
+;var(43) = 0
+;ignorehitpause = 1
+
+;[State -2, KO?イス]
+;type = playsnd
+;trigger1 = !Alive
+;trigger1 = !Var(43)
+;value = S12,0;+random%3
+;channel = 2
+;lowpriority = 0
+;ignorehitpause = 1
+
+;[State -2, 変数 KO?イス重複防?]
+;type = VarSet
+;trigger1 = !var(43)
+;trigger1 = !Alive
+;var(43) = 1
+;ignorehitpause = 1
+
+;===========================================================================
+;ステ?ト奪われ判断
+;===========================================================================
+[State -2, gametime];-2ステ?トへ置く
+Type=varset
+Trigger1 = var(49) != Gametime
+var(49) = -1
+ignorehitpause=1 ;Var(49)=-1でステ?ト奪われ状態の認識。
+
+[Statedef -3]
+
+[State -3, gametime];-3ステ?トへ置く
+Type=null
+Trigger1 = var(49) := Gametime
+ignorehitpause=1 ;Var(49)= Gametimeでステ?ト奪われてない状態の認識。
+

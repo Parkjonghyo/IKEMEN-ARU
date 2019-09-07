@@ -1,0 +1,2988 @@
+;===========================================================================
+; 必殺技
+;===========================================================================
+;---------------------------------------------------------------------------
+;連続そげぶ
+;---------------------------------------------------------------------------
+[Statedef 1000,連続そげぶ始動]
+	Type=S
+	MoveType=A
+	physics=N
+	velset=0,0
+	Ctrl=0
+	faceP2=1
+	Anim=1000
+	Poweradd=FVar(11)
+	sprPriority=2
+
+	[State -1,汎用格納]
+		type = Varset
+		Trigger1=Time=0
+		fvar(10)= fvar(0)
+		persistent = 0
+ 		ignorehitpause = 1
+
+	[State -1,最低攻撃保障]
+		type = Varset
+		Trigger1=Time=0
+		Trigger1=fvar(0)<=0.20
+		fvar(10)= 0.20
+		persistent = 0
+ 		ignorehitpause = 1
+
+	[State 1000,v1=0]
+		Type=varSet
+		Trigger1=Time=0
+		var(1)=0
+
+	[State 1000,vel]
+		Type=velSet
+		Trigger1=AnimElem=4
+		x=4
+
+	[State 1000,veladd]
+		Type=velAdd
+		Trigger1=AnimElem=6
+		x=-3
+
+	[State 1000,veladd]
+		Type=velSet
+		Trigger1=AnimElem=7
+		x=0
+
+	[State 1000,Snd1]
+		Type=playSnd
+		Trigger1=AnimElem=1
+		value=3,10
+		channel=0
+
+	[State 1000,Snd2]
+		Type=playSnd
+		Trigger1=AnimElem=4
+		value=1,20
+		channel=1
+
+	[State 1000,Explod]
+		Type=Explod
+		Trigger1=AnimElem=4
+		Anim=1001
+		sprPriority=3
+		Pos=0,0
+		PosType=P1
+		bindTime=-1
+		Scale=const(Size.xScale),const(Size.yScale)
+		RemoveonGetHit=1
+		IgnoreHitPause=0
+		trans=add
+
+	[State 1000,Hitdef]
+		Type=HitDef
+		Trigger1=!MoveContAct
+		Trigger1=!MoveReversed
+		Trigger1=AnimElemTime(5)>=0
+		Trigger1=AnimElemTime(6)<0
+		Attr=S,SA
+		AnimType=hard
+		Air.AnimType=back
+		Hitflag=MAF
+		Guardflag=MA
+		Ground.Type=high
+		SparkNo=S6015
+		Guard.SparkNo=S6105
+		Sparkxy=-25,floor(-60*const(Size.yScale))
+		HitSound=S0,12
+		GuardSound=S1,1
+		Damage=Ceil(ifelse(enemynear,MoveType=A || var(2) != 0,45,40)*fvar(10)*fvar(1)),8
+		Priority=5,Hit
+		GetPower=45+var(6),16+var(6)
+		GivePower=31,16
+		PauseTime=8,10
+		Ground.SlideTime=28
+		Ground.HitTime=22
+		Air.HitTime=18
+		Guard.SlideTime=28
+		Guard.HitTime=20
+		Ground.velocity=-3
+		Guard.velocity=-2.5
+		Air.velocity=-6,-4.85
+		AirGuard.velocity=-2.5,-5
+		ground.cornerpush.veloff = -(fVar(11)*0.555)
+		Air.cornerpush.veloff=  -(fVar(11)*0.555)
+		Air.fall=1
+		fall.recover=0
+		ID=1000
+		yaccel =.4
+
+	[State -1,汎用初期化]
+		type = Varset
+		trigger1 = numTarget(1000)
+		trigger1 = Target(1000),statetype = A
+		trigger1 = movehit
+		var(10)= abs(Target(1000),pos x - pos x )
+		persistent = 0
+ 		ignorehitpause = 1
+
+	[State 2000,位置固定]
+		type = TargetBind
+		trigger1 = numTarget(1000)
+		trigger1 = Target(1000),statetype = A
+		trigger1 = movehit
+		time = 1
+		pos = var(10),0
+		persistent = 0
+		ignorehitpause = 1
+
+	[State 200 ノックバックカウント]
+		type = Varadd
+		Trigger1=movehit
+		fvar(11) = 2
+		persistent = 0
+ 		ignorehitpause = 1
+
+	[State -1,攻撃補正]
+		Type=VarSet
+		Trigger1=movehit
+		fvar(0)=fvar(0)*0.75
+		persistent = 0
+ 		ignorehitpause = 1
+
+	[State 1000,v1=1]
+		Type=VarSet
+		Trigger1=movecontact
+		var(1)=1
+		persistent = 0
+ 		ignorehitpause = 1
+	
+	[State 1000,End]
+		Type=ChangeState
+		Trigger1=AnimTime=0
+		value=0
+		Ctrl=1
+
+;---------------------------------------------------------------------------
+[Statedef 1050,連続そげぶ(上段派生1)]
+	Type=S
+	MoveType=A
+	physics=N
+	velset=0,0
+	Ctrl=0
+	faceP2=1
+	Anim=1050
+	Poweradd=FVar(11)
+	sprPriority=2
+
+	[State -1,汎用格納]
+		type = Varset
+		Trigger1=Time=0
+		fvar(10)= fvar(0)
+		persistent = 0
+ 		ignorehitpause = 1
+
+	[State -1,最低攻撃保障]
+		type = Varset
+		Trigger1=Time=0
+		Trigger1=fvar(0)<=0.25
+		fvar(10)= 0.25
+		persistent = 0
+ 		ignorehitpause = 1
+
+	[State 1050,v1=0]
+		Type=varSet
+		Trigger1=Time=0
+		var(1)=0
+
+	[State 1050,vel]
+		Type=velSet
+		Trigger1=AnimElem=2
+		x=6
+
+	[State 1050,vel]
+		Type=velSet
+		Trigger1=AnimElem=4
+		x=0
+
+	[State 1050,Snd2]
+		Type=playSnd
+		Trigger1=AnimElem=2
+		value=1,20
+		channel=1
+
+	[State 1050,Explod]
+		Type=Explod
+		Trigger1=AnimElem=2
+		Anim=1051
+		sprPriority=3
+		Pos=0,0
+		PosType=P1
+		bindTime=-1
+		Scale=const(Size.xScale),const(Size.yScale)
+		RemoveonGetHit=1
+		IgnoreHitPause=0
+		trans=add
+
+	[State 1050,Hitdef]
+		Type=HitDef
+		Trigger1=!MoveContAct
+		Trigger1=!MoveReversed
+		Trigger1=AnimElemTime(3)>=0
+		Trigger1=AnimElemTime(4)<0
+		Attr=S,SA
+		AnimType=hard
+		Air.AnimType=back
+		Hitflag=MAF
+		Guardflag=MA
+		Ground.Type=high
+		SparkNo=S6015
+		Guard.SparkNo=S6105
+		Sparkxy=-25,floor(-60*const(Size.yScale))
+		HitSound=S0,11
+		GuardSound=S1,1
+		Damage=Ceil(ifelse(enemynear,MoveType=A || var(2) != 0,45,40)*fvar(10)*fvar(1)),8
+		Priority=5,Hit
+		GetPower=50+var(6),16+var(6)
+		GivePower=31,16
+		PauseTime=8,10
+		Ground.SlideTime=28
+		Ground.HitTime=20
+		Air.HitTime=26
+		Guard.SlideTime=21
+		Guard.HitTime=19
+		Ground.velocity=-2
+		Guard.velocity=-2
+		Air.velocity=-6,-3.5
+		AirGuard.velocity=-2.5,-5
+		ground.cornerpush.veloff =  -(fVar(11)*0.222)
+		Air.cornerpush.veloff=  -(fVar(11)*0.222)
+		Air.fall=1
+		fall.recover=0
+		ID=1050
+		yaccel =.45
+		
+	[State 200 ノックバックカウント]
+		type = Varadd
+		trigger1 = movehit
+		fvar(11) = 1
+		persistent = 0
+ 		ignorehitpause = 1
+
+	[State -1,攻撃補正]
+		Type=VarSet
+		trigger1 = movehit
+		fvar(0)=fvar(0)*0.85
+		persistent = 0
+ 		ignorehitpause = 1
+
+	[State 1000,v1=1]
+		Type=VarSet
+		trigger1 = movecontact
+		var(1)=1
+		persistent = 0
+ 		ignorehitpause = 1
+
+	[State 1050,End]
+		Type=ChangeState
+		Trigger1=AnimTime=0
+		value=0
+		Ctrl=1
+
+;---------------------------------------------------------------------------
+[Statedef 1075,連続そげぶ(中段派生1)]
+	Type=S
+	MoveType=A
+	physics=N
+	velset=0,0
+	Ctrl=0
+	faceP2=1
+	Anim=1075
+	Poweradd=FVar(11)
+	sprPriority=2
+
+	[State -1,汎用格納]
+		type = Varset
+		Trigger1=Time=0
+		fvar(10)= fvar(0)
+		persistent = 0
+ 		ignorehitpause = 1
+
+	[State -1,最低攻撃保障]
+		type = Varset
+		Trigger1=Time=0
+		Trigger1=fvar(0)<=0.16
+		fvar(10)= 0.16*ifelse(fVar(11) < 30,1,.5)
+		persistent = 0
+ 		ignorehitpause = 1
+
+	[State 1075,v1=0]
+		Type=varSet
+		Trigger1=Time=0
+		var(1)=0
+
+	[State 1075,vel]
+		Type=velSet
+		Trigger1=AnimElemTime(5)=0
+		x=4
+
+	[State 1075,veladd]
+		Type=velSet
+		Trigger1=AnimElemTime(8)=3
+		x=0
+
+	[State 1075,Snd2]
+		Type=playSnd
+		Trigger1=AnimElemTime(5)=0
+		value=1,20
+		channel=1
+
+	[State 1075,Explod]
+		Type=Explod
+		Trigger1=AnimElemTime(5)=0
+		Anim=1127
+		sprPriority=3
+		Pos=0,-20
+		PosType=P1
+		bindTime=-1
+		Scale=const(Size.xScale),const(Size.yScale)
+		RemoveonGetHit=1
+		IgnoreHitPause=1
+		trans=add
+
+	[State 1075,Hitdef]
+		Type=HitDef
+		Trigger1=!MoveContAct
+		Trigger1=!MoveReversed
+		Trigger1=AnimElemTime(7)>=0
+		Trigger1=AnimElemTime(8)<0
+		Attr=S,SA
+		AnimType=hard
+		Air.AnimType=back
+		Hitflag=MAF
+		Guardflag=HA
+		Ground.Type=low
+		SparkNo=S6015
+		Guard.SparkNo=S6105
+		Sparkxy=-25,floor(-60*const(Size.yScale))
+		HitSound=S0,11
+		GuardSound=S1,1
+		Damage=Ceil(ifelse(enemynear,MoveType=A || var(2) != 0,45,40)*fvar(10)),8
+		Priority=5,Hit
+		GetPower=45+var(6),16+var(6)
+		GivePower=31,16
+		PauseTime=10,10
+		Ground.SlideTime=28
+		Ground.HitTime=18
+		Air.HitTime=26
+		Guard.SlideTime=21
+		Guard.HitTime=18
+		Ground.velocity=-4
+		Guard.velocity=-3.5
+		Air.velocity=-6,-3
+		AirGuard.velocity=-2.5,-4
+		ground.cornerpush.veloff =  -(fVar(11)*0.444)
+		Air.cornerpush.veloff=  -(fVar(11)*0.444)
+		Air.fall=1
+		fall.recover=0
+		ID=1075
+		yaccel =.45
+
+	[State 200 ノックバックカウント]
+		type = Varadd
+		Trigger1=numtarget(1075)
+		fvar(11) = 3*ifelse(fVar(11) < 30,1,2)
+		persistent = 0
+ 		ignorehitpause = 1
+
+	[State -1,攻撃補正]
+		Type=VarSet
+		Trigger1=numtarget(1075)
+		fvar(0)=fvar(0)*0.80
+		persistent = 0
+ 		ignorehitpause = 1
+
+	[State 1000,v1=1]
+		Type=VarSet
+		Trigger1=numtarget(1075)
+		var(1)=1
+		persistent = 0
+ 		ignorehitpause = 1
+
+	[State 1075,End]
+		Type=ChangeState
+		Trigger1=AnimTime=0
+		value=0
+		Ctrl=1
+
+;---------------------------------------------------------------------------
+[Statedef 1100,連続そげぶ(下段派生1)]
+	Type=S
+	MoveType=A
+	physics=N
+	velset=0,0
+	Ctrl=0
+	faceP2=1
+	Anim=1100
+	Poweradd=FVar(11)
+	sprPriority=2
+
+	[State -1,汎用格納]
+		type = Varset
+		Trigger1=Time=0
+		fvar(10)= fvar(0)
+		persistent = 0
+ 		ignorehitpause = 1
+
+	[State -1,最低攻撃保障]
+		type = Varset
+		Trigger1=Time=0
+		Trigger1=fvar(0)<=0.20
+		fvar(10)= 0.20*ifelse(fVar(11) < 30,1,.5)
+		persistent = 0
+ 		ignorehitpause = 1
+
+	[State 1100,NotHit]
+		Type=notHitBy
+		Trigger1=1
+		value=,AP
+
+	[State 1100,v1=0]
+		Type=varSet
+		Trigger1=Time=0
+		var(1)=0
+
+	[State 1100,vel]
+		Type=velSet
+		Trigger1=AnimElem=1
+		x=5
+
+	[State 1100,veladd]
+		Type=velAdd
+		Trigger1=AnimElem=2
+		x=-2
+
+	[State 1100,veladd]
+		Type=velSet
+		Trigger1=AnimElem=5
+		x=0
+
+	[State 1100,Snd2]
+		Type=playSnd
+		Trigger1=AnimElem=2
+		value=1,20
+		channel=1
+
+	[State 1100,Explod]
+		Type=Explod
+		Trigger1=AnimElem=5
+		Anim=1101
+		sprPriority=3
+		Pos=0,0
+		PosType=P1
+		bindTime=-1
+		Scale=const(Size.xScale),const(Size.yScale)
+		RemoveonGetHit=1
+		IgnoreHitPause=0
+		trans=add
+
+	[State 1100,Hitdef]
+		Type=HitDef
+		Trigger1=!MoveContAct
+		Trigger1=!MoveReversed
+		Trigger1=AnimElemTime(5)>=0
+		Trigger1=AnimElemTime(6)<0
+		Attr=S,SA
+		AnimType=hard
+		Air.AnimType=back
+		Hitflag=MAF
+		Guardflag=L
+		Ground.Type=low
+		SparkNo=S6015
+		Guard.SparkNo=S6105
+		Sparkxy=-25,floor(-60*const(Size.yScale))
+		HitSound=S0,11
+		GuardSound=S1,1
+		Damage=Ceil(ifelse(enemynear,MoveType=A || var(2) != 0,40,33)*fvar(10)*fvar(1)),8
+		Priority=5,Hit
+		GetPower=45+var(6),16+var(6)
+		GivePower=31,16
+		PauseTime=8,10
+		Ground.SlideTime=28
+		Ground.HitTime=23
+		Air.HitTime=26
+		Guard.SlideTime=27
+		Guard.HitTime=26
+		Ground.velocity=-3.5
+		Guard.velocity=-4
+		Air.velocity=-5,8
+		AirGuard.velocity=-2.5,-4
+		ground.cornerpush.veloff =  -(fVar(11)*0.333)
+		Air.cornerpush.veloff=  -(fVar(11)*0.333)
+		Air.fall=1
+		fall.recover=0
+		ID=1100
+		yaccel =.45
+
+	[State 200 ノックバックカウント]
+		type = Varadd
+		Trigger1=numtarget(1100)
+		fvar(11) = 2
+		persistent = 0
+ 		ignorehitpause = 1
+
+	[State -1,攻撃補正]
+		Type=VarSet
+		Trigger1=numtarget(1100)
+		fvar(0)=fvar(0)*0.775
+		persistent = 0
+ 		ignorehitpause = 1
+
+	[State 1000,v1=1]
+		Type=VarSet
+		Trigger1=numtarget(1100)
+		var(1)=1
+		persistent = 0
+ 		ignorehitpause = 1
+
+	[State 1100,End]
+		Type=ChangeState
+		Trigger1=AnimTime=0
+		value=0
+		Ctrl=1
+
+;---------------------------------------------------------------------------
+[Statedef 1125,連続そげぶ(上段派生2)]
+	Type=S
+	MoveType=A
+	physics=N
+	velset=0,0
+	Ctrl=0
+	faceP2=1
+	Anim=1125
+	Poweradd=FVar(11)
+	sprPriority=2
+
+	[State -1,汎用格納]
+		type = Varset
+		Trigger1=Time=0
+		fvar(10)= fvar(0)
+		persistent = 0
+ 		ignorehitpause = 1
+
+	[State -1,最低攻撃保障]
+		type = Varset
+		Trigger1=Time=0
+		Trigger1=fvar(0)<=0.24
+		fvar(10)= 0.24
+		persistent = 0
+ 		ignorehitpause = 1
+
+	[State 1125,NotHit]
+		Type=notHitBy
+		Trigger1=1
+		value=,AP
+		Time=1
+
+	[State 1125,v1=0]
+		Type=varSet
+		Trigger1=Time=0
+		var(1)=0
+
+	[State 1125,vel]
+		Type=velSet
+		Trigger1=AnimElem=6
+		x=4
+
+	[State 1125,vel]
+		Type=velSet
+		Trigger1=AnimElem=9
+		x=0
+
+	[State 1125,Snd2]
+		Type=playSnd
+		Trigger1=AnimElemTime(5)=0
+		value=1,16
+		channel=1
+
+	[State 1125,Explod]
+		Type=Explod
+		Trigger1=AnimElem=6
+		Anim=1127
+		sprPriority=3
+		Pos=5,0
+		PosType=P1
+		bindTime=-1
+		Scale=const(Size.xScale),const(Size.yScale)
+		RemoveonGetHit=1
+		IgnoreHitPause=0
+		trans=add
+
+	[State 1125,Width]
+		Type=Width
+		Trigger1=(AnimElemTime (1)>=0)&&(AnimElemTime (7)<0)
+		value=15,0
+
+	[State 1125,Hitdef]
+		Type=HitDef
+		Trigger1=!MoveContAct
+		Trigger1=!MoveReversed
+		Trigger1=AnimElemTime(6)>=0
+		Trigger1=AnimElemTime(7)<0
+		Trigger1=enemynear,MoveType!=A ||var(2) = 0 
+		Attr=S,SA
+		AnimType=down
+		Hitflag=MAF
+		Guardflag=MA
+		Ground.Type=Low
+		SparkNo=S6015
+		Guard.SparkNo=S6105
+		Sparkxy=-15,floor(-60*const(Size.yScale))
+		HitSound=S0,11
+		GuardSound=S1,1
+		Damage=Ceil(47*fvar(10)*fvar(1)),9
+		Priority=5,Hit
+		GetPower=50+var(6),16+var(6)
+		GivePower=31,16
+		PauseTime=10,12
+		Ground.SlideTime=28
+		Ground.HitTime=26
+		Air.HitTime=24
+		Guard.SlideTime=27
+		Guard.HitTime=22
+		Ground.velocity=-6.5,-4.2
+		Guard.velocity=-4
+		Air.velocity=-6,-3.25
+		AirGuard.velocity=-2.5,-2.8
+		ground.cornerpush.veloff = 0
+		Air.cornerpush.veloff= 0
+		fall=1
+		fall.recover=0
+		ID=1125
+		yaccel =.4
+
+	[State 1125,Hitdef]
+		Type=HitDef
+		Trigger1=!MoveContAct
+		Trigger1=!MoveReversed
+		Trigger1=AnimElemTime(6)>=0
+		Trigger1=AnimElemTime(7)<0
+		Trigger1=enemynear,MoveType=A || var(2) != 0
+		Attr=S,SA
+		AnimType=hard
+		Air.AnimType=back
+		Hitflag=MAF
+		Guardflag=HA
+		Ground.Type=high
+		SparkNo=S6015
+		Guard.SparkNo=S6105
+		Sparkxy=-15,floor(-60*const(Size.yScale))
+		HitSound=S0,11
+		GuardSound=S1,1
+		Damage=Ceil(53*fvar(10)*fvar(1)),9
+		Priority=5,Hit
+		GetPower=31+var(6),16+var(6)
+		GivePower=31,16
+		PauseTime=10,12
+		Ground.SlideTime=28
+		Ground.HitTime=26
+		Air.HitTime=24
+		Guard.SlideTime=27
+		Guard.HitTime=26
+		Ground.velocity=-5.5
+		Guard.velocity=-4
+		Air.velocity=-6,-5
+		AirGuard.velocity=-3.5,-4.25
+		ground.cornerpush.veloff =  -(fVar(11)*0.333)
+		Air.cornerpush.veloff=  -(fVar(11)*0.333)
+		Air.fall=1
+		fall.recover=0
+		ID=1126
+		yaccel =.4
+		
+	[State -1,汎用初期化]
+		type = Varset
+		trigger1 = movehit
+		var(10)= abs(Target(1125),pos x - pos x )
+		persistent = 0
+ 		ignorehitpause = 1
+
+	[State 2000,位置固定]
+		type = TargetBind
+		trigger1 = movehit
+		time = 1
+		pos = var(10)+20,0
+		persistent = 0
+		ignorehitpause = 1
+
+	[State 52,0];?
+		type = Width
+		trigger1 = movehit
+		value = 32,0
+
+	[State 200 ノックバックカウント]
+		type = Varadd
+		trigger1 = movehit
+		fvar(11) = 2
+		persistent = 0
+ 		ignorehitpause = 1
+
+	[State -1,攻撃補正]
+		Type=VarSet
+		trigger1 = movehit
+		fvar(0)=fvar(0)*0.90
+		persistent = 0
+ 		ignorehitpause = 1
+
+	[State 1125,v1=1]
+		Type=VarSet
+		trigger1 = movehit
+		var(1)=1
+		persistent = 0
+ 		ignorehitpause = 1
+
+	[State 1125,end of State]
+		Type=ChangeState
+		Trigger1=AnimTime=0
+		value=0
+		Ctrl=1
+		
+;---------------------------------------------------------------------------
+[Statedef 1150,連続そげぶ(中段派生2)]
+	Type=S
+	MoveType=A
+	physics=N
+	velset=0,0
+	Ctrl=0
+	faceP2=1
+	Anim=1150
+	Poweradd=FVar(11)
+	sprPriority=2
+
+	[State -1,汎用格納]
+		type = Varset
+		Trigger1=Time=0
+		fvar(10)= fvar(0)
+		persistent = 0
+ 		ignorehitpause = 1
+
+	[State -1,最低攻撃保障]
+		type = Varset
+		Trigger1=Time=0
+		Trigger1=fvar(0)<=0.16
+		fvar(10)= 0.16*ifelse(fVar(11) < 30,1,.5)
+		persistent = 0
+ 		ignorehitpause = 1
+
+	[State 1150,NotHit]
+		Type=notHitBy
+		Trigger1=1
+		value=,AP
+		Time=1
+
+	[State 1150,v1=0]
+		Type=varSet
+		Trigger1=Time=0
+		var(1)=0
+
+	[State 1150,vel]
+		Type=velSet
+		Trigger1=AnimElem=4
+		x=3
+
+	[State 1150,vel]
+		Type=velSet
+		Trigger1=AnimElem=6
+		x=0
+
+	[State 1150,Snd2]
+		Type=playSnd
+		Trigger1=AnimElemTime(4)=0
+		value=1,16
+		channel=1
+
+	[State 1150,Explod]
+		Type=Explod
+		Trigger1=AnimElemTime(4)=0
+		Anim=1151
+		sprPriority=3
+		Pos=5,0
+		PosType=P1
+		bindTime=-1
+		Scale=const(Size.xScale),const(Size.yScale)
+		RemoveonGetHit=1
+		IgnoreHitPause=0
+		trans=add
+
+	[State 1150,Width]
+		Type=Width
+		Trigger1=(AnimElemTime (1)>=0)&&(AnimElemTime (7)<0)
+		value=30,0
+
+	[State 1150,Hitdef]
+		Type=HitDef
+		Trigger1=!MoveContAct
+		Trigger1=!MoveReversed
+		Trigger1=AnimElemTime(6)>=0
+		Trigger1=AnimElemTime(7)<0
+		Attr=S,SA
+		AnimType=hard
+		Air.AnimType=back
+		Hitflag=MAF
+		Guardflag=HA
+		Ground.Type=high
+		SparkNo=S6015
+		Guard.SparkNo=S6105
+		Sparkxy=-15,floor(-60*const(Size.yScale))
+		HitSound=S0,11
+		GuardSound=S1,1
+		Damage=Ceil(ifelse(enemynear,MoveType=A || var(2) != 0,60,50)*fvar(10)*fvar(1)),9
+		Priority=5,Hit
+		GetPower=45+var(6),16+var(6)
+		GivePower=31,16
+		PauseTime=10,12
+		Ground.SlideTime=30
+		Ground.HitTime=30
+		Air.HitTime=24
+		Guard.SlideTime=26
+		Guard.HitTime=26
+		Ground.velocity=-2.0
+		Guard.velocity=-4
+		Air.velocity=-5.25,-4.7
+		AirGuard.velocity=-2.5,-5
+		ground.cornerpush.veloff =  -(fVar(11)*0.333)
+		Air.cornerpush.veloff=  -(fVar(11)*0.333)
+		ID=1150
+		yaccel =.4
+
+	[State 200 ノックバックカウント]
+		type = Varadd
+		Trigger1=numtarget(1150)
+		fvar(11) = 3*ifelse(fVar(11) < 30,1,2)
+		persistent = 0
+ 		ignorehitpause = 1
+
+	[State -1,攻撃補正]
+		Type=VarSet
+		Trigger1=var(2) = 0
+		Trigger1=movehit
+		fvar(0)=fvar(0)*0.80
+		persistent = 0
+ 		ignorehitpause = 1
+
+	[State -1,カウンター補正]
+		Type=VarSet
+		Trigger1=var(2) != 0
+		Trigger1=movehit
+		fvar(0)=fvar(0)*0.85
+		persistent = 0
+ 		ignorehitpause = 1
+
+	[State 1150,v1=1]
+		Type=VarSet
+		Trigger1=movecontact
+		var(1)=1
+		persistent = 0
+ 		ignorehitpause = 1
+
+	[State 1150,end of State]
+		Type=ChangeState
+		Trigger1=AnimTime=0
+		value=0
+		Ctrl=1
+
+;---------------------------------------------------------------------------
+[Statedef 1200,連続そげぶ(下段派生2)]
+	Type=S
+	MoveType=A
+	physics=N
+	velset=1,0
+	Ctrl=0
+	faceP2=1
+	Anim=1200
+	Poweradd=FVar(11)
+	sprPriority=2
+
+	[State -1,汎用格納]
+		type = Varset
+		Trigger1=Time=0
+		fvar(10)= fvar(0)
+		persistent = 0
+ 		ignorehitpause = 1
+
+	[State -1,最低攻撃保障]
+		type = Varset
+		Trigger1=Time=0
+		Trigger1=fvar(0)<=0.20
+		fvar(10)= 0.20*ifelse(fVar(11) < 30,1,.5)
+		persistent = 0
+ 		ignorehitpause = 1
+
+	[State 1200,v1=0]
+		Type=varSet
+		Trigger1=Time=0
+		var(1)=0
+
+	[State 1200,vel]
+		Type=velSet
+		Trigger1=AnimElem=3
+		x=4
+
+	[State 1200,vel]
+		Type=velSet
+		Trigger1=AnimElem=5
+		x=0
+
+	[State 1200,Snd2]
+		Type=playSnd
+		Trigger1=AnimElem=6
+		value=1,20
+		channel=1
+
+	[State 1200,Snd2]
+		Type=playSnd
+		Trigger1=AnimElem=13
+		value=1,7
+		channel=1
+
+	[State 1200,Explod]
+		Type=Explod
+		Trigger1=AnimElem=4
+		Anim=1201
+		Pos=0,0
+		PosType=P1
+		bindTime=-1
+		sprPriority=3
+		Ownpal=1
+		RemoveonGetHit=1
+		Scale=const(Size.xScale),const(Size.yScale)
+		trans=add
+
+	[State 1200,Hitdef]
+		Type=HitDef
+		Trigger1=!MoveContAct
+		Trigger1=!MoveReversed
+		Trigger1=AnimElemTime(5)>=0
+		Trigger1=AnimElemTime(6)<0
+		Attr=S,SA
+		AnimType=down
+		Hitflag=MAF
+		Guardflag=MA
+		Ground.Type=Low
+		SparkNo=S6015
+		Guard.SparkNo=S6105
+		Sparkxy=-15,floor(-60*const(Size.yScale))
+		HitSound=S0,11
+		GuardSound=S1,1
+		Damage=Ceil(ifelse(enemynear,MoveType=A || var(2) != 0,60,50)*fvar(10)*fvar(1)),9
+		Priority=5,Hit
+		GetPower=45+var(6),16+var(6)
+		GivePower=31,16
+		PauseTime=10,12
+		Ground.SlideTime=28
+		Ground.HitTime=26
+		Air.HitTime=26
+		Guard.SlideTime=27
+		Guard.HitTime=22
+		Ground.velocity=-1.75,-8.25
+		Guard.velocity=-8
+		Air.velocity=-5.25,-7.8
+		AirGuard.velocity=-2.5,-5
+		ground.cornerpush.veloff =  -(fVar(11)*0.444)
+		Air.cornerpush.veloff=  -(fVar(11)*0.444)
+		Yaccel=0.45
+		fall=1
+		fall.recover=0
+		ID=1200
+
+	[State 1200,2nd Hit Spark]
+		Type=Explod
+		Trigger1=MoveHit
+		Trigger1=enemynear,StateType!=A
+		Anim=6030
+		PosType=P2
+		Pos=-25,floor(-60*const(Size.yScale))
+		sprPriority=0
+		IgnoreHitPause=1
+		trans=add
+
+	[State 200 ノックバックカウント]
+		type = Varadd
+		Trigger1=movehit
+		fvar(11) = 2
+		persistent = 0
+ 		ignorehitpause = 1
+
+	[State -1,攻撃補正]
+		Type=VarSet
+		Trigger1=movehit
+		fvar(0)=fvar(0)*0.85
+		persistent = 0
+ 		ignorehitpause = 1
+ 		
+	[State 1200,v1=1]
+		Type=VarSet
+		Trigger1=movehit
+		var(1)=1
+		persistent = 0
+ 		ignorehitpause = 1
+
+	[State 1200,End]
+		Type=ChangeState
+		Trigger1=AnimTime=0
+		value=0
+		Ctrl=1
+
+;---------------------------------------------------------------------------
+[Statedef 1250,連続そげぶ強1]
+	Type=S
+	MoveType=A
+	physics=N
+	velset=0,0
+	Ctrl=0
+	faceP2=1
+	Anim=1250
+	Poweradd=FVar(11)
+	sprPriority=2
+
+	[State -1,汎用格納]
+		type = Varset
+		Trigger1=Time=0
+		fvar(10)= fvar(0)
+		persistent = 0
+ 		ignorehitpause = 1
+
+	[State -1,最低攻撃保障]
+		type = Varset
+		Trigger1=Time=0
+		Trigger1=fvar(0)<=0.20
+		fvar(10)= 0.20
+		persistent = 0
+ 		ignorehitpause = 1
+
+	[State 1250,v1=0]
+		Type=varSet
+		Trigger1=Time=0
+		var(1)=0
+
+	[State 1250,vel]
+		Type=velSet
+		Trigger1=AnimElemtime(1)=0
+		x=2
+
+	[State 1250,veladd]
+		Type=velAdd
+		Trigger1=AnimElemtime(4)=0
+		x=3
+
+	[State 1250,veladd]
+		Type=velAdd
+		Trigger1=AnimElemtime(6)=0
+		x=-5
+
+	[State 1250,Snd2]
+		Type=playSnd
+		Trigger1=AnimElem=5
+		value=1,23
+		channel=-1
+
+	[State 1250,Snd2]
+		Type=playSnd
+		Trigger1=AnimElem=6
+		value=2,7
+		channel=0
+		persistent = 0
+ 		ignorehitpause = 1
+
+	[State 1250,Hitdef]
+		Type=HitDef
+		Trigger1=!MoveContAct
+		Trigger1=!MoveReversed
+		Trigger1=AnimElemTime(6)>=0
+		Trigger1=AnimElemTime(8)<0
+		Attr=S,SA
+		AnimType=hard
+		Air.AnimType=back
+		Hitflag=MAF
+		Guardflag=MA
+		Ground.Type=high
+		SparkNo=S6015
+		Guard.SparkNo=S6105
+		Sparkxy=-15,floor(-60*const(Size.yScale))
+		HitSound=S0,11
+		GuardSound=S1,1
+		Damage=Ceil(ifelse(enemynear,MoveType=A || var(2) != 0,55,50)*fvar(10)*fvar(1)),9
+		Priority=5,Hit
+		GetPower=66+var(6),18+var(6)
+		GivePower=31,16
+		PauseTime=16,16
+		Ground.SlideTime=28
+		Ground.HitTime=18
+		Air.HitTime=10
+		Guard.SlideTime=27
+		Guard.HitTime=20
+		Ground.velocity=-4
+		Guard.velocity=-6
+		Air.velocity=-4,-3.25
+		AirGuard.velocity=-2.5,-0.5
+		ground.cornerpush.veloff = -fvar(11)*0.333
+		Air.cornerpush.veloff= -fvar(11)*0.333
+		Air.fall=1
+		fall.recover=0
+		ID=1250
+		Yaccel=0.4
+
+	[State -1,汎用初期化]
+		type = Varset
+		trigger1 = numTarget(1250)
+		trigger1 = Target(1250),statetype = A
+		trigger1 = movehit
+		var(10)= abs(Target(1250),pos x - pos x )
+		persistent = 0
+ 		ignorehitpause = 1
+
+	[State 2000,位置固定]
+		type = TargetBind
+		trigger1 = numTarget(1250)
+		trigger1 = Target(1250),statetype = A
+		trigger1 = movehit
+		time = 1
+		pos = var(10)+20,0
+		persistent = 0
+
+	[State 1251,2nd Hit Spark]
+		Type=Explod
+		Trigger1=MoveHit=1
+		Trigger1=enemynear,StateType!=A
+		Anim=6035
+		PosType=P2
+		Pos=-45,floor(-55*const(Size.yScale))
+		sprPriority=0
+		persistent = 0
+		IgnoreHitPause=1
+		trans=add
+
+	[State 200 ノックバックカウント]
+		type = Varadd
+		trigger1 = movehit
+		fvar(11) = 1
+		persistent = 0
+ 		ignorehitpause = 1
+		
+	[State -1,攻撃補正]
+		Type=VarSet
+		Trigger1=MoveHit=1
+		fvar(0)=fvar(0)*0.90
+		persistent = 0
+ 		ignorehitpause = 1
+
+	[State 1250,v1=1]
+		Type=VarSet
+		Trigger1=movehit=1
+		var(1)=1
+		persistent = 0
+ 		ignorehitpause = 1
+
+	[State 1250,End]
+		Type=ChangeState
+		Trigger1=AnimTime=0
+		value=0
+		Ctrl=1
+;---------------------------------------------------------------------------
+[Statedef 1251,連続そげぶ強2]
+	Type=S
+	MoveType=A
+	physics=N
+	velset=0,0
+	Ctrl=0
+	faceP2=1
+	Anim=1251
+	Poweradd=FVar(11)
+	sprPriority=2
+	
+	[State -1,汎用格納]
+		type = Varset
+		Trigger1=Time=0
+		fvar(10)= fvar(0)
+		persistent = 0
+ 		ignorehitpause = 1
+
+	[State -1,最低攻撃保障]
+		type = Varset
+		Trigger1=Time=0
+		Trigger1=fvar(0)<=0.22
+		fvar(10)= 0.22
+		persistent = 0
+ 		ignorehitpause = 1
+
+	[State 1251,v1=0]
+		Type=varSet
+		Trigger1=Time=0
+		var(1)=0
+
+	[State 1251,vel]
+		Type=velSet
+		Trigger1=AnimElemtime(1)=0
+		x=1
+
+	[State 1251,veladd]
+		Type=velset
+		Trigger1=AnimElemtime(4)=0
+		x=8
+
+	[State 1251,veladd]
+		Type=velset
+		Trigger1=AnimElemtime(6)=0
+		x=0
+
+	[State 1251,Snd2]
+		Type=playSnd
+		Trigger1=AnimElem=5
+		value=1,23
+		channel=-1
+
+	[State 1251,Hitdef]
+		Type=HitDef
+		Trigger1=!MoveContAct
+		Trigger1=!MoveReversed
+		Trigger1=AnimElemTime(6)>=0
+		Trigger1=AnimElemTime(7)<0
+		Attr=S,SA
+		AnimType=hard
+		Air.AnimType=back
+		Hitflag=MAF
+		Guardflag=MA
+		Ground.Type=low
+		SparkNo=S6015
+		Guard.SparkNo=S6105
+		Sparkxy=-15,floor(-60*const(Size.yScale))
+		HitSound=S0,11
+		GuardSound=S1,1
+		Damage=Ceil(ifelse(enemynear,MoveType=A || var(2) != 0,49,44)*fvar(10)*fvar(1)),9
+		Priority=5,Hit
+		GetPower=66+var(6),18+var(6)
+		GivePower=31,16
+		PauseTime=16,20
+		Ground.SlideTime=28
+		Ground.HitTime=18
+		Air.HitTime=10
+		Guard.SlideTime=21
+		Guard.HitTime=18
+		Ground.velocity=-4
+		Guard.velocity=-6
+		Air.velocity=-4,-2.25
+		AirGuard.velocity=-2.5,-0.5
+		ground.cornerpush.veloff = -(fvar(11)*0.333)
+		Air.cornerpush.veloff= -(fvar(11)*0.333)
+		Air.fall=1
+		fall.recover=0
+		ID=1251
+		Yaccel=0.4
+
+	[State 1251,2nd Hit Spark]
+		Type=Explod
+		Trigger1=MoveHit=1
+		Trigger1=enemynear,StateType!=A
+		Anim=6035
+		PosType=P2
+		Pos=-30,floor(-15*const(Size.yScale))
+		sprPriority=0
+		persistent = 0
+		IgnoreHitPause=1
+		trans=add
+		vfacing = -1
+
+	[State -1,汎用初期化]
+		type = Varset
+		trigger1 = numTarget(1251)
+		trigger1 = Target(1251),statetype = A
+		trigger1 = movehit
+		var(10)= abs(Target(1251),pos x - pos x )
+		persistent = 0
+ 		ignorehitpause = 1
+
+	[State 2000,位置固定]
+		type = TargetBind
+		trigger1 = numTarget(1251)
+		trigger1 = Target(1251),statetype = A
+		trigger1 = movehit
+		time = 1
+		pos = var(10)+20,0
+		persistent = 0
+
+	[State 200 ノックバックカウント]
+		type = Varadd
+		trigger1 = movehit
+		fvar(11) = 1
+		persistent = 0
+
+	[State 1251,v1=1]
+		Type=VarSet
+		Trigger1=movehit=1
+		var(1)=1
+
+	[State -1,攻撃補正]
+		Type=VarSet
+		Trigger1=MoveHit=1
+		fvar(0)=fvar(0)*0.90
+		persistent = 0
+ 		ignorehitpause = 1
+
+	[State 1251,End]
+		Type=ChangeState
+		Trigger1=AnimTime=0
+		value=0
+		Ctrl=1
+
+;---------------------------------------------------------------------------
+[Statedef 1252,連続そげぶ強3]
+	Type=S
+	MoveType=A
+	physics=N
+	velset=0,0
+	Ctrl=0
+	faceP2=1
+	Anim=1252
+	Poweradd=FVar(11)
+	sprPriority=2
+
+	[State -1,汎用格納]
+		type = Varset
+		Trigger1=Time=0
+		fvar(10)= fvar(0)
+		persistent = 0
+ 		ignorehitpause = 1
+
+	[State -1,最低攻撃保障]
+		type = Varset
+		Trigger1=Time=0
+		Trigger1=fvar(0)<=0.27
+		fvar(10)= 0.27
+		persistent = 0
+ 		ignorehitpause = 1
+
+	[State 1252,v1=0]
+		Type=varSet
+		Trigger1=Time=0
+		var(1)=0
+
+	[State 1252,vel]
+		Type=velSet
+		Trigger1=AnimElemtime(1)=0
+		x=2.5
+
+	[State 1252,veladd]
+		Type=velset
+		Trigger1=AnimElemtime(4)=0
+		x=8
+
+	[State 1252,veladd]
+		Type=velset
+		Trigger1=AnimElemtime(6)=0
+		x=0
+
+	[State 1252,Snd2]
+		Type=playSnd
+		Trigger1=AnimElem=5
+		value=1,23
+		channel=-1
+
+	[State 1252,Hitdef]
+		Type=HitDef
+		Trigger1=!MoveContAct
+		Trigger1=!MoveReversed
+		Trigger1=AnimElemTime(6)>=0
+		Trigger1=AnimElemTime(7)<0
+		Trigger1=enemynear,MoveType!=A || var(2) = 0
+		Attr=S,SA
+		AnimType=down
+		Hitflag=MAF
+		Guardflag=MA
+		Ground.Type=Low
+		SparkNo=S6015
+		Guard.SparkNo=S6105
+		Sparkxy=-15,floor(-60*const(Size.yScale))
+		HitSound=S0,11
+		GuardSound=S1,1
+		Damage=Ceil(74*fvar(10)*fvar(1)),9
+		Priority=5,Hit
+		GetPower=66+var(6),18+var(6)
+		GivePower=31,16
+		PauseTime=16,16
+		Ground.SlideTime=28
+		Ground.HitTime=26
+		Air.HitTime=26
+		Guard.SlideTime=27
+		Guard.HitTime=14
+		Ground.velocity=-7.25,-4.5
+		Guard.velocity=-6
+		Air.velocity=-6.75,-4.75
+		AirGuard.velocity=-2.5,-0.5
+		fall=1
+		fall.recover=0
+		ID=1252
+		Yaccel=0.4
+
+	[State 1252,Hitdef]
+		Type=HitDef
+		Trigger1=!MoveContAct
+		Trigger1=!MoveReversed
+		Trigger1=AnimElemTime(6)>=0
+		Trigger1=AnimElemTime(7)<0
+		Trigger1=enemynear,MoveType=A || var(2) != 0
+		Attr=S,SA
+		AnimType=hard
+		Air.AnimType=back
+		Hitflag=MAF
+		Guardflag=HA
+		Ground.Type=high
+		SparkNo=S6015
+		Guard.SparkNo=S6105
+		Sparkxy=-15,floor(-60*const(Size.yScale))
+		HitSound=S0,11
+		GuardSound=S1,1
+		Damage=Ceil(78*fvar(10)*fvar(1)),9
+		Priority=5,Hit
+		GetPower=31+var(6),16+var(6)
+		GivePower=31,16
+		PauseTime=16,16
+		Ground.SlideTime=28
+		Ground.HitTime=26
+		Air.HitTime=24
+		Guard.SlideTime=27
+		Guard.HitTime=14
+		Ground.velocity=-2.5
+		Guard.velocity=-8
+		Air.velocity=-5,-4.5
+		AirGuard.velocity=-2.5,-5
+		ground.cornerpush.veloff = -(fvar(11)*0.444)
+		Air.cornerpush.veloff= -(fvar(11)*0.444)
+		Yaccel=0.45
+		Air.fall=1
+		fall.recover=0
+		ID=1252
+
+	[State 1252,2nd Hit Spark]
+		Type=Explod
+		Trigger1=MoveHit=1
+		Trigger1=enemynear,StateType!=A
+		Anim=6030
+		PosType=P2
+		Pos=-20,floor(-60*const(Size.yScale))
+		sprPriority=0
+		persistent = 0
+		IgnoreHitPause=1
+		trans=add
+
+	[State 1252,画面端対策]
+		type = Width
+		trigger1 = movehit
+		value = 12,0
+ 		ignorehitpause = 1
+
+	[State 200 ノックバックカウント]
+		type = Varadd
+		trigger1 = movehit
+		fvar(11) = 3
+		persistent = 0
+ 		ignorehitpause = 1
+
+	[State -1,攻撃補正]
+		Type=VarSet
+		Trigger1=MoveHit=1
+		fvar(0)=fvar(0)*0.90
+		persistent = 0
+ 		ignorehitpause = 1
+
+	[State 1252,v1=1]
+		Type=VarSet
+		Trigger1=MoveContAct
+		var(1)=1
+		persistent = 0
+ 		ignorehitpause = 1
+
+	[State 1252,End]
+		Type=ChangeState
+		Trigger1=AnimTime=0
+		value=0
+		Ctrl=1
+
+;---------------------------------------------------------------------------
+;昇竜そげぶ
+;---------------------------------------------------------------------------
+[Statedef 1500,昇竜そげぶ弱]
+	Type=S
+	MoveType=A
+	physics=N
+	velset=0,0
+	Ctrl=0
+	faceP2=1
+	Anim=1500
+	Poweradd=FVar(11)
+	sprPriority=2
+
+	[State -1,汎用格納]
+		type = Varset
+		Trigger1=Time=0
+		fvar(10)= fvar(0)
+		persistent = 0
+ 		ignorehitpause = 1
+
+	[State -1,最低攻撃保障]
+		type = Varset
+		Trigger1=Time=0
+		Trigger1=fvar(0)<=0.15
+		fvar(10)= 0.15*ifelse(fVar(11) < 30,1,.5)
+		persistent = 0
+ 		ignorehitpause = 1
+
+
+	[State 52,画面端対策]
+		type = Width
+		Trigger1=AnimElemtime(5)<0
+		value = 6,0
+
+	[State 1500,v1=0]
+		Type=varSet
+		Trigger1=Time=0
+		var(1)=0
+
+	[State 1500,Snd1]
+		Type=playSnd
+		Trigger1=AnimElemtime(1)=0
+		value=3,12
+		channel=0
+
+	[State 1500,Snd2]
+		Type=playSnd
+		Trigger1=AnimElemtime(5)=0
+		value=1,12
+		channel=1
+
+	[State 1500,vel]
+		Type=velSet
+		Trigger1=AnimElemtime(2)=0
+		x=2
+
+	[State 1500,vel]
+		Type=velSet
+		Trigger1=AnimElemtime(3)=0
+		x=4
+
+	[State 1500,vel]
+		Type=velSet
+		Trigger1=AnimElemtime(4)=0
+		x=8
+
+	[State 1500,Air State]
+		Type=StateTypeSet
+		Trigger1=AnimElemtime(5)=0
+		StateType=A
+		Physics=A
+
+	[State 1500,N State]
+		Type=StateTypeSet
+		Trigger1=AnimElemtime(11)=0
+		Physics=N
+
+	[State 1500,vel]
+		Type=velSet
+		Trigger1=AnimElemtime(5)=0
+		x=2
+		y=-15
+
+	[State 1500,vel]
+		Type=velSet
+		Trigger1=AnimElemtime(9)=0
+		y=-6.5
+
+	[State 1500,vel]
+		Type=velAdd
+		Trigger1=AnimElemTime(11)>0
+		y=0.55
+
+	[State 1500,Hitdef]
+		Type=HitDef
+		Trigger1=!MoveContAct
+		Trigger1=!MoveReversed
+		Trigger1=AnimElemTime(5)=0
+		Trigger2=AnimElemTime(6)=0
+		Trigger3=AnimElemTime(7)=0
+		Trigger4=AnimElemTime(8)=0
+		Attr=S,SA
+		AnimType=down
+		Hitflag=MAF
+		Guardflag=M
+		Ground.Type=Low
+		SparkNo=S(IfElse(hitcount<1, -1,6005));6005
+		Guard.SparkNo=S6105
+		Sparkxy=-15,floor(-60*const(Size.yScale))
+		HitSound=S0,12
+		GuardSound=S1,1
+		Damage=Ceil(15*fvar(10)*fvar(1)),2
+		Priority=5,Hit
+		GetPower=4,1
+		GivePower=2,1
+		PauseTime=2,1
+		Ground.SlideTime=28
+		Guard.SlideTime=24
+		Ground.HitTime=26
+		Guard.HitTime=24
+		Guard.CtrlTime=24
+		Air.HitTime=24
+		Ground.velocity=-1,-6
+		Air.velocity=-1,-6
+		Guard.velocity=-8
+		AirGuard.velocity=-2.5,-5
+		Ground.cornerpush.veloff=0
+		Guard.cornerpush.veloff=-10
+		Air.cornerpush.veloff=0
+		AirGuard.cornerpush.veloff=0
+		Yaccel=0.45
+		fall=1
+		fall.recover=0
+
+	[State 1500,位置固定]
+		type = TargetBind
+		trigger1 = hitcount=1
+		Trigger1=AnimElemTime(5)>=0
+		Trigger1=AnimElemTime(9)<0
+		time = 1
+		pos = 15,10
+
+	[State 1500,Hit Spark]
+		Type=Explod
+		trigger1 = hitcount=1
+		Trigger1=AnimElemTime(5)>=0
+		Trigger1=AnimElemTime(9)<0
+		Anim=6005
+		PosType=P1
+		pos = 15,floor(-60*const(Size.yScale))
+		sprPriority=9999
+		IgnoreHitPause=1
+
+	[State 1500,Hitdef]
+		Type=HitDef
+		Trigger1=AnimElemTime(9)>=0
+		Trigger1=AnimElemTime(10)<0
+		Attr=S,SA
+		AnimType=down
+		Hitflag=MAF
+		Guardflag=M
+		Ground.Type=Low
+		SparkNo=S6015
+		Guard.SparkNo=S6105
+		Sparkxy=-15,floor(-60*const(Size.yScale))
+		HitSound=S0,12
+		GuardSound=S1,1
+		Damage=Ceil(20*fvar(10)*fvar(1)),6
+		Priority=5,Hit
+		GetPower=35+var(6),16+var(6)
+		GivePower=31,16
+		PauseTime=4,4
+		Ground.SlideTime=28
+		Guard.SlideTime=24
+		Ground.HitTime=26
+		Guard.HitTime=24
+		Guard.CtrlTime=24
+		Air.HitTime=24
+		Ground.velocity=-4,-8.95
+		Air.velocity=-2.5,-9.25
+		Guard.velocity=-4
+		AirGuard.velocity=-2.5,-5
+		Ground.cornerpush.veloff=0
+		Guard.cornerpush.veloff=-10
+		Air.cornerpush.veloff=0
+		AirGuard.cornerpush.veloff=0
+		Yaccel=0.5
+		fall=1
+		fall.recover=0
+		persistent=0
+
+	[State 200 ノックバックカウント]
+		type = Varadd
+		Trigger1=AnimElemTime(9)>=0
+		Trigger1=AnimElemTime(10)<0
+		Trigger1=Movehit=2
+		fvar(11) = 3
+		persistent = 0
+ 		ignorehitpause = 1
+
+	[State -1,攻撃補正]
+		Type=VarSet
+		Triggerall=var(2) = 0
+		Trigger1=AnimElemTime(9)>=0
+		Trigger1=AnimElemTime(10)<0
+		Trigger1=Movehit=2
+		fvar(0)=fvar(0)*0.60
+		persistent = 0
+ 		ignorehitpause = 1
+
+	[State -1,カウンター補正]
+		Type=VarSet
+		Trigger1=var(2) != 0
+		Trigger1=AnimElemTime(9)>=0
+		Trigger1=AnimElemTime(10)<0
+		Trigger1=Movehit=2
+		fvar(0)=fvar(0)*0.70
+		persistent = 0
+ 		ignorehitpause = 1
+
+	[State 1500,v1=1]
+		Type=VarSet
+		Trigger1=AnimElemTime(9)>=0
+		Trigger1=AnimElemTime(10)<0
+		Trigger1=Movehit=2
+		var(1)=1
+		persistent = 0
+ 		ignorehitpause = 1
+
+	[State 1500,land]
+		Type=ChangeState
+		Trigger1=AnimElemTime(10)>0
+		Trigger1=Pos Y>=0
+		value=53
+
+;---------------------------------------------------------------------------
+[Statedef 1550,昇竜そげぶ強]
+	Type=S
+	MoveType=A
+	physics=N
+	velset=0,0
+	Ctrl=0
+	faceP2=1
+	Anim=1550
+	Poweradd=FVar(11)
+	sprPriority=2
+
+	[State -1,汎用格納]
+		type = Varset
+		Trigger1=Time=0
+		fvar(10)= fvar(0)
+		persistent = 0
+ 		ignorehitpause = 1
+
+	[State -1,最低攻撃保障]
+		type = Varset
+		Trigger1=Time=0
+		Trigger1=fvar(0)<=0.25
+		fvar(10)= 0.25*ifelse(fVar(11) < 30,1,.5)
+		persistent = 0
+ 		ignorehitpause = 1
+
+	[State 1550,NotHit]
+		Type=notHitBy
+		Trigger1=AnimElemTime(1)>=0
+		Trigger1=AnimElemTime(5)<1
+		value=SCA
+		Time=1
+
+	[State 1550,v1=0]
+		Type=varSet
+		Trigger1=Time=0
+		var(1)=0
+
+	[State 1550,Snd1]
+		Type=playSnd
+		Trigger1=AnimElemtime(1)=0
+		value=3,11
+		channel=0
+
+	[State 1500,vel]
+		Type=velSet
+		Trigger1=AnimElemtime(2)=0
+		x=1
+
+	[State 1500,vel]
+		Type=velSet
+		Trigger1=AnimElemtime(3)=0
+		x=2
+
+	[State 1500,vel]
+		Type=velSet
+		Trigger1=AnimElemtime(4)=0
+		x=4
+
+	[State 1550,Air State]
+		Type=StateTypeSet
+		Trigger1=AnimElemtime(5)=0
+		StateType=A
+		Physics=A
+
+	[State 1550,N State]
+		Type=StateTypeSet
+		Trigger1=AnimElemtime(13)=0
+		Physics=N
+
+	[State 1550,vel]
+		Type=velSet
+		Trigger1=AnimElemtime(5)=0
+		x=3
+		y=-12
+
+	[State 1550,vel]
+		Type=velSet
+		Trigger1=AnimElemtime(11)=0
+		y=-7
+
+	[State 1550,vel]
+		Type=velAdd
+		Trigger1=AnimElemTime(13)>0
+		y=0.55
+
+	[State 1550,Hitdef]
+		Type=HitDef
+		Trigger1=!MoveContAct
+		Trigger1=!MoveReversed
+		Trigger1=AnimElemTime(5)=0
+		Trigger2=AnimElemTime(6)=0
+		Trigger3=AnimElemTime(7)=0
+		Trigger4=AnimElemTime(8)=0
+		Trigger5=AnimElemTime(9)=0
+		Trigger6=AnimElemTime(10)=0
+		Attr=S,SA
+		AnimType=down
+		Hitflag=MAF
+		Guardflag=MA
+		Ground.Type=Low
+		SparkNo=S(IfElse(hitcount<1, -1,6005));6005
+		Guard.SparkNo=S6105
+		Sparkxy=-15,floor(-60*const(Size.yScale))
+		HitSound=S0,12
+		GuardSound=S1,1
+		Damage=Ceil( ifelse(enemynear,MoveType=A || var(2) != 0,20,16)*fvar(10)*fvar(1)),2
+		Priority=5,Hit
+		GetPower=6,1
+		GivePower=2,1
+		PauseTime=2,1
+		Ground.SlideTime=28
+		Guard.SlideTime=24
+		Ground.HitTime=26
+		Guard.HitTime=24
+		Guard.CtrlTime=24
+		Air.HitTime=24
+		Ground.velocity=-1,-10
+		Air.velocity=-1,-10
+		Guard.velocity=-8
+		AirGuard.velocity=-2.5,-5
+		Ground.cornerpush.veloff=0
+		Guard.cornerpush.veloff=-10
+		Air.cornerpush.veloff=0
+		AirGuard.cornerpush.veloff=0
+		Yaccel=0.45
+		fall=1
+		fall.recover=0
+
+	[State 1500,位置固定]
+		type = TargetBind
+		trigger1 = hitcount=1
+		Trigger1=AnimElemTime(5)>=0
+		Trigger1=AnimElemTime(11)<0
+		time = 1
+		pos = 15,10
+
+	[State 1500,Hit Spark]
+		Type=Explod
+		trigger1 = hitcount=1
+		Trigger1=AnimElemTime(5)>=0
+		Trigger1=AnimElemTime(11)<0
+		Anim=6005
+		PosType=P1
+		pos = 15,floor(-60*const(Size.yScale))
+		sprPriority=9999
+		IgnoreHitPause=1
+
+	[State 1550,Hitdef]
+		Type=HitDef
+		Trigger1=AnimElemTime(11)>=0
+		Trigger1=AnimElemTime(12)<0
+		Attr=S,SA
+		AnimType=down
+		Hitflag=MAF
+		Guardflag=M
+		Ground.Type=Low
+		SparkNo=S6015
+		Guard.SparkNo=S6105
+		Sparkxy=-15,floor(-60*const(Size.yScale))
+		HitSound=S0,12
+		GuardSound=S1,1
+		Damage=Ceil( ifelse(enemynear,MoveType=A || var(2) != 0,30,28)*fvar(0)*fvar(1)),12
+		Priority=5,Hit
+		GetPower=31+var(6),16+var(6)
+		GivePower=31,16
+		PauseTime=4,4
+		Ground.SlideTime=28
+		Guard.SlideTime=24
+		Ground.HitTime=26
+		Guard.HitTime=24
+		Guard.CtrlTime=24
+		Air.HitTime=24
+		Ground.velocity=-4,-8.5
+		Air.velocity=-4,-8.5
+		Guard.velocity=-8
+		AirGuard.velocity=-2.5,-5
+		Ground.cornerpush.veloff=0
+		Guard.cornerpush.veloff=-10
+		Air.cornerpush.veloff=0
+		AirGuard.cornerpush.veloff=0
+		Yaccel=0.475
+		fall=1
+		fall.recover=0
+		persistent=0
+
+	[State 200 ノックバックカウント]
+		type = Varadd
+		Trigger1=AnimElemTime(11)>=0
+		Trigger1=AnimElemTime(12)<0
+		Trigger1=Movehit
+		fvar(11) = 1
+		persistent = 0
+ 		ignorehitpause = 1
+
+	[State -1,攻撃補正]
+		Type=VarSet
+		Trigger1=var(10)=1
+		fvar(0)=fvar(0)*0.10
+		persistent = 0
+ 		ignorehitpause = 1
+
+	[State 1500,ヒット判定]
+		Type=VarSet
+		Trigger1=AnimElemTime(11)>=0
+		Trigger1=AnimElemTime(12)<0
+		Trigger1=Movehit
+		var(1)=1
+		persistent = 0
+ 		ignorehitpause = 1
+ 		
+	[State 1550,land]
+		Type=ChangeState
+		Trigger1=AnimElemTime(12)>=0
+		Trigger1=Pos Y>=0
+		value=53
+
+;---------------------------------------------------------------------------
+;突撃そげぶ
+;---------------------------------------------------------------------------
+[Statedef 1600,突撃そげぶ弱]
+	Type=S
+	MoveType=A
+	physics=N
+	Anim=1600
+	Ctrl=0
+	velset=0,0
+	Poweradd=FVar(11)
+	sprPriority=1
+	faceP2=1
+
+	[State -1,汎用格納]
+		type = Varset
+		Trigger1=Time=0
+		fvar(10)= fvar(0)
+		persistent = 0
+ 		ignorehitpause = 1
+
+	[State -1,最低攻撃保障]
+		type = Varset
+		Trigger1=Time=0
+		Trigger1=var(1)=1
+		Trigger1=fvar(0)<=0.15
+		fvar(10)= 0.15*ifelse(fVar(11) < 30,1,.5)
+		persistent = 0
+ 		ignorehitpause = 1
+
+	[State 1600,v1=0]
+		Type=varSet
+		Trigger1=Time=0
+		var(1)=0
+
+	[State 1600,vel]
+		Type=velAdd
+		Trigger1=AnimElem=4
+		x=10
+
+	[State 1600,veladd]
+		Type=velAdd
+		Trigger1=AnimElem=6
+		x=-5
+
+	[State 1600,veladd]
+		Type=velAdd
+		Trigger1=AnimElem=7
+		x=-4
+
+	[State 1600,veladd]
+		Type=velAdd
+		Trigger1=AnimElem=9
+		x=-1
+
+	[State 1600,Snd1]
+		Type=playSnd
+		Trigger1=AnimElem=1
+		value=3,12
+		channel=0
+
+	[State 1600,Snd2]
+		Type=playSnd
+		Trigger1=AnimElem=4
+		value=1,10
+		channel=-1
+
+	[State 1600,Explod]
+		Type=Explod
+		Trigger1=AnimElem=4
+		Anim=1091
+		sprPriority=3
+		Pos=floor(55*const(Size.xScale)),floor(-65*const(Size.yScale))
+		PosType=P1
+		bindTime=-1
+		Scale=const(Size.xScale),const(Size.yScale)
+		RemoveonGetHit=3
+		IgnoreHitPause=0
+		trans=add
+
+	[State 1600,Hitdef_!=A]
+		Type=HitDef
+		Trigger1=!MoveContAct
+		Trigger1=!MoveReversed
+		Trigger1=AnimElemTime(4)>=0
+		Trigger1=AnimElemTime(8)<0
+		Trigger1=enemynear,MoveType!=A || var(2) = 0
+		Attr=A,SA
+		AnimType=down
+		Hitflag=MAF
+		Guardflag=MA
+		Ground.Type=Low
+		SparkNo=S6015
+		Guard.SparkNo=S6105
+		Sparkxy=-15,floor(-60*const(Size.yScale))
+		HitSound=S0,12
+		GuardSound=S1,1
+		Damage=Ceil(95*fvar(10)*fvar(1)),9
+		PauseTime=14,14
+		Priority=5,Hit
+		GetPower=75+var(6),31+var(6)
+		GivePower=62,31
+		Ground.SlideTime=28
+		Ground.HitTime=26
+		Air.HitTime=24
+		Guard.SlideTime=26
+		Guard.HitTime=24
+		Ground.velocity=-7.5,-4.5
+		Guard.velocity=-12
+		Air.velocity=-7.5,-4.5
+		AirGuard.velocity=-2.5,-4
+		Ground.cornerpush.veloff=0
+		Guard.cornerpush.veloff=-18
+		ground.cornerpush.veloff = ifelse(fvar(11)<=10,-3.5,-(fvar(11))*0.8)
+		Air.cornerpush.veloff= ifelse(fvar(11)<=10,-3.5,-(fvar(11))*0.8)
+		Yaccel=0.45
+		fall=1
+		fall.recover=0
+		ID=1600
+
+	[State 1600,Hitdef_=A]
+		Type=HitDef
+		Trigger1=!MoveContAct
+		Trigger1=!MoveReversed
+		Trigger1=AnimElemTime(4)>=0
+		Trigger1=AnimElemTime(8)<0
+		Trigger1=enemynear,MoveType=A || var(2) != 0
+		Attr=A,SA
+		AnimType=hard
+		Hitflag=MAF
+		Guardflag=MA
+		Ground.Type=high
+		SparkNo=S6015
+		Guard.SparkNo=S6105
+		Sparkxy=-15,floor(-60*const(Size.yScale))
+		HitSound=S0,12
+		GuardSound=S1,1
+		Damage=Ceil(95*fvar(10)*fvar(1)),9
+		PauseTime=16,16
+		Priority=5,Hit
+		GetPower=62+var(6),31+var(6)
+		GivePower=62,31
+		Ground.SlideTime=28
+		Ground.HitTime=36
+		Air.HitTime=24
+		Guard.SlideTime=26
+		Guard.HitTime=24
+		Ground.velocity=-1.25
+		Guard.velocity=-12
+		Air.velocity=-7.5,-4.25
+		AirGuard.velocity=-2.5,-4.25
+		Ground.cornerpush.veloff=0
+		Guard.cornerpush.veloff=-18
+		ground.cornerpush.veloff = ifelse(fvar(11)<=10,-3.5,-(fvar(11))*0.8)
+		Air.cornerpush.veloff= ifelse(fvar(11)<=10,-3.5,-(fvar(11))*0.8)
+		Yaccel=0.45
+		Air.fall=1
+		fall.recover=0
+		ID=1600
+
+	[State 1600,2nd Hit Spark]
+		Type=Explod
+		Trigger1=MoveHit=1
+		Trigger1=enemynear,StateType!=A
+		Anim=6030
+		PosType=P2
+		Pos=-25,floor(-60*const(Size.yScale))
+		sprPriority=0
+		trans=add
+		persistent = 0
+		IgnoreHitPause=1
+
+	[State 1600,AttackDist]
+		Type=AttackDist
+		TriggerAll=!IsHelper
+		Trigger1=AnimElem=8,>=0
+		Trigger2=MoveContAct
+		Trigger3=MoveReversed
+		value=0
+		IgnoreHitPause=1
+
+	[State 1600,idle]
+		Type=StateTypeSet
+		Trigger1=AnimElem=8
+		MoveType=I
+
+	[State 200 ノックバックカウント]
+		type = Varadd
+		trigger1 = movehit
+		fvar(11) = 2
+		persistent = 0
+ 		ignorehitpause = 1
+
+	[State -1,攻撃補正]
+		Type=VarSet
+		Trigger1=var(2) = 0
+		Trigger1=MoveHit=1
+		fvar(0)=fvar(0)*0.50
+		persistent = 0
+ 		ignorehitpause = 1
+
+	[State -1,カウンター補正]
+		Type=VarSet
+		Trigger1=var(2) != 0
+		Trigger1=MoveHit=1
+		fvar(0)=fvar(0)*0.55
+		persistent = 0
+ 		ignorehitpause = 1
+
+	[State 1600,v1=1]
+		Type=VarSet
+		Trigger1=MoveContAct
+		var(1)=1
+		persistent = 0
+ 		ignorehitpause = 1
+
+	[State 1600,ChangeState]
+		Type=ChangeState
+		Trigger1=AnimTime=0
+		value=0
+		Ctrl=1
+
+;---------------------------------------------------------------------------
+[Statedef 1650,突撃そげぶ強]
+	Type=S
+	MoveType=A
+	physics=N
+	Anim=1650
+	Ctrl=0
+	velSet=0,0
+	Poweradd=FVar(11)
+	sprPriority=1
+	faceP2=1
+
+	[State -1,汎用格納]
+		type = Varset
+		Trigger1=Time=0
+		fvar(10)= fvar(0)
+		persistent = 0
+ 		ignorehitpause = 1
+
+	[State -1,最低攻撃保障]
+		type = Varset
+		Trigger1=Time=0
+		Trigger1=var(1)=1
+		Trigger1=fvar(0)<=0.16
+		fvar(10)= 0.16*ifelse(fVar(11) < 30,1,.5)
+		persistent = 0
+ 		ignorehitpause = 1
+
+	[State 1650,v1=0]
+		Type=varSet
+		Trigger1=Time=0
+		var(1)=0
+
+	[State 1650,vel]
+		Type=velSet
+		Trigger1=AnimElem=6,<0
+		x=0
+
+	[State 1650,vel]
+		Type=velAdd
+		Trigger1=AnimElem=6
+		x=15
+
+	[State 1650,veladd]
+		Type=velSet
+		Trigger1=AnimElem=8
+		x=12
+
+	[State 1650,veladd]
+		Type=velSet
+		Trigger1=AnimElem=9
+		x=7
+
+	[State 1650,veladd]
+		Type=velSet
+		Trigger1=AnimElemtime(10)=0
+		x=2
+
+	[State 1650,veladd]
+		Type=velSet
+		Trigger1=AnimElemtime(11)=0
+		x=.5
+
+	[State 1650,veladd]
+		Type=velSet
+		Trigger1=AnimElemtime(12)=0
+		x=0
+
+	[State 1650,Snd1]
+		Type=playSnd
+		Trigger1=AnimElem=2
+		value=3,10
+		channel=0
+
+	[State 1650,Snd2]
+		Type=playSnd
+		Trigger1=AnimElem=6
+		value=1,10
+		channel=-1
+
+	[State 1650,Explod]
+		Type=Explod
+		Trigger1=AnimElem=6
+		Anim=1091
+		sprPriority=3
+		Pos=floor(55*const(Size.xScale)),floor(-65*const(Size.yScale))
+		PosType=P1
+		bindTime=-1
+		Scale=const(Size.xScale),const(Size.yScale)
+		RemoveonGetHit=3
+		IgnoreHitPause=0
+		trans=add
+		trans=add
+
+	[State 1650,Hitdef_!=A]
+		Type=HitDef
+		Trigger1=!MoveContAct
+		Trigger1=!MoveReversed
+		Trigger1=AnimElemTime(6)>=0
+		Trigger1=AnimElemTime(10)<0
+		Trigger1=enemynear,MoveType!=A || var(2) = 0
+		Attr=A,SA
+		AnimType=hard
+		Hitflag=MAF
+		Guardflag=MA
+		Ground.Type=high
+		SparkNo=S6015
+		Guard.SparkNo=S6105
+		Sparkxy=-15,floor(-60*const(Size.yScale))
+		HitSound=S0,12
+		GuardSound=S1,1
+		Damage=Ceil(115*fvar(10)*fvar(1)),12
+		Priority=5,Hit
+		GetPower=75+var(6),31+var(6)
+		GivePower=62,31
+		PauseTime=16,16
+		Ground.SlideTime=28
+		Ground.HitTime=30
+		Air.HitTime=24
+		Guard.SlideTime=12
+		Guard.HitTime=10
+		Ground.velocity=-7,-4.5
+		Guard.velocity=-12
+		Air.velocity=-8,-4.5
+		AirGuard.velocity=-2.5,-4
+		Ground.cornerpush.veloff=0
+		Guard.cornerpush.veloff=-18
+		ground.cornerpush.veloff = ifelse(fvar(11)<=10,-3.5,-(fvar(11))*0.8)
+		Air.cornerpush.veloff= ifelse(fvar(11)<=10,-3.5,-(fvar(11))*0.8)
+		Yaccel=0.35
+		fall=1
+		fall.recover=0
+		ID=1650
+
+	[State 1650,Hitdef_=A]
+		Type=HitDef
+		Trigger1=!MoveContAct
+		Trigger1=!MoveReversed
+		Trigger1=AnimElemTime(6)>=0
+		Trigger1=AnimElemTime(10)<0
+		Trigger1=enemynear,MoveType=A ||  var(2) != 0
+		Attr=A,SA
+		AnimType=hard
+		Hitflag=MAF
+		Guardflag=MA
+		Ground.Type=high
+		SparkNo=S6015
+		Guard.SparkNo=S6105
+		Sparkxy=-15,floor(-60*const(Size.yScale))
+		HitSound=S0,12
+		GuardSound=S1,1
+		Damage=Ceil(115*fvar(10)*fvar(1)),12
+		Priority=5,Hit
+		GetPower=75+var(6),31+var(6)
+		GivePower=62,31
+		PauseTime=16,16
+		Ground.SlideTime=28
+		Ground.HitTime=38
+		Air.HitTime=24
+		Guard.SlideTime=12
+		Guard.HitTime=10
+		Ground.velocity=-0.75
+		Guard.velocity=-6
+		Air.velocity=-8,-5.5
+		AirGuard.velocity=-2.5,-5
+		Ground.cornerpush.veloff=0
+		Guard.cornerpush.veloff=-18
+		ground.cornerpush.veloff = -(fvar(11)*0.666)
+		Air.cornerpush.veloff= -(fvar(11)*0.666)
+		Yaccel=0.35
+		Air.fall=1
+		fall.recover=0
+		ID=1650
+
+	[State -1,汎用初期化]
+		type = Varset
+		trigger1 = numTarget(1650)
+		trigger1 = Target(1650),statetype = A
+		var(10)= abs(Target(1650),pos x - pos x )
+		persistent = 0
+ 		ignorehitpause = 1
+
+	[State 2000,位置固定]
+		type = TargetBind
+		trigger1 = numTarget(1650)
+		trigger1 = Target(1650),statetype = A
+		time = 1
+		pos = var(10)+10,-10
+		persistent = 0
+
+	[State 1650,2nd Hit Spark]
+		Type=Explod
+		Trigger1=MoveHit=1
+		Trigger1=enemynear,StateType!=A
+		Anim=6030
+		PosType=P2
+		Pos=-25,floor(-60*const(Size.yScale))
+		sprPriority=0
+		persistent = 0
+		IgnoreHitPause=1
+		trans=add
+
+	[State 1650,AttackDist]
+		Type=AttackDist
+		TriggerAll=!IsHelper
+		Trigger1=AnimElem=10,>=0
+		Trigger2=MoveContAct
+		Trigger3=MoveReversed
+		value=0
+		IgnoreHitPause=1
+
+	[State 1650,idle]
+		Type=StateTypeSet
+		Trigger1=AnimElem=10,>=0
+		MoveType=I
+
+	[State 200 ノックバックカウント]
+		type = Varadd
+		trigger1 = movehit
+		fvar(11) = 3
+		persistent = 0
+ 		ignorehitpause = 1
+
+	[State -1,攻撃補正]
+		Type=VarSet
+		Trigger1=MoveHit=1
+		fvar(0)=fvar(0)*0.45
+		persistent = 0
+ 		ignorehitpause = 1
+
+	[State 1650,v1=1]
+		Type=VarSet
+		Trigger1=MoveContAct
+		var(1)=1
+		persistent = 0
+ 		ignorehitpause = 1
+ 		
+	[State 1650,ChangeState]
+		Type=ChangeState
+		Trigger1=AnimTime=0
+		value=0
+		Ctrl=1
+
+;---------------------------------------------------------------------------
+;不幸だ☆
+;---------------------------------------------------------------------------
+[Statedef 1700,不幸だ☆弱]
+	Type=A
+	MoveType=A
+	physics=N
+	velset=0,0
+	Ctrl=0
+	Anim=1700
+	Poweradd=FVar(11)
+	sprPriority=2
+
+	[State -1,汎用格納]
+		type = Varset
+		Trigger1=Time=0
+		fvar(10)= fvar(0)
+		persistent = 0
+ 		ignorehitpause = 1
+
+	[State -1,最低攻撃保障]
+		type = Varset
+		Trigger1=Time=0
+		Trigger1=fvar(0)<=0.18
+		fvar(10)= 0.18*ifelse(fVar(11) < 30,1,.5)
+		persistent = 0
+ 		ignorehitpause = 1
+
+	[State 1700,v1=0]
+		Type=varSet
+		Trigger1=Time=0
+		var(1)=0
+
+	[State 1700,Snd1]
+		Type=playSnd
+		Trigger1=AnimElem=1
+		value=3,13
+		channel=0
+		volume=255
+
+	[State 1700,Snd2]
+		Type=playSnd
+		Trigger1=AnimElem=1
+		value=1,24
+		channel=1
+		volume=-200
+
+	[State 1700,vel]
+		Type=velSet
+		Trigger1=AnimElem=3
+		x=4.25
+		y=8.00
+
+	[State 1700,Hitdef]
+		Type=HitDef
+		Trigger1=!MoveContAct
+		Trigger1=!MoveReversed
+		Trigger1=AnimElemTime(4)>=0
+		Attr=S,SA
+;		AnimType=down
+		Hitflag=MAF
+		Guardflag=HA
+		Ground.Type=Low
+		SparkNo=S6015
+		Guard.SparkNo=S6105
+		Sparkxy=-15,floor(-40*const(Size.yScale))
+		HitSound=S0,12
+		GuardSound=S1,1
+		Damage=Ceil(ifelse(enemynear,MoveType=A || var(2) != 0,91,83)*fvar(10)),8
+		Priority=5,Hit
+		GetPower=87+var(6),20+var(6)
+		GivePower=69,20
+		PauseTime=12,15
+		Ground.SlideTime=28
+		Ground.HitTime=26
+		Air.HitTime=24
+		Guard.SlideTime=22
+		Guard.HitTime=16
+		Ground.velocity=-3,0
+		Guard.velocity=-12
+		Air.velocity=-5.5,-5.75
+		AirGuard.velocity=-2.5,-5.25
+		Ground.cornerpush.veloff=0
+		Guard.cornerpush.veloff=-18
+		ground.cornerpush.veloff = -(fvar(11)*0.666)
+		Air.cornerpush.veloff= -(fvar(11)*0.666)
+		Yaccel=0.4
+		Air.fall=1
+		fall.recover=0
+
+	[State 1700,2nd Hit Spark]
+		Type=Explod
+		Trigger1=MoveHit=1
+		Trigger1=enemynear,StateType!=A
+		Anim=6030
+		PosType=P2
+		Pos=-25,floor(-60*const(Size.yScale))
+		sprPriority=0
+		persistent = 0
+		IgnoreHitPause=1
+		trans=add
+
+	[State 200 ノックバックカウント]
+		type = Varadd
+		trigger1 = movehit
+		fvar(11) = 2
+		persistent = 0
+
+	[State 1700,v1=0]
+		Type=varSet
+		Trigger1=MoveHit=1
+		var(1)=1
+
+	[State -1,攻撃補正]
+		Type=VarSet
+		Trigger1=MoveHit=1
+		fvar(0)=fvar(0)*0.85
+		persistent = 0
+ 		ignorehitpause = 1
+
+	[State 52,0];?
+		type = Width
+		Trigger1=Pos Y>=0
+		value = 38,38
+
+	[State 1700,land]
+		Type=ChangeState
+		Trigger1=Pos Y>=0
+		value=53
+
+;---------------------------------------------------------------------------
+[Statedef 1750,不幸だ☆強]
+	Type=A
+	MoveType=A
+	physics=N
+	velset=0,0
+	Ctrl=0
+	Anim=1700
+	Poweradd=FVar(11)
+	sprPriority=2
+
+	[State -1,汎用格納]
+		type = Varset
+		Trigger1=Time=0
+		fvar(10)= fvar(0)
+		persistent = 0
+ 		ignorehitpause = 1
+
+	[State -1,最低攻撃保障]
+		type = Varset
+		Trigger1=Time=0
+		Trigger1=fvar(0)<=0.30
+		fvar(10)= 0.30*ifelse(fVar(11) < 30,1,.5)
+		persistent = 0
+ 		ignorehitpause = 1
+
+	[State 1750,v1=0]
+		Type=varSet
+		Trigger1=Time=0
+		var(1)=0
+
+	[State 1750,Snd1]
+		Type=playSnd
+		Trigger1=AnimElem=1
+		value=3,14
+		channel=0
+		volume=255
+
+	[State 1750,Snd2]
+		Type=playSnd
+		Trigger1=AnimElem=1
+		value=1,24
+		channel=1
+		volume=-200
+
+	[State 1750,vel]
+		Type=velSet
+		Trigger1=AnimElem=3
+		x=7.25
+		y=4.75
+
+	[State 1750,Hitdef]
+		Type=HitDef
+		Trigger1=!MoveContAct&&!MoveReversed
+		Trigger1=AnimElemTime(4)>=0
+		Attr=S,SA
+;		AnimType=down
+		Hitflag=MAF
+		Guardflag=HA
+		Ground.Type=high
+		SparkNo=S6015
+		Guard.SparkNo=S6105
+		Sparkxy=-15,floor(-40*const(Size.yScale))
+		HitSound=S0,12
+		GuardSound=S1,1
+		Damage=Ceil(ifelse(enemynear,MoveType=A || var(2) != 0,101,92)*fvar(10)),9
+		Priority=5,Hit
+		GetPower=87+var(6),20+var(6)
+		GivePower=69,20
+		PauseTime=12,15
+		Ground.SlideTime=28
+		Ground.HitTime=26
+		Air.HitTime=24
+		Guard.SlideTime=17
+		Guard.HitTime=8
+		Ground.velocity=-5,ifelse(enemynear,MoveType=A || var(2) != 0,0,-5)
+		Guard.velocity=-12
+		Air.velocity=-5.5,-5.75
+		AirGuard.velocity=-2.5,-5
+		Ground.cornerpush.veloff=0
+		Guard.cornerpush.veloff=-18
+		ground.cornerpush.veloff = ifelse(fvar(11)<=10,-3.5,-(fvar(11))*0.35)
+		Air.cornerpush.veloff= ifelse(fvar(11)<=10,-3.5,-(fvar(11))*0.35)
+		Yaccel=0.4
+		fall=ifelse(enemynear,MoveType=A || var(2) != 0,0,1)
+		Air.fall=1
+		fall.recover=0
+		id = 1750
+
+	[State 1750,2nd Hit Spark]
+		Type=Explod
+		Trigger1=MoveHit=1
+		Trigger1=enemynear,StateType!=A
+		Anim=6030
+		PosType=P2
+		Pos=-25,floor(-60*const(Size.yScale))
+		sprPriority=0
+		persistent = 0
+		IgnoreHitPause=1
+		trans=add
+
+	[State 200 ノックバックカウント]
+		type = Varadd
+		trigger1 = movehit
+		fvar(11) = 3
+		persistent = 0
+ 		ignorehitpause = 1
+
+	[State -1,攻撃補正]
+		Type=VarSet
+		Trigger1=MoveHit=1
+		fvar(0)=fvar(0)*0.45
+		persistent = 0
+ 		ignorehitpause = 1
+
+	[State 1700,v1=0]
+		Type=varSet
+		Trigger1=MoveHit=1
+		var(1)=1
+		persistent = 0
+ 		ignorehitpause = 1
+
+	[State 52,0];?
+		type = Width
+		Trigger1=Pos Y<0
+		value = 24,0
+
+	[State 1750,land]
+		Type=ChangeState
+		Trigger1=Pos Y>=0
+		value=53
+
+;━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+;そげぶ投げ始動
+;━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[Statedef 1800]
+Type=S
+MoveType=A
+PhySics=S
+velset=0,0
+Ctrl=0
+Anim=1800
+Poweradd=0
+sprPriority=2
+
+	[State -1,汎用格納]
+		type = Varset
+		Trigger1=Time=0
+		fvar(10)= fvar(0)
+		persistent = 0
+ 		ignorehitpause = 1
+
+	[State -1,最低攻撃保障]
+		type = Varset
+		Trigger1=Time=0
+		Trigger1=fvar(0)<=0.27
+		fvar(10)= 0.27
+		persistent = 0
+ 		ignorehitpause = 1
+
+[State 800,v1=0]
+Type=varSet
+Trigger1=Time=0
+var(1)=0
+
+[State 810,Snd2]
+Type=playSnd
+Trigger1=AnimElemTime(1)=0
+value=2,9
+channel=0
+
+
+[State 800,AttackDist]
+Type=AttackDist
+Trigger1=!IsHelper
+value=0
+IgnoreHitPause=1
+
+[State 800,hitdef]
+Type=HitDef
+Trigger1=!MoveContAct
+Trigger1=!MoveReversed
+Attr=S,NT
+Hitflag=MAF
+Priority=1,Miss
+SparkNo=-1
+P1sprPriority=1
+P2facing=1
+P1StateNo=1810
+P2StateNo=1821
+Guard.Dist=0
+fall=1
+
+
+[State 800,End]
+Type=SelfState
+Trigger1=AnimTime=0
+value=0
+Ctrl=1
+
+;━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+;そげぶ投げ
+;━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[Statedef 1810]
+Type=S
+MoveType=A
+physics=N
+Anim=1810
+Ctrl=0
+Poweradd=55+FVar(11)
+
+[State 810, 9]
+type = Width
+trigger1 = 1
+value =30,30;キャラの前の幅,後ろの幅と設定してください。
+
+[State 810,Snd1]
+Type=playSnd
+Trigger1=AnimElem=6
+value=2,10
+channel=0
+
+[State 810,Snd2]
+Type=playSnd
+Trigger1=AnimElemTime(1)=0
+value=1,8
+
+
+[State 810,Snd2]
+Type=playSnd
+Trigger1=animelemtime(6)=0
+value=0,12
+
+[State 810,Snd2]
+Type=playSnd
+Trigger1=animelemtime(7)=0
+value=0,13
+
+[State 810,bind 1]
+Type=TargetBind
+Trigger1=AnimElemTime(1)>=0
+Trigger1=AnimElemTime(2)<0
+Pos=floor(50*const(Size.xScale)),-50
+
+[State 810,bind 1]
+Type=TargetBind
+Trigger1=AnimElemTime(2)>=0
+Trigger1=AnimElemTime(3)<0
+Pos=floor(10*const(Size.xScale)),-75
+
+[State 810,bind 1]
+Type=TargetBind
+Trigger1=AnimElemTime(3)>=0
+Trigger1=AnimElemTime(4)<0
+Pos=floor(0*const(Size.xScale)),-80
+
+[State 810,bind 1]
+Type=TargetBind
+Trigger1=AnimElemTime(4)>=0
+Trigger1=AnimElemTime(5)<0
+Pos=floor(-25*const(Size.xScale)),-60
+
+[State 810,bind 1]
+Type=TargetBind
+Trigger1=AnimElemTime(5)>=0
+Trigger1=AnimElemTime(6)<0
+Pos=floor(-45*const(Size.xScale)),-30
+
+[State 810,bind 1]
+Type=TargetBind
+Trigger1=AnimElemTime(6)>=0
+Trigger1=AnimElemTime(7)<0
+Pos=floor(-60*const(Size.xScale)),-15
+
+[State 810,bind 1]
+Type=TargetBind
+Trigger1=AnimElemTime(7)>=0
+Trigger1=AnimElemTime(7)<1
+Pos=floor(-60*const(Size.xScale)),0
+
+[State -1,Explod]
+Type=Explod
+Trigger1=animelemtime(6)=0
+Anim=6025
+PosType=p1
+Pos=floor(-65*const(Size.xScale)),5
+Ownpal=0
+SprPriority=5
+OnTop=0
+RemoveTime=-2
+;scale=.5,.5
+IgnoreHitPause=1
+Persistent=0
+SuperMoveTime=9**8
+PauseMoveTime=9**8
+
+[State -1,Explod]
+Type=Explod
+Trigger1=animelemtime(6)=1
+Anim=6060
+PosType=p1
+Pos=floor(-60*const(Size.xScale)),15
+Ownpal=0
+SprPriority=-1
+OnTop=0
+RemoveTime=-2
+scale=.5,.5
+IgnoreHitPause=1
+Persistent=0
+SuperMoveTime=9**8
+PauseMoveTime=9**8
+
+[State 810,Damage]
+Type=TargetLifeAdd
+Trigger1=AnimElemTime(7)=0
+value=-Ceil(102*fvar(10))
+
+[State 820,shake]
+Type=EnvShake
+Trigger1=AnimElemTime(6)=0
+Time=20
+
+[State 810,End]
+type = Turn
+Trigger1=AnimElemTime(8)=0
+
+[State -1,攻撃補正]
+Type=VarSet
+Trigger1=AnimElemTime(8)=6
+fvar(0)=fvar(0)*0.45
+persistent = 0
+ignorehitpause = 1
+
+[State 1750,v1=0]
+Type=varSet
+Trigger1=AnimElemTime(8)=6
+var(1)=1
+
+[State 810,End]
+Type=ChangeState
+Trigger1=AnimTime=0
+value=0
+Ctrl=1
+
+;━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+;(Enemy)投げ用ステート
+;━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[Statedef 1821]
+Type=L
+MoveType=H
+physics=N
+velset=0,0
+
+[State 820,1]
+Type=ChangeAnim2
+Trigger1=Time=0
+value=1820
+
+[State 820,1]
+type = ScreenBound
+trigger1 = 1
+value = 0
+movecamera = 0,0
+
+	[State 1821]
+		type = Changestate
+		trigger1 = animtime=0
+		value=1822
+
+;--------------------------------------
+[Statedef 1822,床接地してバウンド]
+	type = A
+	movetype = H
+	physics = N
+
+[State 810,End]
+type = Turn
+Trigger1=Time=0
+
+	[State 7070]
+		type = changeanim
+		trigger1 = time = 0
+		value = 5170; 激突後バウンドして仰向けで倒れるまでのアニメ
+
+	[State 7070，床接地]
+		type = PosSet
+		trigger1 = time = 0
+		y = 0
+
+	[State 7070，床接地]
+		type = velSet
+		trigger1 = time = 0
+		x = 0
+		y = 0
+
+	[State 7070]
+		type = playerpush
+		trigger1 = 1
+		value = 1
+
+	[State 7070]
+		type = PosSet
+		trigger1 = time = 4
+		y = -25
+
+	[State 7070]
+		type = velSet
+		trigger1 = time = 4
+		x = -.75
+		y = -6.25
+
+	[State 7070]
+		type = velAdd
+		trigger1 = time >= 4
+		y = 0.45
+
+	[State 7070]
+		type = Changeanim
+		triggerAll = time >= 4
+		trigger1 = Anim =5170
+		trigger1 = AnimTime =0
+		value = 5050
+
+	[State 7070]
+		type = Selfstate
+		triggerAll = time >= 4
+		trigger1 = Vel Y > 0
+		trigger1 = Pos Y >= 0
+		value = 5100
+
+	[State a, error]
+		type = SelfState ;ステートを戻す
+		trigger1 = Time >= 600 ;5秒経過・動作が長い場合はもっと長く。短くしすぎないように注意。
+		value = 5050 ;汎用くらい吹っ飛びステートへ

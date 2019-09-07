@@ -1,0 +1,444 @@
+;---------------------------------------------------------------------------
+[Statedef 4444]
+Anim=5555
+Ctrl=0
+;━━━━━━━━━━━━━━━━━━━━━━━━
+;AI設定
+
+[State 4444]
+Type = VarSet
+Trigger1 = 1
+V = 55
+Value = 10	;←ここの「Value = ○」の、○値を1～11のどれかに変更してください
+IgnoreHitPause=1
+
+
+
+
+
+
+
+
+
+
+
+
+;━━━━━━━━━━━━━━━━━━━━━━━━
+;--------------------------------------------
+;--------------------------------------------
+;----------------------------------------------
+;以下は内容を理解出来る方のみ変更するのが得策です。
+
+;------------------------------------------------
+;コンボ確認用Var
+[State 4444, デバックフラグセット1]
+Type = VarSet
+Trigger1 = 0;Parent,var(55) = 0
+Trigger1 = !var(6)
+var(6) = 1
+
+;コンボ確認用Var
+[State 4444, デバックフラグセット2]
+Type = VarSet
+Trigger1 = Parent,var(55)>0
+Trigger1 = var(6)
+var(6) = 0
+
+[State -1, 本体敵ID取得]
+Type = VarSet
+Trigger1 = 1
+var(5) = Root,Var(58)
+IgnoreHitPause = 1
+
+[State -2, デバック(変数確認)]
+Type = DisplayToClipBoard
+Trigger1 = 1
+Text = "Var(10)=%d, Var(11)=%d, FVar(4)=%f, FVar(5)=%f\n"
+Params = Var(10),var(11), FVar(4), FVar(5)
+IgnoreHitPause = 1
+
+[State 45]
+type = NotHitBy
+trigger1 = 1
+value = SCA
+
+[State 1000]
+type = AssertSpecial
+trigger1 = 1
+flag = invisible
+flag2 = noshadow
+
+;=============================================================
+;AI防御用ヘルパー
+
+[State 4444,行動記憶フラグその1]
+Type = VarSet
+TriggerAll = Parent,Var(55)>0 || Var(6)
+TriggerAll = Parent,MoveContAct
+Trigger1 = (Parent,StateNo = [21200,21215]) || (Parent,StateNo = 22211)
+Trigger2 = Parent,StateNo = 22200
+Trigger3 = Parent,StateNo = [26000,26002]
+Trigger4 = Parent,StateNo = 26011
+Trigger5 = Parent,StateNo = 26012
+Trigger6 = Parent,StateNo = 27000
+Trigger7 = Parent,StateNo = 27001
+Trigger8 = Parent,StateNo = 610
+Trigger8 = Parent,PrevStateNo=110
+Trigger9 = Parent,StateNo = 25020
+Trigger10= Parent,StateNo = 26010
+var(42)=Parent,StateNo
+IgnoreHitPause=1
+
+[State 4444,フラグ解除]
+Type = VarRangeSet
+TriggerAll = PlayerIDExist(Var(5))
+TriggerAll = Parent,Var(55)>0 || Var(6)
+Trigger1 = PlayerID(Var(5)),MoveType!=H
+value=0
+first=38
+last=45
+IgnoreHitPause=1
+
+[State 4444,コンボミスフラグ]
+Type = VarSet
+TriggerAll = PlayerIDExist(Var(5))
+TriggerAll = Parent,Var(55)>0 || Var(6)
+Trigger1 = Parent,StateNo=26000||Parent,StateNo=26001
+Trigger1 = Parent,PrevStateNo=420
+Trigger1 = Parent,time=1
+Trigger1 = PlayerID(Var(5)),StateType=A
+var(3)=1
+IgnoreHitPause=1
+
+[State 4444,コンボミスフラグ固定]
+Type = VarSet
+TriggerAll = PlayerIDExist(Var(5))
+TriggerAll = Parent,Var(55)>0 || Var(6)
+Trigger1 = Var(3)=1
+Trigger1 = PlayerID(Var(5)),MoveType!=H
+var(3)=-1
+IgnoreHitPause=1
+
+[State 4444,コンボミスフラグ解除]
+Type = VarSet
+TriggerAll = Parent,Var(55)>0 || Var(6)
+TriggerAll = Var(3)=1
+Trigger1 = Parent,StateNo=10850
+Trigger2 = Parent,StateNo=22200
+Trigger3 = Parent,StateNo=215
+var(3)=0
+IgnoreHitPause=1
+
+;----------------------------------------------
+;残りjuggle値計算
+
+[State -3, Juggle計算0];攻撃がヒットする前は最大化
+type=VarSet
+TriggerAll = PlayerIDExist(Var(5))
+trigger1 = PlayerID(Var(5)),Movetype !=H
+trigger2 = PlayerID(Var(5)),Stateno < 200
+trigger3 =!PlayerID(Var(5)),gethitvar(fall)
+var(7) = Parent,Const(data.airjuggle)
+IgNoreHitPause=1
+
+[State -3, Juggle計算1];juggleが1の技の場合
+Type=Varadd
+TriggerAll=PlayerIDExist(Var(5))
+TriggerAll=Parent,time>=1
+TriggerAll=Parent,movehit
+TriggerAll=PlayerID(Var(5)),Statetype=A
+TriggerAll=!PlayerID(Var(5)),hitshakeover
+TriggerAll=PlayerID(Var(5)),time=1
+TriggerAll=PlayerID(Var(5)),gethitvar(fall)
+Trigger1 = Parent,StateNo = 200 || Parent,StateNo = 210 || Parent,StateNo = 220
+Trigger2 = Parent,StateNo = 400
+Trigger3 = (Parent,StateNo = 600) || (Parent,StateNo = 610 && Parent,HitCount<=1) || (Parent,StateNo = 620)
+Trigger4 = Parent,StateNo = 621 || Parent,StateNo = 625
+Trigger5 = Parent,StateNo = 2960
+Trigger6 = Parent,StateNo = 20950 || Parent,StateNo = 20953 || Parent,StateNo = 20959
+Trigger7 = Parent,StateNo = 21064
+Trigger7 = Parent,Anim = 21002
+Trigger8 = Parent,StateNo = 21205 || Parent,StateNo = 21215
+var(7) = -1
+IgnoreHitPause=1
+
+[State -3, Juggle計算2];juggleが2の技の場合
+Type=Varadd
+TriggerAll=PlayerIDExist(Var(5))
+TriggerAll=Parent,time>=1
+TriggerAll=Parent,movehit=1
+TriggerAll=PlayerID(Var(5)),Statetype=A
+TriggerAll=!PlayerID(Var(5)),hitshakeover
+TriggerAll=PlayerID(Var(5)),time=1
+TriggerAll=PlayerID(Var(5)),gethitvar(fall)
+Trigger1 = Parent,StateNo = 215 || Parent,StateNo = 216
+Trigger2 = Parent,StateNo = 230
+var(7) = -2
+IgnoreHitPause=1
+
+[State -3, Juggle計算3];juggleが3の技の場合
+type=Varadd
+TriggerAll=PlayerIDExist(Var(5))
+TriggerAll=Parent,time>=1
+TriggerAll=Parent,movehit=1
+TriggerAll=PlayerID(Var(5)),Statetype=A
+TriggerAll=!PlayerID(Var(5)),hitshakeover
+TriggerAll=PlayerID(Var(5)),time=1
+TriggerAll=PlayerID(Var(5)),gethitvar(fall)
+Trigger1 = Parent,StateNo = 22205 
+Trigger1 = Parent,HitCount <= 1
+var(7) = -3
+IgnoreHitPause=1
+
+[State -3, Juggle計算4];juggleが4の技の場合
+type=Varadd
+TriggerAll=PlayerIDExist(Var(5))
+TriggerAll=Parent,time>=1
+TriggerAll=Parent,movehit=1
+TriggerAll=PlayerID(Var(5)),Statetype=A
+TriggerAll=!PlayerID(Var(5)),hitshakeover
+TriggerAll=PlayerID(Var(5)),time=1
+TriggerAll=PlayerID(Var(5)),gethitvar(fall)
+Trigger1 = Parent,StateNo = 21160
+Trigger2 = Parent,StateNo = 21200 && Parent,HitCount <=1
+Trigger3 = Parent,StateNo = 21210 && Parent,HitCount <=1
+Trigger4 = Parent,StateNo = 22200 && Parent,HitCount <= 1
+Trigger5 = Parent,StateNo = 26001
+var(7) = -4
+IgnoreHitPause=1
+
+[State -3, Juggle計算5];juggleが5の技の場合
+type=Varadd
+TriggerAll = PlayerIDExist(Var(5))
+TriggerAll = Parent,time>=1
+TriggerAll = Parent,movehit=1
+TriggerAll = PlayerID(Var(5)),Statetype=A
+TriggerAll = !PlayerID(Var(5)),hitshakeover
+TriggerAll = PlayerID(Var(5)),time=1
+TriggerAll = PlayerID(Var(5)),gethitvar(fall)
+Trigger1 = Parent,StateNo = 22210
+Trigger2 = Parent,StateNo = 22211
+var(7) = -5
+
+[State -3, Juggle計算6];juggleが6の技の場合
+type=Varadd
+TriggerAll = PlayerIDExist(Var(5))
+TriggerAll = Parent,time>=1
+TriggerAll = Parent,MoveHit
+TriggerAll = PlayerID(Var(5)),Statetype=A
+TriggerAll = !PlayerID(Var(5)),hitshakeover
+TriggerAll = PlayerID(Var(5)),time=1
+TriggerAll = PlayerID(Var(5)),gethitvar(fall)
+Trigger1 = Parent,StateNo = 21005
+Trigger2 = Parent,StateNo = 21060
+var(7) = -6
+IgnoreHitPause=1
+;---------------------------------------------------------
+
+
+
+
+
+
+
+
+[State 4444,置き攻めフラグ]
+Type = VarSet
+TriggerAll = PlayerIDExist(Var(5))
+TriggerAll = Parent,Var(55)>0||Var(6)
+Trigger1 = PlayerID(Var(5)),StateType=L
+Trigger1 = PlayerID(Var(5)),StateNo=5120
+Trigger1 = PlayerID(Var(5)),time=1
+var(46)=Random%6
+IgnoreHitPause=1
+
+[State 4444,相手の攻撃判定発生経過時間]
+Type = VarAdd
+TriggerAll = PlayerIDExist(Var(5))
+TriggerAll = Parent,Var(55)>0 || Var(6)
+Trigger1 = PlayerID(Var(5)),MoveType=A
+Trigger1 = PlayerID(Var(5)),HitDefAttr = SCA,NA,SA,HA
+var(47)=1
+IgnoreHitPause=1
+
+[State 4444,Var(47)解除]
+Type = VarSet
+TriggerAll = PlayerIDExist(Var(5))
+TriggerAll = Parent,Var(55)>0 || Var(6)
+Trigger1 = PlayerID(Var(5)),time=1
+var(47)=0
+IgnoreHitPause=1
+
+[State 4444,LA,ADDフラグ表Ver]
+Type = VarSet
+Trigger1 = Parent,Var(55)>0 || Var(6)
+Trigger1 = Parent,Var(46)=3
+Trigger1 = Var(48)=0
+Trigger1 = Parent,Var(57) = 0
+var(48)=IfElse(Random%2=0,1,2)
+
+[State 4444,LA,ADDフラグ裏Ver]
+Type = VarSet
+Trigger1 = Parent,Var(55)>0 || Var(6)
+Trigger1 = Parent,Var(46)=3
+Trigger1 = Var(48)=0
+Trigger1 = Parent,Var(57) = 1
+var(48)=2
+
+[State 4444,Var(48)解除]
+Type = VarSet
+Trigger1 = Parent,Var(55)>0 || Var(6)
+Trigger1 = Parent,Var(46)!=3
+Trigger1 = Var(48)!=0
+var(48)=0
+
+[State 4444,Var解除]
+Type = VarSet
+TriggerAll = PlayerIDExist(Var(5))
+TriggerAll = Parent,Var(55)>0 || Var(6)
+Trigger1 = PlayerID(Var(5)),Ctrl
+Trigger2 = 0;PlayerID(Var(5)),StateNo=6201 || PlayerID(Var(5)),StateNo=6211 || PlayerID(Var(5)),StateNo=6221
+Trigger2 = PlayerID(Var(5)),Name="UNKNOWN"
+Trigger2 = PlayerID(Var(5)),AutHorName="586"
+var(49)=0
+IgnoreHitPause=1
+
+[State 4444,AI殺し判定]
+Type = VarSet
+TriggerAll = PlayerIDExist(Var(5))
+TriggerAll = Parent,Var(55)>0
+Trigger1 = PlayerID(Var(5)),StateNo=3000
+Trigger1 = PlayerID(Var(5)),Name="Nrvnqsr_Chaos"
+var(49)=1
+IgnoreHitPause=1
+
+[State 4444,AI殺し判定]
+Type = VarSet
+TriggerAll = PlayerIDExist(Var(5))
+TriggerAll = Parent,Var(55)>0
+TriggerAll = PlayerID(Var(5)),Name="UNKNOWN"
+TriggerAll = PlayerID(Var(5)),AutHorName="hanma"
+Trigger1 = PlayerID(Var(5)),StateNo=3100
+Trigger2 = PlayerID(Var(5)),StateNo=3120
+Trigger3 = PlayerID(Var(5)),StateNo=3140
+var(49)=2
+IgnoreHitPause=1
+
+[State 4444,AI殺し判定]
+Type = VarSet
+TriggerAll = PlayerIDExist(Var(5))
+TriggerAll = Parent,Var(55)>0
+TriggerAll = PlayerID(Var(5)),Name="UNKNOWN"
+TriggerAll = PlayerID(Var(5)),AutHorName="586"
+Trigger1 = PlayerID(Var(5)),StateNo=6200
+Trigger2 = PlayerID(Var(5)),StateNo=6210
+Trigger3 = PlayerID(Var(5)),StateNo=6220
+var(49)=3
+IgnoreHitPause=1
+
+[State 4444,AI殺し判定]
+Type = VarSet
+TriggerAll = PlayerIDExist(Var(5))
+TriggerAll = Parent,Var(55)>0
+TriggerAll = PlayerID(Var(5)),Name="Tohno_Shiki"
+Trigger1 = PlayerID(Var(5)),StateNo=3000
+Trigger2 = PlayerID(Var(5)),StateNo=3050
+var(49)=4
+IgnoreHitPause=1
+
+[State 4444,AI殺し判定]
+Type = VarSet
+TriggerAll = PlayerIDExist(Var(5))
+TriggerAll = Parent,Var(55)>0
+Trigger1 = PlayerID(Var(5)),StateNo=3002
+Trigger1 = PlayerID(Var(5)),Name="Nrvnqsr_Chaos"
+var(49)=0
+IgnoreHitPause=1
+
+[State 4444,相手のVelAddを計算(X軸)]
+Type = VarSet
+Trigger1 = PlayerIDExist(Var(5))
+fvar(4)=PlayerID(Var(5)),Vel X-fvar(5)
+
+[State 4444,相手のVelAddを計算の補助]
+Type = VarSet
+Trigger1 = PlayerIDExist(Var(5))
+fvar(5)=PlayerID(Var(5)),Vel X
+
+[State 4444,相手のVelAddを計算(Y軸)]
+Type = VarSet
+Trigger1 = PlayerIDExist(Var(5))
+fvar(14)=PlayerID(Var(5)),Vel Y-fvar(15)
+
+[State 4444,相手のVelAddを計算の補助]
+Type = VarSet
+Trigger1 = PlayerIDExist(Var(5))
+fvar(15)=PlayerID(Var(5)),Vel Y
+
+[State 4444,敵基本重力加算値]
+Type = VarSet
+Trigger1 = PlayerIDExist(Var(5))
+fvar(16)=Ifelse((PlayerID(Var(5)),MoveType=H),(PlayerID(Var(5)),GetHitVar(YAccel)),(PlayerID(Var(5)),Const(Movement.YAccel)))
+
+[State 4444,Facing]
+Type = VarSet
+Trigger1 = PlayerIDExist(Var(5))
+var(44) = -(Parent,Facing)*(PlayerID(Var(5)),Facing)
+IgnoreHitPause=1
+
+[State 4444,相手摩擦係数]
+Type = VarSet
+Trigger1 = PlayerIDExist(Var(5))
+fvar(9) = IfElse(P2StateType=C,(PlayerID(Var(5)),Const(movement.crouch.friction)),(PlayerID(Var(5)),Const(movement.stand.friction)))
+IgnoreHitPause=1
+
+[State 4444,防御用ヘルパー位置設定]
+Type = PosSet
+Trigger1 = PlayerIDExist(Var(5))
+X = Ceil(PlayerID(Var(5)),Pos X)-10*Facing
+Y = Ceil(PlayerID(Var(5)),Pos Y)
+IgnoreHitPause = 1
+SuperMoveTime = 9999
+PauseMoveTime = 9999
+
+[State 4444,防御用ヘルパー向き設定]
+Type = Turn
+TriggerAll = PlayerIDExist(Var(5))
+Trigger1 = Facing = PlayerID(Var(5)),Facing
+IgnoreHitPause = 1
+SuperMoveTime = 9999
+PauseMoveTime = 9999
+
+;-------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+;-----------------------------------------------
+
+
+[State 4444]
+Type=BindToParent
+Trigger1=0;1
+Time=1
+Facing=-1
+Pos=0,0
+
+

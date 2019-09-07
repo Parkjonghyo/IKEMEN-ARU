@@ -1,0 +1,652 @@
+
+===========================================================================
+; 常時監視ステート（－２）
+;===========================================================================
+
+;　◆　汎用処理
+
+[Statedef -2]
+
+
+;その他エフェクト
+
+[State -2, グレイズ判定]
+Type = Helper
+Triggerall = movetype != H
+;Trigger1 = var(1) = 1
+Triggerall = var(43) = 0
+Triggerall = Time%6
+Trigger1 = stateno = [100,119];グレイズ多重化ステート
+Trigger2 = stateno = 60
+Trigger3 = stateno = 70;ハイジャンプ始動部
+Trigger4 = stateno = 80
+Trigger5 = stateno = [92,99];飛翔始動部
+StateNo = 30095
+;ID = 30095
+Name = "grazebox"
+Pos = 0,0
+PosType = P1
+Ownpal = 1
+IgnoreHitPause = 0
+Persistent = 1
+
+
+;-----------------------------
+
+;グレイズ処理・・・
+
+[State -2, グレイズできるステイト]
+Type = Varset
+Trigger1 = stateno = [100,119];グレイズ多重化ステート
+Trigger2 = stateno = 60
+Trigger3 = stateno = 70;ハイジャンプ始動部
+Trigger4 = stateno = 80
+Trigger5 = stateno = [92,99];飛翔始動部
+;Trigger4 = stateno = 91;飛翔後
+IgnoreHitPause = 1
+var(1) = 1
+
+
+;ダメージ補正
+
+[State -2, 補正上限];100%
+Type = VarSet
+Trigger1 = fvar(1) != 1.00
+Trigger1 = !(P2MoveType = H && (P2StateNo != [150,159]))
+fvar(1) = 1.00
+IgnoreHitPause = 1
+
+[State -2, 補正下限];1%まで
+Type = VarSet
+Trigger1 = fvar(1) < 0.01
+fvar(1) = 0.01
+IgnoreHitPause = 1
+
+;※Nachel氏の記述をお借りしました。
+;■■■■■■■■■■■■■■■■■■■■■■■■■
+;	防御力上昇（被ダメージ量減少）
+;--------------------------------------------------
+;体力最大時 1.00倍　体力最小時 0.80倍
+
+[State -2, DefenceMulSet]
+Type = DefenceMulSet
+Trigger1 = Life <= LifeMax
+IgnoreHitPause = 1
+Value = (0.80+(0.20*Life/LifeMax))*(1+(125-Var(2))*(ifElse(PalNo = 12 , 0.01, 0)))
+
+
+
+;■■■■■■■■■■■■■■■■■■■■■■■■■
+
+[State -2, ラウンド終了時パワー格納]
+type = varset
+trigger1 = RoundState = 3
+var(45) = Power
+
+[State -2, 連戦]
+type = varset
+trigger1 = RoundState = 3
+var(42) = 1
+
+[State -2, 霊力リセット]
+type = varset
+trigger1 = RoundState = [0,1]
+var(2) = 250
+
+
+
+
+
+[State -2, クリップボード]
+type = DisplayToClipboard
+trigger1 = 1
+text = "Graze=%d, Reiryoku=%d, Rei_recover=%d, Body-Distance X=%d,Y=%d \n"
+params = var(1),var(2),var(3),floor(P2BodyDist X),floor(P2BodyDist Y)
+
+[State -2, クリップボード（追加専用）]
+type = null;AppendToClipboard
+trigger1 = 0
+text = "Position X=%d,Y=%d, Velocity X=%f,Y=%f, Hosei=%f";Hit=%d \n, "
+params = floor(Pos X),floor(Pos Y),(Vel X),(Vel Y),fvar(1);(MoveHit),fvar(1)
+
+[State -2, クリップボード（追加専用２）]
+type = AppendToClipboard
+trigger1 = 1
+text = "Weather=%d, Weater count=%d, Hosei=%f, Card1=%d"
+params = var(11),var(10),fvar(1),var(54)
+
+
+[State -2, CPU判定]
+type = null;VarSet
+triggerall = var(34) = 0
+triggerall = TeamMode = Single
+triggerall = Movetype != H
+trigger1 = Command = "AI0"
+trigger2 = Command = "AI1"
+trigger3 = Command = "AI2"
+trigger4 = Command = "AI3"
+trigger5 = Command = "AI4"
+trigger6 = Command = "AI5"
+trigger7 = Command = "AI6"
+trigger8 = Command = "AI7"
+trigger9 = Command = "AI8"
+trigger10 = Command = "AI9"
+trigger11 = Command = "AI10"
+trigger12 = Command = "AI11"
+trigger13 = Command = "AI12"
+trigger14 = Command = "AI13"
+trigger15 = Command = "AI14"
+trigger16 = Command = "AI15"
+trigger17 = Command = "AI16"
+trigger18 = Command = "AI17"
+trigger19 = Command = "AI18"
+trigger20 = Command = "AI19"
+trigger21 = Command = "AI20"
+trigger22 = Command = "AI21"
+trigger23 = Command = "AI22"
+trigger24 = Command = "AI23"
+trigger25 = Command = "AI24"
+trigger26 = Command = "AI25"
+trigger27 = Command = "AI26"
+trigger28 = Command = "AI27"
+trigger29 = Command = "AI28"
+trigger30 = Command = "AI29"
+trigger31 = Command = "AI30"
+trigger32 = Command = "AI31"
+trigger33 = Command = "AI32"
+trigger34 = Command = "AI33"
+trigger35 = Command = "AI34"
+trigger36 = Command = "AI35"
+trigger37 = Command = "AI36"
+trigger38 = Command = "AI37"
+trigger39 = Command = "AI38"
+trigger40 = Command = "AI39"
+trigger41 = Command = "AI40"
+trigger42 = Command = "AI41"
+trigger43 = Command = "AI42"
+trigger44 = Command = "AI43"
+trigger45 = Command = "AI44"
+trigger46 = Command = "AI45"
+trigger47 = Command = "AI46"
+trigger48 = Command = "AI47"
+trigger49 = Command = "AI48"
+trigger50 = Command = "AI49"
+trigger51 = Command = "AI50"
+var(34)  = 1
+
+
+;きゃべっさんの毒
+
+[State -2,LifeAdd]
+type = LifeAdd
+TriggerAll = Enemy,name="Medicine Melancholy"
+Trigger1= GameTime%8 =0
+value = -Ceil(LifeMax/1000)*(Enemy,Var(55))-Ceil(LifeMax/1000)*(Enemy,Var(57))
+kill = 0
+absolute = 1
+
+[State -2, PowerAdd]
+type = PowerAdd
+TriggerAll = Enemy,name="Medicine Melancholy"
+Trigger1 = GameTime%8 =0
+value = -Ceil(Power/1000)*(Enemy,Var(55))*2-Ceil(LifeMax/1000)*(Enemy,Var(57))*2
+kill = 0
+absolute = 1
+
+
+
+
+
+
+;=====================================================================
+;　　　エフェクト類
+;---------------------------------------------------------------------
+[Statedef 30095];グレイズエフェクト表示
+type = A
+physics = N
+movetype = I
+ctrl = 0
+anim = 30095
+velset = 0,0
+
+[State 30095, グレイズ]
+type = BindToParent
+trigger1 = 1
+
+[State 30095]
+type = AssertSpecial
+trigger1 = 1
+flag = noshadow
+flag2 = invisible
+
+[State 30095, グレイズ]
+type = ReversalDef
+trigger1 = MoveHit = 0
+reversal.attr = SCA,AP
+attr = A,AA
+pausetime = 0,0
+sparkno = -1
+hitsound = -1
+persistent = 0
+ignorehitpause = 1
+numhits = 0
+
+[State 30095]
+type = PlaySnd
+trigger1 = MoveHit
+value = s0, 8
+persistent = 5
+ignorehitpause = 1
+
+[State 30095]
+type = Explod
+trigger1 = MoveHit = 1
+anim = 20095
+pos = 10-Random%20,-45+30-Random%60
+postype = p1
+scale = 0.5,0.5
+ownpal = 1
+sprpriority = 4
+persistent = 0
+ignorehitpause = 1
+
+[State 30095, グレイズ]
+type = DestroySelf
+trigger1 = time = 1
+trigger2 = MoveHit = 1
+ignorehitpause = 1
+
+
+[Statedef 10195];衝撃eff（角度つき
+type = A
+physics = N
+movetype = A
+ctrl = 0
+anim = 20090
+velset = 0,0
+
+[State 10195,00]
+type = AssertSpecial
+trigger1 = 1
+flag = noshadow
+
+[State 10195,00]
+type = Trans
+trigger1 = Time < 20
+Trans = AddAlpha
+Alpha = 256-floor(Time*12.8),256
+time = 1
+
+[State 10195,00]
+type = Trans
+trigger1 = Time >= 20
+Trans = AddAlpha
+Alpha = floor((Time-20)*12.8),256
+time = 1
+
+[State 10195, 7]
+type = SprPriority
+trigger1 = 1
+value = 3
+
+[State 10195, 7]
+type = varrandom
+trigger1 = Time = 0
+v = 0
+range = 20,60
+
+[State 10195, 7]
+type = varrandom
+trigger1 = Time = 0
+v = 1
+range = 1,360
+
+[State 10195, 7]
+type = AngleSet
+trigger1 = Time = 0
+value = var(1)
+
+[State 10195, 7]
+type = AngleDraw
+trigger1 = Time < 20
+scale = Time*0.1 *var(0)*0.01, Time*0.1
+
+[State 10195, 7]
+type = AngleDraw
+trigger1 = Time >= 20 
+scale = (2.00-(Time-20)*0.1)*var(0)*0.01, 2.0-(Time-20)*0.1
+
+[State 10195,00]
+type = DestroySelf
+trigger1 = time = 40
+
+;-----------------------------------------------
+
+[Statedef 20090];ヒットエフェクトわっか
+type = A
+physics = N
+ctrl = 0
+anim = 20090
+velset = 0,0
+
+[State 20090,00]
+type = AssertSpecial
+trigger1 = 1
+flag = noshadow
+
+[State 20090,00]
+type = Trans
+trigger1 = 1
+Trans = AddAlpha
+Alpha = 256-floor(Time*19.2),256
+time = 1
+
+[State 20090, 7]
+type = SprPriority
+trigger1 = 1
+value = 3
+
+[State 20090, 7]
+type = AngleDraw
+trigger1 = 1
+scale = 0.2+Time*0.1,0.2+Time*0.1
+
+[State 20090,00]
+type = DestroySelf
+trigger1 = time = 15
+
+[Statedef 20091];タメエフェクト
+type = A
+physics = N
+ctrl = 0
+anim = 20091
+velset = 0,0
+
+[State 20091,00]
+type = AssertSpecial
+trigger1 = 1
+flag = noshadow
+
+[State 20091,00]
+type = Trans
+trigger1 = 1
+Trans = AddAlpha
+Alpha = 256-floor(Time*19.2),256
+time = 1
+
+[State 20091, 7]
+type = SprPriority
+trigger1 = 1
+value = 3
+
+[State 20091, 7]
+type = AngleDraw
+trigger1 = 1
+scale = 0.15+Time*0.057,0.15+Time*0.057
+
+[State 20091, 2]
+Type = Explod
+Trigger1 = 1
+Anim = 20092
+ID = 20092
+Pos = 0,0
+PosType = P1
+Scale = 0.2+(Time*0.06),0.2+(Time*0.06)
+Ownpal = 1
+SprPriority = 3
+IgnoreHitPause = 1
+Persistent = 1
+removetime = 1
+Trans = AddAlpha
+Alpha = 256-Floor(Time*19.2),256
+
+[State 20091,00]
+type = DestroySelf
+trigger1 = time = 15
+
+[Statedef 20095];ヒットエフェクト斬
+type = A
+physics = N
+ctrl = 0
+anim = 20320
+velset = 0,0
+
+[State 20095,00]
+type = AssertSpecial
+trigger1 = 1
+flag = noshadow
+
+[State 20095,00]
+type = Trans
+trigger1 = 1
+Trans = Add
+;Alpha = 256-floor(Time*19.2),256
+time = 1
+
+[State 20095, 7]
+type = SprPriority
+trigger1 = 1
+value = 3
+
+[State 20095,00]
+type = AngleSet
+trigger1 = Time = 0
+value = Random%360
+
+[State 20095,00]
+type = AngleDraw
+trigger1 = 1
+scale = 2,2
+
+[State 20095,00]
+type = DestroySelf
+trigger1 = Animtime = 0
+
+[Statedef 20096];ヒットエフェクト斬ちっさめ
+type = A
+physics = N
+ctrl = 0
+anim = 20320
+velset = 0,0
+
+[State 20095,00]
+type = AssertSpecial
+trigger1 = 1
+flag = noshadow
+
+[State 20095,00]
+type = Trans
+trigger1 = 1
+Trans = Add
+;Alpha = 256-floor(Time*19.2),256
+time = 1
+
+[State 20095, 7]
+type = SprPriority
+trigger1 = 1
+value = 3
+
+[State 20095,00]
+type = AngleSet
+trigger1 = Time = 0
+value = Random%360
+
+[State 20095,00]
+type = AngleDraw
+trigger1 = 1
+scale = 1.4,1.4
+
+[State 20095,00]
+type = DestroySelf
+trigger1 = Animtime = 0
+
+
+
+[Statedef 20097];ダメコンエフェクト
+type = A
+physics = N
+ctrl = 0
+anim = 10300+ifElse(root,var(46) = 1, 0,1)
+velset = 0,0
+
+[State 20097, 7]
+type = AngleDraw
+trigger1 = 1
+
+[State 20097,00]
+type = AssertSpecial
+trigger1 = 1
+flag = noshadow
+
+[State 20097,00]
+type = Trans
+trigger1 = 1
+Trans = AddAlpha
+Alpha = 256,256
+time = 1
+
+[State 20097, 7]
+type = SprPriority
+trigger1 = 1
+value = 3
+
+[State 20097, 7]
+type = AngleDraw
+trigger1 = Time = [0,4]
+scale = 1.5+Time*0.65,1.5+Time*0.65
+
+[State 20097, 7]
+type = AngleDraw
+trigger1 = Time = [5,10]
+scale = 4.1+(Time-4)*0.125,4.1+(Time-3)*0.125
+
+[State 20097, 7]
+type = AngleDraw
+trigger1 = Time > 10
+scale = 2.,2.
+
+[State 193, 音を鳴らす]
+type = PlaySnd
+trigger1 = Time = 0
+value = s5, 0
+persistent = 0
+
+[State 193, 音を鳴らす]
+type = PlaySnd
+trigger1 = Time = 0
+value = s5, 0
+persistent = 0
+
+[State 193, 音を鳴らす]
+type = PlaySnd
+trigger1 = Time = 10
+value = s5, 1
+persistent = 0
+
+[State 193, 音を鳴らす]
+type = PlaySnd
+trigger1 = Time = 10
+value = s0, 9
+persistent = 0
+
+[State 195, eff]
+Type = Explod
+trigger1 = Time = 10
+Anim = 10196
+Pos = 0,0
+PosType = P1
+Scale = 0.8,0.8
+Ownpal = 1
+SprPriority = 0
+IgnoreHitPause = 1
+Persistent = 0
+BindTime = -1
+
+[State 195, eff]
+Type = Explod
+trigger1 = Time = 10
+Anim = 10197
+Pos = 0,0
+PosType = P1
+Scale = 0.8,0.3
+Ownpal = 1
+SprPriority = 3
+IgnoreHitPause = 1
+Persistent = 0
+vel = 0,-3
+BindTime = -1
+
+[State 11400, 0]
+type = bindtoparent
+trigger1 = 1
+pos = 0, -40
+
+[State 20095,00]
+type = DestroySelf
+trigger1 = Animtime = 0
+
+
+[Statedef 20098];クラインフィールド用
+type = A
+movetype = I
+physics = N
+ctrl = 0
+anim = 6113
+
+[State 00]
+type = AngleDraw
+trigger1 = 1
+
+[State 00]
+type = AssertSpecial
+trigger1 = 1
+flag = noshadow
+
+[State 00, 音を鳴らす]
+type = PlaySnd
+trigger1 = Time = 1
+value = s5, 2
+persistent = 0
+
+[State 00]
+type = Trans
+trigger1 = Time < 10
+Trans = AddAlpha
+Alpha = 256,256
+time = 1
+
+[State 00]
+type = Trans
+trigger1 = Time >= 10
+Trans = AddAlpha
+Alpha = 256-floor(12.8*(Time-10)),256
+time = 1
+
+[State 11400, 7]
+type = SprPriority
+trigger1 = 1
+value = 6
+
+[State 00]
+type = AngleDraw
+trigger1 = Time < 1
+scale = 0, 0
+
+[State 00]
+type = AngleDraw
+trigger1 = Time >= 1
+scale = 0.2+time*0.05, 0.2+time*0.05
+
+[State 11400, 0]
+type = bindtoparent
+trigger1 = 1
+pos = 20, -62
+
+[State 11400, 7]
+type = DestroySelf
+Triggerall = root,stateNo < 5000
+Trigger1 = root,movetype != H
+Trigger2 = root,ctrl = 1
+
+
+

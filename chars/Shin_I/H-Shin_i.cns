@@ -1,0 +1,3947 @@
+;究極奥義
+;★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+;南斗雷震掌
+[Statedef 2000]
+type     = S
+movetype = A
+physics  = N
+ctrl     = 0
+anim     = 2000
+sprpriority = 2
+velset   = 0,0
+
+;---------------------------------[パワーの増減]
+[State 2000, 0]
+type = PowerAdd
+trigger1 = AnimElem = 2
+value = -1000
+
+;■■■■■■■■■■■■■■■■■■■■[ブースト関係]
+
+[state boost]
+type = veladd
+triggerall = var(16) >= 100 || var(16) < 100 && var(17) = 1
+trigger1 = time <= 2
+Trigger1 = !var(59)
+trigger1 = command = "z" 
+x = 14
+
+[State Pal, 1];本体色
+type = PalFX
+triggerall = var(16) >= 100 || var(16) < 100 && var(17) = 1
+trigger1 = time <= 2
+Trigger1 = !var(59)
+trigger1 = command = "z"
+time = 5
+add = 180,180,180
+
+;---------------------[ブーストゲージ増加]
+[state a] ;var17はゲージ自動減少中の増加防止
+type = VarAdd
+triggerall = var(17) = 0
+trigger1 = movecontact = 1
+v = 16
+value = 2
+ignorehitpause = 1
+persistent = 0
+
+[state a];ブーストゲージ減少
+type = varadd
+triggerall = var(16) >= 100 || var(16) < 100 && var(17) = 1
+trigger1 = time <= 2
+Trigger1 = !var(59)
+trigger1 = command = "z"
+v = 16
+value = -40
+ignorehitpause = 1 
+persistent = 0
+
+;■■■■■■■■■■■■■■■■■■■■
+;----------------------------★星取り関係
+[State hoshi, 0]
+type = VarAdd
+triggerall = Var(54) = 0
+trigger1 = movehit = 1
+v = 21
+value = ifelse(var(9)=0,1,2)
+ignorehitpause = 1
+persistent = 0
+
+[State hoshi, 0]
+type = VarAdd
+triggerall = Var(54) = 0
+triggerall = Var(22) = 0
+trigger1 = movehit = 1
+trigger1 = RoundState = 2 ;戦闘中のみ
+v = 20
+value = ifelse(var(9)=0,-1,-2) ;カウンター時★２つ取り
+ignorehitpause = 1
+persistent = 0
+;■■■■■■■■■■■■■■■■■■■■
+;---------------------[超必殺技演出]
+[State 2000]
+Type = SuperPause
+Trigger1 = animelem = 2,=0
+Time = 70
+Anim = -1
+Sound = -1
+Pos = 5,-60
+MoveTime = 70
+darken = 0
+P2defmul = 1
+Poweradd = 0
+unHittable = 1
+IgNoreHitPause = 1
+;--------------------------背景の色変化
+[State 2000,haikei]
+type = Helper
+trigger1 = animelem = 2,=0
+persistent = 0
+id = 7500
+name = "haikei"
+pos = 0,0
+postype = P1
+stateno = 7500
+helpertype = normal
+keyctrl = 0
+ownpal = 1
+ignorehitpause = 1 ;硬直無視
+persistent = 0 ;このステートで一度のみ発動
+
+;---------------------[無敵]
+[State meteking, 0]
+type = NotHitBy
+trigger1 = 1
+value = SCA,NA,SA,HA,NP,SP,HP,NT,ST,HT
+time = 1
+
+;---------------------[奥義エフェクトヘルパー]
+[State 2000, 0]
+type = Helper
+trigger1 = AnimElem = 2,=0
+helpertype = normal
+name = "ougi-1"
+ID = 2050
+stateno = 2050
+pos = 0,0
+postype = p1    ;p2,front,back,left,right
+facing = 1
+keyctrl = 0
+ownpal = 1
+supermovetime = 99999
+pausemovetime = 99999
+size.xscale = 0.5
+size.yscale = 0.5
+
+;---------------------[効果音]
+[State 2000, 6]
+type = PlaySnd
+trigger1 = animelem = 2
+value = 2000,0;[南斗雷震掌！]
+
+[State 2000, 6]
+type = PlaySnd
+trigger1 = animelem = 7
+value = 2000,1;[ｹﾞｲｻﾞｰ音]
+
+;---------------------[演出ヘルパー]
+;本体残像
+[State 2000, 0]
+type = Explod
+trigger1 = AnimElem = 2,=0
+anim = 2006
+ID = 2006
+pos = 0,0
+postype = p1  ;p2,front,back,left,right
+facing = 1
+vfacing = 1
+bindtime = -1 ;固定させる
+vel = 0,0
+accel = 0,0
+random = 0,0
+removetime = -1 ;
+supermovetime = 99999
+pausemovetime = 99999
+scale = 1,1
+sprpriority = -1 ;本体に被らないようにする
+ontop = 0
+shadow = 0,0,0
+ownpal = 1
+removeongethit = 1 ;本体がダメージを受けた場合、消去
+;ignorehitpause = 
+;persistent = 
+
+[State 2000]
+Type = RemoveExplod
+Trigger1 = animelem = 3,>=0
+id = 2006
+
+[State 2000];後ろの丸
+Type = Helper
+Trigger1 = AnimElem = 2
+ID = 2007
+Name = "maru"
+Sprpriority = -1
+Pos = 0,0
+PosType = P1
+StateNo = 2007
+HelperType = Normal
+SuperMoveTime = 70
+PauseMoveTime = 0
+KeyCtrl = 0 
+OwnPal = 1
+
+[State 2000];手刀
+Type = Helper
+Trigger1 = AnimElem = 7,=0
+ID = 2005
+Name = "tuki"
+Sprpriority = 2
+Pos = 0,0
+PosType = P1
+StateNo = 2005
+HelperType = Normal
+SuperMoveTime = 70
+PauseMoveTime = 0
+KeyCtrl = 0 
+OwnPal = 1
+
+[state 2000];ゲイザー
+type = Helper
+trigger1 = animelem = 8
+id = 2010
+name = "pawage"
+sprpriority = 5
+pos = 40,0
+postype = p1
+stateno = 2010
+helpertype = normal
+supermovetime = 0
+pausemovetime = 0
+keyctrl = 0 
+ownpal = 1
+
+;---------------------[ヒット定義]
+[State 2000, 1]
+Type = HitDef
+Trigger1 = !MoveContAct
+Trigger2 = MoveContAct>3
+Attr = S,HP
+AnimType  = hard
+Damage = ceil(ifelse(52*fvar(5)*fvar(6)*fvar(7)*fvar(8)<5,10,52*fvar(5)*fvar(6)*fvar(7)*fvar(8))),10  
+Guardflag = M                  
+Hitflag = MAFLD 
+PauseTime = 9,16
+Guard.PauseTime = 8,15
+SparkNo = -1
+Guard.SparkNo = -1
+HitSound   = S200,0  
+GuardSound = s6,3
+Ground.Type = high
+Ground.slideTime = 18
+Ground.HitTime  = 20
+Ground.velocity = 0,0
+Guard.velocity = -5.2
+AirGuard.velocity = 0
+Air.velocity = 0,-3.3
+Air.fall = 1 
+AirGuard.CtrlTime = 30
+getPower = ifelse(var(30)=0,34,ceil(34/3)),ifelse(var(30)=0,ceil(34/2),ceil(34/3))
+fall.RecoverTime = 96
+Ground.CornerPush.Veloff = 0
+Air.CornerPush.Veloff = 0
+Yaccel = 0.52+(var(41)-1)*0.03
+
+;---------------------[ヒットエフェクト]
+[State 2000, 2];北斗・特大ヒットエフェクト・放射閃光 1段目
+type = Explod
+trigger1 = UniqHitCount = 1    
+anim = 6095+(random%3)
+pos = -8, -80
+Postype = p2
+facing = 1
+sprpriority = 5
+random = 35,35
+ownpal = 1
+ontop = 1
+pausemovetime = 9999999999
+supermovetime = 9999999999
+supermove = 1
+bindtime = 1
+scale = 0.5,0.5
+ignorehitpause = 1
+persistent = 0
+
+[State 2000, 2];北斗・特大ヒットエフェクト・放射閃光 2段目
+type = Explod
+trigger1 = UniqHitCount = 2    
+anim = 6095+(random%3)
+pos = -8, -80
+Postype = p2
+facing = 1
+sprpriority = 5
+random = 35,35
+ownpal = 1
+ontop = 1
+pausemovetime = 9999999999
+supermovetime = 9999999999
+supermove = 1
+bindtime = 1
+scale = 0.5,0.5
+ignorehitpause = 1
+persistent = 0
+
+[State 2000, 2];北斗・特大ヒットエフェクト・放射閃光 3段目
+type = Explod
+trigger1 = UniqHitCount = 3    
+anim = 6095+(random%3)
+pos = -8, -80
+Postype = p2
+facing = 1
+sprpriority = 5
+random = 35,35
+ownpal = 1
+ontop = 1
+pausemovetime = 9999999999
+supermovetime = 9999999999
+supermove = 1
+bindtime = 1
+scale = 0.5,0.5
+ignorehitpause = 1
+persistent = 0
+
+[State 2000, 2];北斗・特大ヒットエフェクト・放射閃光 4段目
+type = Explod
+trigger1 = UniqHitCount = 4   
+anim = 6095+(random%3)
+pos = -8, -80
+Postype = p2
+facing = 1
+sprpriority = 5
+random = 35,35
+ownpal = 1
+ontop = 1
+pausemovetime = 9999999999
+supermovetime = 9999999999
+supermove = 1
+bindtime = 1
+scale = 0.5,0.5
+ignorehitpause = 1
+persistent = 0
+
+[State 2000, 2];北斗・特大ヒットエフェクト・放射閃光 5段目
+type = Explod
+trigger1 = UniqHitCount = 5    
+anim = 6095+(random%3)
+pos = -8, -80
+Postype = p2
+facing = 1
+sprpriority = 5
+random = 35,35
+ownpal = 1
+ontop = 1
+pausemovetime = 9999999999
+supermovetime = 9999999999
+supermove = 1
+bindtime = 1
+scale = 0.5,0.5
+ignorehitpause = 1
+persistent = 0
+
+[State 2000, 2];北斗・特大ヒットエフェクト・放射閃光 6段目
+type = Explod
+trigger1 = UniqHitCount = 6    
+anim = 6095+(random%3)
+pos = -8, -80
+Postype = p2
+facing = 1
+sprpriority = 5
+random = 35,35
+ownpal = 1
+ontop = 1
+pausemovetime = 9999999999
+supermovetime = 9999999999
+supermove = 1
+bindtime = 1
+scale = 0.5,0.5
+ignorehitpause = 1
+persistent = 0
+
+[State 2000, 2];北斗・特大ヒットエフェクト・放射閃光 7段目
+type = Explod
+trigger1 = UniqHitCount = 7    
+anim = 6095+(random%3)
+pos = -8, -80
+Postype = p2
+facing = 1
+sprpriority = 5
+random = 35,35
+ownpal = 1
+ontop = 1
+pausemovetime = 9999999999
+supermovetime = 9999999999
+supermove = 1
+bindtime = 1
+scale = 0.5,0.5
+ignorehitpause = 1
+persistent = 0
+
+[State 2000, 2];北斗・特大ヒットエフェクト・放射閃光 8段目
+type = Explod
+trigger1 = UniqHitCount = 8    
+anim = 6095+(random%3)
+pos = -8, -80
+Postype = p2
+facing = 1
+sprpriority = 5
+random = 35,35
+ownpal = 1
+ontop = 1
+pausemovetime = 9999999999
+supermovetime = 9999999999
+supermove = 1
+bindtime = 1
+scale = 0.5,0.5
+ignorehitpause = 1
+persistent = 0
+
+[State 2000, 2];奥義ガードエフェクト
+Type = Explod
+Trigger1 = MoveGuarded = 1
+anim = 6025
+Pos = -5, -45
+PosType = p2
+facing = -1
+SprPriority = 9
+Ownpal = 1
+Ontop = 1
+PauseMoveTime = 99999
+SuperMoveTime = 99999
+SuperMove = 1
+bindTime = 1
+persistent = 1
+IgNoreHitPause = 1
+Scale = 0.5,0.5
+
+;---------------------[特殊KO演出]
+[State 2000,haikei]
+type = Helper
+trigger1 = winko
+id = 7850
+name = "haikei-tokushu"
+pos = 0,0
+postype = left
+stateno = 7850
+helpertype = normal
+keyctrl = 0
+ownpal = 1
+supermovetime = 999999
+pausemovetime = 999999
+size.xscale = .5
+size.yscale = .5
+ignorehitpause = 1 ;硬直無視
+persistent = 0
+
+;---------------------[]
+[state 2000]
+type = changestate
+trigger1 = animtime = 0
+value = 0
+ctrl = 1
+
+;★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+;南斗千手龍撃(準備/チャージ)
+[Statedef 2100]
+type     = S
+movetype = A
+physics  = N
+ctrl     = 0
+anim     = 2100
+sprpriority = 2
+velset   = 0,0
+
+;---------------------[効果音]
+[State 2100, 1]
+type = PlaySnd
+trigger1 = time = 0
+value = 2100,0;[はああああ！]
+
+[State 2100, 1]
+type = PlaySnd
+trigger1 = animelem = 4
+value = 40,4;[チャージ音]
+
+;---------------------[コマンド判定]
+[State 2100]
+Type = varSet
+Trigger1 = !Time
+var(29) = 0
+
+[State 2100]
+Type = VarAdd
+TriggerAll=var(57)<3
+Trigger1 = Time = 22
+Trigger2 = Time = 26
+Trigger3 = Time = 30
+Trigger4 = Time = 34
+Trigger5 = Time = 38
+Trigger6 = Time = 41
+Trigger7 = Time = 45
+Trigger8 = Time = 49
+Trigger9 = Time = 52
+Trigger10= Time = 54
+Trigger11= Time = 58
+var(29) = 1
+
+[State 2100]
+Type = VarAdd
+TriggerAll=var(57)=3
+Trigger1 = Time = 17
+var(29) = 11
+
+;---------------------[演出ヘルパー]
+[State 2100]
+Type = Helper
+Trigger1 = AnimElem=4
+ID = 2105
+Name = "o-ra"
+Sprpriority = -1
+Pos = 0,0
+PosType = P1
+StateNo = 2105
+HelperType = Normal
+PauseMoveTime = 0
+KeyCtrl = 0 
+OwnPal = 1
+ignorehitpause = 1
+
+;---------------------[発射へ]
+[State 2100]
+Type = ChangeState
+TriggerAll=Time>17
+trigger1 = !var(59)
+Trigger1 = !command = "hold_y"
+Trigger2 = Time>57
+Trigger3 = var(57)=3
+Trigger3 = Time = 18
+value = 2101
+
+;★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+;南斗千手龍撃(発射)
+[Statedef 2101]
+type     = S
+movetype = A
+physics  = N
+ctrl     = 0
+anim     = 2101
+sprpriority = 2
+velset   = 0,0
+
+;---------------------------------[パワーの増減]
+[State 2101, 0]
+type = PowerAdd
+trigger1 = AnimElem = 1,=0
+value = -1000
+
+;---------------------[超必殺技演出]
+[State 2101]
+Type = SuperPause
+Trigger1 = animelem = 1,=0
+Time = 27
+Anim = -1
+Sound = -1
+Pos = 5,-60
+MoveTime = 27
+darken = 0
+P2defmul = 1
+Poweradd = 0
+unHittable = 1
+IgNoreHitPause = 1
+
+;--------------------------背景の色変化
+[State 2101,haikei]
+type = Helper
+trigger1 = animelem = 1,=0
+persistent = 0
+id = 7500
+name = "haikei"
+pos = 0,0
+postype = P1
+stateno = 7500
+helpertype = normal
+keyctrl = 0
+ownpal = 1
+ignorehitpause = 1 ;硬直無視
+persistent = 0 ;このステートで一度のみ発動
+
+;---------------------[無敵]
+[State meteking, 0]
+type = NotHitBy
+trigger1 = 1
+value = SCA,NA,SA,HA,NP,SP,HP,NT,ST,HT
+time = 1
+
+;---------------------[奥義エフェクトヘルパー]
+[State 2101, 0]
+type = Helper
+trigger1 = AnimElem = 1,=0
+helpertype = normal
+name = "ougi-1"
+ID = 2050
+stateno = 2050
+pos = 7,-59
+postype = p1    ;p2,front,back,left,right
+facing = 1
+keyctrl = 0
+ownpal = 1
+supermovetime = 99999
+pausemovetime = 99999
+size.xscale = 0.5
+size.yscale = 0.5
+
+;---------------------[]
+[State 2101]
+Type = velSet
+Trigger1 = AnimElem = 2
+x = 21
+
+;---------------------[攻撃へ]
+[State 2101]
+Type = ChangeState
+Trigger1 = P2Dist X<41
+Trigger1 = AnimElem=2,>=3
+Trigger1 = var(29)<8
+Trigger2 = P2Dist X<61
+Trigger2 = AnimElem=2,>=0
+Trigger2 = var(29)>7
+Trigger3 = AnimElemTime(2)>=40
+value = 2102
+
+;★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+;南斗千手龍撃(攻撃)
+[Statedef 2102]
+type     = S
+movetype = A
+physics  = N
+ctrl     = 0
+anim     = 2102
+sprpriority = 2
+velset   = 0,0
+
+;■■■■■■■■■■■■■■■■■■■■[ブースト関係]
+
+[state boost]
+type = veladd
+triggerall = var(16) >= 100 || var(16) < 100 && var(17) = 1
+triggerall = animelem = 2,<=0
+Trigger1 = !var(59)
+trigger1 = command = "z" 
+x = 7
+
+[State st, 0];属性変更
+type = StateTypeSet
+triggerall = var(16) >= 100 || var(16) < 100 && var(17) = 1
+triggerall = animelem = 2,<=0
+Trigger1 = !var(59)
+trigger1 = command = "z" 
+physics = A         
+
+[State Pal, 1];本体色
+type = PalFX
+triggerall = var(16) >= 100 || var(16) < 100 && var(17) = 1
+triggerall = animelem = 2,<=0
+Trigger1 = !var(59)
+trigger1 = command = "z"
+time = 5
+add = 180,180,180
+
+;---------------------[ブーストゲージ増加]
+[state a] ;var17はゲージ自動減少中の増加防止
+type = VarAdd
+triggerall = var(17) = 0
+trigger1 = movecontact = 1
+v = 16
+value = 14
+ignorehitpause = 1
+persistent = 0 ;注意
+
+[state a];ブーストゲージ減少
+type = varadd
+triggerall = var(16) >= 100 || var(16) < 100 && var(17) = 1
+triggerall = animelem = 2,<=0
+Trigger1 = !var(59)
+trigger1 = command = "z"
+v = 16
+value = -40
+ignorehitpause = 1 
+persistent = 0
+
+;■■■■■■■■■■■■■■■■■■■■
+
+;----------------------------★星取り関係
+[State hoshi, 0]
+type = VarAdd
+triggerall = Var(55) = 0
+triggerall = Var(9) = 1
+trigger1 = movehit = 1
+v = 21
+value = 2
+ignorehitpause = 1
+persistent = 0
+
+[State hoshi, 0]
+type = VarAdd
+triggerall = Var(55) = 0
+triggerall = Var(22) = 0
+trigger1 = movehit = 1
+trigger1 = var(9) = 1;カウンターのみ
+trigger1 = RoundState = 2 ;戦闘中のみ
+v = 20
+value = -2 ;カウンター時★２つ取り
+ignorehitpause = 1
+persistent = 0
+
+;---------------------[無敵]
+[State meteking, 0]
+type = NotHitBy
+trigger1 = 1
+value = SCA,NA,SA,HA,NP,SP,HP,NT,ST,HT
+time = 1
+
+;---------------------[効果音]
+[State 2102, 6]
+type = PlaySnd
+trigger1 = animelem = 1
+value = 2100,1;[南斗千手龍撃！]
+
+[State 2102, 6]
+type = PlaySnd
+Trigger1 = AnimElem = 2
+Trigger2 = AnimElem = 3
+Trigger3 = AnimElem = 4
+Trigger4 = AnimTime = 0
+value = 2100,2;[突き音]
+
+;---------------------[演出ヘルパー]
+[State 2102];後ろ1
+Type = Helper
+Trigger1 = AnimElem = 2
+Trigger2 = !AnimTime
+ID = 2110
+Name = "o-ra"
+Sprpriority = -1
+Pos = 0,0
+PosType = P1
+StateNo = 2110
+HelperType = Normal
+PauseMoveTime = 0
+KeyCtrl = 0 
+OwnPal = 1
+
+[State 2102];後ろ2
+Type = Helper
+Trigger1 = AnimElem = 3
+ID = 2111
+Name = "o-ra"
+Sprpriority = -1
+Pos = 0,0
+PosType = P1
+StateNo = 2111
+HelperType = Normal
+PauseMoveTime = 0
+KeyCtrl = 0 
+OwnPal = 1
+
+[State 2102];後ろ3
+Type = Helper
+Trigger1 = AnimElem = 4
+ID = 2112
+Name = "o-ra"
+Sprpriority = -1
+Pos = 0,0
+PosType = P1
+StateNo = 2112
+HelperType = Normal
+PauseMoveTime = 0
+KeyCtrl = 0 
+OwnPal = 1
+
+;---------------------[突き]
+[State 2102];
+Type = Helper
+Trigger1 = AnimElem=2
+Trigger2 = !AnimTime
+ID = 2115
+Name = "o-ra"
+Sprpriority = 4
+Pos = 0,0
+PosType = P1
+StateNo = 2115
+HelperType = Normal
+SuperMoveTime = 70
+PauseMoveTime = 0
+KeyCtrl = 0 
+OwnPal = 1
+
+[State 2102]
+Type = Helper
+Trigger1 = AnimElem=3
+ID = 2116
+Name = "o-ra"
+Sprpriority = 4
+Pos = 0,0
+PosType = P1
+StateNo = 2115
+HelperType = Normal
+SuperMoveTime = 70
+PauseMoveTime = 0
+KeyCtrl = 0 
+OwnPal = 1
+
+[State 2102];突きエフェクト
+Type = Helper
+Trigger1 = AnimElem=4
+ID = 2117
+Name = "o-ra"
+Sprpriority = 4
+Pos = 0,0
+PosType = P1
+StateNo = 2115
+HelperType = Normal
+SuperMoveTime = 70
+PauseMoveTime = 0
+KeyCtrl = 0 
+OwnPal = 1
+
+;---------------------[ヒット定義]
+[State 2102, ヒット定義]
+Type = HitDef                    
+Trigger1 = AnimElem=2
+Trigger2 = AnimElem=3
+Trigger3 = AnimElem=4
+Trigger4 = AnimTime=0       
+Attr = S,HP
+Damage = ceil(ifelse(60*fvar(5)*fvar(6)*fvar(7)*fvar(8)<7,7,60*fvar(5)*fvar(6)*fvar(7)*fvar(8))),8                    
+AnimType = hard
+Hitflag = MAFLD
+Guardflag = M                 
+priority = 7,Hit                
+PauseTime = 10,10                 
+Guard.PauseTime = 12,12
+SparkNo = -1                     
+Guard.SparkNo = -1                            
+HitSound = S200,1                    
+GuardSound = s6,3                
+Ground.Type = High              
+Ground.slideTime = 11            
+Ground.HitTime  = 11             
+Ground.velocity = 0,0
+Guard.velocity = -1    
+AirGuard.velocity = -4,-.8     
+Air.velocity = -0,-6           
+Air.fall = 1 
+AirGuard.CtrlTime = 26
+getPower = 0;ifelse(var(30)=0,40,ceil(40/3)),ifelse(var(30)=0,ceil(40/2),ceil(40/3));
+fall.RecoverTime = 45
+Air.cornerpush.veloff = 0;-(!var(19))*var(7)*2
+Ground.cornerpush.veloff = 0;-(!var(19))*var(7)*2
+Guard.cornerpush.veloff = 0;-(!var(19))*var(7)*2
+Air.fall = 1
+
+[state 斬撃]
+type = Helper
+trigger1 = UniqHitCount = 1
+id = 6101
+stateno = 6101
+name = "hit-blood1"
+pos = -5+random%10,-56+random%5
+postype = p2
+facing = -1
+sprpriority = 5
+helpertype = normal
+persistent = 0
+ignorehitpause = 1
+keyctrl = 0 
+ownpal = 1
+size.xscale = 0.5
+size.yscale = 0.5
+supermovetime = 999999
+pausemovetime = 999999
+
+[state 斬撃]
+type = Helper
+trigger1 = UniqHitCount = 2
+id = 6100
+stateno = 6100
+name = "hit-blood2"
+pos = -5+random%10,-56+random%5
+postype = p2
+facing = -1
+sprpriority = 5
+helpertype = normal
+persistent = 0
+ignorehitpause = 1
+keyctrl = 0 
+ownpal = 1
+size.xscale = 0.5
+size.yscale = 0.5
+supermovetime = 999999
+pausemovetime = 999999
+
+[state 斬撃]
+type = Helper
+trigger1 = UniqHitCount = 3
+id = 6101
+stateno = 6101
+name = "hit-blood1"
+pos = -5+random%10,-56+random%5 
+postype = p2
+facing = -1
+sprpriority = 5
+helpertype = normal
+persistent = 0
+ignorehitpause = 1
+keyctrl = 0 
+ownpal = 1
+size.xscale = 0.5
+size.yscale = 0.5
+supermovetime = 999999
+pausemovetime = 999999
+
+[state 斬撃]
+type = Helper
+trigger1 = UniqHitCount = 4
+id = 6100
+stateno = 6100
+name = "hit-blood2"
+pos = -5+random%10,-56+random%5
+postype = p2
+facing = -1
+sprpriority = 5
+helpertype = normal
+persistent = 0
+ignorehitpause = 1
+keyctrl = 0 
+ownpal = 1
+size.xscale = 0.5
+size.yscale = 0.5
+supermovetime = 999999
+pausemovetime = 999999
+
+[state 斬撃]
+type = Helper
+trigger1 = UniqHitCount = 5
+id = 6101
+stateno = 6101
+name = "hit-blood1"
+pos = -5+random%10,-56+random%5
+postype = p2
+facing = -1
+sprpriority = 5
+helpertype = normal
+persistent = 0
+ignorehitpause = 1
+keyctrl = 0 
+ownpal = 1
+size.xscale = 0.5
+size.yscale = 0.5
+supermovetime = 999999
+pausemovetime = 999999
+
+[state 斬撃]
+type = Helper
+trigger1 = UniqHitCount = 6
+id = 6100
+stateno = 6100
+name = "hit-blood2"
+pos = -5+random%10,-56+random%5
+postype = p2
+facing = -1
+sprpriority = 5
+helpertype = normal
+persistent = 0
+ignorehitpause = 1
+keyctrl = 0 
+ownpal = 1
+size.xscale = 0.5
+size.yscale = 0.5
+supermovetime = 999999
+pausemovetime = 999999
+
+[state 斬撃]
+type = Helper
+trigger1 = UniqHitCount = 7
+id = 6101
+stateno = 6101
+name = "hit-blood1"
+pos = -5+random%10,-56+random%5
+postype = p2
+facing = -1
+sprpriority = 5
+helpertype = normal
+persistent = 0
+ignorehitpause = 1
+keyctrl = 0 
+ownpal = 1
+size.xscale = 0.5
+size.yscale = 0.5
+supermovetime = 999999
+pausemovetime = 999999
+
+[state 斬撃]
+type = Helper
+trigger1 = UniqHitCount = 8
+id = 6100
+stateno = 6100
+name = "hit-blood2"
+pos = -5+random%10,-56+random%5
+postype = p2
+facing = -1
+sprpriority = 5
+helpertype = normal
+persistent = 0
+ignorehitpause = 1
+keyctrl = 0 
+ownpal = 1
+size.xscale = 0.5
+size.yscale = 0.5
+supermovetime = 999999
+pausemovetime = 999999
+
+[state 斬撃]
+type = Helper
+trigger1 = UniqHitCount = 9
+id = 6101
+stateno = 6101
+name = "hit-blood1"
+pos = -5+random%10,-56+random%5
+postype = p2
+facing = -1
+sprpriority = 5
+helpertype = normal
+persistent = 0
+ignorehitpause = 1
+keyctrl = 0 
+ownpal = 1
+size.xscale = 0.5
+size.yscale = 0.5
+supermovetime = 999999
+pausemovetime = 999999
+
+[state 斬撃]
+type = Helper
+trigger1 = UniqHitCount = 10
+id = 6100
+stateno = 6100
+name = "hit-blood2"
+pos = -5+random%10,-56+random%5
+postype = p2
+facing = -1
+sprpriority = 5
+helpertype = normal
+persistent = 0
+ignorehitpause = 1
+keyctrl = 0 
+ownpal = 1
+size.xscale = 0.5
+size.yscale = 0.5
+supermovetime = 999999
+pausemovetime = 999999
+
+[state 斬撃]
+type = Helper
+trigger1 = UniqHitCount = 11
+id = 6101
+stateno = 6101
+name = "hit-blood1"
+pos = -5+random%10,-56+random%5
+postype = p2
+facing = -1
+sprpriority = 5
+helpertype = normal
+persistent = 0
+ignorehitpause = 1
+keyctrl = 0 
+ownpal = 1
+size.xscale = 0.5
+size.yscale = 0.5
+supermovetime = 999999
+pausemovetime = 999999
+
+[state 斬撃]
+type = Helper
+trigger1 = UniqHitCount = 12
+id = 6100
+stateno = 6100
+name = "hit-blood2"
+pos = -5+random%10,-56+random%5
+postype = p2
+facing = -1
+sprpriority = 5
+helpertype = normal
+persistent = 0
+ignorehitpause = 1
+keyctrl = 0 
+ownpal = 1
+size.xscale = 0.5
+size.yscale = 0.5
+supermovetime = 999999
+pausemovetime = 999999
+
+[state 斬撃]
+type = Helper
+trigger1 = UniqHitCount = 13
+id = 6101
+stateno = 6101
+name = "hit-blood1"
+pos = -5+random%10,-56+random%5
+postype = p2
+facing = -1
+sprpriority = 5
+helpertype = normal
+persistent = 0
+ignorehitpause = 1
+keyctrl = 0 
+ownpal = 1
+size.xscale = 0.5
+size.yscale = 0.5
+supermovetime = 999999
+pausemovetime = 999999
+
+[state 斬撃]
+type = Helper
+trigger1 = UniqHitCount = 14
+id = 6100
+stateno = 6100
+name = "hit-blood2"
+pos = -5+random%10,-56+random%5
+postype = p2
+facing = -1
+sprpriority = 5
+helpertype = normal
+persistent = 0
+ignorehitpause = 1
+keyctrl = 0 
+ownpal = 1
+size.xscale = 0.5
+size.yscale = 0.5
+supermovetime = 999999
+pausemovetime = 999999
+
+[state 斬撃]
+type = Helper
+trigger1 = UniqHitCount = 15
+id = 6101
+stateno = 6101
+name = "hit-blood1"
+pos = -5+random%10,-56+random%5
+postype = p2
+facing = -1
+sprpriority = 5
+helpertype = normal
+persistent = 0
+ignorehitpause = 1
+keyctrl = 0 
+ownpal = 1
+size.xscale = 0.5
+size.yscale = 0.5
+supermovetime = 999999
+pausemovetime = 999999
+
+[state 斬撃]
+type = Helper
+trigger1 = UniqHitCount = 16
+id = 6100
+stateno = 6100
+name = "hit-blood2"
+pos = -5+random%10,-56+random%5
+postype = p2
+facing = -1
+sprpriority = 5
+helpertype = normal
+persistent = 0
+ignorehitpause = 1
+keyctrl = 0 
+ownpal = 1
+size.xscale = 0.5
+size.yscale = 0.5
+supermovetime = 999999
+pausemovetime = 999999
+
+[state 斬撃]
+type = Helper
+trigger1 = UniqHitCount = 17
+id = 6101
+stateno = 6101
+name = "hit-blood1"
+pos = -5+random%10,-56+random%5
+postype = p2
+facing = -1
+sprpriority = 5
+helpertype = normal
+persistent = 0
+ignorehitpause = 1
+keyctrl = 0 
+ownpal = 1
+size.xscale = 0.5
+size.yscale = 0.5
+supermovetime = 999999
+pausemovetime = 999999
+
+[State 2102, 2];奥義ガードエフェクト
+Type = Explod
+Trigger1 = MoveGuarded = 1
+anim = 6025
+Pos = -5, -45
+PosType = p2
+facing = -1
+SprPriority = 9
+Ownpal = 1
+Ontop = 1
+PauseMoveTime = 99999
+SuperMoveTime = 99999
+SuperMove = 1
+bindTime = 1
+persistent = 1
+IgNoreHitPause = 1
+Scale = 0.5,0.5
+
+;---------------------[特殊KO演出]
+[State 2000,haikei]
+type = Helper
+trigger1 = winko
+id = 7850
+name = "haikei-tokushu"
+pos = 0,0
+postype = left
+stateno = 7850
+helpertype = normal
+keyctrl = 0
+ownpal = 1
+supermovetime = 999999
+pausemovetime = 999999
+size.xscale = .5
+size.yscale = .5
+ignorehitpause = 1 ;硬直無視
+persistent = 0
+
+;---------------------[フィニッシュへ]
+[State 2102]
+Type = ChangeState
+Trigger1 = Time>25+var(29)*4
+value = 2103
+
+;★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+;南斗千手龍撃(フィニッシュ)
+[Statedef 2103]
+type     = S
+movetype = A
+physics  = N
+ctrl     = 0
+anim     = 2103
+sprpriority = 2
+velset   = 0,0
+
+;■■■■■■■■■■■■■■■■■■■■[ブースト関係]
+
+[state boost]
+type = veladd
+triggerall = var(16) >= 100 || var(16) < 100 && var(17) = 1
+trigger1 = time <= 2
+Trigger1 = !var(59)
+trigger1 = command = "z" 
+x = 14
+
+[State Pal, 1];本体色
+type = PalFX
+triggerall = var(16) >= 100 || var(16) < 100 && var(17) = 1
+trigger1 = time <= 2
+Trigger1 = !var(59)
+trigger1 = command = "z"
+time = 5
+add = 180,180,180
+
+;---------------------[ブーストゲージ増加]
+[state a] ;var17はゲージ自動減少中の増加防止
+type = VarAdd
+triggerall = var(17) = 0
+trigger1 = movecontact = 1
+v = 16
+value = 14
+ignorehitpause = 1
+persistent = 0
+
+[state a];ブーストゲージ減少
+type = varadd
+triggerall = var(16) >= 100 || var(16) < 100 && var(17) = 1
+trigger1 = time <= 2
+Trigger1 = !var(59)
+trigger1 = command = "z"
+v = 16
+value = -40
+ignorehitpause = 1 
+persistent = 0
+
+;■■■■■■■■■■■■■■■■■■■■
+
+;----------------------------★星取り関係
+[State hoshi, 0]
+type = VarAdd
+triggerall = Var(55) = 0
+trigger1 = movehit = 1
+trigger1 = RoundState = 2;戦闘中のみ
+v = 21
+value = 1
+ignorehitpause = 1
+persistent = 0
+
+[State hoshi, 0]
+type = VarAdd
+trigger1 = Var(55) = 0
+trigger1 = movehit = 1
+trigger1 = RoundState = 2 ;戦闘中のみ
+v = 20
+value = -1
+ignorehitpause = 1
+persistent = 0
+
+;---------------------[効果音]
+[State 2103, 1]
+Type = PlaySnd
+Trigger1 = var(29)>7
+Trigger1 = AnimElem = 1
+value =2100,3;[うわたあああ]※原作では[死ねえええ]です。
+
+[State 2101, 1];一応
+Type = varSet
+Trigger1 = AnimElem = 2
+var(29) = 0
+
+;---------------------[演出ヘルパー]
+[State 2103]
+Type = Helper
+Trigger1 = AnimElem=1
+ID = 2120
+Name = "o-ra"
+Sprpriority = 2
+Pos = 0,0
+PosType = P1
+StateNo = 2120
+HelperType = Normal
+PauseMoveTime = 0
+KeyCtrl = 0 
+OwnPal = 1
+
+[State 2103]
+Type = Helper
+Trigger1 = AnimElem=1
+ID = 2121
+Name = "o-ra"
+Sprpriority = 2
+Pos = 0,0
+PosType = P1
+StateNo = 2120
+HelperType = Normal
+PauseMoveTime = 0
+KeyCtrl = 0 
+OwnPal = 1
+
+;---------------------[ヒット定義]
+[State 2102, ヒット定義]
+Type = HitDef                    
+Trigger1 = AnimElem=1      
+Attr = S,HP
+Damage = ceil(ifelse(60*fvar(5)*fvar(6)*fvar(7)*fvar(8)<5,7,60*fvar(5)*fvar(6)*fvar(7)*fvar(8))),8                    
+AnimType = hard
+Hitflag = MAFLD
+Guardflag = M                 
+priority = 9,Hit                
+PauseTime = 40,35               
+Guard.PauseTime = 42,42
+SparkNo = -1                     
+Guard.SparkNo = -1                            
+HitSound = S200,1                    
+GuardSound = s6,3                
+Ground.Type = High              
+Ground.slideTime = 11            
+Ground.HitTime  = 11             
+Ground.velocity = -4,-8
+Guard.velocity = -12  
+AirGuard.velocity = -4,-8     
+Air.velocity = -0,-6           
+Air.fall = 1 
+AirGuard.CtrlTime = 26
+getPower = 0;ifelse(var(30)=0,40,ceil(40/3)),ifelse(var(30)=0,ceil(40/2),ceil(40/3));
+fall.RecoverTime = 70
+fall = 1
+Air.cornerpush.veloff = -(!var(19))*var(7)*2
+Ground.cornerpush.veloff = -(!var(19))*var(7)*2
+Guard.cornerpush.veloff = -(!var(19))*var(7)*2
+Air.fall = 1
+
+[State 2103];ヒットエフェクト
+Type = Explod
+Trigger1 = MoveHit
+Anim = 6098
+Pos = -5, -65
+PosType = p2
+facing = -1
+SprPriority = 9
+Random = 5, 15
+Ownpal = 1
+Ontop = 1
+PauseMoveTime = 99999
+SuperMoveTime = 99999
+SuperMove = 1
+bindTime = 1
+persistent = 0
+IgNoreHitPause = 1
+Scale = 0.4,0.4
+
+[State 2103, 2];奥義ガードエフェクト
+Type = Explod
+Trigger1 = MoveGuarded = 1
+anim = 6025
+Pos = -5, -45
+PosType = p2
+facing = -1
+SprPriority = 9
+Ownpal = 1
+Ontop = 1
+PauseMoveTime = 99999
+SuperMoveTime = 99999
+SuperMove = 1
+bindTime = 1
+persistent = 1
+IgNoreHitPause = 1
+Scale = 0.5,0.5
+
+;---------------------[特殊KO演出]
+[State 2000,haikei]
+type = Helper
+trigger1 = winko
+id = 7850
+name = "haikei-tokushu"
+pos = 0,0
+postype = left
+stateno = 7850
+helpertype = normal
+keyctrl = 0
+ownpal = 1
+supermovetime = 999999
+pausemovetime = 999999
+size.xscale = .5
+size.yscale = .5
+ignorehitpause = 1 ;硬直無視
+persistent = 0
+
+;---------------------[]
+[State 2103]
+Type = ChangeState
+Trigger1 = AnimTime = 0
+value = 0
+Ctrl = 1
+
+;★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+;お前の拳では死なん！(始動)
+[Statedef 2200]
+type     = L
+movetype = I
+physics  = N
+ctrl     = 0
+anim     = 2200
+sprpriority = 2
+velset   = 0,0
+
+;■■■■■■■■■■■■■■■■■■■■[ブースト関係]
+
+[state boost]
+type = veladd
+triggerall = var(16) >= 100 || var(16) < 100 && var(17) = 1
+trigger1 = time <= 2
+Trigger1 = !var(59)
+trigger1 = command = "z" 
+x = 14
+
+[State Pal, 1];本体色
+type = PalFX
+triggerall = var(16) >= 100 || var(16) < 100 && var(17) = 1
+trigger1 = time <= 2
+Trigger1 = !var(59)
+trigger1 = command = "z"
+time = 5
+add = 180,180,180
+
+;■■■■■■■■■■■■■■■■■■■■
+
+;---------------------------------[パワーの増減]
+[State 2200, 0]
+type = PowerAdd
+trigger1 = AnimElem = 1
+value = -1000
+
+;---------------------[効果音]
+[State 2200, 1]
+Type = PlaySnd
+Trigger1 = AnimElem=3
+value = 2200,0;[ふっ･･･、どうやらここまでのようだな･･･]
+
+[State 2200, 1]
+Type = PlaySnd
+Trigger1 = AnimElem=13
+value = 2200,1;[だがな･･･、俺はお前の拳では死なん！ ｻﾗﾀﾞﾊﾞｰ！]
+
+[State 2200, 1]
+Type = PlaySnd
+Trigger1 = AnimElem=4
+Trigger2 = AnimElem=8
+Trigger3 = AnimElem=12
+value = 100,0;[足音]
+
+[State 2200, 1]
+Type = PlaySnd
+Trigger1 = AnimElem=14
+value = 105,0;[風音]
+
+[State 2200, 1]
+Type = PlaySnd
+Trigger1 = AnimElem=19
+value = 300,3;[素振り音]
+
+;---------------------[移動]
+[State 2200]
+Type = PosAdd
+Trigger1 = AnimElem=5
+Trigger2 = AnimElem=6
+Trigger3 = AnimElem=7
+Trigger4 = AnimElem=8
+Trigger5 = AnimElem=9
+Trigger6 = AnimElem=10
+Trigger7 = AnimElem=11
+Trigger8 = AnimElem=12
+x = -4
+
+;---------------------[]
+[State 2200]
+type = changestate
+trigger1 = animtime = 0
+value = 2201
+
+;★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+;お前の拳では死なん！(落下)
+[Statedef 2201]
+type     = L
+movetype = I
+physics  = N
+ctrl     = 0
+anim     = 2201
+sprpriority = 2
+velset   = 0,0
+
+;---------------------[特殊効果]
+[State 2201, 0]
+Type = AssertSpecial
+Trigger1 = 1
+flag = Noshadow
+flag2 = TimerFreeze
+
+;---------------------[効果音]
+[State 2201]
+Type = PlaySnd
+Trigger1 = AnimElem=5
+value = 105,0
+
+;---------------------[移動]
+[State 2201]
+Type = PosAdd
+Trigger1 = AnimElem=1
+x = 30
+y = -40
+
+;---------------------[相手制御]
+[State 2201]
+Type = Helper
+Trigger1 = AnimElem=1
+ID = 2205
+Name = "enemyctrl"
+Sprpriority = 2
+Pos = 0,0
+PosType = P1
+StateNo = 2205
+HelperType = Normal
+PauseMoveTime = 0
+KeyCtrl = 0 
+OwnPal = 1
+
+;---------------------[演出]
+[State 2201,ｶｯﾄｲﾝ]
+type = Explod
+trigger1 = AnimElem=3
+anim = 8000
+postype = Back
+pos = 55,250
+ownpal = 1
+scale = 0.5,0.5
+facing = 1
+sprpriority = -4
+supermovetime =93
+removeongethit = 1
+bindtime = -1
+
+[State 2201,haikei]
+type = Helper
+trigger1 = AnimElem = 3
+persistent = 0
+id = 7800
+name = "ichigeki-haikei-aka"
+pos = 0,0
+postype = P1
+stateno = 7800
+helpertype = normal
+keyctrl = 0
+ownpal = 1
+
+[State 2201,ﾃｰﾚｯﾃｰ]
+type = Helper
+triggerall = NumHelper(14000) = 0
+Trigger1 = AnimElem=3
+helpertype = normal
+name = "terette-bgm"
+ID = 14000
+stateno = 14000
+pos = 0,0
+postype = p1    
+facing = 1
+keyctrl = 0
+ownpal = 1
+supermovetime = 9999999999999999
+pausemovetime = 9999999999999999
+ignorehitpause = 1
+persistent = 0
+
+;---------------------[]
+[State 2201]
+Type = ChangeState 
+Trigger1 = Time=150
+value = 2202
+
+;★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+;お前の拳では死なん！(死亡)
+[Statedef 2202]
+type     = L
+movetype = I
+physics  = N
+ctrl     = 0
+anim     = 2202
+sprpriority = 2
+velset   = 0,0
+
+;---------------------[特殊効果]
+[State 2202, 0]
+Type = AssertSpecial
+Trigger1 = 1
+flag = Noshadow
+flag2 = Nokosnd
+flag3 = Timerfreeze
+
+;---------------------[移動]
+[State 2202, 1]
+Type = Velset
+Trigger1 = time = 0
+y = 1.5
+
+;---------------------[演出]
+[State 2202,ｶｯﾄｲﾝ]
+type = Helper
+trigger1 = time = 0
+id = 8002
+stateno = 8002
+postype = Back
+pos = 160,0
+ownpal = 1
+keyctrl = 0 
+facing = -1;※
+sprpriority = -2
+helpertype = Normal
+SuperMoveTime = 70
+PauseMoveTime = 0
+bindtime = -1
+ignorehitpause = 1 ;硬直無視
+persistent = 0
+
+[state 2202]
+type = helper
+trigger1 = time = 40
+id = 8900
+stateno=8900
+name="fatal_ko"
+pos = 0,0
+potype = p1
+ownpal = 1
+ignorehitpause = 1 ;硬直無視
+persistent = 0
+
+[State 2201,haikei]
+type = Helper
+trigger1 = time = 40
+id = 7850
+name = "haikei-tokushu"
+pos = 0,0
+postype = left
+stateno = 7850
+helpertype = normal
+keyctrl = 0
+ownpal = 1
+supermovetime = 999999
+pausemovetime = 999999
+size.xscale = .5
+size.yscale = .5
+ignorehitpause = 1 ;硬直無視
+persistent = 0
+
+;---------------------[]
+[State 2202]
+Type = LifeSet
+trigger1 = AnimTime = 0
+value = 0
+
+[State 2202]
+Type = Changestate
+trigger1 = AnimTime = 0
+value = 5150
+
+;■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+ｻﾗﾀﾞﾊﾞｰ用カットイン
+[Statedef 8002]
+Type     = S
+MoveType = I
+PhySics  = N
+Ctrl     = 0
+velSet   = 0,0
+Sprpriority = -2
+Anim     = 8002
+
+;-------------------------[特殊効果]
+[State 8002]
+Type = AssertSpecial
+Trigger1 = 1
+flag = Noshadow
+
+;-------------------------[加速]
+[State 8002]
+Type = velSet
+Trigger1 = Time=40
+y = 1.5
+
+;-------------------------[透過]
+[State 8002]
+Type = Trans
+Trigger1 = 1
+trans = Addalpha
+alpha = var(1),256-var(1)
+
+;-------------------------[変数]
+[State 8002]
+Type = varSet
+Trigger1 = !Time
+var(1) = 0
+
+[State 8002]
+Type = varAdd
+Trigger1 = Time<=20
+var(1) = 15
+
+[State 8002]
+Type = varAdd
+Trigger1 = Time>50
+var(1) = -5
+
+;-------------------------[拡縮]
+[State 8002]
+Type = AngleDraw
+Trigger1 = 1
+Scale = .5,.5
+
+;-------------------------[消滅(いらないかも？)]
+[State 8002]
+Type = DestroySelf
+Trigger1 = 0;Time = 790
+
+;★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+;お前の拳では死なん！(ヘルパー)
+[Statedef 2205]
+type     = S
+movetype = A
+physics  = N
+ctrl     = 0
+anim     = 2203
+sprpriority = 5
+velset   = 0,0
+
+;---------------------[特殊効果]
+[State 2205, 0]
+Type = AssertSpecial
+Trigger1 = 1
+flag = Noshadow
+flag2 = unGuardable
+
+;---------------------[本体に張り付き]
+[State 2205]
+Type = bindtoroot
+Trigger1 = 1
+Pos = 0,0
+
+;---------------------[制御用ヒット定義]
+[State 2205]
+type = HitDef
+trigger1 = 1
+attr = S,HA
+animtype = Hard
+damage = 0,0
+priority = 99,Hit
+hitflag = MAFLD
+guardflag = N
+pausetime = 0,0
+sparkno = -1
+getpower = 0,0
+sparkxy = -1
+hitsound = -1
+guardsound = -1
+guard.sparkno = -1
+ground.type = High
+ground.slidetime = 0
+ground.hittime  = 0
+ground.velocity = 0
+guard..velocity = 0
+air.velocity = 0,0
+guard.velocity = 0
+P2StateNo = 2206
+
+;---------------------[]
+[State 2205]
+Type = DestroySelf
+Trigger1 = MoveContAct
+
+;★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+;お前の拳では死なん！(相手制御)
+[Statedef 2206]
+type     = S
+movetype = H
+physics  = N
+ctrl     = 0
+;anim     = 2206
+sprpriority = -10
+velset   = 0,0
+
+;---------------------[特殊効果]
+[State 2206, 0]
+Type = AssertSpecial
+Trigger1 = 1
+flag = Noshadow
+
+;---------------------[透明]
+[State 2206,1]
+Type = ChangeAnim2
+Trigger1 = !Time
+value = 14000
+
+;---------------------[カメラ固定]
+[State 2206]
+Type = screenbound
+Trigger1 = 1
+value = 1
+Movecamera = 1
+
+;---------------------[死兆星回復]
+[State 2206]
+Type = VarSet
+TriggerAll = AutHorName="shuu"
+TriggerAll = Time = 0
+Trigger1 = Name = "Chenshiro"
+Trigger2 = Name = "Komachi Raoh"
+Trigger3 = Name = "Toki Hakurei"
+Trigger4 = Name = "Jagi Meillin"
+Trigger5 = Name = "Shin Izayoi"
+Trigger6 = Name = "REIsen U Inaba"
+Trigger7 = Name = "Juda Yukari"
+Trigger8 = Name = "Mrs.Yuyuko"
+Trigger9 = Name = "Mamiya"
+Trigger10 = Name = "Thouther Remilia"
+Trigger11 = Name = "TEOC REIsen"
+Trigger12 = Name = "KENSHIRO_S"
+Trigger13 = Name = "RAOH_S"
+Trigger14 = Name = "TOKI_S"
+Trigger15 = Name = "JAGI_S"
+Trigger16 = Name = "SHIN_S"
+Trigger17 = Name = "REI_S"
+Trigger18 = Name = "JUDA_S"
+Trigger19 = Name = "Mr.HAERT_S"
+Trigger20 = Name = "MAMIYA_S"
+Trigger21 = Name = "THOUTHER_S"
+Trigger22 = Name = "TEOC KY"
+Trigger23 = Name = "Chiester410_S"
+Trigger24 = Name = "KY_S"
+var(32) = 1
+
+;演出へ
+[State 2206]
+Type = VarSet
+TriggerAll = AutHorName="shuu"
+TriggerAll = Time = 0
+Trigger1 = Name = "Chenshiro"
+Trigger2 = Name = "Komachi Raoh"
+Trigger3 = Name = "Toki Hakurei"
+Trigger4 = Name = "Jagi Meillin"
+Trigger5 = Name = "Shin Izayoi"
+Trigger6 = Name = "REIsen U Inaba"
+Trigger7 = Name = "Juda Yukari"
+Trigger8 = Name = "Mrs.Yuyuko"
+Trigger9 = Name = "Mamiya"
+Trigger10 = Name = "Thouther Remilia"
+Trigger11 = Name = "TEOC REIsen"
+Trigger12 = Name = "KENSHIRO_S"
+Trigger13 = Name = "RAOH_S"
+Trigger14 = Name = "TOKI_S"
+Trigger15 = Name = "JAGI_S"
+Trigger16 = Name = "SHIN_S"
+Trigger17 = Name = "REI_S"
+Trigger18 = Name = "JUDA_S"
+Trigger19 = Name = "Mr.HAERT_S"
+Trigger20 = Name = "MAMIYA_S"
+Trigger21 = Name = "THOUTHER_S"
+Trigger22 = Name = "TEOC KY"
+Trigger23 = Name = "Chiester410_S"
+Trigger24 = Name = "KY_S"
+var(25) = 1
+
+;---------------------[]
+[State 2206]
+Type = SelfState
+Trigger1 = Time = 290
+value = 0
+Ctrl = 1
+
+;★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+;南斗翔鷲屠脚-発動~攻撃動作
+[Statedef 2300]
+type     = S                     
+movetype = A                     
+physics  = N               
+ctrl     = 0                     
+anim     = 2300                  
+sprpriority = 2     
+velset = 0,0
+
+;-----------------------------[すかったとき]
+[State 2300, 0];ブースト
+type = VarSet
+triggerall = AnimElem>=7
+trigger1 = P2StateNo!=2350
+v = 16    
+value = 0
+
+[State 2300, 0];オーラ
+type = poweradd
+triggerall = AnimElem>=7
+trigger1 = P2StateNo!=2350
+value = -2000   
+
+[State 2300, 0];☆
+type = VarSet
+triggerall = AnimElem>=7
+trigger1 = P2StateNo!=2350
+v = 20    
+value = 1
+ignorehitpause = 1
+persistent = 0
+
+;■■■■■■■■■■■■■■■■■■■■[ブースト関係]
+
+[state boost]
+type = veladd
+triggerall = var(16) >= 100 || var(16) < 100 && var(17) = 1
+trigger1 = time <= 2
+Trigger1 = !var(59)
+trigger1 = command = "z" 
+x = 14
+
+[State Pal, 1];本体色
+type = PalFX
+triggerall = var(16) >= 100 || var(16) < 100 && var(17) = 1
+trigger1 = time <= 2
+Trigger1 = !var(59)
+trigger1 = command = "z"
+time = 5
+add = 180,180,180
+
+[state a];ブーストゲージ減少
+type = varadd
+triggerall = var(16) >= 100 || var(16) < 100 && var(17) = 1
+triggerall = time <= 2
+Trigger1 = !var(59)
+trigger1 = command = "z"
+v = 16
+value = -40
+ignorehitpause = 1 
+persistent = 0
+
+;■■■■■■■■■■■■■■■■■■■■
+
+;------------------------無敵
+[State 2300, 0]
+type = NotHitBy
+trigger1 = 1
+value = SCA,NA,SA,HA,NP,SP,HP,NT,ST,HT
+time = 1
+
+;-------------------------特殊効果
+[State 2300, ex]
+type = AssertSpecial
+trigger1 = 1
+flag = TimerFreeze
+
+;-------------------------効果音
+[State 2300, 0]
+type = playsnd
+trigger1 = AnimElem = 2
+value = 2300,1;『南斗弧鷲拳奥義！』
+
+[State 2300, 1]
+type = playsnd
+trigger1 = AnimElem = 5
+value = 2300,6;[爆音]
+
+[State 2300,2]
+type = playsnd
+trigger1 = AnimElem =6,>=0
+trigger1 = MoveHit=1
+value = 2300,2;『南斗翔鷲屠脚！』
+
+[State 2300,3]
+type = playsnd
+trigger1 = AnimElem=13
+value = 40,0;[着地音]
+
+;----------------------------------究極奥義-暗転演出
+[State 2300, 0]
+type = SuperPause
+trigger1 = AnimElem = 3,=0
+time = 100
+anim = -1
+sound = S2300,0
+pos = 0,0
+movetime = 100
+darken = 0
+p2defmul = 1
+poweradd = 0
+unhittable = 1
+ignorehitpause = 1
+
+;-------------------------;カットイン演出
+[State 2300, Cut in]
+type = Explod
+trigger1 = AnimElem = 3,=0
+anim = 8000
+postype = Back
+pos = 55,250
+ownpal = 1
+scale = 0.5,0.5
+sprpriority = -3
+supermovetime =999;93
+removeongethit = 1
+bindtime = -1
+
+;------------------------[一撃背景-赤]
+[State 2300,haikei]
+type = Helper
+trigger1 = AnimElem = 3,=0
+persistent = 0
+id = 7800
+name = "ichigeki-haikei-aka"
+pos = 0,0
+postype = P1
+stateno = 7800
+helpertype = normal
+keyctrl = 0
+ownpal = 1
+
+;------------------------[一撃-赤]
+[State 2300, 5];丸オーラ
+type = Helper
+trigger1 = animelem = 3,=0
+helpertype = normal
+name = "maru-aura"
+ID = 7460
+stateno = 7460
+pos = 0,-45
+postype = p1    
+facing = 1
+keyctrl = 0
+ownpal = 1
+supermovetime = 99999
+pausemovetime = 99999
+size.xscale = 0.5
+size.yscale = 0.5
+
+
+;------------------------[ﾃｰﾚｯﾃｰ]
+[State 2300]
+type = Helper
+triggerall = NumHelper(14000) = 0
+trigger1 = movehit = 1
+trigger1 = animelem = 6,>=0
+helpertype = normal
+name = "hagan-bgm"
+ID = 14000
+stateno = 14000
+pos = 0,0
+postype = p1    
+facing = 1
+keyctrl = 0
+ownpal = 1
+supermovetime = 9999999999999999
+pausemovetime = 9999999999999999
+ignorehitpause = 1
+persistent = 0
+
+;------------------------[演出ヘルパー]
+[State 2300]
+Type = Helper
+Trigger1 = AnimElem=6
+ID = 2310
+Name = "keri"
+Sprpriority = 2
+Pos = 0,0
+PosType = p1
+StateNo = 2310
+HelperType = Normal
+KeyCtrl = 0 
+OwnPal = 1
+
+[State 2300]
+Type = Helper
+Trigger1 = AnimElem=6
+ID = 2315
+Name = "keri"
+Sprpriority = 2
+Pos = -16,0
+PosType = P1
+StateNo = 2315
+HelperType = Normal
+KeyCtrl = 0 
+OwnPal = 1
+
+;------------------------[ヒット定義]
+[State 2300, ヒット定義]
+Type = HitDef
+Trigger1 = AnimElem=4
+Attr = S, HA
+AnimType  = hard
+Damage = ceil(ifelse(2*fvar(5)*fvar(6)*fvar(7)*fvar(8)<5,0,2*fvar(5)*fvar(6)*fvar(7)*fvar(8))),0 
+Guardflag = M
+Hitflag = MAF 
+PauseTime = 17,17
+Guard.PauseTime = 14,14
+SparkNo = -1
+Guard.SparkNo = -1
+HitSound   = S200,4
+GuardSound = s6,3
+Ground.Type = High
+Ground.slideTime = 17
+Ground.HitTime  = 17
+Guard.slideTime = 19
+Guard.HitTime = 18
+Ground.velocity = 0,-7
+Air.velocity = 0,-7
+fall = 1
+fall.recover = 0
+getPower = 0
+Yaccel = 0.43
+kill = 0
+
+[State 2300, ヒット定義]
+Type = HitDef
+Trigger1 = AnimElem=6
+Attr = A, HA
+AnimType  = up
+Damage = 0,0
+Guardflag = M
+Hitflag = MAF 
+PauseTime = 20,20
+Guard.PauseTime = 18,18
+SparkNo = -1
+Guard.SparkNo = -1
+HitSound   = S200,0
+GuardSound = s6,3
+Ground.Type = High
+Ground.slideTime = 17
+Ground.HitTime  = 17
+Guard.slideTime = 19
+Guard.HitTime = 18
+Ground.velocity = -0.5,-11
+Air.velocity = -0.5,-11
+Guard.velocity = -11
+fall = 1
+fall.recover = 0
+getPower = 0
+Yaccel = 0.45
+kill = 0
+
+[State 2300];北斗・特大ヒットエフェクト・放射閃光 1段目
+type = Explod
+trigger1 = UniqHitCount = 1    
+anim = 6095+(random%3)
+pos = -8, -50
+Postype = p2
+facing = 1
+sprpriority = 5
+random = 35,35
+ownpal = 1
+ontop = 1
+pausemovetime = 9999999999
+supermovetime = 9999999999
+supermove = 1
+bindtime = 1
+scale = 0.5,0.5
+ignorehitpause = 1
+persistent = 0
+
+[State 2300];北斗・特大ヒットエフェクト・放射閃光 2段目
+type = Explod
+trigger1 = UniqHitCount = 2   
+anim = 6095+(random%3)
+pos = -8, -50
+Postype = p2
+facing = 1
+sprpriority = 5
+random = 35,35
+ownpal = 1
+ontop = 1
+pausemovetime = 9999999999
+supermovetime = 9999999999
+supermove = 1
+bindtime = 1
+scale = 0.5,0.5
+ignorehitpause = 1
+persistent = 0
+
+[State 2300];奥義ガードエフェクト
+type = Explod
+trigger1 = moveguarded = 1
+anim = 6025
+pos = -5, -25
+Postype = p2
+facing = -1
+sprpriority = 9
+random = 30,30
+ownpal = 1
+ontop = 1
+pausemovetime = 99999
+supermovetime = 99999
+supermove = 1
+bindtime = 1
+scale = 0.5,0.5
+
+;------------------------[相手管理]
+[State 2300]
+Type = TargetState
+Trigger1 = AnimElem=6,>=0
+Trigger1 = MoveHit=1
+value = 2350
+
+;------------------------[移動]
+[State 2300]
+Type = StateTypeSet
+Trigger1 = AnimElem=5
+value = A
+
+[State 2300]
+Type = velSet
+Trigger1 = AnimElem=6
+y = -1
+
+[State 2300]
+Type = velSet
+Trigger1 = AnimElem=7
+y = 0.5
+
+[State 2300]
+Type = velSet
+Trigger1 = AnimElem=13
+y = 0
+
+[State 2300]
+Type = StateTypeSet
+Trigger1 = AnimElem=13
+value = S
+
+[State 2300]
+Type = PosSet
+Trigger1 = AnimElem=13
+y = 0
+
+[State 2300]
+Type = PosAdd
+Trigger1 = AnimElem=3
+x = 10
+
+[State 2300]
+Type = PosAdd
+Trigger1 = AnimElem=4
+Trigger2 = AnimElem=5
+x = 16
+
+[State 2300]
+Type = PosAdd
+Trigger1 = AnimElem=6
+x = -36
+
+;------------------------[]
+[State 2300];萃香1
+Type = Helper
+TriggerAll=NumEnemy>0
+Trigger1 = Enemy,StateNo=2351
+ID = 2320
+Name = "suika"
+Sprpriority = 2
+Pos = -300,-240
+PosType = P2
+StateNo = 2320
+HelperType = Normal
+PauseMoveTime = 0
+KeyCtrl = 0 
+OwnPal = 1
+persistent = 0
+
+[State 2300];萃香2
+Type = Helper
+TriggerAll=NumEnemy>0
+Trigger1 = Enemy,StateNo=2351
+ID = 2321
+Name = "suika"
+Sprpriority = 2
+Pos = 300,-240
+PosType = P2
+StateNo = 2320
+HelperType = Normal
+PauseMoveTime = 0
+KeyCtrl = 0
+OwnPal = 1
+facing = -1
+persistent = 0
+
+;------------------------[ﾃｰﾚｯﾃｰ]
+[State 2300];☆
+type = varset
+trigger1 = animelem = 6,>=0
+trigger1 = movehit
+var(32) = 1
+
+[State 2300];演出
+type = varset
+trigger1 = animelem = 6,>=0
+trigger1 = movehit 
+var(33) = 1
+
+;------------------------[]
+[State 2300]
+Type = ChangeState
+TriggerAll=NumEnemy>0
+Trigger1 = AnimElem=10
+Trigger1 = Enemy,StateNo=[2350,2352]
+Trigger1 = Enemy,MoveType=H
+value = 2301
+
+[State 2300]
+Type = ChangeState
+Trigger1 = !AnimTime
+value = 0
+Ctrl = 1
+
+;★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+;南斗翔鷲屠脚-相手まで移動
+[Statedef 2301]
+type     = S                     
+movetype = A                     
+physics  = N               
+ctrl     = 0                     
+anim     = 2301                  
+sprpriority = 2     
+velset = 0,0
+
+;------------------------;地面に立たせる
+[State 2301, -1]
+type = PosSet
+trigger1 = !time 
+y = 0
+
+;------------------------;無敵
+[State meteking, 0]
+type = NotHitBy
+trigger1 = 1
+value = SCA,NA,SA,HA,NP,SP,HP,NT,ST,HT
+time = 1
+
+;-------------------------特殊効果
+[State 2301, ex]
+type = AssertSpecial
+trigger1 = 1
+flag = TimerFreeze
+
+;------------------------[演出ヘルパー]
+[State 2301];飛んでくる萃香1
+Type = Helper
+Trigger1 = !NumHelper(2320)
+ID = 2320
+Name = "suika"
+Sprpriority = 1
+Pos = -415,-240
+PosType = P2
+StateNo = 2320
+HelperType = Normal
+PauseMoveTime = 0
+KeyCtrl = 0 
+OwnPal = 1
+persistent = 0
+
+[State 2301];飛んでくる萃香2
+Type = Helper
+Trigger1 = !NumHelper(2321)
+ID = 2321
+Name = "suika"
+Sprpriority = 1
+Pos = 415,-240
+PosType = P2
+StateNo = 2320
+HelperType = Normal
+PauseMoveTime = 0
+KeyCtrl = 0
+OwnPal = 1
+facing = -1
+persistent = 0
+
+;------------------------[]
+[State 2301];萃香1
+Type = Helper
+Trigger1 = AnimElem=1
+ID = 2324
+Name = "suika"
+Sprpriority = -1
+Pos = 0,-80
+PosType = back
+StateNo = 2323
+HelperType = Normal
+PauseMoveTime = 0
+KeyCtrl = 0 
+OwnPal = 1
+persistent = 0
+
+[State 2301];萃香2
+Type = Helper
+Trigger1 = AnimElem=1
+ID = 2325
+Name = "suika"
+Sprpriority = -2
+Pos = 0,-80
+PosType = back
+StateNo = 2323
+HelperType = Normal
+PauseMoveTime = 0
+KeyCtrl = 0 
+OwnPal = 1
+persistent = 0
+
+[State 2301];萃香3
+Type = Helper
+Trigger1 = AnimElem=1
+ID = 2326
+Name = "suika"
+Sprpriority = -3
+Pos = 0,-80
+PosType = back
+StateNo = 2323
+HelperType = Normal
+PauseMoveTime = 0
+KeyCtrl = 0 
+OwnPal = 1
+persistent = 0
+
+[State 2301];萃香4
+Type = Helper
+Trigger1 = AnimElem=1
+ID = 2324
+Name = "suika"
+Sprpriority = -1
+Pos = 0,-80
+PosType = flont
+StateNo = 2323
+HelperType = Normal
+PauseMoveTime = 0
+KeyCtrl = 0 
+facing = -1
+OwnPal = 1
+persistent = 0
+
+[State 2301];萃香5
+Type = Helper
+Trigger1 = AnimElem=1
+ID = 2325
+Name = "suika"
+Sprpriority = -2
+Pos = 0,-80
+PosType = flont
+StateNo = 2323
+HelperType = Normal
+PauseMoveTime = 0
+KeyCtrl = 0 
+facing = -1
+OwnPal = 1
+persistent = 0
+
+[State 2301];萃香6
+Type = Helper
+Trigger1 = AnimElem=1
+ID = 2326
+Name = "suika"
+Sprpriority = -3
+Pos = 0,-80
+PosType = flont
+StateNo = 2323
+HelperType = Normal
+PauseMoveTime = 0
+KeyCtrl = 0 
+facing = -1
+OwnPal = 1
+persistent = 0
+
+;------------------------[移動]
+[State 2301]
+Type = velSet
+Trigger1 = AnimElem=7
+x = 2
+
+;------------------------[]
+[State 2301]
+Type = ChangeState
+Trigger1 = AnimElem=6,>=0
+Trigger1 = P2Dist x<52
+value = 2302
+
+;★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+;南斗翔鷲屠脚-攻撃
+[Statedef 2302]
+type     = S                     
+movetype = A                     
+physics  = N               
+ctrl     = 0                     
+anim     = 2302                  
+sprpriority = 2     
+velset = 0,0
+
+;------------------------;無敵
+[State meteking, 0]
+type = NotHitBy
+trigger1 = 1
+value = SCA,NA,SA,HA,NP,SP,HP,NT,ST,HT
+time = 1
+
+;------------------------特殊効果
+[State 2302, ex]
+type = AssertSpecial
+trigger1 = 1
+flag = TimerFreeze
+
+;------------------------[効果音]
+[State 2300, 0]
+type = playsnd
+trigger1 = AnimElem = 7
+value = 2300,3;『何本目に死ぬかな？』
+
+[State 2300, 0]
+type = playsnd
+trigger1 = AnimElem = 27
+value = 2300,4;『死ねえ！』
+
+[State 2300, 0];刺す
+type = playsnd
+trigger1 = AnimElem = 6
+trigger2 = AnimElem = 14
+trigger3 = AnimElem = 22
+trigger4 = AnimElem = 27
+value = 2300,7
+
+;------------------------[ｴﾌｪｸﾄ]
+[State 2302];出血エフェクト1
+Type = Explod
+Trigger1 = AnimElem=6
+Trigger2 = AnimElem=14
+Trigger3 = AnimElem=22
+Anim = 1513
+ID = 1513
+Sprpriority = 5
+PosType = P1
+Pos = 55,-58
+BindTime = 1
+SuperMove = 0
+IgNoreHitPause = 0
+under = 0
+Scale = 0.5,0.5
+
+[State 2302];出血エフェクト2
+Type = Explod
+Trigger1 = AnimElem=27
+Anim = 2330
+ID = 2330
+Sprpriority = 5
+PosType = P1
+Pos = 0,35
+BindTime = 1
+SuperMove = 0
+IgNoreHitPause = 0
+ReMoveTime = 80
+under = 0
+Scale = 0.5,0.5
+
+[State 2302];
+Type = Explod
+Trigger1 = AnimElem=6
+Trigger2 = AnimElem=14
+Trigger3 = AnimElem=22
+Anim = 2350
+ID = 2350
+Sprpriority = -1
+PosType = P1
+Pos = 55,-128
+BindTime = 1
+SuperMove = 0
+IgNoreHitPause = 0
+under = 0
+Scale = 0.5,0.5
+
+[State 2302];出血エフェクト3
+type = Explod
+trigger1 = AnimElem=28
+anim = 6098
+ID = 6098
+pos = -2,-40
+postype = p2  ;p2,front,back,left,right
+facing = -1
+vfacing = 1
+bindtime = -1
+removetime = -2
+supermovetime = 9999
+pausemovetime = 9999
+scale = 0.5,0.5
+sprpriority = 5
+ontop = 1
+ownpal = 1
+removeongethit = 0
+ignorehitpause = 1
+persistent = 0
+
+[State 2302];血溜り
+Type = Helper
+Trigger1 = AnimElem=28
+ID = 2335
+Name = "chidamari"
+Sprpriority = 6
+Pos = 0,60
+PosType = P2
+StateNo = 2335
+HelperType = Normal
+PauseMoveTime = 0
+KeyCtrl = 0 
+OwnPal = 1
+persistent = 0
+
+[State 2320];ブラッディクロス
+Type = Helper
+TriggerAll=!NumHelper(2340)
+Trigger1 = AnimElem=28
+ID = 2340
+Name = "burakuro"
+Sprpriority = 2
+Pos = 160,0
+PosType = left
+StateNo = 2340
+HelperType = Normal
+PauseMoveTime = 0
+KeyCtrl = 0 
+OwnPal = 1
+persistent = 0
+
+[state 3500]
+type = helper
+trigger1 = WinKO
+id = 8900
+stateno=8900
+name="fatal_ko"
+pos = 0,0
+potype = p1
+ownpal = 1
+ignorehitpause = 1 ;硬直無視
+persistent = 0
+
+[State 2000,haikei]
+type = Helper
+trigger1 = winko
+id = 7850
+name = "haikei-tokushu"
+pos = 0,0
+postype = left
+stateno = 7850
+helpertype = normal
+keyctrl = 0
+ownpal = 1
+supermovetime = 999999
+pausemovetime = 999999
+size.xscale = .5
+size.yscale = .5
+ignorehitpause = 1 ;硬直無視
+persistent = 0
+
+;------------------------[相手管理]
+[State 2302]
+Type = TargetState
+Trigger1 = AnimElem=6
+Trigger2 = AnimElem=14
+Trigger3 = AnimElem=22
+value = 2353
+
+[State 2302]
+Type = TargetState
+Trigger1 = AnimElem=27
+value = 2354
+
+[State 2302]
+Type = TargetState
+Trigger1 = AnimElem=28
+value = 2355
+
+[State 2302]
+Type = TargetlifeAdd
+Trigger1 = AnimElem=28,>0
+value = -99999999
+kill = 1
+ignorehitpause = 1
+absolute = 1
+
+;------------------------[]
+[State 2302]
+Type = ChangeState
+TriggerAll=winko
+Trigger1=NumHelper(7850)=0
+value = 2303
+
+[State 2302]
+Type = ChangeState
+TriggerAll=RoundState=2
+Trigger1=time=400
+value = 2303
+
+;★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+;南斗翔鷲屠脚-待ち時間コントロール
+[Statedef 2303]
+type     = S                     
+movetype = I                     
+physics  = N               
+ctrl     = 0                     
+;anim     = 2303                  
+sprpriority = 2     
+velset = 0,0
+
+;------------------------[勝利ステート]
+[State 2303]
+type = ctrlset
+trigger1 = time = 0
+value = 1
+ 
+;------------------------[まだ戦闘中(一応)]
+[State 2302]
+Type = ChangeState
+TriggerAll=RoundState=2
+Trigger1=time>0
+value = 0
+ctrl = 1
+
+;★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+;南斗翔鷲屠脚-相手管理(蹴り上げ)
+[Statedef 2350]
+type     = A                     
+movetype = H                     
+physics  = N               
+ctrl     = 0                     
+;anim     = 2350                  
+sprpriority = 3     
+velset = -0.5,-11
+
+;------------------------[無敵]
+[State 2350]
+Type = NotHitBy
+Trigger1 = 1
+value = SCA
+
+;------------------------[カメラ固定]
+[State 2350]
+Type = screenbound
+Trigger1 = 1
+value = 1
+Movecamera = 1
+
+;------------------------[チェンジアニメ]
+[State 2350]
+Type = ChangeAnim
+Trigger1 = Time=20
+Trigger1 = AnimExist(5060) = 1
+value = 5060
+
+[State 2350]
+Type = ChangeAnim
+Trigger1 = Time=20
+Trigger1 = AnimExist(5061) = 1
+value = 5061
+
+;------------------------[速度]
+[State 2350]
+Type = VelAdd
+Trigger1 = 1
+y = .5
+
+;------------------------[]
+[State 2350] 
+Type = ChangeState
+TriggerAll=Vel Y>0
+Trigger1 = Pos Y>=0
+value = 2351
+
+;★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+;南斗翔鷲屠脚-相手管理(地面)
+[Statedef 2351]
+type     = A                     
+movetype = H                     
+physics  = N               
+ctrl     = 0                     
+anim     = 5100                  
+sprpriority = 3     
+velset = 0,0
+
+;------------------------[無敵]
+[State 2351]
+Type = NotHitBy
+Trigger1 = 1
+value = SCA
+
+;------------------------[カメラ固定]
+[State 2351]
+Type = screenbound
+Trigger1 = 1
+value = 1
+Movecamera = 1
+
+;------------------------[相手にこのアニメがあるか]
+[State 2351]
+Type = ChangeAnim
+Trigger1 = Time=20
+Trigger1 = AnimExist(5060) = 1
+value = 5060
+
+[State 2351]
+Type = ChangeAnim
+Trigger1 = Time=20
+Trigger1 = AnimExist(5061) = 1
+value = 5061
+
+[State 2351]
+Type = GameMakeAnim
+Trigger1 = Time=1
+value = 60+ (sysvar(1)>5)+ (sysvar(1)>14)
+Pos = 0,0
+under = sysvar(1)<=14
+
+;------------------------[]
+[State 2351]
+Type = ChangeState
+Trigger1 = Time=35
+value = 2352
+
+[State 2351] 
+Type = SelfState
+Trigger1 = Time=600
+value = 5100
+
+;★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+;南斗翔鷲屠脚-相手管理(掴み)
+[Statedef 2352]
+type     = A                     
+movetype = H                     
+physics  = N               
+ctrl     = 0                                       
+sprpriority = 3   
+velset = 0,0
+
+;------------------------[振り返り/位置固定]
+[State 2352]
+Type = turn
+Trigger1 = !Time
+Trigger1 = P2Dist x<0
+
+[State 2352]
+Type = PosAdd
+Trigger1 = AnimElem=2
+y = -50
+
+;------------------------[無敵]
+[State 2352]
+Type = NotHitBy
+Trigger1 = 1
+value = SCA
+
+;------------------------[カメラ固定]
+[State 2352]
+Type = screenbound
+Trigger1 = 1
+value = 1
+Movecamera = 1
+
+;------------------------[]
+[State 2352]
+Type = ChangeAnim2
+Trigger1 = !Time
+value = 2352
+
+;★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+;南斗翔鷲屠脚-相手管理(突かれ)
+[Statedef 2353]
+type     = A                     
+movetype = H                     
+physics  = N               
+ctrl     = 0                                       
+sprpriority = 3    
+velset = 0,0
+
+;------------------------[無敵]
+[State 2353]
+Type = NotHitBy
+Trigger1 = 1
+value = SCA
+
+;------------------------[カメラ固定]
+[State 2353]
+Type = screenbound
+Trigger1 = 1
+value = 1
+Movecamera = 1
+
+;------------------------[]
+[State 2353]
+Type = ChangeAnim2
+Trigger1 = !Time
+value = 2353
+
+;★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+;南斗翔鷲屠脚-相手管理(最後の突かれ)
+[Statedef 2354]
+type     = A                     
+movetype = H                     
+physics  = N               
+ctrl     = 0                                       
+sprpriority = 3    
+velset = 0,0
+
+;------------------------[アニメ]
+[State 2354]
+Type = ChangeAnim2
+Trigger1 = !Time
+value = 2354
+
+;------------------------[無敵]
+[State 2354]
+Type = NotHitBy
+Trigger1 = 1
+value = SCA
+
+;------------------------[カメラ固定]
+[State 2354]
+Type = screenbound
+Trigger1 = 1
+value = 1
+Movecamera = 1
+
+;★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+;南斗翔鷲屠脚-相手管理(落下)
+[Statedef 2355]
+type     = A                     
+movetype = H                     
+physics  = N               
+ctrl     = 0                                       
+sprpriority = 3    
+velset = 0,0
+
+;------------------------[置く]
+[State 2355]
+Type = PosSet
+Trigger1 = !Time
+y = 0
+
+;------------------------[無敵]
+[State 2355]
+Type = NotHitBy
+Trigger1 = 1
+value = SCA
+
+;------------------------[カメラ固定]
+[State 2355]
+Type = screenbound
+Trigger1 = 1
+value = 1
+Movecamera = 1
+
+;------------------------[]
+[State 2355]
+Type = ChangeAnim2
+Trigger1 = !Time
+value = 2355
+
+[State 2355]
+Type = ChangeState
+Trigger1 = !AnimTime
+value = 2356
+
+;★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+;南斗翔鷲屠脚-相手管理(ダウン)
+[Statedef 2356]
+type     = A                     
+movetype = H                     
+physics  = N               
+ctrl     = 0                                       
+anim     = 5100
+sprpriority = 5  
+velset = 0,0
+
+;------------------------[置く]
+[State 2356]
+Type = PosSet
+Trigger1 = !Time
+y = 0
+
+;------------------------[無敵]
+[State 2356]
+Type = NotHitBy
+Trigger1 = 1
+value = SCA
+
+;------------------------[カメラ固定]
+[State 2356]
+Type = screenbound
+Trigger1 = 1
+value = 1
+Movecamera = 1
+
+;------------------------[ダウンボイス]
+[State 2356]
+Type = PlaySnd
+Trigger1 = Time=1
+value = F7,(sysvar(1)>5)+ (sysvar(1)>14)
+
+;------------------------[相手にそのアニメがあるか]
+[State 2356]
+Type = ChangeAnim
+Trigger1 = !Time
+Trigger1 = AnimExist(5101) = 1
+value = 5101
+
+;------------------------[振り向き]
+[State 2356]
+Type = turn
+Trigger1 = !Time
+Trigger1 = Anim = 5100
+
+;------------------------[アニメ]
+[State 2356]
+Type = GameMakeAnim
+Trigger1 = Time=1
+value = 60+ (sysvar(1)>5)+ (sysvar(1)>14)
+Pos = 0,0
+under = sysvar(1)<=14
+
+;------------------------[]
+[State 2356] 
+Type = ChangeState
+Trigger1 = Time=20
+Trigger2 = !AnimTime
+value = 5150
+
+;★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+;無想転生-発動
+[Statedef 2400]
+Type     = S                     
+MoveType = I                     
+phySics  = S                     
+Ctrl     = 0                     
+Anim     = 2400                  
+SprPriority = 2     
+velset   = 0,0
+
+;■■■■■■■■■■■■■■■■■■■■[ブースト関係]
+
+[state boost];同時押しか、ずらしのみにしとく(仮に)
+Type = velAdd
+TriggerAll=var(16)>99||var(16)<100&&var(17)=1
+Trigger1 = Time<3
+Trigger1 = !var(59)
+Trigger1 = command = "z" 
+x = 14
+
+[State Pal, 1];本体色
+Type = PalFX
+TriggerAll=var(16)>99||var(16)<100&&var(17)=1
+Trigger1 = Time<3
+Trigger1 = !var(59)
+Trigger1 = command = "z"
+time = 5
+Add = 180,180,180
+
+[state a];ブーストゲージ減少
+Type = varAdd
+TriggerAll=var(16)>99||var(16)<100&&var(17)=1
+Trigger1 = Time<3
+Trigger1 = !var(59)
+Trigger1 = command = "z"
+v = 16
+value = -40
+ignoreHitPause = 1 
+persistent = 0
+
+;■■■■■■■■■■■■■■■■■■■■
+
+;-------------------------[発動フラグ]
+[state 2400]
+type = varset
+trigger1 = !time
+v = 58
+value = 1
+
+;--------------------------[回数確認]
+[State 2400]
+Type = varset
+Trigger1 = !time
+v = 37
+value = 6;ここが無想転生の使用回数です。好きな数字にしてください。(デフォ:6)
+;-------------------------[効果音]
+[State 2400]
+type = playsnd
+trigger1 = time = 2
+value = 183,0;
+
+;-------------------------[究極奥義-暗転演出]
+[State 2400, 0]
+Type = SuperPause
+Trigger1 = Time=2
+Time=102
+Anim = -1
+Sound = -1
+Pos = 5,-60
+MoveTime=102
+darken = 0
+p2defmul = 1
+PowerAdd = 0
+unHittable = 1
+igNoreHitPause = 1
+
+:-------------------------[無敵]
+[State meteking, 0]
+Type = NotHitBy
+Trigger1 = 1
+value = SCA
+Time=1
+
+;--------------------------[奥義エフェクトヘルパー呼び出し]
+[State 2000, 0]
+type = Helper
+trigger1 = time = 2
+helpertype = normal
+name = "ougi-1"
+ID = 2050
+stateno = 2050
+pos = 0,0
+postype = p1    ;p2,front,back,left,right
+facing = 1
+keyctrl = 0
+ownpal = 1
+supermovetime = 99999
+pausemovetime = 99999
+size.xscale = 0.5
+size.yscale = 0.5
+
+[State 2000,haikei]
+type = Helper
+trigger1 = time = 2
+persistent = 0
+id = 7500
+name = "haikei"
+pos = 0,0
+postype = P1
+stateno = 7500
+helpertype = normal
+keyctrl = 0
+ownpal = 1
+ignorehitpause = 1 ;硬直無視
+persistent = 0 ;このステートで一度のみ発動
+
+;--------------------------[本体エフェクト]
+[State 2400, 0];(右・1)
+Type = Explod
+Trigger1 = Time=2
+Anim = 2410
+ID = 2410
+Pos = 20,0
+PosType = p1
+BindTime=1
+vel = -0.3,0
+RemoveTime=-2
+SuperMoveTime=999999999
+PauseMoveTime=999999999
+Scale = 1.0,1.0
+SprPriority = 5
+ontop = 0
+Ownpal = 1
+RemoveonGetHit = 1
+
+[State 2400, 0];(左・1)
+Type = Explod
+Trigger1 = Time=2
+Anim = 2410
+ID = 2410
+Pos = -20,0
+PosType = p1  ;p2,front,back,left,right
+BindTime=1
+vel = 0.3,0
+RemoveTime=-2
+SuperMoveTime=999999999
+PauseMoveTime=999999999
+Scale = 1.0,1.0
+SprPriority = 5
+ontop = 0
+Ownpal = 1
+RemoveonGetHit = 1
+
+[State 2400, 0];(右・2)
+Type = Explod
+Trigger1 = Time=2
+Anim = 2410
+ID = 2410
+Pos = 40,0
+PosType = p1
+BindTime=1
+vel = -0.6,0
+RemoveTime=-2
+SuperMoveTime=999999999
+PauseMoveTime=999999999
+Scale = 1.0,1.0
+SprPriority = 5
+ontop = 0
+Ownpal = 1
+RemoveonGetHit = 1
+
+[State 2400, 0];(左・2)
+Type = Explod
+Trigger1 = Time=2
+Anim = 2410
+ID = 2410
+Pos = -40,0
+PosType = p1
+BindTime=1
+vel = 0.6,0
+RemoveTime=-2
+SuperMoveTime=999999999
+PauseMoveTime=999999999
+Scale = 1.0,1.0
+SprPriority = 5
+ontop = 0
+Ownpal = 1
+RemoveonGetHit = 1
+
+[State 2400, 0];(右・3)
+Type = Explod
+Trigger1 = Time=2
+Anim = 2410
+ID = 2410
+Pos = 60,0
+PosType = p1
+BindTime=1
+vel = -0.9,0
+RemoveTime=-2
+SuperMoveTime=999999999
+PauseMoveTime=999999999
+Scale = 1.0,1.0
+SprPriority = 5
+ontop = 0
+Ownpal = 1
+RemoveonGetHit = 1
+
+[State 2400, 0];(左・3)
+Type = Explod
+Trigger1 = Time=2
+Anim = 2410
+ID = 2410
+Pos = -60,0
+PosType = p1
+BindTime=1
+vel = 0.9,0
+RemoveTime=-2
+SuperMoveTime=999999999
+PauseMoveTime=999999999
+Scale = 1.0,1.0
+SprPriority = 5
+ontop = 0
+Ownpal = 1
+RemoveonGetHit = 1
+
+[State 2400,end]
+Type = ChangeState
+Trigger1 = AnimTime=0
+value = 0
+Ctrl = 1
+
+;★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+;無想転生当身(立ち・しゃがみ)
+[Statedef 2600]
+Type     = S
+MoveType = I
+phySics  = S
+Anim     = 2600
+Ctrl     = 0
+velset   = 0,0
+SprPriority = 5
+
+;-------------------[回数カウント]
+[state 2600]
+type = varadd
+trigger1 = !Time
+v = 37
+value = -1
+;-------------------[サウンド]
+[State 2600];
+Type = PlaySnd
+Trigger1 = !Time
+value = 2600,0
+volume = 255
+channel = -1
+
+[State a, 0];
+Type = PlaySnd
+Trigger1 = !Time
+Trigger1 = Random%7<1
+value = 310,0
+volume = 255
+channel = 0
+lowPriority = 1
+
+[State a, 0];
+Type = PlaySnd
+Trigger1 = !Time
+Trigger1 = Random<200
+value = 850,Random%2
+volume = 255
+channel = 0
+lowPriority = 1
+
+[State a, 0];
+Type = PlaySnd
+Trigger1 = !Time
+Trigger1 = Random<250
+value = 181,3
+volume = 255
+channel = 0
+lowPriority = 1
+
+[State a, 0];
+Type = PlaySnd
+Trigger1 = !Time
+Trigger1 = Random<333
+value = 290,0
+volume = 255
+channel = 0
+lowPriority = 1
+
+[State -2,PlaySnd]
+Type = PlaySnd
+Trigger1 = !Time
+value = 650,0
+channel = 0
+lowPriority = 1
+
+;-------------------[無敵]
+[State 2600]
+Type = NotHitBy
+Trigger1 = 1
+value = SCA
+
+;-------------------[押し合い判定]
+[State 2600]
+Type = PlayerPush
+Trigger1 = !Time
+value = 0
+igNoreHitPause = 1
+
+;-------------------[時間停止]
+[State 2600]
+Type = SuperPause
+Trigger1 = !Time
+Time=55
+Anim = -1
+Sound = -1
+MoveTime=55
+darken = 1
+unHittable = 0
+igNoreHitPause = 1
+
+;-------------------[移動]
+[State 2600]
+Type = PosAdd
+Trigger1 = FrontEdgeDist>15
+Trigger1 = p2dist x>-35
+Trigger1 = Time<35
+x = 4.5
+igNoreHitPause = 1
+
+;-------------------[アニメ変更]
+[State 2600]
+Type = ChangeAnim
+Trigger1 = FrontEdgeDist > 0
+Trigger1 = P2Dist X<0
+value = 2601
+elem = 1
+
+;-------------------[振り向き]
+[State 2400]
+Type = Turn
+TriggerAll=P2Dist X<0
+Trigger1 = Time=50
+
+;-------------------[残像]
+[State 2600]
+Type = AfterImage
+Trigger1 = !Time
+Time=30
+trans = Add
+Timegap = 1
+framegap = 6
+length = 24
+palbright = 0,0,0
+palcontrast = 250,0,150
+palPostbright = 0,0,0
+palAdd = 0,0,0
+palmul = 0.7,0.7,0.8
+igNoreHitPause = 1
+
+;--------------------
+[State 2600]
+Type = ChangeState
+Trigger1 = Time=50
+value = 0
+Ctrl = 1
+
+;★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+;鳳凰呼闘塊天
+[Statedef 2500]
+type     = S                     
+movetype = I                     
+physics  = S                     
+ctrl     = 0                     
+anim     = 2500                  
+sprpriority = 2  
+velset = 0,0
+
+;---------------------------------[パワーの増減]
+[State 2500, 0]
+type = PowerAdd
+trigger1 = AnimElem = 1,=0
+value = -1000
+
+;■■■■■■■■■■■■■■■■■■■■[ブースト関係]
+
+[state boost]
+type = veladd
+triggerall = var(16) >= 100 || var(16) < 100 && var(17) = 1
+trigger1 = time <= 2
+Trigger1 = !var(59)
+trigger1 = command = "z" 
+x = 14
+
+[State Pal, 1];本体色
+type = PalFX
+triggerall = var(16) >= 100 || var(16) < 100 && var(17) = 1
+trigger1 = time <= 2
+Trigger1 = !var(59)
+trigger1 = command = "z"
+time = 5
+add = 180,180,180
+
+[state a];ブーストゲージ減少
+type = varadd
+triggerall = var(16) >= 100 || var(16) < 100 && var(17) = 1
+trigger1 = time <= 2
+Trigger1 = !var(59)
+trigger1 = command = "z"
+v = 16
+value = -40
+ignorehitpause = 1 
+persistent = 0
+
+;■■■■■■■■■■■■■■■■■■■■
+
+;■■■■■■■■■■■■■■■■■■■■■■■■■■
+;------------------------初期化
+
+;------------------------タイマーリセット+ExplodNo6205+1pゲージ枠が消える。
+[State a, 0]
+type = VarSet 
+trigger1 = AnimElem=1,=0
+var(11) = 0
+ignorehitpause = 1
+
+[State a, 0]
+type = VarSet 
+trigger1 = AnimElem=1,=0
+var(12) = 47
+ignorehitpause = 1
+
+;------------------------タイマーセット
+[State a, 0]
+type = VarSet 
+trigger1 = AnimElem = 6,=0 
+v = 11
+value = 10000
+ignorehitpause = 1
+
+[State a, 0]
+type = VarSet 
+trigger1 = AnimElem = 6,=0 
+v = 12
+value = 100
+ignorehitpause = 1
+
+;■■■■■■■■■■■■■■■■■■■■■■■■■■
+
+;-------------------------効果音
+[State a, 0]
+type = PlaySnd
+trigger1 = AnimElem = 1,=0 
+value = S180,1 ;「」
+volume = 255
+channel = -1
+
+[State a, 0]
+type = PlaySnd
+trigger1 = AnimElem = 6,=0
+value = S2200,6 ;
+volume = 255
+channel = -1
+
+;----------------------------------究極奥義-暗転演出
+[State 2500]
+Type = SuperPause
+Trigger1 = !Time
+Time = 70
+Anim = -1
+Sound = -1
+Pos = 5,-60
+MoveTime = 70
+darken = 0
+P2defmul = 0
+Poweradd = 0
+unHittable = 1
+IgNoreHitPause = 1
+
+;--------------------------[背景の色変化]
+[State 2300,haikei]
+type = Helper
+trigger1 = animelem = 1,=0
+persistent = 0
+id = 7500
+name = "haikei"
+pos = 0,0
+postype = P1
+stateno = 7500
+helpertype = normal
+keyctrl = 0
+ownpal = 1
+ignorehitpause = 1 ;硬直無視
+persistent = 0 ;このステートで一度のみ発動
+
+[State meteking, 0];無敵
+type = NotHitBy
+trigger1 = 1;AnimElem = 1,=0
+value = SCA;,NA,SA,HA,NP,SP,HP,NT,ST,HT
+time = 1
+
+;--------------------------[奥義エフェクトヘルパー呼び出し]
+[State 2000, 0]
+type = Helper
+trigger1 = AnimElem = 1,=0
+helpertype = normal
+name = "ougi-1"
+ID = 2050
+stateno = 2050
+pos = 2,-87
+postype = p1    ;p2,front,back,left,right
+facing = 1
+keyctrl = 0
+ownpal = 1
+supermovetime = 99999
+pausemovetime = 99999
+size.xscale = 0.5
+size.yscale = 0.5
+
+;---------------------------エフェクトヘルパー
+[State 2500, a];オーラエフェクト１
+type = Helper
+trigger1 = AnimElem = 5
+id = 6215
+name = "o-ra"
+sprpriority = 3
+pos = 0,0
+postype = p1
+stateno = 6215
+helpertype = normal
+supermovetime = 70
+pausemovetime = 0
+keyctrl = 0 
+ownpal = 1
+
+[State 2500, a];オーラエフェクト２
+type = Helper
+trigger1 = AnimElem = 6
+id = 6216
+name = "o-ra"
+sprpriority = 2
+pos = -50,0
+postype = p1
+stateno = 6216
+helpertype = normal
+supermovetime = 70
+pausemovetime = 0
+keyctrl = 0 
+ownpal = 1
+
+[State 2500, a];オーラエフェクト２
+type = Helper
+trigger1 = AnimElem = 6
+id = 6217
+name = "o-ra"
+sprpriority = 2
+pos = 50,0
+postype = p1
+stateno = 6216
+helpertype = normal
+supermovetime = 70
+pausemovetime = 0
+keyctrl = 0 
+ownpal = 1
+
+[State 2500, a];オーラエフェクト３
+type = Helper
+trigger1 = AnimElemTime(7) = 2
+id = 6219
+name = "o-ra"
+sprpriority = 2
+pos = -44/2,-48
+postype = p1
+stateno = 6217
+helpertype = normal
+supermovetime = 70
+pausemovetime = 0
+keyctrl = 0 
+ownpal = 1
+
+[State 2500, a];オーラエフェクト３
+type = Helper
+trigger1 = AnimElem = 7
+id = 6219
+name = "o-ra"
+sprpriority = 2
+pos = -10/2,-64
+postype = p1
+stateno = 6217
+helpertype = normal
+supermovetime = 70
+pausemovetime = 0
+keyctrl = 0 
+ownpal = 1
+
+[State 2500, a];オーラエフェクト３
+type = Helper
+trigger1 = AnimElemTime(7) = 4
+id = 6219
+name = "o-ra"
+sprpriority = 2
+pos = 34/2,-56
+postype = p1
+stateno = 6217
+helpertype = normal
+supermovetime = 70
+pausemovetime = 0
+keyctrl = 0 
+ownpal = 1
+
+;---------------------------
+[State 2500,0]
+type = ChangeState
+trigger1 = AnimTime = 0 
+value = 0
+ctrl = 1
+
+;★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+;リザレクション(開始)
+[Statedef 8700]
+type     = L                    
+movetype = I                     
+physics  = N                     
+ctrl     = 0                     
+anim     = 8700                  
+sprpriority = 2     
+
+[State 8700]
+type = posset
+trigger1 = time = 0
+y = 0;強制的に地面に戻す。
+
+[State 8700]
+type = Turn
+triggerall = p2dist X <= 0;もしも相手が裏周り攻撃していたら
+trigger1 = time = 0
+
+[State 8700, -1]
+type = NotHitBy
+trigger1 = 1
+value = SCA
+time = 60
+
+[State 8700, -1]
+type = VelSet
+trigger1 = 1
+x = 0
+y = 0
+
+[State 8700, 1]
+type = PlaySnd
+trigger1 = Animelem = 3
+value = S21,0;[俺様を見下すことは許さん！]
+channel = 9
+
+[State 8700, 2]
+type = Helper
+trigger1 = Animelem = 3
+helpertype = normal
+name = "kenoh-aura"
+ID = 8500
+stateno = 8500
+pos = 0,0
+postype = p1
+facing = 1
+keyctrl = 0
+ownpal = 1
+ignorehitpause = 1
+
+[State 8700, 3]
+type = Helper
+trigger1 = !NumHelper(12000)
+helpertype = normal
+name = "Damage"
+ID = 12000
+stateno = 12000
+pos = 0,0
+postype = p1
+facing = 1
+keyctrl = 0
+ownpal = 1
+ignorehitpause = 1
+pausemovetime = 99999
+supermovetime = 99999
+
+[State 8700, 4]
+type = ChangeState
+trigger1 = Animtime = 0
+value = 8800
+
+;★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+;リザレクション(実行)
+[Statedef 8800]
+type     = L                    
+movetype = I                     
+physics  = N                     
+ctrl     = 0                     
+anim     = 8800                  
+sprpriority = 3     
+velset = 0,0
+
+[State 8800, -1]
+type = NotHitBy
+trigger1 = 1
+value = SCA
+time = 60
+
+[State 8800, -1]
+type = VelSet
+trigger1 = 1
+x = 0
+y = 0
+
+[State -2, pal]
+Type = PalFX
+Trigger1 = 1
+Time = 1
+add = 200+ceil(cos(gameTime/12.0)*25),10+ceil(cos(gameTime/12.0)*25),200+ceil(cos(gameTime/12.0)*25) 
+mul= 256,256,256
+invertall = 0
+color = 256
+IgNoreHitPause = 1
+
+[State 8800, 1]
+type = PlaySnd
+trigger1 = Animelemtime(4) = 0
+value = S197,1;[祈るがいい･･･]
+channel = 9
+
+[State 8800, 1]
+type = PlaySnd
+trigger1 = Animelemtime(4) = 70
+value = S183,0;[貴様と俺には決定的な違いがある･･･それは欲望･･･執念だ！]
+channel = 9
+
+[State 8800, 1]
+type = PlaySnd
+trigger1 = Animelemtime(6) = 0
+value = S197,0;[よかろう･･･殺してやる･･･！]
+channel = 9
+
+[State 8800, 2]
+type = Helper
+trigger1 = !NumHelper(8500)
+helpertype = normal
+name = "kenoh-aura"
+ID = 8500
+stateno = 8500
+pos = 0,0
+postype = p1
+facing = 1
+keyctrl = 0
+ownpal = 1
+ignorehitpause = 1
+
+[State 8800, 3]
+type = Helper
+trigger1 = !NumHelper(8550)
+helpertype = normal
+name = "kenoh-aura2"
+ID = 8550
+stateno = 8550
+pos = 0,0
+postype = p1
+facing = 1
+keyctrl = 0
+ownpal = 1
+ignorehitpause = 1
+
+[State 8800, 5]
+type = PosAdd
+trigger1 = Animelemtime(4) >= 0
+trigger1 = Animelemtime(5) < 0
+x = ifelse(Gametime%2=0,1,-1)
+
+[State 8800, 6]
+type = LifeAdd
+trigger1 = Animelemtime(4) >= 0
+trigger1 = Animelemtime(5) < 0
+value = ceil(LifeMax/500)
+
+[State 8800, 6]
+type = PowerAdd
+trigger1 = Animelemtime(4) >= 0
+trigger1 = Animelemtime(5) < 0
+value = ceil(PowerMax/600)
+
+[State 8800, 6]
+type = PlaySnd
+trigger1 = Animelemtime(4) >= 0
+trigger1 = Animelemtime(5) < 0
+trigger1 = timemod = 60,0
+value = S4,0
+channel = 3
+
+[State 8800, 8]
+type = Helper
+trigger1 = Animelem = 6
+helpertype = normal
+name = "Effect"
+ID = 8600
+stateno = 8600
+pos = 0,0
+postype = p1
+facing = 1
+keyctrl = 0
+ownpal = 1
+size.xscale = .5
+size.yscale = .5
+ignorehitpause = 1
+
+[State 8800, 8]
+type = Helper
+trigger1 = Animelem = 6
+helpertype = normal
+name = "Effect"
+ID = 8600
+stateno = 8600
+pos = 0,0
+postype = p1
+facing = -1
+keyctrl = 0
+ownpal = 1
+size.xscale = .5
+size.yscale = .5
+ignorehitpause = 1
+
+;★★★★★[ここから補正関係]★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+[State -2];ブースト
+type = varset
+trigger1 = animtime = 0
+v = 16
+value = 300
+
+[State -2];無想転生
+type = varset
+trigger1 = animtime = 0
+v = 58
+value = 1
+
+[State -2];ガードゲージ
+type = varset
+trigger1 = animtime = 0
+v = 4
+value = 120
+
+[State -2];ﾃｰﾚｯﾃｰ
+type = varset
+trigger1 = animtime = 0
+v = 20
+value = 0
+
+[State -2];bgm+α
+type = varset
+trigger1 = animtime = 0
+v = 42
+value = 1
+
+[State -2];二度目防止
+type = VarSet
+trigger1 = 1
+v = 51
+value = 1
+
+;★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+[State 8800, 9]
+type = ChangeState
+trigger1 = Animtime = 0
+value = 0
+ctrl = 1
